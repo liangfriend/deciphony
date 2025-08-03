@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="500">
+    <style>
+
+    </style>
+    <g>
+        <circle cx="60" cy="180" r="30" fill="black"/>
+        <circle cx="60" cy="320" r="30" fill="black"/>
+        <line x1="150" x2="150" y1="0" y2="500" stroke-width="50" class="line" stroke="black"/>
+        <line x1="250" x2="250" y1="0" y2="500" stroke-width="100" class="line" stroke="black"/>
+
+    </g>
+</svg>

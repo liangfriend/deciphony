@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200">
+    <!-- 音符尾 -->
+    <path d="
+    M 10 200
+    L 0 160
+    L 100 80
+    L 100 100
+    M 0 120
+    L 0 80
+    L 100 0
+    L 100 20
+    Z
+  " fill="black"/>
+</svg>

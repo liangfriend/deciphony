@@ -115,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measure from './src/components/measure.vue';
+import measure from './components/measure.vue';
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -123,28 +123,26 @@ import type {
   MsType,
   MultipleStaves,
   MusicScore,
-  MusicScoreRef,
-  ReserveMsSymbolMapType,
   SingleStaff,
   SpanSymbol
-} from "@deciphony/deciphony-core/types.d.ts";
-import MeasureContainer from "@/applications/ChuangKeApplication/components/musicScore/components/measureContainer.vue";
+} from "deciphony-core/types";
+import MeasureContainer from "components/measureContainer.vue";
 
 import MsSymbolContainer
-  from "@/applications/ChuangKeApplication/components/musicScore/components/msSymbolContainer.vue";
+  from "components/msSymbolContainer.vue";
 
-import SpanSymbolVue from "@/applications/ChuangKeApplication/components/musicScore/components/spanSymbol.vue";
+import SpanSymbolVue from "components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
-} from "@/applications/ChuangKeApplication/components/musicScore/utils/musicScoreDataUtil.ts";
+} from "deciphony-core/utils/musicScoreDataUtil";
 import {
   ChronaxieEnum,
   MsMode,
   MsSymbolContainerTypeEnum,
   MsSymbolTypeEnum,
   ReserveMsSymbolType,
-} from "@/applications/ChuangKeApplication/components/musicScore/musicScoreEnum.ts";
+} from "deciphony-core/musicScoreEnum";
 import {
   eventConstant,
   handleMouseMoveSelected,
@@ -155,10 +153,11 @@ import {
   singleStaffMouseDown,
   spanSymbolMouseDown,
   spanSymbolMouseUp
-} from "@/applications/ChuangKeApplication/components/musicScore/utils/eventUtil.ts";
+} from "./utils/eventUtil";
 import VirtualSymbolContainer
-  from "@/applications/ChuangKeApplication/components/musicScore/components/virtualSymbolContainer.vue";
-import {msSymbolTemplate} from "@/applications/ChuangKeApplication/components/musicScore/utils/objectTemplateUtil.ts";
+  from "components/virtualSymbolContainer.vue";
+import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
+import {ReserveMsSymbolMapType} from "./types";
 
 
 const props = defineProps({
@@ -307,7 +306,7 @@ function beforeMount() {
   initReserveMsSymbolMap()
   // 遍历生成hashMap方便快速查找
   mapGenerate(props.musicScore)
-  window.musicScore = props.musicScore
+  // window.musicScore = props.musicScore
 }
 
 

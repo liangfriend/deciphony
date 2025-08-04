@@ -1,9 +1,9 @@
 {
   "name": "deciphony-core",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "",
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {

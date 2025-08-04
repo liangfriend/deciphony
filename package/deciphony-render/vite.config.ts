@@ -10,12 +10,23 @@ export default defineConfig({
         open: true, // 可选，启动后自动打开浏览器
     },
     resolve: {
-        alias: {
-            '@': path.resolve(__dirname, 'src')
-        }
+
     },
     assetsInclude: ['**/*.gltf'], //确保vite能正确处理.gltf文件
     build: {
-        assetsInlineLimit: 0 // 确保资源不会被内联
+        lib: {
+            entry: path.resolve(__dirname, 'index.ts'),
+            name: 'DeciphonyRender',
+            fileName: () => 'musicScore.js',
+            formats: ['es', 'cjs']
+        },
+        rollupOptions: {
+            external: ['vue'],
+            output: {
+                globals: {
+                    vue: 'Vue'
+                }
+            }
+        }
     }
 });

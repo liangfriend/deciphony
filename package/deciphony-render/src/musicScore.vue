@@ -115,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measure from './src/components/measure.vue';
+import measure from './components/measure.vue';
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -125,7 +125,7 @@ import type {
   MusicScore,
   SingleStaff,
   SpanSymbol
-} from "deciphony-core/constant";
+} from "deciphony-core/dist/constant";
 import MeasureContainer from "src/components/measureContainer.vue";
 
 import MsSymbolContainer
@@ -153,11 +153,11 @@ import {
   singleStaffMouseDown,
   spanSymbolMouseDown,
   spanSymbolMouseUp
-} from "./src/utils/eventUtil";
+} from "./utils/eventUtil";
 import VirtualSymbolContainer
   from "src/components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
-import {ReserveMsSymbolMapType} from "./types";
+import {ReserveMsSymbolMapType} from "../types";
 
 
 const props = defineProps({

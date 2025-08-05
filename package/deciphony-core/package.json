@@ -6,15 +6,19 @@
   "main": "",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+
   "scripts": {
     "build": "tsc",
-    "dev": "node index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node index.ts"
   },
   "exports": {
-    ".": {
-      "import": "./dist/*",
-      "types": "./dist/*"
+    "./*": "./dist/*",
+    "./utils/*": "./dist/utils/*"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["dist/*.d.ts"],
+      "./utils": ["dist/utils/*.d.ts"]
     }
   },
   "dependencies": {

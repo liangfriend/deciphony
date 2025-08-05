@@ -125,7 +125,7 @@ import type {
   MusicScore,
   SingleStaff,
   SpanSymbol
-} from "deciphony-core/dist/constant";
+} from "deciphony-core/constant";
 import MeasureContainer from "src/components/measureContainer.vue";
 
 import MsSymbolContainer

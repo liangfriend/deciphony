@@ -6,13 +6,13 @@ import {
   type MsSymbolContainer,
   type MusicScore,
   NoteHead, type SingleStaff
-} from "deciphony-core/dist/types";
+} from "deciphony-core/types";
 import {
   AccidentalEnum,
   BarLineTypeEnum,
   ChronaxieEnum,
   MsSymbolTypeEnum, MusicScoreRegionEnum
-} from "deciphony-core/dist/musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 // 音符头
 import noteHeadWholeSvg from "../musicSymbols/noteHeadWhole.svg"
 import noteHeadHalfSvg from "../musicSymbols/noteHeadHalf.svg"
@@ -46,20 +46,20 @@ import TimeSignature from "../musicSymbols/timeSignature.vue";
 import {
   getDataWithIndex,
   getMsSymbolAspectRatio
-} from "deciphony-core/dist/utils/musicScoreDataUtil";
-import {getMsSymbolHeight} from "deciphony-core/dist/utils/heightUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
+import {getMsSymbolHeight} from "deciphony-core/utils/heightUtil";
 import {
   getMsSymbolBottomToSlot,
   getSlotBottomToMeasure
-} from "deciphony-core/dist/utils/bottomUtil";
+} from "deciphony-core/utils/bottomUtil";
 import {
   getMeasureLeftToMusicScore,
   getMsSymbolLeftToSlot, getSlotLeftToMeasure
-} from "deciphony-core/dist/utils/leftUtil";
+} from "deciphony-core/utils/leftUtil";
 import {
   getMsSymbolSlotWidth,
   getMsSymbolWidth, getNoteTailWidth
-} from "deciphony-core/dist/utils/widthUtil";
+} from "deciphony-core/utils/widthUtil";
 import NoteTail from "./noteTail.vue";
 
 const props = defineProps({

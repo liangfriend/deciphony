@@ -5,8 +5,7 @@
 </template>
 <script setup lang="ts">
 import {computed, CSSProperties, PropType} from "vue";
-import {SpanSymbol, Volta} from "@/applications/ChuangKeApplication/components/musicScore/types";
-import {SpanSymbolTypeEnum} from "@/applications/ChuangKeApplication/components/musicScore/musicScoreEnum.ts";
+import {SpanSymbol, Volta} from "deciphony-core/types";
 
 const props = defineProps({
   volta: {

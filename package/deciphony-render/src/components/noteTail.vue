@@ -4,7 +4,7 @@ import {
   getBeamGroup,
   getDataWithIndex,
   getMsSymbolAspectRatio
-} from "deciphony-core/dist/utils/musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 import {
   BeamGroup,
   type Measure,
@@ -14,25 +14,25 @@ import {
   NoteHead,
   NoteTail,
   type SingleStaff
-} from "deciphony-core/dist/types";
+} from "deciphony-core/types";
 import {
   ChronaxieEnum,
   MsSymbolTypeEnum,
   MusicScoreRegionEnum
-} from "deciphony-core/dist/musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 import noteTailOneUpSvg from "deciphony-core/musicSymbols/noteTailOneUp.svg";
 import noteTailTwoUpSvg from "deciphony-core/musicSymbols/noteTailTwoUp.svg";
 import noteTailOneDownSvg
   from "deciphony-core/musicSymbols/noteTailOneDown.svg";
 import noteTailTwoDownSvg
   from "deciphony-core/musicSymbols/noteTailTwoDown.svg";
-import {getMsSymbolHeight} from "deciphony-core/dist/utils/heightUtil";
+import {getMsSymbolHeight} from "deciphony-core/utils/heightUtil";
 import {
   getMsSymbolWidth,
   getNoteTailWidth
-} from "deciphony-core/dist/utils/widthUtil";
-import {getMsSymbolLeftToSlot} from "deciphony-core/dist/utils/leftUtil";
-import {getMsSymbolBottomToSlot} from "deciphony-core/dist/utils/bottomUtil";
+} from "deciphony-core/utils/widthUtil";
+import {getMsSymbolLeftToSlot} from "deciphony-core/utils/leftUtil";
+import {getMsSymbolBottomToSlot} from "deciphony-core/utils/bottomUtil";
 
 const props = defineProps({
   noteTail: {

@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import {computed, PropType} from "vue";
-import type {Slur} from "@/applications/ChuangKeApplication/components/musicScore/types";
+import type {Slur} from "deciphony-core/types";
 
 const props = defineProps({
   slur: {

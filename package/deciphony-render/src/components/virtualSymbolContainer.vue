@@ -16,21 +16,21 @@ import type {
   MsSymbolContainer,
   MultipleStaves, MusicScore,
   SingleStaff, VirtualSymbolContainerType,
-} from "deciphony-core/dist/types";
+} from "deciphony-core/types";
 import {computed, CSSProperties, inject, onMounted, PropType, ref} from "vue";
 
 import {
   getMsSymbolContainerWidth,
   getWidthFixedContainerWidthSumInMeasure
-} from "deciphony-core/dist/utils/widthUtil";
+} from "deciphony-core/utils/widthUtil";
 import {
   getWidthConstantInMeasure, getWidthConstantInMsSymbolContainer
-} from "deciphony-core/dist/utils/widthConstantUtil";
+} from "deciphony-core/utils/widthConstantUtil";
 import noteHeadWholeSvg from "../musicSymbols/noteHeadWhole.svg"
 import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
-} from "deciphony-core/dist/utils/bottomUtil";
-import {MusicScoreRegionEnum} from "deciphony-core/dist/musicScoreEnum";
+} from "deciphony-core/utils/bottomUtil";
+import {MusicScoreRegionEnum} from "deciphony-core/musicScoreEnum";
 import {MsState} from "../../types";
 import {virtualSymbolMouseDown} from "../utils/eventUtil";
 

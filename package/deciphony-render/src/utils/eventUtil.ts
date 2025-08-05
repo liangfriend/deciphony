@@ -5,7 +5,7 @@ import {
     MsTypeNameEnum,
     MusicScoreRegionEnum,
     ReserveMsSymbolType
-} from "deciphony-core/dist/musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 import {
     Measure,
     MsSymbol,
@@ -18,26 +18,26 @@ import {
     SingleStaff,
     SpanSymbol,
     VirtualSymbolContainerType
-} from "deciphony-core/dist/types";
+} from "deciphony-core/types";
 
 import {Ref} from 'vue';
 import {
     msSymbolContainerTemplate,
     msSymbolTemplate
-} from "deciphony-core/dist/utils/objectTemplateUtil";
+} from "deciphony-core/utils/objectTemplateUtil";
 import {
     getBeamGroup,
     getDataWithIndex,
     getSingleStaffRelatedSpanSymbolList,
     updateSpanSymbolView
-} from "deciphony-core/dist/utils/musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 import {
     addMsSymbol,
     addMsSymbolContainer,
     changeNoteBarDirection,
     changeNoteTailDirection,
     updateBeamGroupNote
-} from "deciphony-core/dist/utils/changeStructureUtil";
+} from "deciphony-core/utils/changeStructureUtil";
 import {MsState} from "../../types";
 
 

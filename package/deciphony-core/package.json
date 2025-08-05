@@ -7,7 +7,6 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/index.js",
     "./constant": "./dist/constant.js",
     "./types": "./dist/types.js",
     "./musicScoreEnum": "./dist/musicScoreEnum.js",

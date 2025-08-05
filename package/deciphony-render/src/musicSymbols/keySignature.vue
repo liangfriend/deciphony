@@ -6,15 +6,15 @@ import {
   KeySignatureMsSymbol,
   MsSymbol,
   type MusicScore
-} from "@/applications/ChuangKeApplication/components/musicScore/types";
+} from "deciphony-core/types";
 import {
   ClefEnum,
   KeySignatureEnum,
   MsSymbolTypeEnum
-} from "@/applications/ChuangKeApplication/components/musicScore/musicScoreEnum.ts";
+} from "deciphony-core/musicScoreEnum";
 import sharpSvg from './sharp.svg';
 import flatSvg from './flat.svg';
-import {getMsSymbolClef} from "@/applications/ChuangKeApplication/components/musicScore/utils/musicScoreDataUtil.ts";
+import {getMsSymbolClef} from "deciphony-core/utils/musicScoreDataUtil";
 
 const props = defineProps({
   keySignature: {

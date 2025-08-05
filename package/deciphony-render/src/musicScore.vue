@@ -142,7 +142,7 @@ import {
   MsSymbolContainerTypeEnum,
   MsSymbolTypeEnum,
   ReserveMsSymbolType,
-} from "deciphony-core/utils/bottomUtil";
+} from "deciphony-core/musicScoreEnum";
 import {
   eventConstant,
   handleMouseMoveSelected,

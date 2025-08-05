@@ -5,28 +5,28 @@ import type {
   MusicScore,
   Slur,
   SpanSymbol, Volta
-} from "deciphony-core/dist/types";
+} from "deciphony-core/types";
 import {
   MsTypeNameEnum,
   SpanSymbolTypeEnum
-} from "deciphony-core/dist/musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 import {
   getDataWithIndex,
   getTarget,
   traverseMeasure
-} from "deciphony-core/dist/utils/musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 import {
   getContainerLeftToMeasure,
   getMeasureLeftToMusicScore, getSlotLeftToMeasure
-} from "deciphony-core/dist/utils/leftUtil";
+} from "deciphony-core/utils/leftUtil";
 import {
   getMeasureWidth,
   getMsSymbolSlotWidth
-} from "deciphony-core/dist/utils/widthUtil";
+} from "deciphony-core/utils/widthUtil";
 import {
   getMaxMsSymbolBottomInMeasure,
   getMeasureBottomToMusicScore
-} from "deciphony-core/dist/utils/bottomUtil";
+} from "deciphony-core/utils/bottomUtil";
 import RectDragShell from "./rectDragShell.vue";
 import voltaVue from '../musicSymbols/volta.vue'
 import slurVue from '../musicSymbols/slur.vue'

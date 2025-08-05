@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MusicScoreVue from "deciphony-render";
+import MusicScoreVue from "deciphony-render/src";
 import test from "./musicScoreData/test.ts"
 import {ref} from "vue";
 

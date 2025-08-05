@@ -1,4 +1,4 @@
-import {MsMode, OrderTypeEnum, ReserveMsSymbolType} from "../deciphony-core/musicScoreEnum";
+import {MsMode, OrderTypeEnum, ReserveMsSymbolType} from "deciphony-core/musicScoreEnum";
 import {MsType} from "deciphony-core/types";
 import {Ref} from "vue";
 

@@ -31,7 +31,7 @@ import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
 } from "deciphony-core/utils/bottomUtil";
 import {MusicScoreRegionEnum} from "deciphony-core/musicScoreEnum";
-import {MsState} from "../../types";
+import {MsState} from "../types";
 import {virtualSymbolMouseDown} from "../utils/eventUtil";
 
 const props = defineProps({

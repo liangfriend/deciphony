@@ -38,7 +38,7 @@ import {
     changeNoteTailDirection,
     updateBeamGroupNote
 } from "deciphony-core/utils/changeStructureUtil";
-import {MsState} from "../../types";
+import {MsState} from "../types";
 
 
 // 添加发布者

@@ -29,7 +29,7 @@ import {
 import RectDragShell from "./rectDragShell.vue";
 import voltaVue from '../musicSymbols/volta.vue'
 import slurVue from '../musicSymbols/slur.vue'
-import {MsState} from "../../types";
+import {MsState} from "../types";
 
 const props = defineProps({
   spanSymbol: {

@@ -157,7 +157,7 @@ import {
 import VirtualSymbolContainer
   from "@/components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
-import {MusicScoreRef, ReserveMsSymbolMapType} from "../types";
+import {MusicScoreRef, ReserveMsSymbolMapType} from "./types";
 
 
 const props = defineProps({

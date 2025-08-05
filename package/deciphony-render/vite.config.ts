@@ -19,7 +19,7 @@ export default defineConfig({
         lib: {
             entry: path.resolve(__dirname, './src/index.ts'),
             name: 'DeciphonyRender',
-            fileName: () => 'musicScore.js',
+            fileName: () => 'index.js',
             formats: ['es', 'cjs']
         },
         rollupOptions: {

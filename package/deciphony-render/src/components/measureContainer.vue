@@ -33,10 +33,10 @@
 <script setup lang="ts">
 import type {CSSProperties, PropType} from 'vue';
 import {computed} from "vue";
-import type {Measure, MsSymbol, MultipleStaves, MusicScore, SingleStaff, WidthConstant} from "deciphony-core/dist/types";
+import type {Measure, MsSymbol, MultipleStaves, MusicScore, SingleStaff, WidthConstant} from "deciphony-core/types";
 import {
   getMeasureWidth,
-} from "deciphony-core/dist/utils/widthUtil";
+} from "deciphony-core/utils/widthUtil";
 
 
 const props = defineProps({

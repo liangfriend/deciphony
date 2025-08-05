@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "Bundler",
     "allowImportingTsExtensions": false,   // 不允许使用ts扩展名
     "resolveJsonModule": true,
     "isolatedModules": false,
@@ -14,6 +14,11 @@
     "rootDir": ".",            // 必须，告诉 TypeScript 从哪里找入口文件
     "strict": true,
     "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "allowSyntheticDefaultImports": true,

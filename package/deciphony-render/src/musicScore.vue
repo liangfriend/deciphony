@@ -126,12 +126,12 @@ import type {
   SingleStaff,
   SpanSymbol
 } from "deciphony-core/types";
-import MeasureContainer from "src/components/measureContainer.vue";
+import MeasureContainer from "@/components/measureContainer.vue";
 
 import MsSymbolContainer
-  from "src/components/msSymbolContainer.vue";
+  from "@/components/measureContainer.vue";
 
-import SpanSymbolVue from "src/components/spanSymbol.vue";
+import SpanSymbolVue from "./components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
@@ -153,11 +153,11 @@ import {
   singleStaffMouseDown,
   spanSymbolMouseDown,
   spanSymbolMouseUp
-} from "./utils/eventUtil";
+} from "@/utils/eventUtil";
 import VirtualSymbolContainer
-  from "src/components/virtualSymbolContainer.vue";
+  from "@/components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
-import {ReserveMsSymbolMapType} from "../types";
+import {MusicScoreRef, ReserveMsSymbolMapType} from "../types";
 
 
 const props = defineProps({

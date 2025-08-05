@@ -3,8 +3,8 @@
 
 <script setup lang="ts">
 import {computed, CSSProperties, PropType} from "vue";
-import {MsSymbol, TimeSignatureMsSymbol} from "@/applications/ChuangKeApplication/components/musicScore/types";
-import {MsSymbolTypeEnum} from "@/applications/ChuangKeApplication/components/musicScore/musicScoreEnum.ts";
+import {MsSymbol, TimeSignatureMsSymbol} from "deciphony-core/types";
+import {MsSymbolTypeEnum} from "deciphony-core/musicScoreEnum";
 
 const props = defineProps({
   timeSignature: {

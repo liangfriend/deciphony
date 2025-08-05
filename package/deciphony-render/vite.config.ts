@@ -10,7 +10,9 @@ export default defineConfig({
         open: true, // 可选，启动后自动打开浏览器
     },
     resolve: {
-
+        alias: {
+            '@': path.resolve(__dirname, './src')
+        }
     },
     assetsInclude: ['**/*.gltf'], //确保vite能正确处理.gltf文件
     build: {

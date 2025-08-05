@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {inject, onBeforeMount, onMounted, PropType} from "vue";
 import type {
-  MsState,
   MusicScore,
   Slur,
   SpanSymbol, Volta
@@ -30,6 +29,7 @@ import {
 import RectDragShell from "./rectDragShell.vue";
 import voltaVue from '../musicSymbols/volta.vue'
 import slurVue from '../musicSymbols/slur.vue'
+import {MsState} from "../../types";
 
 const props = defineProps({
   spanSymbol: {

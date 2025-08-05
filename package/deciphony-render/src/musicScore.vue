@@ -125,7 +125,7 @@ import type {
   MusicScore,
   SingleStaff,
   SpanSymbol
-} from "deciphony-core/constant";
+} from "deciphony-core/types";
 import MeasureContainer from "src/components/measureContainer.vue";
 
 import MsSymbolContainer
@@ -142,7 +142,7 @@ import {
   MsSymbolContainerTypeEnum,
   MsSymbolTypeEnum,
   ReserveMsSymbolType,
-} from "deciphony-core/musicScoreEnum";
+} from "deciphony-core/utils/bottomUtil";
 import {
   eventConstant,
   handleMouseMoveSelected,

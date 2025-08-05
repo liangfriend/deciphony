@@ -1,13 +1,16 @@
 {
   "name": "deciphony-core",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
+    ".": "./dist/index.js",
     "./constant": "./dist/constant.js",
+    "./types": "./dist/types.js",
     "./musicScoreEnum": "./dist/musicScoreEnum.js",
-    "./type": "./dist/type.js",
     "./utils/*": "./dist/utils/*.js"
   },
   "typesVersions": {
@@ -18,23 +21,20 @@
       "./musicScoreEnum": [
         "dist/musicScoreEnum.d.ts"
       ],
-      "./types":[
+      "./types": [
         "dist/types.d.ts"
       ],
-      "./utils": [
+      "./utils/*": [
         "dist/utils/*.d.ts"
       ]
     }
   },
-  "scripts": {
-    "build": "tsc",
-    "dev": "node index.ts"
-  },
-
-  "dependencies": {
-  },
+  "dependencies": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.14.0"
+  "scripts": {
+    "build": "tsc",
+    "dev": "node index.ts"
+  }
 }

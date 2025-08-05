@@ -12,7 +12,8 @@
     "vue": "^3.5.17"
   },
   "devDependencies": {
-    "deciphony-render": "0.0.1",
+    "deciphony-render": "latest",
+    "deciphony-core": "latest",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "^5.0.2",

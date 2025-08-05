@@ -10,7 +10,7 @@ import barLine from '../musicSymbols/bar.svg';
 import {
   Measure,
 
-} from "deciphony-core/types";
+} from "deciphony-core/dist/types";
 
 const props = defineProps({
   measure: {

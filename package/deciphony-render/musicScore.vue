@@ -115,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measure from './components/measure.vue';
+import measure from './src/components/measure.vue';
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -126,12 +126,12 @@ import type {
   SingleStaff,
   SpanSymbol
 } from "deciphony-core/types";
-import MeasureContainer from "components/measureContainer.vue";
+import MeasureContainer from "src/components/measureContainer.vue";
 
 import MsSymbolContainer
-  from "components/msSymbolContainer.vue";
+  from "src/components/msSymbolContainer.vue";
 
-import SpanSymbolVue from "components/spanSymbol.vue";
+import SpanSymbolVue from "src/components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
@@ -153,9 +153,9 @@ import {
   singleStaffMouseDown,
   spanSymbolMouseDown,
   spanSymbolMouseUp
-} from "./utils/eventUtil";
+} from "./src/utils/eventUtil";
 import VirtualSymbolContainer
-  from "components/virtualSymbolContainer.vue";
+  from "src/components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
 import {ReserveMsSymbolMapType} from "./types";
 

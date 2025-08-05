@@ -15,7 +15,7 @@ export default defineConfig({
     assetsInclude: ['**/*.gltf'], //确保vite能正确处理.gltf文件
     build: {
         lib: {
-            entry: path.resolve(__dirname, 'index.ts'),
+            entry: path.resolve(__dirname, './src/index.ts'),
             name: 'DeciphonyRender',
             fileName: () => 'musicScore.js',
             formats: ['es', 'cjs']

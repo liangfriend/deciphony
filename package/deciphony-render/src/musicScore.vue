@@ -6,7 +6,7 @@
                        :style="{width:width+'px',height:height+'px'}"
                        @multipleStavesMouseDown="handleMultipleStavesMouseDown"
                        @single-staff-mouse-down="handleSingleStaffMouseDown"
-                       comment="谱线层">
+                       comment="谱线层1">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
         <measureVue
             :key="'measure'+measureIndex"
@@ -33,7 +33,7 @@
                      :spanSymbol="spanSymbol"></span-symbol-vue>
     <measure-container :musicScore="musicScore" class="stackItem symbolLayer"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
-                       comment="符号层">
+                       comment="符号层2">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
         <ms-symbol-container v-for="(msSymbolContainer,symbolIndex) in measure.msSymbolContainerArray"
                              :msSymbolContainer="msSymbolContainer"

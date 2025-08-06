@@ -2,7 +2,7 @@
   <div class="musicScore stack" :style="musicScoreStyle" ref="musicScoreRef" @mousedown.stop="handleMouseDown"
        @mousemove.stop="handleMouseMove" @mouseup.stop="handleMouseUp">
 
-    <measure-container :disabled="false" :musicScoreData="musicScore" class="stackItem lineLayer"
+    <measure-container :disabled="false" :musicScore="musicScore" class="stackItem lineLayer"
                        :style="{width:width+'px',height:height+'px'}"
                        @multipleStavesMouseDown="handleMultipleStavesMouseDown"
                        @single-staff-mouse-down="handleSingleStaffMouseDown"
@@ -31,7 +31,7 @@
                      @span-symbol-mouse-down="handleSpanSymbolMouseDown"
                      @spanSymbolMouseUp="handleSpanSymbolMouseUp"
                      :spanSymbol="spanSymbol"></span-symbol-vue>
-    <measure-container :musicScoreData="musicScore" class="stackItem symbolLayer"
+    <measure-container :musicScore="musicScore" class="stackItem symbolLayer"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="符号层">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
@@ -56,7 +56,7 @@
       </template>
     </measure-container>
 
-    <measure-container v-show="mode === MsMode.edit" :musicScoreData="musicScore"
+    <measure-container v-show="mode === MsMode.edit" :musicScore="musicScore"
                        class="stackItem symbolLayer"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="编辑模式虚拟音符层">

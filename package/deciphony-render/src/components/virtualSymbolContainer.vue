@@ -201,7 +201,7 @@ const vitrualSymbolStyle = computed<CSSProperties>(() => {
     background: 'blue',
   }
   if (svgHref.value) {
-    style.mask = `url(${svgHref.value}) center center / cover no-repeat`
+    style.mask = `url("${svgHref.value}") center center / cover no-repeat`
   }
 
   return style

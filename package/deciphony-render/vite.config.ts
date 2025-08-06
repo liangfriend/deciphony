@@ -32,6 +32,7 @@ export default defineConfig({
     },
     assetsInclude: ['./src/assets/*','./src/assets/**/*',],
     build: {
+        assetsInlineLimit: 0,
         lib: {
             entry: path.resolve(__dirname, './src/index.ts'),
             name: 'DeciphonyRender',

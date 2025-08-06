@@ -14,32 +14,32 @@ import {
   MsSymbolTypeEnum, MusicScoreRegionEnum
 } from "deciphony-core/musicScoreEnum";
 // 音符头
-import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
-import noteHeadHalfSvg from "@/assets/msSymbols/noteHeadHalf.svg"
-import noteHeadQuarterSvg from "@/assets/msSymbols/noteHeadQuarter.svg"
+import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg?url"
+import noteHeadHalfSvg from "@/assets/msSymbols/noteHeadHalf.svg?url"
+import noteHeadQuarterSvg from "@/assets/msSymbols/noteHeadQuarter.svg?url"
 // 休止符
-import restWholeSvg from "@/assets/msSymbols/restWhole.svg"
-import restHalfSvg from "@/assets/msSymbols/restHalf.svg"
-import restQuarterSvg from "@/assets/msSymbols/restQuarter.svg"
-import restEighthSvg from "@/assets/msSymbols/restEighth.svg"
-import restSixteenthSvg from "@/assets/msSymbols/restSixteenth.svg"
-import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg"
-import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg"
+import restWholeSvg from "@/assets/msSymbols/restWhole.svg?url"
+import restHalfSvg from "@/assets/msSymbols/restHalf.svg?url"
+import restQuarterSvg from "@/assets/msSymbols/restQuarter.svg?url"
+import restEighthSvg from "@/assets/msSymbols/restEighth.svg?url"
+import restSixteenthSvg from "@/assets/msSymbols/restSixteenth.svg?url"
+import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg?url"
+import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg?url"
 // 符杠
-import noteBarSvg from '@/assets/msSymbols/noteBar.svg'
+import noteBarSvg from '@/assets/msSymbols/noteBar.svg?url'
 
 // 变音符号
-import sharpSvg from '@/assets/msSymbols/sharp.svg'
-import doubleSharpSvg from '@/assets/msSymbols/sharp.svg'
-import flatSvg from '@/assets/msSymbols/flat.svg'
-import doubleFlatpSvg from '@/assets/msSymbols/flat.svg'
-import natureSvg from '@/assets/msSymbols/nature.svg'
+import sharpSvg from '@/assets/msSymbols/sharp.svg?url'
+import doubleSharpSvg from '@/assets/msSymbols/sharp.svg?url'
+import flatSvg from '@/assets/msSymbols/flat.svg?url'
+import doubleFlatpSvg from '@/assets/msSymbols/flat.svg?url'
+import natureSvg from '@/assets/msSymbols/nature.svg?url'
 // 小节线
-import barLineSingleSvg from '@/assets/msSymbols/barlineSingle.svg'
-import barLineFinalSvg from '@/assets/msSymbols/barlineFinal.svg'
-import barLineReverseFinalSvg from '@/assets/msSymbols/barlineReverseFinal.svg'
-import barLineStartRepeatSignSvg from '@/assets/msSymbols/barlineStartRepeatSign.svg'
-import barLineEndRepeatSignSvg from '@/assets/msSymbols/barlineEndRepeatSign.svg'
+import barLineSingleSvg from '@/assets/msSymbols/barlineSingle.svg?url'
+import barLineFinalSvg from '@/assets/msSymbols/barlineFinal.svg?url'
+import barLineReverseFinalSvg from '@/assets/msSymbols/barlineReverseFinal.svg?url'
+import barLineStartRepeatSignSvg from '@/assets/msSymbols/barlineStartRepeatSign.svg?url'
+import barLineEndRepeatSignSvg from '@/assets/msSymbols/barlineEndRepeatSign.svg?url'
 import Clef from "./clef.vue";
 import KeySignature from "./keySignature.vue";
 import TimeSignature from "./timeSignature.vue";
@@ -313,7 +313,8 @@ const msSymbolStyle = computed<CSSProperties>(() => {
   }
 
   if (svgHref.value) {
-    style.mask = `url(${svgHref.value}) center center / cover no-repeat`
+    console.log('chicken',svgHref.value)
+    style.mask = `url("${svgHref.value}") center center / cover no-repeat`
   }
   // TODO 测试代码
   // if (props.msSymbol.type === MsSymbolTypeEnum.noteTail) {

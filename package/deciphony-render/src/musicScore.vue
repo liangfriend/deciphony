@@ -115,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measureVue from './components/measure.vue';
+import measureVue from "./components/measure.vue";
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -131,7 +131,7 @@ import MeasureContainer from "@/components/measureContainer.vue";
 import MsSymbolContainer
   from "@/components/msSymbolContainer.vue";
 
-import SpanSymbolVue from "./components/spanSymbol.vue";
+import SpanSymbolVue from "@/components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex

@@ -133,7 +133,7 @@ const msSymbolStyle = computed<CSSProperties>(() => {
   }
 
   if (mask.value && beamGroup.value.length < 2) {
-    style.mask = `url(${mask.value}) center center / cover no-repeat`
+    style.mask = `url("${mask.value}") center center / cover no-repeat`
   } else {
     style.background = 'transparent'
   }

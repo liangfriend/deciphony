@@ -26,7 +26,7 @@ const mask = computed(() => {
     svgUrl = bassClefSvg
   }
   return {
-    mask: `url(${svgUrl}) center center / 100% 100% no-repeat`
+    mask: `url("${svgUrl}") center center / 100% 100% no-repeat`
   }
 })
 </script>

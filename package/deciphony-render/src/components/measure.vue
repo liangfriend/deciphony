@@ -62,7 +62,7 @@ const barLineStyle = computed((): CSSProperties => {
     width: (props.width) + 'px',
     height: props.height + 'px',
     'background-color': 'black',
-    mask: `url(${barLine}) no-repeat center`,
+    mask: `url("${barLine}") no-repeat center`,
     'mask-size': '100% 100%',
     background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',

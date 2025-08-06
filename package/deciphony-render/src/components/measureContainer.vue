@@ -82,11 +82,11 @@ const singleStaffStyle = computed(() => (singleStaff: SingleStaff, _multipleStav
   };
 });
 const measureWidth = computed(() => (measure: Measure, singleStaff: SingleStaff, _multipleStaves: MultipleStaves) => {
-  return getMeasureWidth(measure, singleStaff, props.musicScoreData, props.width)
+  return getMeasureWidth(measure, singleStaff, props.musicScore, props.width)
 });
 const measureSlotStyle = computed(() => (measure: Measure, singleStaff: SingleStaff, multipleStaves: MultipleStaves): CSSProperties => {
   let style: CSSProperties = {};
-  style.height = props.musicScoreData.measureHeight + 'px';
+  style.height = props.musicScore.measureHeight + 'px';
   style.width = measureWidth.value(measure, singleStaff, multipleStaves) + 'px';
   style.pointerEvents = props.disabled ? 'none' : 'auto';
   return style;

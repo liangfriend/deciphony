@@ -27,8 +27,8 @@ import {
   getMeasureBottomToMusicScore
 } from "deciphony-core/utils/bottomUtil";
 import RectDragShell from "./rectDragShell.vue";
-import voltaVue from '../musicSymbols/volta.vue'
-import slurVue from '../musicSymbols/slur.vue'
+import voltaVue from './volta.vue'
+import slurVue from './slur.vue'
 import {MsState} from "../types";
 
 const props = defineProps({

@@ -14,35 +14,35 @@ import {
   MsSymbolTypeEnum, MusicScoreRegionEnum
 } from "deciphony-core/musicScoreEnum";
 // 音符头
-import noteHeadWholeSvg from "../musicSymbols/noteHeadWhole.svg"
-import noteHeadHalfSvg from "../musicSymbols/noteHeadHalf.svg"
-import noteHeadQuarterSvg from "../musicSymbols/noteHeadQuarter.svg"
+import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
+import noteHeadHalfSvg from "@/assets/msSymbols/noteHeadHalf.svg"
+import noteHeadQuarterSvg from "@/assets/msSymbols/noteHeadQuarter.svg"
 // 休止符
-import restWholeSvg from "../musicSymbols/restWhole.svg"
-import restHalfSvg from "../musicSymbols/restHalf.svg"
-import restQuarterSvg from "../musicSymbols/restQuarter.svg"
-import restEighthSvg from "../musicSymbols/restEighth.svg"
-import restSixteenthSvg from "../musicSymbols/restSixteenth.svg"
-import restThirySecondSvg from "../musicSymbols/restWhole.svg"
-import restSixtyFourthSvg from "../musicSymbols/restWhole.svg"
+import restWholeSvg from "@/assets/msSymbols/restWhole.svg"
+import restHalfSvg from "@/assets/msSymbols/restHalf.svg"
+import restQuarterSvg from "@/assets/msSymbols/restQuarter.svg"
+import restEighthSvg from "@/assets/msSymbols/restEighth.svg"
+import restSixteenthSvg from "@/assets/msSymbols/restSixteenth.svg"
+import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg"
+import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg"
 // 符杠
-import noteBarSvg from '../musicSymbols/noteBar.svg'
+import noteBarSvg from '@/assets/msSymbols/noteBar.svg'
 
 // 变音符号
-import sharpSvg from '../musicSymbols/sharp.svg'
-import doubleSharpSvg from '../musicSymbols/sharp.svg'
-import flatSvg from '../musicSymbols/flat.svg'
-import doubleFlatpSvg from '../musicSymbols/flat.svg'
-import natureSvg from '../musicSymbols/nature.svg'
+import sharpSvg from '@/assets/msSymbols/sharp.svg'
+import doubleSharpSvg from '@/assets/msSymbols/sharp.svg'
+import flatSvg from '@/assets/msSymbols/flat.svg'
+import doubleFlatpSvg from '@/assets/msSymbols/flat.svg'
+import natureSvg from '@/assets/msSymbols/nature.svg'
 // 小节线
-import barLineSingleSvg from '../musicSymbols/barlineSingle.svg'
-import barLineFinalSvg from '../musicSymbols/barlineFinal.svg'
-import barLineReverseFinalSvg from '../musicSymbols/barlineReverseFinal.svg'
-import barLineStartRepeatSignSvg from '../musicSymbols/barlineStartRepeatSign.svg'
-import barLineEndRepeatSignSvg from '../musicSymbols/barlineEndRepeatSign.svg'
-import Clef from "../musicSymbols/clef.vue";
-import KeySignature from "../musicSymbols/keySignature.vue";
-import TimeSignature from "../musicSymbols/timeSignature.vue";
+import barLineSingleSvg from '@/assets/msSymbols/barlineSingle.svg'
+import barLineFinalSvg from '@/assets/msSymbols/barlineFinal.svg'
+import barLineReverseFinalSvg from '@/assets/msSymbols/barlineReverseFinal.svg'
+import barLineStartRepeatSignSvg from '@/assets/msSymbols/barlineStartRepeatSign.svg'
+import barLineEndRepeatSignSvg from '@/assets/msSymbols/barlineEndRepeatSign.svg'
+import Clef from "./clef.vue";
+import KeySignature from "./keySignature.vue";
+import TimeSignature from "./timeSignature.vue";
 import {
   getDataWithIndex,
   getMsSymbolAspectRatio

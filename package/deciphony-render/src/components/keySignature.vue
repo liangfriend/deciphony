@@ -12,8 +12,8 @@ import {
   KeySignatureEnum,
   MsSymbolTypeEnum
 } from "deciphony-core/musicScoreEnum";
-import sharpSvg from './sharp.svg';
-import flatSvg from './flat.svg';
+import sharpSvg from '@/assets/msSymbols/sharp.svg';
+import flatSvg from '@/assets/msSymbols/flat.svg';
 import {getMsSymbolClef} from "deciphony-core/utils/musicScoreDataUtil";
 
 const props = defineProps({

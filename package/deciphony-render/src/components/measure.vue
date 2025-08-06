@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import {computed, CSSProperties, inject, PropType, ref} from 'vue';
 
-import barLine from '../musicSymbols/bar.svg';
+import barLine from '@/assets/msSymbols/bar.svg';
 import {
   Measure,
 

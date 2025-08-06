@@ -1,18 +1,19 @@
 {
   "name": "deciphony-render",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "vite build"
   },
   "dependencies": {
-    "deciphony-core": "0.0.6",
     "@vitejs/plugin-vue": "^5.2.4",
+    "deciphony-core": "0.0.6",
     "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
     "vue": "^3.3.4",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
     "vue-tsc": "^3.0.5"
   },
   "keywords": [],

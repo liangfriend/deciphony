@@ -8,8 +8,9 @@
     "isolatedModules": false,
     "noEmit": false,
     "declaration": true,    // 这个被composite强制开启了，所以不写也会是true
-    "emitDeclarationOnly":false,
+    "emitDeclarationOnly":true,
     "composite": true,
+    "declarationDir": "dist",
     "outDir": "dist",            // 必须，输出目录
     "rootDir": ".",            // 必须，告诉 TypeScript 从哪里找入口文件
     "strict": true,
@@ -33,6 +34,6 @@
     "useUnknownInCatchVariables": true
 
   },
-  "include": ["."],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

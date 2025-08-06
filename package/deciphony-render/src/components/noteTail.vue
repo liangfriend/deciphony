@@ -20,12 +20,12 @@ import {
   MsSymbolTypeEnum,
   MusicScoreRegionEnum
 } from "deciphony-core/musicScoreEnum";
-import noteTailOneUpSvg from "deciphony-core/musicSymbols/noteTailOneUp.svg";
-import noteTailTwoUpSvg from "deciphony-core/musicSymbols/noteTailTwoUp.svg";
+import noteTailOneUpSvg from "@/assets/msSymbols/noteTailOneUp.svg";
+import noteTailTwoUpSvg from "@/assets/msSymbols/noteTailTwoUp.svg";
 import noteTailOneDownSvg
-  from "deciphony-core/musicSymbols/noteTailOneDown.svg";
+  from "@/assets/msSymbols/noteTailOneDown.svg";
 import noteTailTwoDownSvg
-  from "deciphony-core/musicSymbols/noteTailTwoDown.svg";
+  from "@/assets/msSymbols/noteTailTwoDown.svg";
 import {getMsSymbolHeight} from "deciphony-core/utils/heightUtil";
 import {
   getMsSymbolWidth,

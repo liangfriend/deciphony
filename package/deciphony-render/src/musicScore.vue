@@ -8,7 +8,7 @@
                        @single-staff-mouse-down="handleSingleStaffMouseDown"
                        comment="谱线层">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
-        <measure
+        <measureVue
             :key="'measure'+measureIndex"
             :strokeWidth="strokeWidth"
             :x="measureIndex * measureWidth"
@@ -19,7 +19,7 @@
             :componentHeight="height"
             :measure="measure"
         >
-        </measure>
+        </measureVue>
       </template>
     </measure-container>
     <!--    跨小节符号目前只有小节跟随型和符号（音符头）跟随型-->
@@ -115,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measure from './components/measure.vue';
+import measureVue from './components/measure.vue';
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,

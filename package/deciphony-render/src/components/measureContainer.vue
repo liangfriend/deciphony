@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-for="(multipleStaves, multipleStavesIndex) in musicScoreData.multipleStavesArray"
+    <div v-for="(multipleStaves, multipleStavesIndex) in musicScore.multipleStavesArray"
          :key="'multipleStaves'+multipleStavesIndex"
          :style="multipleStavesStyle(multipleStaves)"
          @mousedown.self="(e:MouseEvent)=>emits('multipleStavesMouseDown',e,multipleStaves)"
@@ -40,7 +40,7 @@ import {
 
 
 const props = defineProps({
-  musicScoreData: {
+  musicScore: {
     type: Object as PropType<MusicScore>,
     default: {}
   },

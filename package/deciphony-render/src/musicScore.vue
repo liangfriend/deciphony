@@ -129,7 +129,7 @@ import type {
 import MeasureContainer from "@/components/measureContainer.vue";
 
 import MsSymbolContainer
-  from "@/components/measureContainer.vue";
+  from "@/components/msSymbolContainer.vue";
 
 import SpanSymbolVue from "./components/spanSymbol.vue";
 import {

@@ -17,51 +17,50 @@ import {getContainerLeftToMeasure} from "deciphony-core/utils/leftUtil";
 const props = defineProps({
   msSymbolContainer: {
     type: Object as PropType<MsSymbolContainer>,
-    required: true
+    required: true,
   },
   preContainer: {
     type: Object as PropType<MsSymbolContainer | null>,
-    required: true
+    required: true,
   },
   nextContainer: {
     type: Object as PropType<MsSymbolContainer | null>,
-    required: true
+    required: true,
   },
-  //小节高度， 此属性会控制音符，休止符，谱号，拍号等符号大小
   measureHeight: {
     type: Number,
-    default: 60,
-    required: true
+    required: true,
   },
   measure: {
     type: Object as PropType<Measure>,
-    required: true
+    required: true,
   },
   measureWidth: {
     type: Number,
-    default: 200
+    required: true,
   },
   componentWidth: {
     type: Number,
-    default: 1000,
+    required: true,
   },
   componentHeight: {
     type: Number,
-    default: 800,
+    required: true,
   },
   singleStaff: {
     type: Object as PropType<SingleStaff>,
-    required: true
+    required: true,
   },
   multipleStaves: {
     type: Object as PropType<MultipleStaves>,
-    required: true
+    required: true,
   },
   musicScore: {
     type: Object as PropType<MusicScore>,
-    default: {}
+    required: true, // 改为必须传入，移除 default: {}
   },
-})
+});
+
 
 
 const msSymbolContainerStyle = computed<CSSProperties>(() => {

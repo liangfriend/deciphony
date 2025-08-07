@@ -1,14 +1,14 @@
 import {
     MsSymbolTypeEnum,
     MusicScoreRegionEnum
-} from "../musicScoreEnum";
-import {MsSymbol, MusicScore, NoteHead} from "../types";
-import {MsSymbolInformationMap} from "../constant";
-import {getSlotBottomToMeasure} from "./bottomUtil";
+} from "deciphony-core/musicScoreEnum";
+import {MsSymbol, MusicScore, NoteHead} from "deciphony-core/types";
+import {MsSymbolInformationMap} from "deciphony-core/constant";
+import {getSlotBottomToMeasure} from "deciphony-core/utils/bottomUtil";
 import {
     getBeamGroup,
     getDataWithIndex
-} from "./musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 
 export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): number {
     const information = MsSymbolInformationMap[msSymbol?.type]

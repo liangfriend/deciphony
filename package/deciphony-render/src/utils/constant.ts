@@ -3,7 +3,7 @@ import {
     BarLineTypeEnum, ChronaxieEnum,
     KeySignatureEnum, MsSymbolCategoryEnum, MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum
-} from "./musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 
 
 export const KeySignatureTonicSemitones: Record<KeySignatureEnum, number> = {

@@ -2,19 +2,19 @@
 import {
     MsSymbolTypeEnum,
     MusicScoreRegionEnum
-} from "../musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 import {
     Measure,
     MsSymbol,
     MsSymbolContainer, MusicScore, NoteBar, NoteHead,
     SingleStaff
-} from "../types";
+} from "deciphony-core/types";
 import {getMsSymbolHeight} from "./heightUtil";
 import {
     getBeamGroup,
     getDataWithIndex,
     traverseMusicScore
-} from "./musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 
 export function staffRegionToBottom(region: MusicScoreRegionEnum, measureHeight: number): number {
     return measureHeight * ((region - 38) * 2) / 16

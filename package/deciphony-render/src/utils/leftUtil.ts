@@ -6,28 +6,28 @@ import type {
     MsSymbolContainer,
     MusicScore, NoteHead, NoteTail,
     SingleStaff
-} from "../types";
+} from "deciphony-core/types";
 import {
     getBeamGroup,
     getDataWithIndex,
     getMainMsSymbol
-} from "./musicScoreDataUtil";
+} from "deciphony-core/utils/musicScoreDataUtil";
 import {
     getMeasureWidth,
     getMsSymbolContainerWidth,
     getMsSymbolSlotWidth,
     getMsSymbolWidth, getNoteTailWidth,
     getWidthFixedContainerWidthSumInMeasure
-} from "./widthUtil";
+} from "deciphony-core/utils/widthUtil";
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MusicScoreRegionEnum
-} from "../musicScoreEnum";
+} from "deciphony-core/musicScoreEnum";
 import {
     getWidthConstantInMeasure
-} from "./widthConstantUtil";
-import {MsSymbolInformationMap} from "../constant";
+} from "deciphony-core/utils/widthConstantUtil";
+import {MsSymbolInformationMap} from "deciphony-core/constant";
 
 
 export function getMeasureLeftToMusicScore(measure: Measure, musicScore: MusicScore, componentWidth: number): number {

@@ -6,8 +6,8 @@ import {
     NoteHead,
     SingleStaff,
     WidthConstant
-} from "../types";
-import {MsSymbolInformationMap,} from "../constant";
+} from "deciphony-core/types";
+import {MsSymbolInformationMap,} from "deciphony-core/constant";
 
 // 获取当前符号的宽度系数之和
 export function getWidthConstantInMsSymbol(msSymbol: MsSymbol): WidthConstant {

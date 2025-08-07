@@ -124,6 +124,7 @@ import type {
   MultipleStaves,
   MusicScore,
   SingleStaff,
+
   SpanSymbol
 } from "deciphony-core/types";
 import MeasureContainer from "@/components/measureContainer.vue";

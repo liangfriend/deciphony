@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
-    "deciphony-core": "0.0.6",
+    "deciphony-core": "latest",
     "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
     "vue": "^3.3.4",

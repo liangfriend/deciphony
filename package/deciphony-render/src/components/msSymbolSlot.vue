@@ -8,13 +8,12 @@ import type {
 } from "deciphony-core/types";
 import {computed, CSSProperties, onMounted, PropType} from "vue";
 import msSymbolVue from "./msSymbol.vue";
-import {
-  getMsSymbolAspectRatio,
-} from "deciphony-core/utils/musicScoreDataUtil";
-import {getMsSymbolHeight} from "deciphony-core/utils/heightUtil";
-import {getSlotBottomToMeasure} from "deciphony-core/utils/bottomUtil";
-import {getMsSymbolSlotWidth} from "deciphony-core/utils/widthUtil";
-import {getSlotLeftToContainer} from "deciphony-core/utils/leftUtil";
+
+import {getMsSymbolHeight} from "@/utils/heightUtil";
+import {getSlotBottomToMeasure} from "@/utils/bottomUtil";
+import {getMsSymbolSlotWidth} from "@/utils/widthUtil";
+import {getSlotLeftToContainer} from "@/utils/leftUtil";
+import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 
 const props = defineProps({
   msSymbol: {

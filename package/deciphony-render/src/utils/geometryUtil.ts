@@ -3,7 +3,7 @@
 
 import {MsSymbol} from "deciphony-core/types";
 import {MsSymbolTypeEnum} from "deciphony-core/musicScoreEnum";
-import {MsSymbolInformationMap} from "@/utils/constant";
+import {MsSymbolInformationMap} from "@/constant";
 
 export function getMultipleAspectRatio(msSymbol: MsSymbol): number {
     const information = MsSymbolInformationMap[msSymbol.type]

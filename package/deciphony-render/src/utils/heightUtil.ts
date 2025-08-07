@@ -3,8 +3,8 @@ import {
     MusicScoreRegionEnum
 } from "deciphony-core/musicScoreEnum";
 import {MsSymbol, MusicScore, NoteHead} from "deciphony-core/types";
-import {MsSymbolInformationMap} from "deciphony-core/constant";
-import {getSlotBottomToMeasure} from "deciphony-core/utils/bottomUtil";
+import {MsSymbolInformationMap} from "@/constant";
+import {getSlotBottomToMeasure} from "@/utils/bottomUtil";
 import {
     getBeamGroup,
     getDataWithIndex

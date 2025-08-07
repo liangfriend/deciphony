@@ -36,7 +36,7 @@ import {computed} from "vue";
 import type {Measure, MsSymbol, MultipleStaves, MusicScore, SingleStaff, WidthConstant} from "deciphony-core/types";
 import {
   getMeasureWidth,
-} from "deciphony-core/utils/widthUtil";
+} from "@/utils/widthUtil";
 
 
 const props = defineProps({

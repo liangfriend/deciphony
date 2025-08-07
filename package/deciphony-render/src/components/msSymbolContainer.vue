@@ -11,8 +11,8 @@ import {computed, CSSProperties, onMounted, PropType} from "vue";
 import MsSymbolSlot from "./msSymbolSlot.vue";
 import {
   getMsSymbolContainerWidth,
-} from "deciphony-core/utils/widthUtil";
-import {getContainerLeftToMeasure} from "deciphony-core/utils/leftUtil";
+} from "@/utils/widthUtil";
+import {getContainerLeftToMeasure} from "@/utils/leftUtil";
 
 const props = defineProps({
   msSymbolContainer: {

@@ -3,7 +3,6 @@ import {computed, CSSProperties, PropType} from "vue";
 import {
   getBeamGroup,
   getDataWithIndex,
-  getMsSymbolAspectRatio
 } from "deciphony-core/utils/musicScoreDataUtil";
 import {
   BeamGroup,
@@ -26,13 +25,14 @@ import noteTailOneDownSvg
   from "@/assets/msSymbols/noteTailOneDown.svg";
 import noteTailTwoDownSvg
   from "@/assets/msSymbols/noteTailTwoDown.svg";
-import {getMsSymbolHeight} from "deciphony-core/utils/heightUtil";
+import {getMsSymbolHeight} from "@/utils/heightUtil";
 import {
   getMsSymbolWidth,
   getNoteTailWidth
-} from "deciphony-core/utils/widthUtil";
-import {getMsSymbolLeftToSlot} from "deciphony-core/utils/leftUtil";
-import {getMsSymbolBottomToSlot} from "deciphony-core/utils/bottomUtil";
+} from "@/utils/widthUtil";
+import {getMsSymbolLeftToSlot} from "@/utils/leftUtil";
+import {getMsSymbolBottomToSlot} from "@/utils/bottomUtil";
+import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 
 const props = defineProps({
   noteTail: {

@@ -43,24 +43,22 @@ import barLineEndRepeatSignSvg from '@/assets/msSymbols/barlineEndRepeatSign.svg
 import Clef from "./clef.vue";
 import KeySignature from "./keySignature.vue";
 import TimeSignature from "./timeSignature.vue";
-import {
-  getDataWithIndex,
-  getMsSymbolAspectRatio
-} from "deciphony-core/utils/musicScoreDataUtil";
+
 import {getMsSymbolHeight} from "@/utils/heightUtil";
 import {
   getMsSymbolBottomToSlot,
   getSlotBottomToMeasure
-} from "deciphony-core/utils/bottomUtil";
+} from "@/utils/bottomUtil";
 import {
   getMeasureLeftToMusicScore,
   getMsSymbolLeftToSlot, getSlotLeftToMeasure
-} from "deciphony-core/utils/leftUtil";
+} from "@/utils/leftUtil";
 import {
   getMsSymbolSlotWidth,
   getMsSymbolWidth, getNoteTailWidth
-} from "deciphony-core/utils/widthUtil";
+} from "@/utils/widthUtil";
 import NoteTail from "./noteTail.vue";
+import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 
 const props = defineProps({
   msSymbol: {
@@ -313,7 +311,6 @@ const msSymbolStyle = computed<CSSProperties>(() => {
   }
 
   if (svgHref.value) {
-    console.log('chicken',svgHref.value)
     style.mask = `url("${svgHref.value}") center center / cover no-repeat`
   }
   // TODO 测试代码

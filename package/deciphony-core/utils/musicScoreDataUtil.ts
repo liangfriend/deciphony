@@ -679,11 +679,9 @@ export function getDataWithIndex(index: MusicScoreIndex, musicScore: MusicScore)
                 const measure = singleStaff.measureArray[index.measureIndex]
                 res.measure = measure
                 if (index.msSymbolContainerIndex !== -1) {
-                    console.log('chicken',)
                     const msSymbolContainer = measure.msSymbolContainerArray[index.msSymbolContainerIndex]
                     res.msSymbolContainer = msSymbolContainer
                     if (index.msSymbolIndex !== -1) {
-                        console.log('chicken', msSymbolContainer)
                         res.msSymbol = msSymbolContainer.msSymbolArray[index.msSymbolIndex]
                     }
 

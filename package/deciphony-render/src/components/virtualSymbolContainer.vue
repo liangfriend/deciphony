@@ -22,14 +22,14 @@ import {computed, CSSProperties, inject, onMounted, PropType, ref} from "vue";
 import {
   getMsSymbolContainerWidth,
   getWidthFixedContainerWidthSumInMeasure
-} from "deciphony-core/utils/widthUtil";
+} from "@/utils/widthUtil";
 import {
   getWidthConstantInMeasure, getWidthConstantInMsSymbolContainer
-} from "deciphony-core/utils/widthConstantUtil";
+} from "@/utils/widthConstantUtil";
 import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
 import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
-} from "deciphony-core/utils/bottomUtil";
+} from "@/utils/bottomUtil";
 import {MusicScoreRegionEnum} from "deciphony-core/musicScoreEnum";
 import {MsState} from "@/types";
 import {virtualSymbolMouseDown} from "@/utils/eventUtil";

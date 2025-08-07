@@ -17,19 +17,19 @@ import {
 import {
   getContainerLeftToMeasure,
   getMeasureLeftToMusicScore, getSlotLeftToMeasure
-} from "deciphony-core/utils/leftUtil";
+} from "@/utils/leftUtil";
 import {
   getMeasureWidth,
   getMsSymbolSlotWidth
-} from "deciphony-core/utils/widthUtil";
+} from "@/utils/widthUtil";
 import {
   getMaxMsSymbolBottomInMeasure,
   getMeasureBottomToMusicScore
-} from "deciphony-core/utils/bottomUtil";
+} from "@/utils/bottomUtil";
 import RectDragShell from "./rectDragShell.vue";
 import voltaVue from './volta.vue'
 import slurVue from './slur.vue'
-import {MsState} from "../types";
+import {MsState} from "@/types";
 
 const props = defineProps({
   spanSymbol: {

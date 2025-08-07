@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "deciphony-render": "workspace:*",
-    "deciphony-core": "0.0.8",
+    "deciphony-core": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "^5.0.2",

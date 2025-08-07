@@ -10,19 +10,20 @@ import {
     MusicScore, NoteHead, NoteTail,
     SingleStaff
 } from "deciphony-core/types";
-import {MsSymbolInformationMap,} from "deciphony-core/constant";
+import {MsSymbolInformationMap,} from "@/constant";
 import {
     getWidthConstantInMeasure,
     getWidthConstantInMsSymbolContainer,
     getWidthConstantInSingleStaff
-} from "deciphony-core/utils/widthConstantUtil";
+} from "@/utils/widthConstantUtil";
 import {
     getBeamGroup,
-    getDataWithIndex, getHeightMultiplier,
+    getDataWithIndex,
     getMainMsSymbol,
-    getMsSymbolAspectRatio
+
 } from "deciphony-core/utils/musicScoreDataUtil";
 import {getMsSymbolHeight} from "./heightUtil";
+import {getHeightMultiplier, getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 
 
 // 获取定宽容器的宽度

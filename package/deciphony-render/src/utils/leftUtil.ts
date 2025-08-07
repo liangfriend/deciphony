@@ -18,7 +18,7 @@ import {
     getMsSymbolSlotWidth,
     getMsSymbolWidth, getNoteTailWidth,
     getWidthFixedContainerWidthSumInMeasure
-} from "deciphony-core/utils/widthUtil";
+} from "@/utils/widthUtil";
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
@@ -26,8 +26,8 @@ import {
 } from "deciphony-core/musicScoreEnum";
 import {
     getWidthConstantInMeasure
-} from "deciphony-core/utils/widthConstantUtil";
-import {MsSymbolInformationMap} from "deciphony-core/constant";
+} from "@/utils/widthConstantUtil";
+import {MsSymbolInformationMap} from "@/constant";
 
 
 export function getMeasureLeftToMusicScore(measure: Measure, musicScore: MusicScore, componentWidth: number): number {
@@ -134,7 +134,6 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
             return -width
         }
     }
-    console.log('chicken',)
     return 0
 }
 
@@ -145,6 +144,7 @@ export function getSlotLeftToContainer(msSymbol: MsSymbol, msSymbolContainer: Ms
     const measureHeight = musicScore.measureHeight
     switch (mainMsSymbol?.type) {
         case MsSymbolTypeEnum.noteHead: { // 音符头居中
+            console.log('chicken',containerWidth)
             return containerWidth / 2 - slotWidth / 2
         }
         case MsSymbolTypeEnum.rest: { // 休止符居中

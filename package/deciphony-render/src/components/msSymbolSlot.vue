@@ -164,5 +164,6 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
 <style scoped>
 .msSymbolSlot {
   display: flex;
+  position: absolute;
 }
 </style>

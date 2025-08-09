@@ -1,31 +1,35 @@
 {
   "name": "deciphony-core",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "type": "module",
   "files": [
     "dist"
   ],
   "exports": {
-    "./constant": "./dist/constant.js",
-    "./types": "./dist/types.js",
-    "./musicScoreEnum": "./dist/musicScoreEnum.js",
-    "./utils/*": "./dist/utils/*.js"
-  },
-  "typesVersions": {
-    "*": {
-      "./constant": [
-        "dist/constant.d.ts"
-      ],
-      "./musicScoreEnum": [
-        "dist/musicScoreEnum.d.ts"
-      ],
-      "./types": [
-        "dist/types.d.ts"
-      ],
-      "./utils/*": [
-        "dist/utils/*.d.ts"
-      ]
+    "./constant": {
+      "types": "./dist/constant.d.ts",
+      "default": "./dist/constant.js"
+
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./musicScoreEnum": {
+      "types": "./dist/musicScoreEnum.d.ts",
+      "default": "./dist/musicScoreEnum.js"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*.d.ts",
+      "default": "./dist/utils/*.js",
+      "module": "./dist/utils/*.js",
+      "import": "./dist/utils/*.js",
+      "require": "./dist/utils/*.js"
+    },
+    "./utils/musicScoreDataUtil": {
+      "types": "./dist/utils/musicScoreDataUtil.d.ts",
+      "default": "./dist/utils/musicScoreDataUtil.js"
     }
   },
   "dependencies": {},

@@ -4,9 +4,9 @@ import test from "./musicScoreData/test.ts"
 import {onMounted, ref} from "vue";
 import type {MusicScore} from "deciphony-core/types";
 
+
 const musicScore = ref<MusicScore>(test)
 onMounted(() => {
-  console.log(MusicScoreVue)
 })
 </script>
 

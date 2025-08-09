@@ -208,7 +208,7 @@ function musicScoreToToneSequence(musicScore: MusicScore): ToneSequence[] {
     return sequence;
 }
 
-export const index = {
+export default  {
     play,
     pause,
     stop,

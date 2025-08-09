@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "nodenext",             // 输出 ESM
-    "moduleResolution": "nodenext", // 按 Node ESM 规则解析
+    "module": "ESNext",             // 输出 ESM
+    "moduleResolution": "bundler", // 按 Node ESM 规则解析
     "allowImportingTsExtensions": false,   // 不允许使用ts扩展名
     "resolveJsonModule": true,
     "isolatedModules": false,

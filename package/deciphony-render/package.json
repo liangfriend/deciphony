@@ -12,6 +12,12 @@
     "build": "vite build",
     "prepublishOnly": "npm run build"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
     "deciphony-core": "0.0.9",

@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import MusicScoreVue from "deciphony-render/src/musicScore.vue";
+import MusicScoreVue from "deciphony-render";
 import test from "./musicScoreData/test.ts"
 import {onMounted, ref} from "vue";
 import type {MusicScore} from "deciphony-core/types";
 
 
 const musicScore = ref<MusicScore>(test)
+
 onMounted(() => {
+  console.log('chicken',MusicScoreVue)
 })
 </script>
 
-<template>
-  <music-score-vue :music-score="musicScore"></music-score-vue>
+<template>asd
+  <music-score-vue :music-score="musicScore"></music-score-vue>dsa
 </template>
 
 <style scoped>

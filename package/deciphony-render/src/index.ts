@@ -1,4 +1,3 @@
-import MusicScore from './musicScore.vue';
+import MusicScore from './musicScore.vue'
+export default MusicScore
 export * from './types'
-
-export default MusicScore;

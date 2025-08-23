@@ -15,7 +15,7 @@ export default defineConfig({
             targets: [
                 {
                     src: 'src/assets', // 原路径
-                    dest: ''           // 拷贝到 dist/assets
+                    dest: 'assets'           // 拷贝到 dist/assets
                 }
             ]
         })
@@ -30,13 +30,12 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src')
         }
     },
-    assetsInclude: ['./src/assets/*','./src/assets/**/*',],
     build: {
         assetsInlineLimit: 0,
         lib: {
             entry: path.resolve(__dirname, './src/index.ts'),
             name: 'DeciphonyRender',
-            fileName: () => 'index.js',
+            fileName: (format) => `index.${format}.js`,
             formats: ['es', 'cjs']
         },
         rollupOptions: {

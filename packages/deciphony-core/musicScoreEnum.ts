@@ -282,10 +282,8 @@ export enum MsSymbolTypeEnum {
 export enum MusicScoreShowModeEnum {
     standardStaff = 1,        // 五线谱
     numberNotation,      // 简谱（数字谱）
-    dualNotation,          // 简线双谱（五线+简谱）
     rhythmNotation,      // 节奏谱（主要显示节奏）
-    tablature,                 // 简谱形式的吉他/尤克里里谱（可选）
-    percussion,               // 打击乐谱（可选）
+    percussion,          //  打击乐谱（可选）
 }
 
 // 符号类型

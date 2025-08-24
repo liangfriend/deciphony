@@ -2,7 +2,7 @@
 import {
     BarLineTypeEnum, ChronaxieEnum,
     KeySignatureEnum, MsSymbolCategoryEnum, MsSymbolContainerTypeEnum,
-    MsSymbolTypeEnum
+    MsSymbolTypeEnum, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 
 
@@ -56,120 +56,853 @@ type MsSymbolInformation =
     | VariableWidthSymbolInfo
     | MultipleMeasureSymbolInfo
     | pureFollowSymbolInfo
-export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformation> = {
-    [MsSymbolTypeEnum.noteHead]: {
-        containerType: MsSymbolContainerTypeEnum.variable,
-        aspectRatio: 1,
-        widthRatioConstant: 1,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 0.25,
-    },
-    [MsSymbolTypeEnum.noteBar]: {  // 有些纯粹的符号跟随类型是没有符号容器类型的
-        aspectRatio: 0.05,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        widthRatioConstant: 0,
-        heightMultiplier: 0.75, // 符杠的height是动态的，这里只是最小高度
-    },
-    [MsSymbolTypeEnum.noteTail]: {
-        aspectRatio: {
-            [ChronaxieEnum.eighth]: 0.5,   // 7 flats
-            [ChronaxieEnum.sixteenth]: 0.5,   // 6 flats
-        },
-        category: MsSymbolCategoryEnum.singleMeasure,
-        widthRatioConstant: 0,
-        heightMultiplier: 0.5,
-    },
-    [MsSymbolTypeEnum.rest]: {// 休止符： 占位比例等于音符头
-        containerType: MsSymbolContainerTypeEnum.variable,
-        aspectRatio: 0.25,
-        widthRatioConstant: 1,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
-    },
-    [MsSymbolTypeEnum.slur]: {// 圆滑线：跨音符装饰线，不占宽度
-        category: MsSymbolCategoryEnum.multipleMeasure,
-    },
-    [MsSymbolTypeEnum.tie]: {// 延音线：连接两个音符，不影响宽度
-        category: MsSymbolCategoryEnum.multipleMeasure,
-    },
-    [MsSymbolTypeEnum.durationDot]: {// 附点：相对于音符有一点影响
-        aspectRatio: 1,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        widthRatioConstant: 0.5,
-        heightMultiplier: 0.1,
-    },
-    [MsSymbolTypeEnum.accidental]: {
-        aspectRatio: 1,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        widthRatioConstant: 0.5,
-        heightMultiplier: 0.4,
+export const MsSymbolInformationMap: Record<MusicScoreShowModeEnum, Record<MsSymbolTypeEnum, MsSymbolInformation>> = {
+    [MusicScoreShowModeEnum.standardStaff]: {
+        [MsSymbolTypeEnum.noteHead]:
+            {
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    1,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    0.25,
+            }
+        ,
+        [MsSymbolTypeEnum.noteBar]:
+            {  // 有些纯粹的符号跟随类型是没有符号容器类型的
+                aspectRatio: 0.05,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.75, // 符杠的height是动态的，这里只是最小高度
+            }
+        ,
+        [MsSymbolTypeEnum.noteTail]:
+            {
+                aspectRatio: {
+                    [ChronaxieEnum.eighth]:
+                        0.5,   // 7 flats
+                    [ChronaxieEnum.sixteenth]:
+                        0.5,   // 6 flats
+                }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.5,
+            }
+        ,
+        [MsSymbolTypeEnum.rest]:
+            {// 休止符： 占位比例等于音符头
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    0.25,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.slur]:
+            {// 圆滑线：跨音符装饰线，不占宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.tie]:
+            {// 延音线：连接两个音符，不影响宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.durationDot]:
+            {// 附点：相对于音符有一点影响
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.1,
+            }
+        ,
+        [MsSymbolTypeEnum.accidental]:
+            {
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.4,
 
+            }
+        ,
+        [MsSymbolTypeEnum.tuplet]:
+            { // 连音记号
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.clef]:
+            { // 谱号
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.clef_f]:
+            { // 前置谱号
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.timeSignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.keySignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [KeySignatureEnum.Cb]:
+                            0.4 * 7,   // 7 flats
+                        [KeySignatureEnum.Gb]:
+                            0.4 * 6,   // 6 flats
+                        [KeySignatureEnum.Db]:
+                            0.4 * 5,   // 5 flats
+                        [KeySignatureEnum.Ab]:
+                            0.4 * 4,   // 4 flats
+                        [KeySignatureEnum.Eb]:
+                            0.4 * 3,   // 3 flats
+                        [KeySignatureEnum.Bb]:
+                            0.4 * 2,   // 2 flats
+                        [KeySignatureEnum.F]:
+                            0.4,    // 1 flat
+                        [KeySignatureEnum.C]:
+                            0.0,    // 0
+                        [KeySignatureEnum.G]:
+                            0.4,    // 1 sharp
+                        [KeySignatureEnum.D]:
+                            0.4 * 2,    // 2 sharps
+                        [KeySignatureEnum.A]:
+                            0.4 * 3,    // 3 sharps
+                        [KeySignatureEnum.E]:
+                            0.4 * 4,    // 4 sharps
+                        [KeySignatureEnum.B]:
+                            0.4 * 5,    // 5 sharps
+                        [KeySignatureEnum['F#']]:
+                            0.4 * 6,// 6 sharps
+                        [KeySignatureEnum['C#']]:
+                            0.4 * 7 // 7 sharps
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine]:
+            {
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 50,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine_f]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 400,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
     },
-    [MsSymbolTypeEnum.tuplet]: { // 连音记号
-        category: MsSymbolCategoryEnum.multipleMeasure,
+    [MusicScoreShowModeEnum.numberNotation]: {
+        [MsSymbolTypeEnum.noteHead]:
+            {
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    1,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    0.25,
+            }
+        ,
+        [MsSymbolTypeEnum.noteBar]:
+            {  // 有些纯粹的符号跟随类型是没有符号容器类型的
+                aspectRatio: 0.05,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.75, // 符杠的height是动态的，这里只是最小高度
+            }
+        ,
+        [MsSymbolTypeEnum.noteTail]:
+            {
+                aspectRatio: {
+                    [ChronaxieEnum.eighth]:
+                        0.5,   // 7 flats
+                    [ChronaxieEnum.sixteenth]:
+                        0.5,   // 6 flats
+                }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.5,
+            }
+        ,
+        [MsSymbolTypeEnum.rest]:
+            {// 休止符： 占位比例等于音符头
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    0.25,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.slur]:
+            {// 圆滑线：跨音符装饰线，不占宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.tie]:
+            {// 延音线：连接两个音符，不影响宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.durationDot]:
+            {// 附点：相对于音符有一点影响
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.1,
+            }
+        ,
+        [MsSymbolTypeEnum.accidental]:
+            {
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.4,
+
+            }
+        ,
+        [MsSymbolTypeEnum.tuplet]:
+            { // 连音记号
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.clef]:
+            { // 谱号
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.clef_f]:
+            { // 前置谱号
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.timeSignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.keySignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [KeySignatureEnum.Cb]:
+                            0.4 * 7,   // 7 flats
+                        [KeySignatureEnum.Gb]:
+                            0.4 * 6,   // 6 flats
+                        [KeySignatureEnum.Db]:
+                            0.4 * 5,   // 5 flats
+                        [KeySignatureEnum.Ab]:
+                            0.4 * 4,   // 4 flats
+                        [KeySignatureEnum.Eb]:
+                            0.4 * 3,   // 3 flats
+                        [KeySignatureEnum.Bb]:
+                            0.4 * 2,   // 2 flats
+                        [KeySignatureEnum.F]:
+                            0.4,    // 1 flat
+                        [KeySignatureEnum.C]:
+                            0.0,    // 0
+                        [KeySignatureEnum.G]:
+                            0.4,    // 1 sharp
+                        [KeySignatureEnum.D]:
+                            0.4 * 2,    // 2 sharps
+                        [KeySignatureEnum.A]:
+                            0.4 * 3,    // 3 sharps
+                        [KeySignatureEnum.E]:
+                            0.4 * 4,    // 4 sharps
+                        [KeySignatureEnum.B]:
+                            0.4 * 5,    // 5 sharps
+                        [KeySignatureEnum['F#']]:
+                            0.4 * 6,// 6 sharps
+                        [KeySignatureEnum['C#']]:
+                            0.4 * 7 // 7 sharps
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine]:
+            {
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 50,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine_f]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 400,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
     },
-    [MsSymbolTypeEnum.clef]: { // 谱号
-        containerType: MsSymbolContainerTypeEnum.rearFixed,
-        aspectRatio: 0.6,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
+    [MusicScoreShowModeEnum.rhythmNotation]: {
+        [MsSymbolTypeEnum.noteHead]:
+            {
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    1,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    0.25,
+            }
+        ,
+        [MsSymbolTypeEnum.noteBar]:
+            {  // 有些纯粹的符号跟随类型是没有符号容器类型的
+                aspectRatio: 0.05,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.75, // 符杠的height是动态的，这里只是最小高度
+            }
+        ,
+        [MsSymbolTypeEnum.noteTail]:
+            {
+                aspectRatio: {
+                    [ChronaxieEnum.eighth]:
+                        0.5,   // 7 flats
+                    [ChronaxieEnum.sixteenth]:
+                        0.5,   // 6 flats
+                }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.5,
+            }
+        ,
+        [MsSymbolTypeEnum.rest]:
+            {// 休止符： 占位比例等于音符头
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    0.25,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.slur]:
+            {// 圆滑线：跨音符装饰线，不占宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.tie]:
+            {// 延音线：连接两个音符，不影响宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.durationDot]:
+            {// 附点：相对于音符有一点影响
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.1,
+            }
+        ,
+        [MsSymbolTypeEnum.accidental]:
+            {
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.4,
+
+            }
+        ,
+        [MsSymbolTypeEnum.tuplet]:
+            { // 连音记号
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.clef]:
+            { // 谱号
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.clef_f]:
+            { // 前置谱号
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.timeSignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.keySignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [KeySignatureEnum.Cb]:
+                            0.4 * 7,   // 7 flats
+                        [KeySignatureEnum.Gb]:
+                            0.4 * 6,   // 6 flats
+                        [KeySignatureEnum.Db]:
+                            0.4 * 5,   // 5 flats
+                        [KeySignatureEnum.Ab]:
+                            0.4 * 4,   // 4 flats
+                        [KeySignatureEnum.Eb]:
+                            0.4 * 3,   // 3 flats
+                        [KeySignatureEnum.Bb]:
+                            0.4 * 2,   // 2 flats
+                        [KeySignatureEnum.F]:
+                            0.4,    // 1 flat
+                        [KeySignatureEnum.C]:
+                            0.0,    // 0
+                        [KeySignatureEnum.G]:
+                            0.4,    // 1 sharp
+                        [KeySignatureEnum.D]:
+                            0.4 * 2,    // 2 sharps
+                        [KeySignatureEnum.A]:
+                            0.4 * 3,    // 3 sharps
+                        [KeySignatureEnum.E]:
+                            0.4 * 4,    // 4 sharps
+                        [KeySignatureEnum.B]:
+                            0.4 * 5,    // 5 sharps
+                        [KeySignatureEnum['F#']]:
+                            0.4 * 6,// 6 sharps
+                        [KeySignatureEnum['C#']]:
+                            0.4 * 7 // 7 sharps
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine]:
+            {
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 50,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine_f]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 400,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
     },
-    [MsSymbolTypeEnum.clef_f]: { // 前置谱号
-        containerType: MsSymbolContainerTypeEnum.frontFixed,
-        aspectRatio: 0.6,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
-    },
-    [MsSymbolTypeEnum.timeSignature]: {
-        containerType: MsSymbolContainerTypeEnum.frontFixed,
-        aspectRatio: 0.6,
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
-    },
-    [MsSymbolTypeEnum.keySignature]: {
-        containerType: MsSymbolContainerTypeEnum.frontFixed,
-        aspectRatio: {
-            [KeySignatureEnum.Cb]: 0.4 * 7,   // 7 flats
-            [KeySignatureEnum.Gb]: 0.4 * 6,   // 6 flats
-            [KeySignatureEnum.Db]: 0.4 * 5,   // 5 flats
-            [KeySignatureEnum.Ab]: 0.4 * 4,   // 4 flats
-            [KeySignatureEnum.Eb]: 0.4 * 3,   // 3 flats
-            [KeySignatureEnum.Bb]: 0.4 * 2,   // 2 flats
-            [KeySignatureEnum.F]: 0.4,    // 1 flat
-            [KeySignatureEnum.C]: 0.0,    // 0
-            [KeySignatureEnum.G]: 0.4,    // 1 sharp
-            [KeySignatureEnum.D]: 0.4 * 2,    // 2 sharps
-            [KeySignatureEnum.A]: 0.4 * 3,    // 3 sharps
-            [KeySignatureEnum.E]: 0.4 * 4,    // 4 sharps
-            [KeySignatureEnum.B]: 0.4 * 5,    // 5 sharps
-            [KeySignatureEnum['F#']]: 0.4 * 6,// 6 sharps
-            [KeySignatureEnum['C#']]: 0.4 * 7 // 7 sharps
-        },
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
-    },
-    [MsSymbolTypeEnum.barLine]: {
-        containerType: MsSymbolContainerTypeEnum.rearFixed,
-        aspectRatio: {
-            [BarLineTypeEnum.single]: 1 / 50,   // 7 flats
-            [BarLineTypeEnum.final]: 2 / 5,   // 7 flats
-            [BarLineTypeEnum.reverseFinal]: 2 / 5,   // 7 flats
-            [BarLineTypeEnum.startRepeatSign]: 3 / 5,   // 7 flats
-            [BarLineTypeEnum.endRepeatSign]: 3 / 5,   // 7 flats
-        },
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
-    },
-    [MsSymbolTypeEnum.barLine_f]: {
-        containerType: MsSymbolContainerTypeEnum.frontFixed,
-        aspectRatio: {
-            [BarLineTypeEnum.single]: 1 / 400,   // 7 flats
-            [BarLineTypeEnum.final]: 2 / 5,   // 7 flats
-            [BarLineTypeEnum.reverseFinal]: 2 / 5,   // 7 flats
-            [BarLineTypeEnum.startRepeatSign]: 3 / 5,   // 7 flats
-            [BarLineTypeEnum.endRepeatSign]: 3 / 5,   // 7 flats
-        },
-        category: MsSymbolCategoryEnum.singleMeasure,
-        heightMultiplier: 1,
+    [MusicScoreShowModeEnum.percussion]: {
+        [MsSymbolTypeEnum.noteHead]:
+            {
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    1,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    0.25,
+            }
+        ,
+        [MsSymbolTypeEnum.noteBar]:
+            {  // 有些纯粹的符号跟随类型是没有符号容器类型的
+                aspectRatio: 0.05,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.75, // 符杠的height是动态的，这里只是最小高度
+            }
+        ,
+        [MsSymbolTypeEnum.noteTail]:
+            {
+                aspectRatio: {
+                    [ChronaxieEnum.eighth]:
+                        0.5,   // 7 flats
+                    [ChronaxieEnum.sixteenth]:
+                        0.5,   // 6 flats
+                }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0,
+                heightMultiplier:
+                    0.5,
+            }
+        ,
+        [MsSymbolTypeEnum.rest]:
+            {// 休止符： 占位比例等于音符头
+                containerType: MsSymbolContainerTypeEnum.variable,
+                aspectRatio:
+                    0.25,
+                widthRatioConstant:
+                    1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.slur]:
+            {// 圆滑线：跨音符装饰线，不占宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.tie]:
+            {// 延音线：连接两个音符，不影响宽度
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.durationDot]:
+            {// 附点：相对于音符有一点影响
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.1,
+            }
+        ,
+        [MsSymbolTypeEnum.accidental]:
+            {
+                aspectRatio: 1,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                widthRatioConstant:
+                    0.5,
+                heightMultiplier:
+                    0.4,
+
+            }
+        ,
+        [MsSymbolTypeEnum.tuplet]:
+            { // 连音记号
+                category: MsSymbolCategoryEnum.multipleMeasure,
+            }
+        ,
+        [MsSymbolTypeEnum.clef]:
+            { // 谱号
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.clef_f]:
+            { // 前置谱号
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.timeSignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    0.6,
+                category:
+                MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.keySignature]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [KeySignatureEnum.Cb]:
+                            0.4 * 7,   // 7 flats
+                        [KeySignatureEnum.Gb]:
+                            0.4 * 6,   // 6 flats
+                        [KeySignatureEnum.Db]:
+                            0.4 * 5,   // 5 flats
+                        [KeySignatureEnum.Ab]:
+                            0.4 * 4,   // 4 flats
+                        [KeySignatureEnum.Eb]:
+                            0.4 * 3,   // 3 flats
+                        [KeySignatureEnum.Bb]:
+                            0.4 * 2,   // 2 flats
+                        [KeySignatureEnum.F]:
+                            0.4,    // 1 flat
+                        [KeySignatureEnum.C]:
+                            0.0,    // 0
+                        [KeySignatureEnum.G]:
+                            0.4,    // 1 sharp
+                        [KeySignatureEnum.D]:
+                            0.4 * 2,    // 2 sharps
+                        [KeySignatureEnum.A]:
+                            0.4 * 3,    // 3 sharps
+                        [KeySignatureEnum.E]:
+                            0.4 * 4,    // 4 sharps
+                        [KeySignatureEnum.B]:
+                            0.4 * 5,    // 5 sharps
+                        [KeySignatureEnum['F#']]:
+                            0.4 * 6,// 6 sharps
+                        [KeySignatureEnum['C#']]:
+                            0.4 * 7 // 7 sharps
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine]:
+            {
+                containerType: MsSymbolContainerTypeEnum.rearFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 50,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
+        [MsSymbolTypeEnum.barLine_f]:
+            {
+                containerType: MsSymbolContainerTypeEnum.frontFixed,
+                aspectRatio:
+                    {
+                        [BarLineTypeEnum.single]:
+                            1 / 400,   // 7 flats
+                        [BarLineTypeEnum.final]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.reverseFinal]:
+                            2 / 5,   // 7 flats
+                        [BarLineTypeEnum.startRepeatSign]:
+                            3 / 5,   // 7 flats
+                        [BarLineTypeEnum.endRepeatSign]:
+                            3 / 5,   // 7 flats
+                    }
+                ,
+                category: MsSymbolCategoryEnum.singleMeasure,
+                heightMultiplier:
+                    1,
+            }
+        ,
     },
 }

@@ -15,6 +15,7 @@
             :width="measureWidth"
             :height="musicScore.measureHeight"
             :componentWidth="width"
+            :showMode="showMode"
             @measureMouseDown="handleMeasureMouseDown"
             :componentHeight="height"
             :measure="measure"
@@ -141,7 +142,7 @@ import {
   ChronaxieEnum,
   MsMode,
   MsSymbolContainerTypeEnum,
-  MsSymbolTypeEnum,
+  MsSymbolTypeEnum, MusicScoreShowModeEnum,
   ReserveMsSymbolType,
 } from "deciphony-core/musicScoreEnum";
 import {
@@ -173,6 +174,10 @@ const props = defineProps({
   height: {
     type: Number,
     default: 800,
+  },
+  showMode: { // 展示模式    五线谱  简谱  节奏谱
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    default: MusicScoreShowModeEnum.numberNotation
   },
   //小节的线条宽度
   strokeWidth: {

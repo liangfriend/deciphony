@@ -1,6 +1,6 @@
 {
   "name": "deciphony-core",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "",
   "type": "module",
   "files": [
@@ -10,7 +10,6 @@
     "./constant": {
       "types": "./dist/constant.d.ts",
       "default": "./dist/constant.js"
-
     },
     "./types": {
       "types": "./dist/types.d.ts",

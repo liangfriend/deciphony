@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MusicScoreVue from "deciphony-render";
+import MusicScoreVue from "@/musicScore.vue";
 import test from "./musicScoreData/test.ts"
 import {onMounted, ref} from "vue";
 import type {MusicScore} from "deciphony-core/types";
@@ -8,12 +8,13 @@ import type {MusicScore} from "deciphony-core/types";
 const musicScore = ref<MusicScore>(test)
 
 onMounted(() => {
+  window.musicScore = musicScore.value
   console.log('chicken',MusicScoreVue)
 })
 </script>
 
-<template>asd
-  <music-score-vue :music-score="musicScore"></music-score-vue>dsa
+<template>
+  <music-score-vue :music-score="musicScore"></music-score-vue>
 </template>
 
 <style scoped>

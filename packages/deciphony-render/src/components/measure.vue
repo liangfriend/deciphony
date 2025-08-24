@@ -4,18 +4,21 @@
   </div>
 </template>
 <script setup lang="ts">
-import {computed, CSSProperties, inject, PropType, ref} from 'vue';
+import {computed, CSSProperties, PropType} from 'vue';
 
-import barLine from '@/assets/msSymbols/bar.svg';
-import {
-  Measure,
-
-} from "deciphony-core/types";
+import barStandardStaff from '@/assets/msSymbols/bar-standardStaff.svg';
+import barNumberNotation from '@/assets/msSymbols/bar-numberNotation.svg';
+import {Measure,} from "deciphony-core/types";
+import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 
 const props = defineProps({
   measure: {
     type: Object as PropType<Measure>,
     required: true,
+  },
+  showMode:{
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    required: true
   },
   x: {
     type: Number,
@@ -58,15 +61,29 @@ const measureStyle = computed(() => {
   };
 });
 const barLineStyle = computed((): CSSProperties => {
-  return {
+  const style:CSSProperties = {
     width: (props.width) + 'px',
     height: props.height + 'px',
     'background-color': 'black',
-    mask: `url("${barLine}") no-repeat center`,
-    'mask-size': '100% 100%',
+    // mask:`url("${barLine}") no-repeat center`,
+    // 'mask-size': '100% 100%',
     background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',
   };
+  switch(props.showMode) {
+    case MusicScoreShowModeEnum.standardStaff: {
+      style.mask = `url("${barStandardStaff}") no-repeat center`
+      style['mask-size']='100% 100%'
+      break
+    }
+    case MusicScoreShowModeEnum.numberNotation: {
+      style.mask = `url("${barNumberNotation}") no-repeat center` // 这里有个bug,mask-size写到mask之前，会不生效
+      style['mask-size']='100% 100%'
+
+      break
+    }
+  }
+  return style
 });
 const emits = defineEmits(['measureMouseDown']);
 

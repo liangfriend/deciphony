@@ -3,8 +3,7 @@ import {
     ClefEnum,
     KeySignatureEnum,
     MsSymbolTypeEnum, MsTypeNameEnum,
-    NoteNameEnum,
-    MusicScoreRegionEnum
+    StaffRegion
 } from "../musicScoreEnum";
 
 import {
@@ -22,213 +21,6 @@ import {
     SingleStaff, SpanSymbol
 } from "../types";
 
-const semitoneMap: { [key: string]: number } = {
-    C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3,
-    E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8,
-    A: 9, 'A#': 10, Bb: 10, B: 11,
-};
-
-const reverseMap: { [key: number]: string[] } = {
-    0: ['C'], 1: ['C#', 'Db'], 2: ['D'], 3: ['D#', 'Eb'], 4: ['E'],
-    5: ['F'], 6: ['F#', 'Gb'], 7: ['G'], 8: ['G#', 'Ab'], 9: ['A'],
-    10: ['A#', 'Bb'], 11: ['B'],
-};
-
-function getSemitoneNumber(note: string, octave: number): number {
-    const semitone = semitoneMap[note];
-    return (octave + 1) * 12 + semitone;
-}
-
-function findValidEnumName(semitoneNumber: number): NoteNameEnum {
-    const pitchClass = semitoneNumber % 12;
-    const octave = Math.floor(semitoneNumber / 12) - 1;
-    const possibleNames = reverseMap[pitchClass];
-
-    for (const name of possibleNames) {
-        const fullName = `${name}${octave}`;
-        if (fullName in NoteNameEnum) {
-            return NoteNameEnum[fullName as keyof typeof NoteNameEnum];
-        }
-    }
-
-    return NoteNameEnum.C4; // fallback
-}
-
-// 核心算法：计算当前音符音名
-export function getNoteMusicalAlphabet(
-    msSymbol: NoteHead,
-    musicScore: MusicScore
-): NoteNameEnum {
-    const region = msSymbol.region
-    const clef: ClefEnum = getMsSymbolClef(msSymbol, musicScore)
-    const keySignature: KeySignatureEnum = getMsSymbolKeySignature(msSymbol, musicScore)
-
-    const accidental = getAccidental(msSymbol)
-    const regionIndexMap: Record<MusicScoreRegionEnum, number> = {
-        [MusicScoreRegionEnum.lower_line_18]: -35,
-        [MusicScoreRegionEnum.lower_space_18]: -34,
-        [MusicScoreRegionEnum.lower_line_17]: -33,
-        [MusicScoreRegionEnum.lower_space_17]: -32,
-        [MusicScoreRegionEnum.lower_line_16]: -31,
-        [MusicScoreRegionEnum.lower_space_16]: -30,
-        [MusicScoreRegionEnum.lower_line_15]: -29,
-        [MusicScoreRegionEnum.lower_space_15]: -28,
-        [MusicScoreRegionEnum.lower_line_14]: -27,
-        [MusicScoreRegionEnum.lower_space_14]: -26,
-        [MusicScoreRegionEnum.lower_line_13]: -25,
-        [MusicScoreRegionEnum.lower_space_13]: -24,
-        [MusicScoreRegionEnum.lower_line_12]: -23,
-        [MusicScoreRegionEnum.lower_space_12]: -22,
-        [MusicScoreRegionEnum.lower_line_11]: -21,
-        [MusicScoreRegionEnum.lower_space_11]: -20,
-        [MusicScoreRegionEnum.lower_line_10]: -19,
-        [MusicScoreRegionEnum.lower_space_10]: -18,
-        [MusicScoreRegionEnum.lower_line_9]: -17,
-        [MusicScoreRegionEnum.lower_space_9]: -16,
-        [MusicScoreRegionEnum.lower_line_8]: -15,
-        [MusicScoreRegionEnum.lower_space_8]: -14,
-        [MusicScoreRegionEnum.lower_line_7]: -13,
-        [MusicScoreRegionEnum.lower_space_7]: -12,
-        [MusicScoreRegionEnum.lower_line_6]: -11,
-        [MusicScoreRegionEnum.lower_space_6]: -10,
-        [MusicScoreRegionEnum.lower_line_5]: -9,
-        [MusicScoreRegionEnum.lower_space_5]: -8,
-        [MusicScoreRegionEnum.lower_line_4]: -7,
-        [MusicScoreRegionEnum.lower_space_4]: -6,
-        [MusicScoreRegionEnum.lower_line_3]: -5,
-        [MusicScoreRegionEnum.lower_space_3]: -4,
-        [MusicScoreRegionEnum.lower_line_2]: -3,
-        [MusicScoreRegionEnum.lower_space_2]: -2,
-        [MusicScoreRegionEnum.lower_line_1]: -1,
-        [MusicScoreRegionEnum.lower_space_1]: 0,
-        [MusicScoreRegionEnum.line_1]: 1,
-        [MusicScoreRegionEnum.space_1]: 2,
-        [MusicScoreRegionEnum.line_2]: 3,
-        [MusicScoreRegionEnum.space_2]: 4,
-        [MusicScoreRegionEnum.line_3]: 5,
-        [MusicScoreRegionEnum.space_3]: 6,
-        [MusicScoreRegionEnum.line_4]: 7,
-        [MusicScoreRegionEnum.space_4]: 8,
-        [MusicScoreRegionEnum.line_5]: 9,
-        [MusicScoreRegionEnum.upper_space_1]: 10,
-        [MusicScoreRegionEnum.upper_line_1]: 11,
-        [MusicScoreRegionEnum.upper_space_2]: 12,
-        [MusicScoreRegionEnum.upper_line_2]: 13,
-        [MusicScoreRegionEnum.upper_space_3]: 14,
-        [MusicScoreRegionEnum.upper_line_3]: 15,
-        [MusicScoreRegionEnum.upper_space_4]: 16,
-        [MusicScoreRegionEnum.upper_line_4]: 17,
-        [MusicScoreRegionEnum.upper_space_5]: 18,
-        [MusicScoreRegionEnum.upper_line_5]: 19,
-        [MusicScoreRegionEnum.upper_space_6]: 20,
-        [MusicScoreRegionEnum.upper_line_6]: 21,
-        [MusicScoreRegionEnum.upper_space_7]: 22,
-        [MusicScoreRegionEnum.upper_line_7]: 23,
-        [MusicScoreRegionEnum.upper_space_8]: 24,
-        [MusicScoreRegionEnum.upper_line_8]: 25,
-        [MusicScoreRegionEnum.upper_space_9]: 10,
-        [MusicScoreRegionEnum.upper_line_9]: 11,
-        [MusicScoreRegionEnum.upper_space_10]: 12,
-        [MusicScoreRegionEnum.upper_line_10]: 13,
-        [MusicScoreRegionEnum.upper_space_11]: 14,
-        [MusicScoreRegionEnum.upper_line_11]: 15,
-        [MusicScoreRegionEnum.upper_space_12]: 16,
-        [MusicScoreRegionEnum.upper_line_12]: 17,
-        [MusicScoreRegionEnum.upper_space_13]: 18,
-        [MusicScoreRegionEnum.upper_line_13]: 19,
-        [MusicScoreRegionEnum.upper_space_14]: 20,
-        [MusicScoreRegionEnum.upper_line_14]: 21,
-        [MusicScoreRegionEnum.upper_space_15]: 22,
-        [MusicScoreRegionEnum.upper_line_15]: 23,
-        [MusicScoreRegionEnum.upper_space_16]: 24,
-        [MusicScoreRegionEnum.upper_line_16]: 25,
-
-
-    };
-
-    const naturalPitchOrder = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-
-    // 定义每种 clef 的参考点（该谱号的某个区域，对应的音名与八度）
-    const clefBaseMap: Record<ClefEnum, { region: MusicScoreRegionEnum, note: string, octave: number }> = {
-        [ClefEnum.treble]: {region: MusicScoreRegionEnum.line_2, note: 'G', octave: 4}, // G4 on line 2
-        [ClefEnum.mezzoSoprano]: {region: MusicScoreRegionEnum.line_2, note: 'C', octave: 4}, // C4 on line 2
-        [ClefEnum.alto]: {region: MusicScoreRegionEnum.line_3, note: 'C', octave: 4}, // C4 on line 3
-        [ClefEnum.tenor]: {region: MusicScoreRegionEnum.line_4, note: 'C', octave: 4}, // C4 on line 4
-        [ClefEnum.baritoneC]: {region: MusicScoreRegionEnum.line_5, note: 'C', octave: 4}, // C4 on line 5
-        [ClefEnum.baritoneF]: {region: MusicScoreRegionEnum.line_3, note: 'F', octave: 3}, // F3 on line 3
-        [ClefEnum.bass]: {region: MusicScoreRegionEnum.line_4, note: 'F', octave: 3}, // F3 on line 4
-        [ClefEnum.subbass]: {region: MusicScoreRegionEnum.line_5, note: 'F', octave: 3}, // F3 on line 5
-    };
-
-    const base = clefBaseMap[clef ? clef : ClefEnum.treble];
-    const baseRegionIndex = regionIndexMap[base.region];
-    const targetRegionIndex = regionIndexMap[region];
-    const relativeSteps = targetRegionIndex - baseRegionIndex;
-
-    // 从基础音名出发，按7度自然音程移动，获得目标音名和八度
-    let stepIndex = naturalPitchOrder.indexOf(base.note);
-    let octave = base.octave;
-
-    stepIndex = (stepIndex + relativeSteps) % 7;
-    if (stepIndex < 0) stepIndex += 7;
-
-    const name = naturalPitchOrder[stepIndex];
-    const octaveShift = Math.floor((naturalPitchOrder.indexOf(base.note) + relativeSteps) / 7);
-    octave += octaveShift;
-
-    // 计算调号或变音对音高的影响（±semitone）
-    let semitoneOffset = 0;
-
-    if (accidental !== undefined) {
-        switch (accidental) {
-            case AccidentalEnum.flat:
-            case AccidentalEnum.natureFlat:
-                semitoneOffset = -1;
-                break;
-            case AccidentalEnum.sharp:
-            case AccidentalEnum.natureSharp:
-                semitoneOffset = 1;
-                break;
-            case AccidentalEnum.doubleFlat:
-                semitoneOffset = -2;
-                break;
-            case AccidentalEnum.doubleSharp:
-                semitoneOffset = 2;
-                break;
-            case AccidentalEnum.nature:
-            default:
-                semitoneOffset = 0;
-                break;
-        }
-    } else {
-        const keySignatureMap: Record<KeySignatureEnum, string[]> = {
-            Cb: ['B', 'E', 'A', 'D', 'G', 'C', 'F'],
-            Gb: ['B', 'E', 'A', 'D', 'G', 'C'],
-            Db: ['B', 'E', 'A', 'D', 'G'],
-            Ab: ['B', 'E', 'A', 'D'],
-            Eb: ['B', 'E', 'A'],
-            Bb: ['B', 'E'],
-            F: ['B'],
-            C: [],
-            G: ['F'],
-            D: ['F', 'C'],
-            A: ['F', 'C', 'G'],
-            E: ['F', 'C', 'G', 'D'],
-            B: ['F', 'C', 'G', 'D', 'A'],
-            'F#': ['F', 'C', 'G', 'D', 'A', 'E'],
-            'C#': ['F', 'C', 'G', 'D', 'A', 'E', 'B'],
-        };
-        const altered = keySignatureMap[keySignature];
-        if (altered.includes(name)) {
-            semitoneOffset = keySignature >= KeySignatureEnum.C ? 1 : -1;
-        }
-    }
-
-    const baseSemitone = getSemitoneNumber(name, octave);
-    const finalSemitone = baseSemitone + semitoneOffset;
-
-    return findValidEnumName(finalSemitone);
-}
 
 // 获取音符的变音符号
 export function getAccidental(noteHead: NoteHead): AccidentalEnum | undefined {
@@ -540,7 +332,7 @@ export function getMsSymbolClef(msSymbol: MsSymbol, musicScore: MusicScore): Cle
 
     if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
         console.error("索引数据查找出错，获取符号的谱号失败")
-        return ClefEnum.treble
+        return ClefEnum.Treble
     }
     for (let i = (measureIndex); i >= 0; i--) {
         const curMeasure = singleStaff.measureArray[i];
@@ -564,7 +356,7 @@ export function getMsSymbolClef(msSymbol: MsSymbol, musicScore: MusicScore): Cle
 
 
     }
-    return ClefEnum.treble
+    return ClefEnum.Treble
 }
 
 // 获取某一符号所应用的谱号
@@ -639,8 +431,8 @@ export function mapGenerate(musicScore: MusicScore): void {
 }
 
 // 判断direction
-export function judgeDirection(region: MusicScoreRegionEnum): 'up' | 'down' {
-    if (region <= MusicScoreRegionEnum.space_2) {
+export function judgeDirection(region: StaffRegion): 'up' | 'down' {
+    if (region <= StaffRegion.space_2) {
         return 'up'
     } else {
         return 'down'

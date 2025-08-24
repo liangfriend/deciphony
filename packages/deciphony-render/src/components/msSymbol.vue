@@ -275,19 +275,19 @@ const svgHref = computed(() => {
     }
     case MsSymbolTypeEnum.accidental: {
       switch (props.msSymbol?.accidental) {
-        case AccidentalEnum.sharp: {
+        case AccidentalEnum.Sharp: {
           return sharpSvg
         }
-        case AccidentalEnum.flat: {
+        case AccidentalEnum.Flat: {
           return flatSvg
         }
-        case AccidentalEnum.nature: {
+        case AccidentalEnum.Nature: {
           return natureSvg
         }
-        case AccidentalEnum.doubleSharp: {
+        case AccidentalEnum.DoubleSharp: {
           return doubleSharpSvg
         }
-        case AccidentalEnum.doubleFlat: {
+        case AccidentalEnum.DoubleFlat: {
           return doubleFlatpSvg
         }
 

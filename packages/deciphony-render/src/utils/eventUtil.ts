@@ -3,7 +3,7 @@ import {
     MsMode,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    MusicScoreRegionEnum,
+    StaffRegion,
     ReserveMsSymbolType
 } from "deciphony-core/musicScoreEnum";
 import {
@@ -52,10 +52,10 @@ export function select(value: MsType, currentSelected: Ref<null | MsType>) {
 }
 
 
-export const eventConstant: { startX: number, startY: number, originRegion: MusicScoreRegionEnum } = {
+export const eventConstant: { startX: number, startY: number, originRegion: StaffRegion } = {
     startX: 0, //鼠标按下时相对视口坐标
     startY: 0,
-    originRegion: MusicScoreRegionEnum.space_1, // 音符按下专用，记录初始region
+    originRegion: StaffRegion.space_1, // 音符按下专用，记录初始region
 }
 
 // 处理选中元素mousemove事件
@@ -71,12 +71,12 @@ export function handleMouseMoveSelected(e: MouseEvent, measureHeight: number, cu
                 if (Math.abs(dy) > measureHeight / 8 && msSymbol) {
                     const index = Math.floor(dy / measureHeight * 8);
                     const targetIndex = eventConstant.originRegion - index;
-                    if (targetIndex in MusicScoreRegionEnum) {
+                    if (targetIndex in StaffRegion) {
                         const originRegion = msSymbol.region
-                        msSymbol.region = targetIndex as MusicScoreRegionEnum;
+                        msSymbol.region = targetIndex as StaffRegion;
                         // 符杠更新
-                        const noteBar = msSymbol.msSymbolArray.find((item:MsSymbol) => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null;
-                        const noteTail = msSymbol.msSymbolArray.find((item:MsSymbol) => item.type === MsSymbolTypeEnum.noteTail) as NoteTail | null;
+                        const noteBar = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null;
+                        const noteTail = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.noteTail) as NoteTail | null;
                         const measure = getDataWithIndex(msSymbol.index, musicScore).measure
                         if (!measure) {
                             console.error("measure不存在，音符移动事件出错")
@@ -86,14 +86,14 @@ export function handleMouseMoveSelected(e: MouseEvent, measureHeight: number, cu
                         // 更新符杠和符尾方向
                         if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(msSymbol.chronaxie)
                             || beamGroup.length < 2) { // 不成连音组
-                            if (noteBar && msSymbol.region >= MusicScoreRegionEnum.line_3 && noteBar.direction !== 'down') {
+                            if (noteBar && msSymbol.region >= StaffRegion.line_3 && noteBar.direction !== 'down') {
                                 changeNoteBarDirection('down', noteBar)
-                            } else if (noteBar && msSymbol.region < MusicScoreRegionEnum.line_3 && noteBar.direction !== 'up') {
+                            } else if (noteBar && msSymbol.region < StaffRegion.line_3 && noteBar.direction !== 'up') {
                                 changeNoteBarDirection('up', noteBar)
                             }
-                            if (noteTail && msSymbol.region >= MusicScoreRegionEnum.line_3 && noteTail.direction !== 'down') {
+                            if (noteTail && msSymbol.region >= StaffRegion.line_3 && noteTail.direction !== 'down') {
                                 changeNoteTailDirection('down', noteTail)
-                            } else if (noteTail && msSymbol.region < MusicScoreRegionEnum.line_3 && noteTail.direction !== 'up') {
+                            } else if (noteTail && msSymbol.region < StaffRegion.line_3 && noteTail.direction !== 'up') {
                                 changeNoteTailDirection('up', noteTail)
                             }
                         } else { // 成连音组
@@ -146,7 +146,7 @@ export function virtualSymbolMouseDown(
             multipleStaves: MultipleStaves,
         },
         msSymbolInformation: {
-            region: MusicScoreRegionEnum
+            region: StaffRegion
         }
     },) {
     if (!params.msState.currentSelected.value) return

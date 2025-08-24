@@ -30,7 +30,7 @@ import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
 import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
 } from "@/utils/bottomUtil";
-import {MusicScoreRegionEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+import {StaffRegion, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 import {MsState} from "@/types";
 import {virtualSymbolMouseDown} from "@/utils/eventUtil";
 
@@ -191,7 +191,7 @@ const region = computed(() => {
   return regionIndex + 37
 })
 const virtualSymbolBottom = computed(() => {
-  if (!(region.value in MusicScoreRegionEnum)) return props.measureHeight
+  if (!(region.value in StaffRegion)) return props.measureHeight
   const bottom = staffRegionToBottom(region.value, props.measureHeight) + props.measureHeight
   return bottom
 })

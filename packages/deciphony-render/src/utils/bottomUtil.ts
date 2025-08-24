@@ -1,10 +1,10 @@
 // 五线谱区域转换bottom
-import {MsSymbolTypeEnum, MusicScoreRegionEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+import {MsSymbolTypeEnum, StaffRegion, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 import {Measure, MsSymbol, MsSymbolContainer, MusicScore, NoteBar, SingleStaff} from "deciphony-core/types";
 import {getMsSymbolHeight} from "./heightUtil";
 import {getDataWithIndex, traverseMusicScore} from "deciphony-core/utils/musicScoreDataUtil";
 
-export function staffRegionToBottom(region: MusicScoreRegionEnum, measureHeight: number): number {
+export function staffRegionToBottom(region: StaffRegion, measureHeight: number): number {
     return measureHeight * ((region - 38) * 2) / 16
 }
 
@@ -56,7 +56,7 @@ export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScor
         case MsSymbolTypeEnum.noteHead: {
             if (!targetMsSymbol) return 0
             if (showMode === MusicScoreShowModeEnum.numberNotation) return 0
-            const noteRegion: MusicScoreRegionEnum = targetMsSymbol.region
+            const noteRegion: StaffRegion = targetMsSymbol.region
             return staffRegionToBottom(noteRegion, measureHeight)
         }
         default: {

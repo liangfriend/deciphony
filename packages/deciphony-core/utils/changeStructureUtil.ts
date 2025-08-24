@@ -6,7 +6,7 @@ import {
     KeySignatureEnum, MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    MusicScoreRegionEnum, SpanSymbolTypeEnum
+    StaffRegion, SpanSymbolTypeEnum
 } from "../musicScoreEnum";
 
 import {
@@ -142,6 +142,7 @@ export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsType, musicSc
     const spanSymbolIdSet = getSingleStaffRelatedSpanSymbolList(singleStaff, musicScore)
     updateSpanSymbolView(spanSymbolIdSet, musicScore)
 }
+
 // 移除符号
 export function removeMsSymbol(
     msSymbol: MsSymbol,
@@ -303,6 +304,7 @@ export function removeMsSymbolContainerRelatedSpanSymbol(msSymbolContainer: MsSy
         }
     }
 }
+
 // 删除小节相关联的跨小节符号
 export function removeMeasureRelatedSpanSymbol(measure: Measure, musicScore: MusicScore) {
     measure.msSymbolContainerArray.forEach((msSymbolContainer) => {
@@ -567,6 +569,7 @@ export function changeRestChronaxie(rest: MsSymbol, newChronaxie: ChronaxieEnum,
     // 更换时值
     rest.chronaxie = newChronaxie
 }
+
 export function addBindingStartId(msData: MsSymbol | Measure | SingleStaff, id: number) {
     msData.bindingStartId.push(id)
 }
@@ -574,12 +577,14 @@ export function addBindingStartId(msData: MsSymbol | Measure | SingleStaff, id: 
 export function addBindingEndId(msData: MsSymbol | Measure | SingleStaff, id: number) {
     msData.bindingEndId.push(id)
 }
+
 export function removeBindingStartId(msData: MsSymbol | Measure | SingleStaff, id: number) {
     const index = msData.bindingStartId.indexOf(id)
     if (index !== -1) {
         msData.bindingStartId.splice(index, 1)
     }
 }
+
 export function removeBindingEndId(msData: MsSymbol | Measure | SingleStaff, id: number) {
     const index = msData.bindingEndId.indexOf(id)
     if (index !== -1) {
@@ -772,6 +777,7 @@ export function changeClef(clef: ClefEnum, measure: Measure, musicScore: MusicSc
         }
     }
 }
+
 // 更改调号
 export function changeKeySignature(keySignature: KeySignatureEnum, measure: Measure, musicScore: MusicScore) {
     const keySignatureSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
@@ -786,6 +792,7 @@ export function changeKeySignature(keySignature: KeySignatureEnum, measure: Meas
         addKeySignatureToMeasure(newMsSymbolContainer, measure, musicScore)
     }
 }
+
 // 更改拍号
 export function changeTimeSignature(timeSignature: TimeSignature, measure: Measure, musicScore: MusicScore) {
     const timeSignatureSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
@@ -857,7 +864,7 @@ export function changeNoteTailDirection(direction: 'up' | 'down', noteTail: Note
 export function updateBeamGroupNote(beamId: number, measure: Measure, musicScore: MusicScore) {
     const group: { noteBar: NoteBar, noteTail: NoteTail }[] = []
     let direction: 'up' | 'down' = 'up'
-    let farthestRegion: MusicScoreRegionEnum = MusicScoreRegionEnum.line_3
+    let farthestRegion: StaffRegion = StaffRegion.line_3
     let start = false
     for (const i in measure.msSymbolContainerArray) {
         const msSymbolContainer = measure.msSymbolContainerArray[i]
@@ -866,8 +873,8 @@ export function updateBeamGroupNote(beamId: number, measure: Measure, musicScore
             // 找到音符头存储(这里要考虑多声部，container中可能有多个音符头)
             if (mainSymbol.type === MsSymbolTypeEnum.noteHead
                 && ![ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(mainSymbol.chronaxie)) {
-                const distanceFromMiddle = Math.abs(mainSymbol.region - MusicScoreRegionEnum.line_3)
-                const currentFarthest = Math.abs(farthestRegion - MusicScoreRegionEnum.line_3)
+                const distanceFromMiddle = Math.abs(mainSymbol.region - StaffRegion.line_3)
+                const currentFarthest = Math.abs(farthestRegion - StaffRegion.line_3)
                 if (distanceFromMiddle > currentFarthest) {
                     farthestRegion = mainSymbol.region
                 }
@@ -884,7 +891,7 @@ export function updateBeamGroupNote(beamId: number, measure: Measure, musicScore
         }
     }
     // 更新 direction
-    direction = farthestRegion >= MusicScoreRegionEnum.space_2 ? 'down' : 'up'
+    direction = farthestRegion >= StaffRegion.space_2 ? 'down' : 'up'
     for (const i in group) {
         const noteBar = group[i].noteBar
         const noteTail = group[i].noteTail

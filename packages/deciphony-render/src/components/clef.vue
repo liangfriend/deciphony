@@ -18,11 +18,11 @@ const props = defineProps({
 })
 const mask = computed(() => {
   let svgUrl = ''
-  if (props.clef.clef === ClefEnum.treble) {
+  if (props.clef.clef === ClefEnum.Treble) {
     svgUrl = trebleClefSvg
-  } else if (props.clef.clef === ClefEnum.alto) {
+  } else if (props.clef.clef === ClefEnum.Alto) {
     svgUrl = altoClefSvg
-  } else if (props.clef.clef === ClefEnum.bass) {
+  } else if (props.clef.clef === ClefEnum.Bass) {
     svgUrl = bassClefSvg
   }
   return {

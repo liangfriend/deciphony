@@ -17,7 +17,7 @@ import {
 import {
   ChronaxieEnum,
   MsSymbolTypeEnum,
-  MusicScoreRegionEnum, MusicScoreShowModeEnum
+  StaffRegion, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 import noteTailOneUpSvg from "@/assets/msSymbols/noteTailOneUp.svg";
 import noteTailTwoUpSvg from "@/assets/msSymbols/noteTailTwoUp.svg";
@@ -157,7 +157,7 @@ const mask = computed(() => {
   const noteHead = getDataWithIndex(props.noteTail.index, props.musicScore)
       .msSymbol as NoteHead
   if (noteHead && 'chronaxie' in noteHead
-      && noteHead.region <= MusicScoreRegionEnum.space_2) {
+      && noteHead.region <= StaffRegion.space_2) {
     switch (props.noteTail.chronaxie) {
       case ChronaxieEnum.eighth: {
         return noteTailOneUpSvg

@@ -2,12 +2,10 @@ import {
     ChronaxieEnum,
     ClefEnum,
     KeySignatureEnum,
-    NoteNameEnum,
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum,
     MsSymbolContainerTypeEnum,
     AccidentalEnum,
-    MusicScoreRegionEnum,
     BarLineTypeEnum,
     SpanSymbolFollowingCategoryEnum,
     SpanSymbolTypeEnum,
@@ -15,7 +13,7 @@ import {
     OrderTypeEnum,
     MsMode,
     ReserveMsSymbolType,
-    BeamTypeEnum
+    BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, Octave
 } from "./musicScoreEnum";
 
 
@@ -25,6 +23,19 @@ export declare interface MusicScoreOptions {
     color: string;
 }
 
+// 五线谱位置
+export interface StaffRegion {
+    region: StaffRegionEnum      // Lower / Main / Upper
+    type: StaffPositionTypeEnum  // Line / Space
+    index: number                // 第几条线/间，从 1 开始
+}
+
+// 组合成音名 (NoteName)
+export interface NoteName {
+    letter: NoteLetterEnum
+    accidental: AccidentalEnum
+    octave: Octave
+}
 
 export declare interface TimeSignature {
     beat: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16;
@@ -45,6 +56,7 @@ export declare type MusicScoreIndex = {
     msSymbolContainerIndex: number,
     msSymbolIndex: number,
 }
+
 export declare type BaseMsSymbol = {
     msSymbolArray: Array<MsSymbol>
     options: MusicScoreOptions
@@ -57,7 +69,7 @@ export declare type BaseMsSymbol = {
 }
 export declare type NoteHead = ({
     type: MsSymbolTypeEnum.noteHead,
-    region: MusicScoreRegionEnum   // 五线谱区域
+    region: StaffRegion   // 五线谱区域
     chronaxie: ChronaxieEnum; // 时值
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
@@ -223,7 +235,7 @@ export declare type VirtualSymbolContainerType = 'front' | 'middle' | 'end' | 's
 export declare type BeamGroupItem = {
     beamId: number,
     noteHead: NoteHead,
-    region: MusicScoreRegionEnum,
+    region: StaffRegion,
     chronaxie: ChronaxieEnum
 }
 export declare type BeamGroup = Array<BeamGroupItem>

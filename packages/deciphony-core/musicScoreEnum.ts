@@ -8,100 +8,29 @@ export enum MsTypeNameEnum {
 
 }
 
-export enum MusicScoreRegionEnum {
-    // 下方区域
-    lower_line_18 = 1,
-    lower_space_18,
-    lower_line_17,
-    lower_space_17,
-    lower_line_16,
-    lower_space_16,
-    lower_line_15,
-    lower_space_15,
-    lower_line_14,
-    lower_space_14,
-    lower_line_13,
-    lower_space_13,
-    lower_line_12,
-    lower_space_12,
-    lower_line_11,
-    lower_space_11,
-    lower_line_10,
-    lower_space_10,
-    lower_line_9,
-    lower_space_9,
-    lower_line_8,
-    lower_space_8,
-    lower_line_7,
-    lower_space_7,
-    lower_line_6,
-    lower_space_6,
-    lower_line_5,
-    lower_space_5,
-    lower_line_4,
-    lower_space_4,
-    lower_line_3,
-    lower_space_3,
-    lower_line_2,
-    lower_space_2,
-    lower_line_1,
-    lower_space_1,
-
-    // 五线谱本体
-    line_1,
-    space_1,
-    line_2,
-    space_2,
-    line_3,
-    space_3,
-    line_4,
-    space_4,
-    line_5,
-
-    // 上方区域
-    upper_space_1,
-    upper_line_1,
-    upper_space_2,
-    upper_line_2,
-    upper_space_3,
-    upper_line_3,
-    upper_space_4,
-    upper_line_4,
-    upper_space_5,
-    upper_line_5,
-    upper_space_6,
-    upper_line_6,
-    upper_space_7,
-    upper_line_7,
-    upper_space_8,
-    upper_line_8,
-    upper_space_9,
-    upper_line_9,
-    upper_space_10,
-    upper_line_10,
-    upper_space_11,
-    upper_line_11,
-    upper_space_12,
-    upper_line_12,
-    upper_space_13,
-    upper_line_13,
-    upper_space_14,
-    upper_line_14,
-    upper_space_15,
-    upper_line_15,
-    upper_space_16,
-    upper_line_16,
+// 五线谱位置：线 or 间
+export enum StaffPositionTypeEnum {
+    Line = "line",
+    Space = "space",
 }
 
+// 区域：下方 / 本体 / 上方
+export enum StaffRegionEnum {
+    Lower = "lower",
+    Main = "main",
+    Upper = "upper",
+}
+
+
 export enum ClefEnum {
-    treble = 1,       // 高音谱号（G）
-    mezzoSoprano, // 次女高音谱号（C）
-    alto,         // 中音谱号（C）
-    tenor,        // 次男高音谱号（C）
-    baritoneF,    // 男中音F谱号（F）
-    baritoneC,    // 男中音C谱号（C）
-    bass,         // 低音谱号（F）
-    subbass       // 次低音谱号（F）
+    Treble = 1,       // 高音谱号（G）
+    MezzoSoprano, // 次女高音谱号（C）
+    Alto,         // 中音谱号（C）
+    Tenor,        // 次男高音谱号（C）
+    BaritoneF,    // 男中音F谱号（F）
+    BaritoneC,    // 男中音C谱号（C）
+    Bass,         // 低音谱号（F）
+    Subbass       // 次低音谱号（F）
 }
 
 export enum KeySignatureEnum {
@@ -122,14 +51,15 @@ export enum KeySignatureEnum {
     'C#' = "C#"
 }
 
-export enum ScaleDegreeEnum {
-    1 = 1,
-    2 = 2,
-    3 = 3,
-    4 = 4,
-    5 = 5,
-    6 = 6,
-    7 = 7,
+// 唱名
+export enum SolmizationEnum {
+    "DO" = 1,
+    "RE" = 2,
+    "MI" = 3,
+    "FA" = 4,
+    "SOL" = 5,
+    "LA" = 6,
+    "TI" = 7,
 }
 
 // 基础音名 (A ~ G)
@@ -154,13 +84,6 @@ export enum AccidentalEnum {
 
 // 八度数（可以用 number，而不是枚举）
 export type Octave = number
-
-// 组合成音名 (NoteName)
-export interface NoteName {
-    letter: NoteLetterEnum
-    accidental: AccidentalEnum
-    octave: Octave
-}
 
 
 // 时值

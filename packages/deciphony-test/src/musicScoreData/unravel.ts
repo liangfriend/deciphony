@@ -15,7 +15,7 @@ const data: MusicScore = {
                 msSymbolContainerArray: [{
                     type: MsSymbolContainerTypeEnum.frontFixed,
                     msSymbolArray: [{
-                        clef: ClefEnum.treble,
+                        clef: ClefEnum.Treble,
                         type: MsSymbolTypeEnum.clef_f,
                         options: {},
                         computed: {},

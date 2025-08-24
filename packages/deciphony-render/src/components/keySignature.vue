@@ -1,5 +1,3 @@
-
-
 <script setup lang="ts">
 import {computed, CSSProperties, PropType} from "vue";
 import {
@@ -36,7 +34,7 @@ const props = defineProps({
 
 });
 const clef = computed((): ClefEnum => {
-  if (!props.keySignature) return ClefEnum.treble
+  if (!props.keySignature) return ClefEnum.Treble
   return getMsSymbolClef(props.keySignature, props.musicScore)
 })
 const keySignatureInfo = computed(() => {
@@ -75,26 +73,26 @@ const spacing = computed(() => props.measureHeight / 8);
 
 // 三种谱号对应的升降号垂直位置，单位是谱线间距 multiples，0为最低线（第一线）
 const sharpPositionsMap: Partial<Record<ClefEnum, Array<number>>> = {
-  [ClefEnum.treble]: [6, 3.5, 5, 2.5, 4, 2, 3],
-  [ClefEnum.bass]: [3, 0.5, 2, -0.5, 1, -1, 0],  // 低音谱号升号位置，模拟五线谱线和间的对应
-  [ClefEnum.alto]: [4.5, 2, 3.5, 1, 2.5, 0, 1.5], // 中音谱号
+  [ClefEnum.Treble]: [6, 3.5, 5, 2.5, 4, 2, 3],
+  [ClefEnum.Bass]: [3, 0.5, 2, -0.5, 1, -1, 0],  // 低音谱号升号位置，模拟五线谱线和间的对应
+  [ClefEnum.Alto]: [4.5, 2, 3.5, 1, 2.5, 0, 1.5], // 中音谱号
 };
 // TODO 后续要补全所有clef,去掉下边的！断言
 const flatPositionsMap: Partial<Record<ClefEnum, Array<number>>> = {
-  [ClefEnum.treble]: [5, 8, 4, 7, 3, 6, 2],
-  [ClefEnum.bass]: [6, 3.5, 5, 2.5, 4, 2, 3],
-  [ClefEnum.alto]: [2, 4.5, 1, 3.5, 0, 2.5, -0.5],
+  [ClefEnum.Treble]: [5, 8, 4, 7, 3, 6, 2],
+  [ClefEnum.Bass]: [6, 3.5, 5, 2.5, 4, 2, 3],
+  [ClefEnum.Alto]: [2, 4.5, 1, 3.5, 0, 2.5, -0.5],
 };
 
 const verticalOffsets = computed(() => {
   if (keySignatureInfo.value.type === 'sharp') {
-    const positions = (sharpPositionsMap[clef.value] || sharpPositionsMap[ClefEnum.treble])!;
+    const positions = (sharpPositionsMap[clef.value] || sharpPositionsMap[ClefEnum.Treble])!;
     return positions
         .slice(0, keySignatureInfo.value.count)
         .map(p => p * spacing.value);
   }
   if (keySignatureInfo.value.type === 'flat') {
-    const positions = (flatPositionsMap[clef.value] || flatPositionsMap[ClefEnum.treble])!;
+    const positions = (flatPositionsMap[clef.value] || flatPositionsMap[ClefEnum.Treble])!;
     return positions
         .slice(0, keySignatureInfo.value.count)
         .map(p => p * spacing.value);

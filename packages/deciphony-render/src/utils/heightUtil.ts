@@ -1,6 +1,6 @@
 import {
     MsSymbolTypeEnum,
-    MusicScoreRegionEnum, MusicScoreShowModeEnum
+    StaffRegion, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 import {MsSymbol, MusicScore, NoteHead} from "deciphony-core/types";
 import {MsSymbolInformationMap} from "@/constant";
@@ -53,7 +53,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore, sh
                     const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore, showMode)
                     let height = 0
                     //至少一个超出
-                    if (farthestNoteHead.region > MusicScoreRegionEnum.line_1) {
+                    if (farthestNoteHead.region > StaffRegion.line_1) {
                         height = slotBottom + measureHeight / 8 - measureHeight + minHeight
                         // 如果超出的是当前音符
                         if (farthestNoteHead === noteHead) {
@@ -77,7 +77,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore, sh
                     const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore, showMode)
                     let height = 0
                     //至少一个超出
-                    if (farthestNoteHead.region < MusicScoreRegionEnum.line_5) {
+                    if (farthestNoteHead.region < StaffRegion.line_5) {
                         height = slotBottom + measureHeight / 8 - measureHeight + minHeight
                         // 如果超出的是当前音符
                         if (farthestNoteHead === noteHead) {

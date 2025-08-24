@@ -8,7 +8,7 @@ import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    MusicScoreRegionEnum,
+    StaffRegion,
     SpanSymbolFollowingCategoryEnum,
     SpanSymbolTypeEnum
 } from "../musicScoreEnum";
@@ -99,7 +99,7 @@ export function spanSymbolTemplate(options: {
 
 export function msSymbolTemplate(options: {
     type?: MsSymbolTypeEnum,
-    region?: MusicScoreRegionEnum,
+    region?: StaffRegion,
     chronaxie?: ChronaxieEnum,
     barLineType?: BarLineTypeEnum,
     clef?: ClefEnum,
@@ -131,7 +131,7 @@ export function msSymbolTemplate(options: {
     switch (options.type) {
         case MsSymbolTypeEnum.noteHead: {
 
-            const region = options.region || MusicScoreRegionEnum.space_3
+            const region = options.region || StaffRegion.space_3
             // chronaxie不存在默认为四分音符，添加符杠
             if (!options.chronaxie || ![ChronaxieEnum.whole].includes(options.chronaxie)) {
                 const noteBar = msSymbolTemplate({
@@ -223,14 +223,14 @@ export function msSymbolTemplate(options: {
             return {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.clef_f,
-                clef: options.clef || ClefEnum.treble
+                clef: options.clef || ClefEnum.Treble
             }
         }
         case MsSymbolTypeEnum.clef: {
             return {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.clef,
-                clef: options.clef || ClefEnum.treble
+                clef: options.clef || ClefEnum.Treble
             }
         }
         case MsSymbolTypeEnum.keySignature: {
@@ -254,7 +254,7 @@ export function msSymbolTemplate(options: {
             return {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.accidental,
-                accidental: options.accidental || AccidentalEnum.sharp
+                accidental: options.accidental || AccidentalEnum.Sharp
             }
         }
         default: {
@@ -262,7 +262,7 @@ export function msSymbolTemplate(options: {
             return {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.noteHead,
-                region: options.region || MusicScoreRegionEnum.space_3,
+                region: options.region || StaffRegion.space_3,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
                 beamId: -1,
             }

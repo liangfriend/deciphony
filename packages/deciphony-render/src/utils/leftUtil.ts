@@ -22,7 +22,7 @@ import {
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
-    MusicScoreRegionEnum, MusicScoreShowModeEnum
+    StaffRegion, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 import {
     getWidthConstantInMeasure

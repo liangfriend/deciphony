@@ -2,11 +2,11 @@
 
 
 import {MsSymbol} from "deciphony-core/types";
-import {MsSymbolTypeEnum} from "deciphony-core/musicScoreEnum";
+import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 import {MsSymbolInformationMap} from "@/constant";
 
-export function getMultipleAspectRatio(msSymbol: MsSymbol): number {
-    const information = MsSymbolInformationMap[msSymbol.type]
+export function getMultipleAspectRatio(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum): number {
+    const information = MsSymbolInformationMap[showMode][msSymbol.type]
     if ('aspectRatio' in information && typeof information.aspectRatio === 'object') {
         if (msSymbol.type === MsSymbolTypeEnum.keySignature) {
             return information.aspectRatio[msSymbol.keySignature]
@@ -20,30 +20,32 @@ export function getMultipleAspectRatio(msSymbol: MsSymbol): number {
     return 0
 
 }
+
 // 获取音符aspectRatio
-export function getMsSymbolAspectRatio(msSymbol: MsSymbol) {
+export function getMsSymbolAspectRatio(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum) {
     if (!msSymbol?.type) {
         console.error("缺少符号传参，宽高比获取失败")
         return 1
     }
     // 单小节符号，赋值
-    const information = MsSymbolInformationMap[msSymbol.type]
+    const information = MsSymbolInformationMap[showMode][msSymbol.type]
     if ('aspectRatio' in information && (typeof information.aspectRatio === 'number')) {
         return information.aspectRatio
     } else if ('aspectRatio' in information && (typeof information.aspectRatio === 'object')) {
-        return getMultipleAspectRatio(msSymbol)
+        return getMultipleAspectRatio(msSymbol, showMode)
     }
     console.error("未找到符号对应宽高比")
     return 1
 }
+
 // 获取高度乘数
-export function getHeightMultiplier(msSymbol: MsSymbol) {
+export function getHeightMultiplier(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum) {
     if (!msSymbol?.type) {
         console.error("缺少符号传参，高度乘数获取失败")
         return 1
     }
     // 单小节符号，赋值
-    const information = MsSymbolInformationMap[msSymbol.type]
+    const information = MsSymbolInformationMap[showMode][msSymbol.type]
     if ('heightMultiplier' in information && (typeof information.aspectRatio === 'number')) {
         return information.heightMultiplier
     }

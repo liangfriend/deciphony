@@ -1,6 +1,6 @@
 import {
     MsSymbolContainerTypeEnum,
-    MsSymbolTypeEnum
+    MsSymbolTypeEnum, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 
 import {
@@ -27,11 +27,11 @@ import {getHeightMultiplier, getMsSymbolAspectRatio} from "@/utils/geometryUtil"
 
 
 // 获取定宽容器的宽度
-export function getWidthFixedContainerWidth(msSymbolContainer: MsSymbolContainer, measureHeight: number): number {
+export function getWidthFixedContainerWidth(msSymbolContainer: MsSymbolContainer, measureHeight: number, showMode: MusicScoreShowModeEnum): number {
     let width = 0
     for (let i = 0; i < msSymbolContainer.msSymbolArray.length; i++) {
         const curMsSymbol: MsSymbol = msSymbolContainer.msSymbolArray[i]
-        const information = MsSymbolInformationMap[curMsSymbol.type]
+        const information = MsSymbolInformationMap[showMode][curMsSymbol.type]
         let curW = 0
         if ('aspectRatio' in information && (typeof information.aspectRatio === 'number')) {
             curW += information.aspectRatio * measureHeight
@@ -53,7 +53,7 @@ export function getWidthFixedContainerWidth(msSymbolContainer: MsSymbolContainer
 }
 
 // 获取符号容器宽度
-export function getMsSymbolContainerWidth(msSymbolContainer: MsSymbolContainer, measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore, componentWidth: number): number {
+export function getMsSymbolContainerWidth(msSymbolContainer: MsSymbolContainer, measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore, componentWidth: number, showMode: MusicScoreShowModeEnum): number {
     const measureHeight = musicScore.measureHeight
     if (!msSymbolContainer || !measure) {
         console.error("缺少必要的参数，坐标计算出错")
@@ -62,23 +62,23 @@ export function getMsSymbolContainerWidth(msSymbolContainer: MsSymbolContainer, 
     let width: number = 0 // 定宽容器的宽度等于主符号宽度（通过调用符号组件暴露的获取宽高比方法获取宽高比），非定宽容器宽度通过计算宽度系数设置
     const containerType = msSymbolContainer.type
     if ([MsSymbolContainerTypeEnum.frontFixed, MsSymbolContainerTypeEnum.rearFixed].includes(containerType)) { // 如果是定宽容器
-        width = getWidthFixedContainerWidth(msSymbolContainer, measureHeight)
+        width = getWidthFixedContainerWidth(msSymbolContainer, measureHeight, showMode)
     } else { // 如果是变宽容器  宽度 = (小节宽度 - 定宽容器宽度) / 变宽容器宽度系数和 * 当前容器宽度系数
-        const fixedSymbolContainerSum = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight)
-        const totalWidthConstantOfFixedContainerInMeasure = getWidthConstantInMeasure(measure)
-        const curMsSymbolContainerWidthConstant = getWidthConstantInMsSymbolContainer(msSymbolContainer)
-        const measureWidth = getMeasureWidth(measure, singleStaff, musicScore, componentWidth)
+        const fixedSymbolContainerSum = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, showMode)
+        const totalWidthConstantOfFixedContainerInMeasure = getWidthConstantInMeasure(measure, showMode)
+        const curMsSymbolContainerWidthConstant = getWidthConstantInMsSymbolContainer(msSymbolContainer, showMode)
+        const measureWidth = getMeasureWidth(measure, singleStaff, musicScore, componentWidth, showMode)
         width = (measureWidth - fixedSymbolContainerSum) / totalWidthConstantOfFixedContainerInMeasure * curMsSymbolContainerWidthConstant
     }
     return width
 }
 
 // 获取小节宽度
-export function getMeasureWidth(measure: Measure, singleStaff: SingleStaff, musicScoreData: MusicScore, componentWidth: number) {
-    const totalSingleStaffWidthConstant = getWidthConstantInSingleStaff(singleStaff); // 获取单谱表宽度系数和
-    const totalMeasureWidthConstant = getWidthConstantInMeasure(measure,); // 获取小节宽度系数和
-    const fixedContainerWidthInSngleStaff = getWidthFixedContainerWidthSumInSingleStaff(singleStaff, musicScoreData.measureHeight) // 单谱表内定宽容器宽度
-    const fixedContainerWidthInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, musicScoreData.measureHeight) // 小节定宽容器宽度
+export function getMeasureWidth(measure: Measure, singleStaff: SingleStaff, musicScoreData: MusicScore, componentWidth: number, showMode: MusicScoreShowModeEnum) {
+    const totalSingleStaffWidthConstant = getWidthConstantInSingleStaff(singleStaff, showMode); // 获取单谱表宽度系数和
+    const totalMeasureWidthConstant = getWidthConstantInMeasure(measure, showMode); // 获取小节宽度系数和
+    const fixedContainerWidthInSngleStaff = getWidthFixedContainerWidthSumInSingleStaff(singleStaff, musicScoreData.measureHeight, showMode) // 单谱表内定宽容器宽度
+    const fixedContainerWidthInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, musicScoreData.measureHeight, showMode) // 小节定宽容器宽度
     const measureLength = singleStaff.measureArray.length // 单谱表内小节数量
     const totalVariableContainerWidth = (componentWidth - fixedContainerWidthInSngleStaff) // 变宽容器总宽度
     const widthPerWidthConstant = totalVariableContainerWidth / totalSingleStaffWidthConstant * musicScoreData.widthDynamicRatio // 每宽度常亮的宽度
@@ -88,7 +88,7 @@ export function getMeasureWidth(measure: Measure, singleStaff: SingleStaff, musi
 }
 
 // 获取当前小节内定宽符号容器宽度之和, 第二个参数判断是否只计算当前符号之前的
-export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measureHeight: number, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
+export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measureHeight: number, showMode: MusicScoreShowModeEnum, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
     let widthSum = 0
     for (let i = 0; i < measure.msSymbolContainerArray.length; i++) {
         const curMsSymbolContainer: MsSymbolContainer = measure.msSymbolContainerArray[i]
@@ -98,11 +98,11 @@ export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measur
         }
         const containerType = curMsSymbolContainer.type
         if (filter === 'all' && [MsSymbolContainerTypeEnum.frontFixed, MsSymbolContainerTypeEnum.rearFixed].includes(containerType)) {
-            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight)
+            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight, showMode)
         } else if (filter === 'front' && [MsSymbolContainerTypeEnum.frontFixed].includes(containerType)) {
-            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight)
+            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight, showMode)
         } else if (filter === 'rear' && [MsSymbolContainerTypeEnum.rearFixed].includes(containerType)) {
-            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight)
+            widthSum += getWidthFixedContainerWidth(curMsSymbolContainer, measureHeight, showMode)
         }
 
     }
@@ -111,10 +111,10 @@ export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measur
 
 
 // 获取单谱表内定宽容器符号宽度之和，单位px
-export function getWidthFixedContainerWidthSumInSingleStaff(singleStaff: SingleStaff, measureHeight: number, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
+export function getWidthFixedContainerWidthSumInSingleStaff(singleStaff: SingleStaff, measureHeight: number, showMode: MusicScoreShowModeEnum, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
     let widthSum = 0
     singleStaff.measureArray.forEach((measure: Measure) => {
-        widthSum += getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, filter, msSymbolContainer)
+        widthSum += getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, showMode, filter, msSymbolContainer)
     })
     return widthSum
 }
@@ -123,26 +123,26 @@ export function getWidthFixedContainerWidthSumInSingleStaff(singleStaff: SingleS
 export function getNoteTailWidth(noteTail: NoteTail, noteHead: NoteHead, msSymbolContainer: MsSymbolContainer,
                                  measure: Measure,
                                  singleStaff: SingleStaff, musicScore: MusicScore,
-                                 componentWidth: number) {
-    const aspectRatio = getMsSymbolAspectRatio(noteTail)
-    const height = getMsSymbolHeight(noteTail, musicScore)
+                                 componentWidth: number, showMode: MusicScoreShowModeEnum,) {
+    const aspectRatio = getMsSymbolAspectRatio(noteTail, showMode)
+    const height = getMsSymbolHeight(noteTail, musicScore, showMode)
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
     if (beamGroup.length > 1) {
         // 如果是连音组首尾处的音符，符尾只有一半的宽度
         if (noteHead.id === beamGroup[0].noteHead.id || noteHead.id === beamGroup[beamGroup.length - 1].noteHead.id) {
-            return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth) / 2
+            return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode) / 2
         }
-        return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
+        return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode)
     } else {
         return height * aspectRatio
     }
 }
 
-export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbolContainer, measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore, componentWidth: number) {
+export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbolContainer, measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore, componentWidth: number, showMode: MusicScoreShowModeEnum) {
     const measureHeight = musicScore.measureHeight
-    const aspectRatio = getMsSymbolAspectRatio(msSymbol)
-    const heightMultiplier = getHeightMultiplier(msSymbol)
-    const height = getMsSymbolHeight(msSymbol, musicScore)
+    const aspectRatio = getMsSymbolAspectRatio(msSymbol, showMode)
+    const heightMultiplier = getHeightMultiplier(msSymbol, showMode)
+    const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
     switch (msSymbol?.type) {
         case MsSymbolTypeEnum.noteBar: {
             // noteBar的高度是动态的，所以宽度不能按照真实宽度乘以宽高比，而是乘以最小高度
@@ -155,7 +155,7 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
                 return height * aspectRatio
             }
 
-            return getNoteTailWidth(msSymbol, noteHead, msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
+            return getNoteTailWidth(msSymbol, noteHead, msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode)
         }
         default: {
             return height * aspectRatio
@@ -164,9 +164,9 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
     }
 }
 
-export function getMsSymbolSlotWidth(msSymbol: MsSymbol, musicScore: MusicScore, isMain: boolean = false) {
+export function getMsSymbolSlotWidth(msSymbol: MsSymbol, musicScore: MusicScore, showMode: MusicScoreShowModeEnum, isMain: boolean = false) {
     const mainMsSymbol = isMain ? msSymbol : getMainMsSymbol(msSymbol, musicScore)
-    const aspectRatio = getMsSymbolAspectRatio(mainMsSymbol)
-    const height = getMsSymbolHeight(mainMsSymbol, musicScore)
+    const aspectRatio = getMsSymbolAspectRatio(mainMsSymbol, showMode)
+    const height = getMsSymbolHeight(mainMsSymbol, musicScore, showMode)
     return height * aspectRatio
 }

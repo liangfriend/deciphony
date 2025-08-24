@@ -30,7 +30,7 @@ import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
 import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
 } from "@/utils/bottomUtil";
-import {MusicScoreRegionEnum} from "deciphony-core/musicScoreEnum";
+import {MusicScoreRegionEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 import {MsState} from "@/types";
 import {virtualSymbolMouseDown} from "@/utils/eventUtil";
 
@@ -77,6 +77,10 @@ const props = defineProps({
     type: Object as PropType<MusicScore>,
     default: {}
   },
+  showMode: { // 展示模式    五线谱  简谱  节奏谱
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    default: MusicScoreShowModeEnum.numberNotation
+  },
 })
 
 const svgHref = computed(() => {
@@ -108,24 +112,24 @@ const containerLeft = computed(() => {
   if (props.msSymbolContainer) {
 
 
-  const containerType = props.msSymbolContainer.type
-  //变宽容器 （小节宽度 - 定宽容器宽度）/ 小节变宽容器宽度系数之和 * 截止当前容器小节的宽度系数之和 + 前置定宽容器宽度之和
-  const widthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight)
-  const widthConstantInMeasure = getWidthConstantInMeasure(props.measure)
-  const preWidConstantInMeasure = getWidthConstantInMeasure(props.measure, props.msSymbolContainer)
-  const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, 'front')
-  left = (props.measureWidth - widthFixedContainerWidthSumInMeasure) / widthConstantInMeasure * preWidConstantInMeasure + preWidthFixedContainerWidthSumInMeasure
-      - containerWidth.value / 2 // 加上音符的一半距离进行微观居中
-  // 将虚拟音符偏移到正确位置，具体逻辑语言表述不清
-  if (['middle'].includes(props.type)) {
-    left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth)
-  } else if (['end'].includes(props.type)) {
-    left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth) * 3 / 4
-  } else if (['front'].includes(props.type)) {
-    left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth) / 4
-  } else if (['self'].includes(props.type)) {
-    left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth) * 2 / 4
-  }
+    const containerType = props.msSymbolContainer.type
+    //变宽容器 （小节宽度 - 定宽容器宽度）/ 小节变宽容器宽度系数之和 * 截止当前容器小节的宽度系数之和 + 前置定宽容器宽度之和
+    const widthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, props.showMode)
+    const widthConstantInMeasure = getWidthConstantInMeasure(props.measure, props.showMode)
+    const preWidConstantInMeasure = getWidthConstantInMeasure(props.measure, props.showMode, props.msSymbolContainer)
+    const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, 'front')
+    left = (props.measureWidth - widthFixedContainerWidthSumInMeasure) / widthConstantInMeasure * preWidConstantInMeasure + preWidthFixedContainerWidthSumInMeasure
+        - containerWidth.value / 2 // 加上音符的一半距离进行微观居中
+    // 将虚拟音符偏移到正确位置，具体逻辑语言表述不清
+    if (['middle'].includes(props.type)) {
+      left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
+    } else if (['end'].includes(props.type)) {
+      left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth, props.showMode) * 3 / 4
+    } else if (['front'].includes(props.type)) {
+      left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth, props.showMode) / 4
+    } else if (['self'].includes(props.type)) {
+      left += getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth, props.showMode) * 2 / 4
+    }
 
   } else { // 没有符号容器传入的情况，就是空的小节
     left = props.measureWidth / 2 - containerWidth.value / 2

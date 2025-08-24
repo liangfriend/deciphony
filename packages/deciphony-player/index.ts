@@ -7,7 +7,7 @@ import * as Tone from "tone";
 import {MusicScore} from "deciphony-core/types";
 import {
     ChronaxieEnum, MsSymbolTypeEnum,
-    MusicalAlphabetEnum
+    NoteNameEnum
 } from "deciphony-core/musicScoreEnum";
 import {
     getMsSymbolClef,
@@ -208,7 +208,7 @@ function musicScoreToToneSequence(musicScore: MusicScore): ToneSequence[] {
     return sequence;
 }
 
-export default  {
+export default {
     play,
     pause,
     stop,

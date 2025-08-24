@@ -8,18 +8,19 @@ import {
     WidthConstant
 } from "deciphony-core/types";
 import {MsSymbolInformationMap,} from "@/constant";
+import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 
 // 获取当前符号的宽度系数之和
-export function getWidthConstantInMsSymbol(msSymbol: MsSymbol): WidthConstant {
+export function getWidthConstantInMsSymbol(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum): WidthConstant {
     let widthConstant: WidthConstant = 0
-    const information = MsSymbolInformationMap[msSymbol.type]
+    const information = MsSymbolInformationMap[showMode][msSymbol.type]
     if ('widthRatioConstant' in information) {
         widthConstant += information.widthRatioConstant
     }
     if (msSymbol.msSymbolArray) {
         for (let k = 0; k < msSymbol.msSymbolArray.length; k++) {
             const childMsSymbol = msSymbol.msSymbolArray[k]
-            const childInformation = MsSymbolInformationMap[childMsSymbol.type]
+            const childInformation = MsSymbolInformationMap[showMode][childMsSymbol.type]
             if ('widthRatioConstant' in childInformation) {
                 widthConstant += childInformation.widthRatioConstant
             }
@@ -29,13 +30,13 @@ export function getWidthConstantInMsSymbol(msSymbol: MsSymbol): WidthConstant {
 }
 
 // 获取当前符号容器的宽度系数之和 取宽度系数最大的符号的宽度系数
-export function getWidthConstantInMsSymbolContainer(msSymbolContainer: MsSymbolContainer): WidthConstant {
+export function getWidthConstantInMsSymbolContainer(msSymbolContainer: MsSymbolContainer, showMode: MusicScoreShowModeEnum): WidthConstant {
     let widthConstant: WidthConstant = 0
 
     if (msSymbolContainer.msSymbolArray) {
         for (let k = 0; k < msSymbolContainer.msSymbolArray.length; k++) {
             const curMsSymbol = msSymbolContainer.msSymbolArray[k]
-            const curWidthConstant = getWidthConstantInMsSymbol(curMsSymbol)
+            const curWidthConstant = getWidthConstantInMsSymbol(curMsSymbol, showMode)
             // 取最大值
             if (widthConstant < curWidthConstant) {
                 widthConstant = curWidthConstant
@@ -46,7 +47,7 @@ export function getWidthConstantInMsSymbolContainer(msSymbolContainer: MsSymbolC
 }
 
 // 获取小节的宽度占比常数之和, 第二个参数判断是否只计算当前符号容器之前的
-export function getWidthConstantInMeasure(measure: Measure, msSymbolContainer?: MsSymbolContainer | null): WidthConstant {
+export function getWidthConstantInMeasure(measure: Measure, showMode: MusicScoreShowModeEnum, msSymbolContainer?: MsSymbolContainer | null): WidthConstant {
 
     let widthConstant: WidthConstant = 0
     for (let j = 0; j < measure.msSymbolContainerArray.length; j++) {
@@ -55,7 +56,7 @@ export function getWidthConstantInMeasure(measure: Measure, msSymbolContainer?: 
             return widthConstant
         }
 
-        widthConstant += getWidthConstantInMsSymbolContainer(curMsSymbolContainer)
+        widthConstant += getWidthConstantInMsSymbolContainer(curMsSymbolContainer, showMode)
     }
     // 一个小节的宽度系数不可以为0，最少为1, 这里这样写有可能在以后导致问题，留心一下
     if (widthConstant === 0) {
@@ -66,11 +67,11 @@ export function getWidthConstantInMeasure(measure: Measure, msSymbolContainer?: 
 
 
 // 获取单谱表的宽度占比常数之和, 第二个参数判断是否只计算当前符号之前的
-export function getWidthConstantInSingleStaff(singleStaff: SingleStaff, msSymbolContainer?: MsSymbolContainer | null): WidthConstant {
+export function getWidthConstantInSingleStaff(singleStaff: SingleStaff, showMode: MusicScoreShowModeEnum, msSymbolContainer?: MsSymbolContainer | null): WidthConstant {
     let preWidthConstant = 0
     for (let i = 0; i < singleStaff.measureArray.length; i++) {
         const measure = singleStaff.measureArray[i]
-        preWidthConstant += getWidthConstantInMeasure(measure, msSymbolContainer)
+        preWidthConstant += getWidthConstantInMeasure(measure, showMode, msSymbolContainer)
     }
     return preWidthConstant
 }

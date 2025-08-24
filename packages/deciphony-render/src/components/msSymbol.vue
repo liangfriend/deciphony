@@ -5,26 +5,38 @@ import {
   MsSymbol,
   type MsSymbolContainer,
   type MusicScore,
-  NoteHead, type SingleStaff
+  NoteHead,
+  type SingleStaff
 } from "deciphony-core/types";
 import {
   AccidentalEnum,
   BarLineTypeEnum,
   ChronaxieEnum,
-  MsSymbolTypeEnum, MusicScoreRegionEnum
+  MsSymbolTypeEnum,
+  MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 // 音符头
 import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
 import noteHeadHalfSvg from "@/assets/msSymbols/noteHeadHalf.svg"
 import noteHeadQuarterSvg from "@/assets/msSymbols/noteHeadQuarter.svg"
+import note0Svg from "@/assets/msSymbols/0.svg"
+import note1Svg from "@/assets/msSymbols/1.svg"
+import note2Svg from "@/assets/msSymbols/2.svg"
+import note3Svg from "@/assets/msSymbols/3.svg"
+import note4Svg from "@/assets/msSymbols/4.svg"
+import note5Svg from "@/assets/msSymbols/5.svg"
+import note6Svg from "@/assets/msSymbols/6.svg"
+import note7Svg from "@/assets/msSymbols/7.svg"
+
+
 // 休止符
 import restWholeSvg from "@/assets/msSymbols/restWhole.svg"
+import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg"
+import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg"
 import restHalfSvg from "@/assets/msSymbols/restHalf.svg"
 import restQuarterSvg from "@/assets/msSymbols/restQuarter.svg"
 import restEighthSvg from "@/assets/msSymbols/restEighth.svg"
 import restSixteenthSvg from "@/assets/msSymbols/restSixteenth.svg"
-import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg"
-import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg"
 // 符杠
 import noteBarSvg from '@/assets/msSymbols/noteBar.svg'
 
@@ -45,20 +57,12 @@ import KeySignature from "./keySignature.vue";
 import TimeSignature from "./timeSignature.vue";
 
 import {getMsSymbolHeight} from "@/utils/heightUtil";
-import {
-  getMsSymbolBottomToSlot,
-  getSlotBottomToMeasure
-} from "@/utils/bottomUtil";
-import {
-  getMeasureLeftToMusicScore,
-  getMsSymbolLeftToSlot, getSlotLeftToMeasure
-} from "@/utils/leftUtil";
-import {
-  getMsSymbolSlotWidth,
-  getMsSymbolWidth, getNoteTailWidth
-} from "@/utils/widthUtil";
+import {getMsSymbolBottomToSlot} from "@/utils/bottomUtil";
+import {getMsSymbolLeftToSlot} from "@/utils/leftUtil";
+import {getMsSymbolWidth} from "@/utils/widthUtil";
 import NoteTail from "./noteTail.vue";
 import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
+import barStandardStaff from "@/assets/msSymbols/bar-standardStaff.svg";
 
 const props = defineProps({
   msSymbol: {
@@ -130,26 +134,54 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  showMode: {
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    required: true
+  }
 })
 
 const svgHref = computed(() => {
   switch (props.msSymbol?.type) {
     case MsSymbolTypeEnum.noteHead: {
-      switch (props.msSymbol?.chronaxie) {
-        case ChronaxieEnum.whole: {
-          return noteHeadWholeSvg
+      switch (props.showMode) {
+        case MusicScoreShowModeEnum.standardStaff: {
+          switch (props.msSymbol?.chronaxie) {
+            case ChronaxieEnum.whole: {
+              return noteHeadWholeSvg
+            }
+            case ChronaxieEnum.half: {
+              return noteHeadHalfSvg
+            }
+            case ChronaxieEnum.quarter: {
+              return noteHeadQuarterSvg
+            }
+            default: {
+              return noteHeadQuarterSvg
+            }
+          }
         }
-        case ChronaxieEnum.half: {
-          return noteHeadHalfSvg
-        }
-        case ChronaxieEnum.quarter: {
-          return noteHeadQuarterSvg
+        case MusicScoreShowModeEnum.numberNotation: {
+          switch (props.msSymbol?.chronaxie) {
+            case ChronaxieEnum.whole: {
+              return note0Svg
+            }
+            case ChronaxieEnum.half: {
+              return note0Svg
+            }
+            case ChronaxieEnum.quarter: {
+              return note0Svg
+            }
+            default: {
+              return note0Svg
+            }
+
+          }
         }
         default: {
-          return noteHeadQuarterSvg
+          return noteHeadWholeSvg
         }
-
       }
+
     }
     case MsSymbolTypeEnum.rest: {
       switch (props.msSymbol?.chronaxie) {
@@ -272,26 +304,26 @@ const svgHref = computed(() => {
 const msSymbolRef = ref(null!)
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.msSymbol)
+  return getMsSymbolAspectRatio(props.msSymbol, props.showMode)
 })
 
 
 const height = computed(() => {
   // const parentMsSymbol = getDataWithIndex(props.msSymbol).msSymbol
-  return getMsSymbolHeight(props.msSymbol, props.musicScore)
+  return getMsSymbolHeight(props.msSymbol, props.musicScore, props.showMode)
 })
 // 符号宽度
 const width = computed(() => {
 
   return getMsSymbolWidth(props.msSymbol, props.msSymbolContainer, props.measure,
-      props.singleStaff, props.musicScore, props.componentWidth)
+      props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
 })
 const msSymbolLeft = computed(() => {
-  return getMsSymbolLeftToSlot(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth)
+  return getMsSymbolLeftToSlot(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth, props.showMode)
 })
 
 const msSymbolBottom = computed(() => {
-  return getMsSymbolBottomToSlot(props.msSymbol, props.musicScore)
+  return getMsSymbolBottomToSlot(props.msSymbol, props.musicScore, props.showMode)
 
 })
 const msSymbolStyle = computed<CSSProperties>(() => {
@@ -311,7 +343,8 @@ const msSymbolStyle = computed<CSSProperties>(() => {
   }
 
   if (svgHref.value) {
-    style.mask = `url("${svgHref.value}") center center / cover no-repeat`
+    style.mask = `url("${svgHref.value}") no-repeat center`
+    style['mask-size'] = '100% 100%'
   }
   // TODO 测试代码
   // if (props.msSymbol.type === MsSymbolTypeEnum.noteTail) {
@@ -339,33 +372,46 @@ defineExpose({aspectRatio})
 <template>
   <clef
       v-if="msSymbol?.type === MsSymbolTypeEnum.clef || msSymbol?.type === MsSymbolTypeEnum.clef_f && 'clef' in msSymbol"
+      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
       :clef="msSymbol"
       @mouseup.self="handleMouseUp"
       @mousedown.self="handleMouseDown"
       :musicScore="musicScore"
       :style="msSymbolStyle"></clef>
-  <key-signature v-else-if="msSymbol?.type === MsSymbolTypeEnum.keySignature"
-                 :measure-height="measureHeight"
-                 :slotWidth="slotWidth"
-                 @mouseup.self="handleMouseUp"
-                 @mousedown.self="handleMouseDown"
-                 :musicScore="musicScore"
-                 :style="msSymbolStyle"
-                 :keySignature="msSymbol"></key-signature>
-  <time-signature v-else-if="msSymbol?.type === MsSymbolTypeEnum.timeSignature" :style="msSymbolStyle"
-                  @mouseup.self="handleMouseUp"
-                  @mousedown.self="handleMouseDown"
-                  :time-signature="msSymbol" :measure-height="measureHeight"></time-signature>
-  <note-tail v-else-if="msSymbol?.type === MsSymbolTypeEnum.noteTail"
-             :ms-symbol-container="msSymbolContainer"
-             :pre-container="preContainer"
-             :next-container="nextContainer"
-             :measure-width="measureWidth"
-             :single-staff="singleStaff"
-             :slot-left="slotLeft"
-             :component-width="componentWidth"
-             :noteTail="msSymbol" :noteHead="parentMsSymbol as NoteHead" :measure="measure"
-             :musicScore="musicScore"></note-tail>
+  <key-signature
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.keySignature"
+      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      :measure-height="measureHeight"
+      :slotWidth="slotWidth"
+      @mouseup.self="handleMouseUp"
+      @mousedown.self="handleMouseDown"
+      :musicScore="musicScore"
+      :style="msSymbolStyle"
+      :keySignature="msSymbol"></key-signature>
+  <time-signature
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.timeSignature"
+      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      :style="msSymbolStyle"
+      @mouseup.self="handleMouseUp"
+      @mousedown.self="handleMouseDown"
+      :time-signature="msSymbol" :measure-height="measureHeight"></time-signature>
+  <note-tail
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.noteTail"
+      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      :ms-symbol-container="msSymbolContainer"
+      :pre-container="preContainer"
+      :next-container="nextContainer"
+      :measure-width="measureWidth"
+      :single-staff="singleStaff"
+      :slot-left="slotLeft"
+      :component-width="componentWidth"
+      :noteTail="msSymbol" :noteHead="parentMsSymbol as NoteHead" :measure="measure"
+      :musicScore="musicScore"></note-tail>
+  <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.noteBar"
+       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+       ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
+       @mousedown.self="handleMouseDown"
+  ></div>
   <div v-else ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
   ></div>

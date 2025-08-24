@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
+    <!-- 左上弯进来，形成一个闭合的下圆弧 -->
+    <path d="
+    M22 12
+    Q12 2 8 20
+    Q6 36 18 40
+    Q26 36 22 28
+    Q18 20 8 24
+  " fill="none" stroke="black" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

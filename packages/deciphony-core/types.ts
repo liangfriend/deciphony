@@ -2,7 +2,7 @@ import {
     ChronaxieEnum,
     ClefEnum,
     KeySignatureEnum,
-    MusicalAlphabetEnum,
+    NoteNameEnum,
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum,
     MsSymbolContainerTypeEnum,
@@ -214,7 +214,6 @@ export declare type IndexData = {
     msSymbolContainer: MsSymbolContainer | null,
     msSymbol: MsSymbol | null,
 }
-
 
 
 // 虚拟符号容器类型

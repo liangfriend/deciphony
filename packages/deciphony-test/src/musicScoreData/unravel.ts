@@ -3,7 +3,7 @@ import {
     AccidentalEnum,
     ChronaxieEnum,
     ClefEnum, KeySignatureEnum,
-    MsSymbolContainerTypeEnum, MsSymbolTypeEnum, MusicalAlphabetEnum,
+    MsSymbolContainerTypeEnum, MsSymbolTypeEnum, NoteNameEnum,
     MusicScoreShowModeEnum
 } from "@/applications/ChuangKeApplication/components/musicScore/musicScoreEnum.ts";
 

@@ -1,27 +1,15 @@
 // 五线谱区域转换bottom
-import {
-    MsSymbolTypeEnum,
-    MusicScoreRegionEnum
-} from "deciphony-core/musicScoreEnum";
-import {
-    Measure,
-    MsSymbol,
-    MsSymbolContainer, MusicScore, NoteBar, NoteHead,
-    SingleStaff
-} from "deciphony-core/types";
+import {MsSymbolTypeEnum, MusicScoreRegionEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+import {Measure, MsSymbol, MsSymbolContainer, MusicScore, NoteBar, SingleStaff} from "deciphony-core/types";
 import {getMsSymbolHeight} from "./heightUtil";
-import {
-    getBeamGroup,
-    getDataWithIndex,
-    traverseMusicScore
-} from "deciphony-core/utils/musicScoreDataUtil";
+import {getDataWithIndex, traverseMusicScore} from "deciphony-core/utils/musicScoreDataUtil";
 
 export function staffRegionToBottom(region: MusicScoreRegionEnum, measureHeight: number): number {
     return measureHeight * ((region - 38) * 2) / 16
 }
 
 // 获取符号在符号槽位中的相对bottom。
-export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicScore): number {
+export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicScore, showMode: MusicScoreShowModeEnum): number {
     const parentMsSymbol = getDataWithIndex(msSymbol.index, musicScore).msSymbol
     const measureHeight = musicScore.measureHeight
     switch (msSymbol?.type) {
@@ -30,21 +18,21 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
                 return measureHeight / 8
 
             } else {
-                const height = getMsSymbolHeight(msSymbol, musicScore)
+                const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
                 return -height + measureHeight / 8
 
             }
         }
         case MsSymbolTypeEnum.noteTail: { // 符尾的
-            const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore)
+            const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
             const noteBar = parentMsSymbol?.msSymbolArray.find((item) => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null
             if (!noteBar) {
                 console.error("找不到符杠，符尾bottom计算失败")
                 return 0
             }
             const noteBarOffset = measureHeight * 1 / 8 // 符杠相对slot的偏差
-            const height = getMsSymbolHeight(msSymbol, musicScore)
-            const noteBarHeight = getMsSymbolHeight(noteBar, musicScore)
+            const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
+            const noteBarHeight = getMsSymbolHeight(noteBar, musicScore, showMode)
 
             if (msSymbol.direction === 'up') {
                 return noteBarHeight - height + noteBarOffset
@@ -59,7 +47,7 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
 }
 
 // 获取符号槽位在符号容器中的相对bottom。因为MsSymbolContainer的y轴位置及高度都是等同于measure的，所以这个bottom等同于相对measure的bottom
-export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScore): number {
+export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScore, showMode: MusicScoreShowModeEnum): number {
     if (!msSymbol) return 0
     const measureHeight = musicScore.measureHeight
     // 未防止传入跟随符号，需要经过下面一行转换
@@ -67,6 +55,7 @@ export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScor
     switch (targetMsSymbol.type) {
         case MsSymbolTypeEnum.noteHead: {
             if (!targetMsSymbol) return 0
+            if (showMode === MusicScoreShowModeEnum.numberNotation) return 0
             const noteRegion: MusicScoreRegionEnum = targetMsSymbol.region
             return staffRegionToBottom(noteRegion, measureHeight)
         }
@@ -78,12 +67,12 @@ export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScor
 }
 
 // 获取符号容器内最高的单小节符号bottom + 符号高度  不考虑符号跟随型符号
-export function getMaxMsSymbolBottomInMsSymbolContainer(msSymbolContainer: MsSymbolContainer, musicScore: MusicScore, plusHeight = true): number {
+export function getMaxMsSymbolBottomInMsSymbolContainer(msSymbolContainer: MsSymbolContainer, musicScore: MusicScore, showMode: MusicScoreShowModeEnum, plusHeight = true): number {
     let maxBottom = 0
     const measureHeight = musicScore.measureHeight
     for (let msSymbol of msSymbolContainer.msSymbolArray) {
-        const bottom = getSlotBottomToMeasure(msSymbol, musicScore)
-        const height = getMsSymbolHeight(msSymbol, musicScore)
+        const bottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
+        const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
         const max = bottom + height
 
         if (plusHeight) {
@@ -97,50 +86,50 @@ export function getMaxMsSymbolBottomInMsSymbolContainer(msSymbolContainer: MsSym
 }
 
 // 获取符号容器内最低的单小节符号bottom
-export function getMinMsSymbolBottomInMsSymbolContainer(msSymbolContainer: MsSymbolContainer, musicScore: MusicScore) {
+export function getMinMsSymbolBottomInMsSymbolContainer(msSymbolContainer: MsSymbolContainer, musicScore: MusicScore, showMode: MusicScoreShowModeEnum) {
     let minBottom = 10000
     for (let msSymbol of msSymbolContainer.msSymbolArray) {
-        const bottom = getSlotBottomToMeasure(msSymbol, musicScore)
+        const bottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
         minBottom = Math.min(bottom, minBottom)
     }
     return minBottom
 }
 
 // 获取小节内最高的单小节符号bottom + 符号高度
-export function getMaxMsSymbolBottomInMeasure(measure: Measure, musicScore: MusicScore, plusHeight = true) {
+export function getMaxMsSymbolBottomInMeasure(measure: Measure, musicScore: MusicScore, showMode: MusicScoreShowModeEnum, plusHeight = true) {
     let maxBottom = 0
     for (let msSymbol of measure.msSymbolContainerArray) {
-        const bottom = getMaxMsSymbolBottomInMsSymbolContainer(msSymbol, musicScore, plusHeight)
+        const bottom = getMaxMsSymbolBottomInMsSymbolContainer(msSymbol, musicScore, showMode, plusHeight)
         maxBottom = Math.max(bottom, maxBottom)
     }
     return maxBottom
 }
 
 // 获取小节内最低的单小节符号bottom
-export function getMinMsSymbolBottomInMeasure(measure: Measure, musicScore: MusicScore) {
+export function getMinMsSymbolBottomInMeasure(measure: Measure, musicScore: MusicScore, showMode: MusicScoreShowModeEnum) {
     let minBottom = 10000
     for (let msSymbolContainer of measure.msSymbolContainerArray) {
-        const bottom = getMinMsSymbolBottomInMsSymbolContainer(msSymbolContainer, musicScore)
+        const bottom = getMinMsSymbolBottomInMsSymbolContainer(msSymbolContainer, musicScore, showMode)
         minBottom = Math.min(bottom, minBottom)
     }
     return minBottom
 }
 
 // 获取单谱表内最高的单小节符号bottom + 符号高度
-export function getMaxMsSymbolBottomInSingleStaff(singleStaff: SingleStaff, musicScore: MusicScore, plusHeight = true) {
+export function getMaxMsSymbolBottomInSingleStaff(singleStaff: SingleStaff, musicScore: MusicScore, showMode: MusicScoreShowModeEnum, plusHeight = true) {
     let maxBottom = 0
     for (let measure of singleStaff.measureArray) {
-        const bottom = getMaxMsSymbolBottomInMeasure(measure, musicScore, plusHeight)
+        const bottom = getMaxMsSymbolBottomInMeasure(measure, musicScore, showMode, plusHeight)
         maxBottom = Math.max(bottom, maxBottom)
     }
     return maxBottom
 }
 
 // 获取单谱表内最低的单小节符号bottom
-export function getMinMsSymbolBottomInSingleStaff(singleStaff: SingleStaff, musicScore: MusicScore) {
+export function getMinMsSymbolBottomInSingleStaff(singleStaff: SingleStaff, musicScore: MusicScore, showMode: MusicScoreShowModeEnum) {
     let minBottom = 10000
     for (let measure of singleStaff.measureArray) {
-        const bottom = getMinMsSymbolBottomInMeasure(measure, musicScore)
+        const bottom = getMinMsSymbolBottomInMeasure(measure, musicScore, showMode)
         minBottom = Math.min(bottom, minBottom)
     }
     return minBottom

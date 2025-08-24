@@ -14,6 +14,7 @@ import {getSlotBottomToMeasure} from "@/utils/bottomUtil";
 import {getMsSymbolSlotWidth} from "@/utils/widthUtil";
 import {getSlotLeftToContainer} from "@/utils/leftUtil";
 import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
+import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 
 const props = defineProps({
   msSymbol: {
@@ -42,6 +43,10 @@ const props = defineProps({
     type: Number,
     default: 60,
     required: true,
+  },
+  showMode: { // 展示模式    五线谱  简谱  节奏谱
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    default: MusicScoreShowModeEnum.numberNotation
   },
   measure: {
     type: Object as PropType<Measure>,
@@ -92,20 +97,20 @@ const msSymbolSlotStyle = computed<CSSProperties>(() => {
 });
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.msSymbol)
+  return getMsSymbolAspectRatio(props.msSymbol, props.showMode)
 })
 const height = computed(() => {
-  return getMsSymbolHeight(props.msSymbol, props.musicScore)
+  return getMsSymbolHeight(props.msSymbol, props.musicScore, props.showMode)
 })
 const slotWidth = computed(() => {
-  return getMsSymbolSlotWidth(props.msSymbol, props.musicScore)
+  return getMsSymbolSlotWidth(props.msSymbol, props.musicScore, props.showMode)
 })
 const slotLeft = computed(() => {
   return getSlotLeftToContainer(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff,
-      props.musicScore, slotWidth.value, props.componentWidth)
+      props.musicScore, slotWidth.value, props.componentWidth, props.showMode)
 })
 const slotBottom = computed(() => {
-  return getSlotBottomToMeasure(props.msSymbol, props.musicScore)
+  return getSlotBottomToMeasure(props.msSymbol, props.musicScore, props.showMode)
 })
 
 const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
@@ -123,6 +128,7 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
                  :slot-width="slotWidth"
                  :slotBottom="slotBottom"
                  :slot-left="slotLeft"
+                 :show-mode="showMode"
                  :containerWidth="containerWidth"
                  :measure-width="measureWidth"
                  :isMain="true"
@@ -143,6 +149,7 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
                    :measure-width="measureWidth"
                    :isMain="false"
                    :slotBottom="slotBottom"
+                   :show-mode="showMode"
                    :measure="measure"
                    :single-staff="singleStaff"
                    :slot-width="slotWidth"

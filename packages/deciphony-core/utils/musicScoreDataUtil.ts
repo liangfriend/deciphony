@@ -3,7 +3,7 @@ import {
     ClefEnum,
     KeySignatureEnum,
     MsSymbolTypeEnum, MsTypeNameEnum,
-    MusicalAlphabetEnum,
+    NoteNameEnum,
     MusicScoreRegionEnum
 } from "../musicScoreEnum";
 
@@ -39,26 +39,26 @@ function getSemitoneNumber(note: string, octave: number): number {
     return (octave + 1) * 12 + semitone;
 }
 
-function findValidEnumName(semitoneNumber: number): MusicalAlphabetEnum {
+function findValidEnumName(semitoneNumber: number): NoteNameEnum {
     const pitchClass = semitoneNumber % 12;
     const octave = Math.floor(semitoneNumber / 12) - 1;
     const possibleNames = reverseMap[pitchClass];
 
     for (const name of possibleNames) {
         const fullName = `${name}${octave}`;
-        if (fullName in MusicalAlphabetEnum) {
-            return MusicalAlphabetEnum[fullName as keyof typeof MusicalAlphabetEnum];
+        if (fullName in NoteNameEnum) {
+            return NoteNameEnum[fullName as keyof typeof NoteNameEnum];
         }
     }
 
-    return MusicalAlphabetEnum.C4; // fallback
+    return NoteNameEnum.C4; // fallback
 }
 
-// 计算当前音符音名
+// 核心算法：计算当前音符音名
 export function getNoteMusicalAlphabet(
     msSymbol: NoteHead,
     musicScore: MusicScore
-): MusicalAlphabetEnum {
+): NoteNameEnum {
     const region = msSymbol.region
     const clef: ClefEnum = getMsSymbolClef(msSymbol, musicScore)
     const keySignature: KeySignatureEnum = getMsSymbolKeySignature(msSymbol, musicScore)
@@ -527,6 +527,7 @@ export function setChildMsSymbolArrayIndex(msSymbol: MsSymbol, musicScore?: Musi
         }
     })
 }
+
 // 获取某一符号所应用的谱号
 export function getMsSymbolClef(msSymbol: MsSymbol, musicScore: MusicScore): ClefEnum {
     const msData = getDataWithIndex(msSymbol.index, musicScore)
@@ -604,7 +605,6 @@ export function getMsSymbolKeySignature(msSymbol: MsSymbol, musicScore: MusicSco
     }
     return KeySignatureEnum.C
 }
-
 
 
 // 生成hsahMap()
@@ -754,9 +754,6 @@ export function updateSpanSymbolView(spanSymbolIdList: Set<number>, musicScore: 
         }
     })
 }
-
-
-
 
 
 // 获取主符号

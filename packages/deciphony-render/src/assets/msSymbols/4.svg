@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
+    <!-- 左竖 + 中横 + 右竖 -->
+    <path d="
+    M20 6 V44
+    M6 28 H24
+    M6 28 V18
+  " fill="none" stroke="black" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

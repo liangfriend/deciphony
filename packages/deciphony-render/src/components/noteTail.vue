@@ -17,7 +17,7 @@ import {
 import {
   ChronaxieEnum,
   MsSymbolTypeEnum,
-  MusicScoreRegionEnum
+  MusicScoreRegionEnum, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 import noteTailOneUpSvg from "@/assets/msSymbols/noteTailOneUp.svg";
 import noteTailTwoUpSvg from "@/assets/msSymbols/noteTailTwoUp.svg";
@@ -84,13 +84,17 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  showMode: { // 展示模式    五线谱  简谱  节奏谱
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    default: MusicScoreShowModeEnum.numberNotation
+  },
 })
 const beamGroup = computed((): BeamGroup => {
   return getBeamGroup(props.noteHead.beamId, props.measure)
 })
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.noteTail)
+  return getMsSymbolAspectRatio(props.noteTail, props.showMode)
 })
 // 符尾条数
 const tailCount = computed(() => {
@@ -106,7 +110,7 @@ const tailCount = computed(() => {
 
 const height = computed(() => {
   // const parentMsSymbol = getDataWithIndex(props.msSymbol).msSymbol
-  return getMsSymbolHeight(props.noteTail, props.musicScore)
+  return getMsSymbolHeight(props.noteTail, props.musicScore, props.showMode)
 })
 // 符号宽度
 const width = computed(() => {
@@ -114,10 +118,10 @@ const width = computed(() => {
   if (props.noteTail.type === MsSymbolTypeEnum.noteTail && props.nextContainer) {
     return getNoteTailWidth(props.noteTail, props.noteHead, props.msSymbolContainer,
         props.measure, props.singleStaff, props.musicScore,
-        props.componentWidth)
+        props.componentWidth, props.showMode)
   }
   return getMsSymbolWidth(props.noteTail, props.msSymbolContainer, props.measure,
-      props.singleStaff, props.musicScore, props.componentWidth)
+      props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
 })
 const msSymbolStyle = computed<CSSProperties>(() => {
 
@@ -142,11 +146,11 @@ const msSymbolStyle = computed<CSSProperties>(() => {
 });
 const msSymbolLeft = computed(() => {
   return getMsSymbolLeftToSlot(props.noteTail, props.msSymbolContainer, props.measure, props.singleStaff,
-      props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth)
+      props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth, props.showMode)
 })
 
 const msSymbolBottom = computed(() => {
-  return getMsSymbolBottomToSlot(props.noteTail, props.musicScore)
+  return getMsSymbolBottomToSlot(props.noteTail, props.musicScore, props.showMode)
 
 })
 const mask = computed(() => {

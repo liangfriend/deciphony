@@ -1,6 +1,6 @@
 import {
     MsSymbolTypeEnum,
-    MusicScoreRegionEnum
+    MusicScoreRegionEnum, MusicScoreShowModeEnum
 } from "deciphony-core/musicScoreEnum";
 import {MsSymbol, MusicScore, NoteHead} from "deciphony-core/types";
 import {MsSymbolInformationMap} from "@/constant";
@@ -10,8 +10,8 @@ import {
     getDataWithIndex
 } from "deciphony-core/utils/musicScoreDataUtil";
 
-export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): number {
-    const information = MsSymbolInformationMap[msSymbol?.type]
+export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore, showMode: MusicScoreShowModeEnum): number {
+    const information = MsSymbolInformationMap[showMode][msSymbol?.type]
     const measureHeight = musicScore.measureHeight
     switch (msSymbol.type) {
         case MsSymbolTypeEnum.noteBar: {
@@ -31,7 +31,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
             const beamGroup = getBeamGroup(noteHead.beamId, measure)
             if (noteHead.beamId === -1 || !beamGroup || beamGroup.length === 0) {
 
-                const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore)
+                const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
 
                 if (msSymbol.direction === 'up') {
                     return Math.max(minHeight, Math.abs(slotBottom) + minHeight - NoteBarBottomToSlotUp)
@@ -40,7 +40,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
                 }
             } else { // 成组的情况
 
-                const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore)
+                const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
 
                 if (msSymbol.direction === 'up') {
                     // 找到最靠上的音符头
@@ -50,7 +50,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
                         }
                         return acc
                     }, beamGroup[0].noteHead)
-                    const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore)
+                    const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore, showMode)
                     let height = 0
                     //至少一个超出
                     if (farthestNoteHead.region > MusicScoreRegionEnum.line_1) {
@@ -74,7 +74,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
                         return acc
                     }, beamGroup[0].noteHead)
 
-                    const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore)
+                    const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore, showMode)
                     let height = 0
                     //至少一个超出
                     if (farthestNoteHead.region < MusicScoreRegionEnum.line_5) {

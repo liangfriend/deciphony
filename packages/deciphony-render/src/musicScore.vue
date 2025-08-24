@@ -4,6 +4,7 @@
 
     <measure-container :disabled="false" :musicScore="musicScore" class="stackItem lineLayer"
                        :style="{width:width+'px',height:height+'px'}"
+                       :showMode="showMode"
                        @multipleStavesMouseDown="handleMultipleStavesMouseDown"
                        @single-staff-mouse-down="handleSingleStaffMouseDown"
                        comment="谱线层1">
@@ -33,6 +34,7 @@
                      @spanSymbolMouseUp="handleSpanSymbolMouseUp"
                      :spanSymbol="spanSymbol"></span-symbol-vue>
     <measure-container :musicScore="musicScore" class="stackItem symbolLayer"
+                       :showMode="showMode"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="符号层2">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
@@ -43,6 +45,7 @@
                              :preContainer="measure.msSymbolContainerArray.length!==0?
                              measure.msSymbolContainerArray[symbolIndex-1]:null"
                              :measure="measure"
+                             :showMode="showMode"
                              :musicScore="musicScore"
                              :measureWidth="measureWidth"
                              :singleStaff="singleStaff"
@@ -59,6 +62,7 @@
 
     <measure-container v-show="mode === MsMode.edit" :musicScore="musicScore"
                        class="stackItem symbolLayer"
+                       :showMode="showMode"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="编辑模式虚拟音符层">
       <template

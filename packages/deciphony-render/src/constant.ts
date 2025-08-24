@@ -274,13 +274,13 @@ export const MsSymbolInformationMap: Record<MusicScoreShowModeEnum, Record<MsSym
             {
                 containerType: MsSymbolContainerTypeEnum.variable,
                 aspectRatio:
-                    1,
+                    0.6,
                 widthRatioConstant:
                     1,
                 category:
                 MsSymbolCategoryEnum.singleMeasure,
                 heightMultiplier:
-                    0.25,
+                    1,
             }
         ,
         [MsSymbolTypeEnum.noteBar]:

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
+    <!-- 直立的 1，带圆角底座 -->
+    <path d="M15 6 L15 44" fill="none" stroke="black" stroke-width="6" stroke-linecap="round"/>
+    <path d="M9 44 H21" fill="none" stroke="black" stroke-width="6" stroke-linecap="round"/>
+</svg>

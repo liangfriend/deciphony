@@ -122,131 +122,46 @@ export enum KeySignatureEnum {
     'C#' = "C#"
 }
 
-
-export enum MusicalAlphabetEnum {
-    C1 = 'C1',
-    'C#1' = 'C#1',
-    'Db1' = 'Db1',
-    D1 = 'D1',
-    'D#1' = 'D#1',
-    'Eb1' = 'Eb1',
-    E1 = 'E1',
-    F1 = 'F1',
-    'F#1' = 'F#1',
-    'Gb1' = 'Gb1',
-    G1 = 'G1',
-    'G#1' = 'G#1',
-    'Ab1' = 'Ab1',
-    A1 = 'A1',
-    'A#1' = 'A#1',
-    'Bb1' = 'Bb1',
-    B1 = 'B1',
-    'B#1' = 'B#1',
-
-    C2 = 'C2',
-    'C#2' = 'C#2',
-    'Db2' = 'Db2',
-    D2 = 'D2',
-    'D#2' = 'D#2',
-    'Eb2' = 'Eb2',
-    E2 = 'E2',
-    F2 = 'F2',
-    'F#2' = 'F#2',
-    'Gb2' = 'Gb2',
-    G2 = 'G2',
-    'G#2' = 'G#2',
-    'Ab2' = 'Ab2',
-    A2 = 'A2',
-    'A#2' = 'A#2',
-    'Bb2' = 'Bb2',
-    B2 = 'B2',
-    'B#2' = 'B#2',
-
-    C3 = 'C3',
-    'C#3' = 'C#3',
-    'Db3' = 'Db3',
-    D3 = 'D3',
-    'D#3' = 'D#3',
-    'Eb3' = 'Eb3',
-    E3 = 'E3',
-    F3 = 'F3',
-    'F#3' = 'F#3',
-    'Gb3' = 'Gb3',
-    G3 = 'G3',
-    'G#3' = 'G#3',
-    'Ab3' = 'Ab3',
-    A3 = 'A3',
-    'A#3' = 'A#3',
-    'Bb3' = 'Bb3',
-    B3 = 'B3',
-
-    C4 = 'C4',
-    'C#4' = 'C#4',
-    'Db4' = 'Db4',
-    D4 = 'D4',
-    'D#4' = 'D#4',
-    'Eb4' = 'Eb4',
-    E4 = 'E4',
-    F4 = 'F4',
-    'F#4' = 'F#4',
-    'Gb4' = 'Gb4',
-    G4 = 'G4',
-    'G#4' = 'G#4',
-    'Ab4' = 'Ab4',
-    A4 = 'A4',
-    'A#4' = 'A#4',
-    'Bb4' = 'Bb4',
-    B4 = 'B4',
-
-    C5 = 'C5',
-    'C#5' = 'C#5',
-    'Db5' = 'Db5',
-    D5 = 'D5',
-    'D#5' = 'D#5',
-    'Eb5' = 'Eb5',
-    E5 = 'E5',
-    F5 = 'F5',
-    'F#5' = 'F#5',
-    'Gb5' = 'Gb5',
-    G5 = 'G5',
-    'G#5' = 'G#5',
-    'Ab5' = 'Ab5',
-    A5 = 'A5',
-    'A#5' = 'A#5',
-    'Bb5' = 'Bb5',
-    B5 = 'B5',
-    'B#5' = 'B#5',
-
-    C6 = 'C6',
-    'C#6' = 'C#6',
-    'Db6' = 'Db6',
-    D6 = 'D6',
-    'D#6' = 'D#6',
-    'Eb6' = 'Eb6',
-    E6 = 'E6',
-    F6 = 'F6',
-    'F#6' = 'F#6',
-    'Gb6' = 'Gb6',
-    G6 = 'G6',
-    'G#6' = 'G#6',
-    'Ab6' = 'Ab6',
-    A6 = 'A6',
-    'A#6' = 'A#6',
-    'Bb6' = 'Bb6',
-    B6 = 'B6',
-    'B#6' = 'B#6',
+export enum ScaleDegreeEnum {
+    1 = 1,
+    2 = 2,
+    3 = 3,
+    4 = 4,
+    5 = 5,
+    6 = 6,
+    7 = 7,
 }
 
-// 变音符
+// 基础音名 (A ~ G)
+export enum NoteLetterEnum {
+    C = "C",
+    D = "D",
+    E = "E",
+    F = "F",
+    G = "G",
+    A = "A",
+    B = "B",
+}
+
+// 升降号（Accidental）
 export enum AccidentalEnum {
-    flat = 'flat',  //降
-    nature = 'nature',   //还原
-    sharp = 'sharp',    //升
-    doubleSharp = 'doubleSharp',  //重升
-    doubleFlat = 'doubleFlat',   //重降
-    natureSharp = 'natureSharp',   //还原升
-    natureFlat = 'natureFlat',   //还原降
+    Natural = "",   // 还原
+    Sharp = "#",    // 升
+    Flat = "b",     // 降
+    DoubleSharp = "##", // 重升
+    DoubleFlat = "bb",  // 重降
 }
+
+// 八度数（可以用 number，而不是枚举）
+export type Octave = number
+
+// 组合成音名 (NoteName)
+export interface NoteName {
+    letter: NoteLetterEnum
+    accidental: AccidentalEnum
+    octave: Octave
+}
+
 
 // 时值
 export enum ChronaxieEnum {

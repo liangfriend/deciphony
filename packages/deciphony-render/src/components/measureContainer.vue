@@ -37,6 +37,7 @@ import type {Measure, MsSymbol, MultipleStaves, MusicScore, SingleStaff, WidthCo
 import {
   getMeasureWidth,
 } from "@/utils/widthUtil";
+import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
 
 
 const props = defineProps({
@@ -56,6 +57,10 @@ const props = defineProps({
     type: Number,
     default: 800,
   },
+  showMode: {
+    type: Object as PropType<MusicScoreShowModeEnum>,
+    required: true
+  }
 });
 
 
@@ -82,7 +87,7 @@ const singleStaffStyle = computed(() => (singleStaff: SingleStaff, _multipleStav
   };
 });
 const measureWidth = computed(() => (measure: Measure, singleStaff: SingleStaff, _multipleStaves: MultipleStaves) => {
-  return getMeasureWidth(measure, singleStaff, props.musicScore, props.width)
+  return getMeasureWidth(measure, singleStaff, props.musicScore, props.width, props.showMode)
 });
 const measureSlotStyle = computed(() => (measure: Measure, singleStaff: SingleStaff, multipleStaves: MultipleStaves): CSSProperties => {
   let style: CSSProperties = {};

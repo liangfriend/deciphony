@@ -27,7 +27,7 @@ export declare interface MusicScoreOptions {
 export interface StaffRegion {
     region: StaffRegionEnum      // Lower / Main / Upper
     type: StaffPositionTypeEnum  // Line / Space
-    index: number                // 第几条线/间，从 1 开始
+    index: number                // 第几条线/间，从 1 开始,例：下加三线=lower Line 3
 }
 
 // 组合成音名 (NoteName)

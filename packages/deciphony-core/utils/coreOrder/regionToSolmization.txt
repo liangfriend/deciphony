@@ -1,0 +1,62 @@
+// 五线谱位置：线 or 间
+export enum StaffPositionTypeEnum {
+    Line = "line",
+    Space = "space",
+}// 区域：下方 / 本体 / 上方
+export enum StaffRegionEnum {
+    Lower = "lower",
+    Main = "main",
+    Upper = "upper",
+}
+
+// 五线谱位置
+export interface StaffRegion {
+    region: StaffRegionEnum      // Lower / Main / Upper
+    type: StaffPositionTypeEnum  // Line / Space
+    index: number                // 第几条线/间，从 1 开始,例：下加三线=lower Line 3
+}
+export enum ClefEnum {
+    Treble = 1,       // 高音谱号（G）
+    MezzoSoprano, // 次女高音谱号（C）
+    Alto,         // 中音谱号（C）
+    Tenor,        // 次男高音谱号（C）
+    BaritoneF,    // 男中音F谱号（F）
+    BaritoneC,    // 男中音C谱号（C）
+    Bass,         // 低音谱号（F）
+    Subbass       // 次低音谱号（F）
+}
+export enum KeySignatureEnum {
+    Cb = "Cb",
+    Gb = "Gb",
+    Db = "Db",
+    Ab = "Ab",
+    Eb = "Eb",
+    Bb = "Bb",
+    F = "F",
+    C = "C",
+    G = "G",
+    D = "D",
+    A = "A",
+    E = "E",
+    B = "B",
+    'F#' = "F#",
+    'C#' = "C#"
+}
+// 唱名
+export enum SolmizationEnum {
+    "DO" = 1,
+    "RE" = 2,
+    "MI" = 3,
+    "FA" = 4,
+    "SOL" = 5,
+    "LA" = 6,
+    "TI" = 7,
+}
+function regionToSolmization(region: StaffRegion, clef: ClefEnum, keySignature: KeySignatureEnum): SolmizationEnum {
+
+}
+
+完成函数，通过首调唱名法
+
+
+

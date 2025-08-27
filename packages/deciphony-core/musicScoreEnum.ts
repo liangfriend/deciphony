@@ -102,6 +102,7 @@ export enum MsSymbolTypeEnum {
     noteHead = 'noteHead', // 线谱指音符头， 简谱指音符
     noteBar = 'noteBar',
     noteTail = 'noteTail',
+    noteNumber = 'noteNumber', // 简谱的数字符号
     rest = 'rest',
     slur = 'slur', // 圆滑线  不同音高
     tie = 'tie',  // 延音线  延音线只能连接两个音

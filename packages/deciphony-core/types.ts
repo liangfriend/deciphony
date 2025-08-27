@@ -13,7 +13,7 @@ import {
     OrderTypeEnum,
     MsMode,
     ReserveMsSymbolType,
-    BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, Octave
+    BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, Octave, SolmizationEnum
 } from "./musicScoreEnum";
 
 
@@ -73,6 +73,14 @@ export declare type NoteHead = ({
     chronaxie: ChronaxieEnum; // 时值
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
+
+export declare type NoteNumber = ({
+    type: MsSymbolTypeEnum.noteHead,
+    solmization: SolmizationEnum   // 唱名
+    chronaxie: ChronaxieEnum; // 时值
+    beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
+} & BaseMsSymbol)
+
 export declare type NoteBar = ({
     type: MsSymbolTypeEnum.noteBar,
     direction: 'up' | 'down',

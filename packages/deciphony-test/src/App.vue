@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import MusicScoreVue from "@/musicScore.vue";
+// import MusicScoreVue from "@render/musicScore.vue";
 import test from "./musicScoreData/test.ts"
 import {onMounted, ref} from "vue";
-import type {MusicScore} from "deciphony-core/types";
+import type {MusicScore} from "@core/types";
+import PlayerTest from "./views/playerTest.vue";
 
 
-const musicScore = ref<MusicScore>(test)
+// const musicScore = ref<MusicScore>(test)
 
 onMounted(() => {
-  window.musicScore = musicScore.value
-  console.log('chicken',MusicScoreVue)
+  // window.musicScore = musicScore.value
+  // console.log('chicken', MusicScoreVue)
 })
 </script>
 
 <template>
-  <music-score-vue :music-score="musicScore"></music-score-vue>
+  <!--  <music-score-vue :music-score="musicScore"></music-score-vue>-->
+  <player-test></player-test>
 </template>
 
 <style scoped>
@@ -24,9 +26,11 @@ onMounted(() => {
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }

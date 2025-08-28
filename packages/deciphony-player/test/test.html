@@ -1,0 +1,119 @@
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Audio Player 测试</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Helvetica Neue", Arial;
+            padding: 20px;
+            background: #f7f8fa;
+            color: #111;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            max-width: 720px;
+            margin: 12px auto;
+            box-shadow: 0 6px 18px rgba(20, 20, 20, 0.06);
+        }
+
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+
+        label {
+            min-width: 80px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #6b7280;
+        }
+
+        input[type="range"] {
+            width: 200px;
+        }
+
+        .time {
+            font-family: monospace;
+            color: #333;
+        }
+
+        .progress {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Audio Player 测试</h1>
+
+    <div class="row">
+        <label>音频 URL</label>
+        <input id="url" type="text" placeholder="粘贴音频文件 URL（.mp3/.wav 等）"/>
+        <button id="load">加载</button>
+        <button id="resume" class="secondary">恢复音频</button>
+    </div>
+
+    <div class="row">
+        <button id="play">播放</button>
+        <button id="pause" class="secondary">暂停</button>
+        <button id="stop" class="secondary">停止</button>
+        <label style="min-width:60px">时长</label>
+        <span id="duration" class="time">00:00</span>
+    </div>
+
+    <div class="row">
+        <label>进度</label>
+        <input id="progress" class="progress" type="range" min="0" max="100" step="0.1" value="0"/>
+        <span id="current" class="time">00:00</span>
+    </div>
+
+    <div class="row">
+        <label>音量</label>
+        <input id="volume" type="range" min="0" max="2" step="0.01" value="1"/>
+        <span id="volLabel">1.00</span>
+    </div>
+
+    <div class="row">
+        <label>声像</label>
+        <input id="pan" type="range" min="-1" max="1" step="0.01" value="0"/>
+        <span id="panLabel">0.00</span>
+    </div>
+
+    <div style="margin-top:12px; color:#666; font-size:13px">
+        示例文件（可直接点加载）：<a href="https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav"
+                                  target="_blank">BabyElephantWalk60.wav</a>
+    </div>
+</div>
+
+<script src="../src/Player.ts">
+
+</script>

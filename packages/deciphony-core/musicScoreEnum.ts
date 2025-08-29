@@ -82,8 +82,7 @@ export enum AccidentalEnum {
     DoubleFlat = "bb",  // 重降
 }
 
-// 八度数（可以用 number，而不是枚举）
-export type Octave = number
+
 
 
 // 时值

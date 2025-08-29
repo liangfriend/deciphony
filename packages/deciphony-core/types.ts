@@ -13,9 +13,10 @@ import {
     OrderTypeEnum,
     MsMode,
     ReserveMsSymbolType,
-    BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, Octave, SolmizationEnum
+    BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum,  SolmizationEnum
 } from "./musicScoreEnum";
-
+// 八度数
+export type Octave = number
 
 export declare interface MusicScoreOptions {
     highlight: Boolean;
@@ -36,6 +37,7 @@ export interface NoteName {
     accidental: AccidentalEnum
     octave: Octave
 }
+export type NoteString = `${NoteLetterEnum}${AccidentalEnum}${Octave}`
 
 export declare interface TimeSignature {
     beat: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16;

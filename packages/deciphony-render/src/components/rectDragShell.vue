@@ -1,7 +1,7 @@
 <!--方型拖拽壳，第一版不做，后续要包裹spanSymbol-->
 <script setup lang="ts">
 import {ref, onMounted, PropType} from 'vue'
-import {Rect} from "deciphony-core/types";
+import {Rect} from "../../../deciphony-core/src/types";
 
 
 const props = defineProps({

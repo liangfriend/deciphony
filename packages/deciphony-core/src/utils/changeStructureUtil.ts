@@ -6,7 +6,7 @@ import {
     KeySignatureEnum, MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    StaffRegion, SpanSymbolTypeEnum
+    SpanSymbolTypeEnum, StaffPositionTypeEnum, StaffRegionEnum
 } from "../musicScoreEnum";
 
 import {
@@ -20,10 +20,10 @@ import {
     MsType,
     MultipleStaves,
     MusicScore,
-    NoteBar, NoteHead,
+    NoteStem, NoteHead,
     NoteTail,
     SingleStaff, Slur,
-    SpanSymbol,
+    SpanSymbol, StaffRegion,
     TimeSignature,
     TimeSignatureMsSymbol, Volta
 } from "../types";
@@ -41,7 +41,7 @@ import {
     setMsSymbolArrayIndex,
     setMsSymbolContainerArrayIndex,
     setMultipleStavesIndex,
-    setSingleStaffArrayIndex,
+    setSingleStaffArrayIndex, staffRegionToIndex,
     updateSpanSymbolView
 } from "./musicScoreDataUtil";
 
@@ -99,7 +99,7 @@ export function addSpanSymbol(newSpanSymbol: SpanSymbol, startMsData: Exclude<Ms
         }
         case SpanSymbolTypeEnum.slur: {
             if (startMsData.msTypeName === MsTypeNameEnum.MsSymbol && endMsData.msTypeName === MsTypeNameEnum.MsSymbol
-                && startMsData.type === MsSymbolTypeEnum.noteHead && endMsData.type === MsSymbolTypeEnum.noteHead) {
+                && startMsData.type === MsSymbolTypeEnum.NoteHead && endMsData.type === MsSymbolTypeEnum.NoteHead) {
                 addSlur(newSpanSymbol, startMsData, endMsData, musicScore)
             } else {
                 console.error("添加跨小节符号slur出错")
@@ -480,7 +480,7 @@ export function addAccidental(noteHead: NoteHead, accidental: AccidentalMsSymbol
 
 // 删除变音符号
 export function removeAccidental(noteHead: NoteHead, musicScore: MusicScore) {
-    const index = noteHead.msSymbolArray.findIndex((item) => item.type === MsSymbolTypeEnum.accidental);
+    const index = noteHead.msSymbolArray.findIndex((item) => item.type === MsSymbolTypeEnum.Accidental);
     if (index !== -1) {
         noteHead.msSymbolArray.splice(index, 1);
     }
@@ -498,10 +498,10 @@ export function changeAccidental(noteHead: NoteHead, accidentalType: AccidentalE
         removeAccidental(noteHead, musicScore)
         return
     }
-    const accidentalIndex = noteHead.msSymbolArray.findIndex((item: MsSymbol) => item.type === MsSymbolTypeEnum.accidental);
+    const accidentalIndex = noteHead.msSymbolArray.findIndex((item: MsSymbol) => item.type === MsSymbolTypeEnum.Accidental);
     if (accidentalIndex === -1) { // 不存在变音符号
         const accidental = msSymbolTemplate({
-            type: MsSymbolTypeEnum.accidental,
+            type: MsSymbolTypeEnum.Accidental,
             accidental: accidentalType
         }) as AccidentalMsSymbol;
 
@@ -514,7 +514,7 @@ export function changeAccidental(noteHead: NoteHead, accidentalType: AccidentalE
 
 // 更换音符时值
 export function changeNoteChronaxie(note: MsSymbol, newChronaxie: ChronaxieEnum, musicScore: MusicScore) {
-    if (note.type !== MsSymbolTypeEnum.noteHead) {
+    if (note.type !== MsSymbolTypeEnum.NoteHead) {
         return console.error("符号类型有误，时值更改失败。请传入音符");
     }
     if (note.chronaxie === newChronaxie) {
@@ -522,20 +522,20 @@ export function changeNoteChronaxie(note: MsSymbol, newChronaxie: ChronaxieEnum,
     }
     // 更换时值
     note.chronaxie = newChronaxie
-    const noteBar = note.msSymbolArray.find((item) => {
-        return item.type === MsSymbolTypeEnum.noteBar
+    const noteStem = note.msSymbolArray.find((item) => {
+        return item.type === MsSymbolTypeEnum.NoteStem
     })
     const noteTail = note.msSymbolArray.find((item) => {
-        return item.type === MsSymbolTypeEnum.noteTail
+        return item.type === MsSymbolTypeEnum.NoteTail
     }) as (NoteTail | null)
-    // 全音符且noteBar存在，去掉noteBar
-    if ([ChronaxieEnum.whole].includes(newChronaxie) && noteBar) {
-        removeChildMsSymbol(noteBar, note, musicScore)
+    // 全音符且noteStem存在，去掉noteStem
+    if ([ChronaxieEnum.whole].includes(newChronaxie) && noteStem) {
+        removeChildMsSymbol(noteStem, note, musicScore)
     }
-    // 非全音符且noteBar不存在，新增noteBar
-    if (![ChronaxieEnum.whole].includes(newChronaxie) && !noteBar) {
-        const newNoteBar = msSymbolTemplate({type: MsSymbolTypeEnum.noteBar})
-        addChildMsSymbol(newNoteBar, note, musicScore)
+    // 非全音符且noteStem不存在，新增noteStem
+    if (![ChronaxieEnum.whole].includes(newChronaxie) && !noteStem) {
+        const newNoteStem = msSymbolTemplate({type: MsSymbolTypeEnum.NoteStem})
+        addChildMsSymbol(newNoteStem, note, musicScore)
     }
     // 全,二分，四分音符且noteTail存在，去掉noteTail
     if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter
@@ -551,7 +551,7 @@ export function changeNoteChronaxie(note: MsSymbol, newChronaxie: ChronaxieEnum,
     if (![ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter
     ].includes(newChronaxie) && !noteTail) {
         const newNoteTail = msSymbolTemplate({
-            type: MsSymbolTypeEnum.noteTail,
+            type: MsSymbolTypeEnum.NoteTail,
             chronaxie: newChronaxie
         })
         addChildMsSymbol(newNoteTail, note, musicScore)
@@ -560,7 +560,7 @@ export function changeNoteChronaxie(note: MsSymbol, newChronaxie: ChronaxieEnum,
 
 // 更换休止符时值
 export function changeRestChronaxie(rest: MsSymbol, newChronaxie: ChronaxieEnum, musicScore: MusicScore) {
-    if (rest.type !== MsSymbolTypeEnum.rest) {
+    if (rest.type !== MsSymbolTypeEnum.Rest) {
         return console.error("符号类型有误，时值更改失败。休止符");
     }
     if (rest.chronaxie === newChronaxie) {
@@ -620,10 +620,10 @@ export function removeSpanSymbol(spanSymbol: SpanSymbol, musicScore: MusicScore)
 // 往小节上添加谱号, 因为定宽容器的位置特殊，所以要单独拿出一个方法去处理
 export function addClefToMeasure(clefSymbolContainer: MsSymbolContainer, measure: Measure, musicScore: MusicScore) {
     const singleStaff = getDataWithIndex(measure.index, musicScore).singleStaff
-    if (clefSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef_f) {
+    if (clefSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef_f) {
         // 如果有前置小节线，谱号需要添加到前置小节线之后
         const barLine_f = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine_f
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine_f
         })
         if (barLine_f) { // 前置谱号存在
             const index = barLine_f.index.msSymbolContainerIndex
@@ -633,10 +633,10 @@ export function addClefToMeasure(clefSymbolContainer: MsSymbolContainer, measure
             measure.msSymbolContainerArray.splice(0, 0, clefSymbolContainer)
 
         }
-    } else if (clefSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef) {
+    } else if (clefSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef) {
         // 如果有小节线，谱号需要添加到前置小节线之前
         const barLine = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine
         })
         if (barLine) { // 小节线存在
             const index = barLine.index.msSymbolContainerIndex
@@ -658,14 +658,14 @@ export function addClefToMeasure(clefSymbolContainer: MsSymbolContainer, measure
 // 往小节上添加调号
 export function addKeySignatureToMeasure(keySignatureSymbolContainer: MsSymbolContainer, measure: Measure, musicScore: MusicScore) {
     const singleStaff = getDataWithIndex(measure.index, musicScore).singleStaff
-    if (keySignatureSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.keySignature) {
+    if (keySignatureSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.KeySignature) {
         // 如果有前置谱号，调号需要添加到前置谱号之后
         const clef_f = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef_f
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef_f
         })
         // 如果有前置小节线，谱号需要添加到前置小节线之后
         const barLine_f = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine_f
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine_f
         })
         if (clef_f) { // 前置谱号存在
             const index = clef_f.index.msSymbolContainerIndex
@@ -691,18 +691,18 @@ export function addKeySignatureToMeasure(keySignatureSymbolContainer: MsSymbolCo
 export function addTimeSignatureToMeasure(timeSignatureContainer: MsSymbolContainer, measure: Measure, musicScore: MusicScore) {
 
     const singleStaff = getDataWithIndex(measure.index, musicScore).singleStaff
-    if (timeSignatureContainer.msSymbolArray[0].type === MsSymbolTypeEnum.timeSignature) {
+    if (timeSignatureContainer.msSymbolArray[0].type === MsSymbolTypeEnum.TimeSignature) {
         // 如果有调号，拍号号需要添加到调号之后
         const keySignature = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.keySignature
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.KeySignature
         })
         // 如果有前置谱号，调号需要添加到前置谱号之后
         const clef_f = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef_f
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef_f
         })
         // 如果有前置小节线，谱号需要添加到前置小节线之后
         const barLine_f = measure.msSymbolContainerArray.find((curMsSymbolContainer) => {
-            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine_f
+            return curMsSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine_f
         })
         if (keySignature) { // 调号存在
             const index = keySignature.index.msSymbolContainerIndex
@@ -731,9 +731,9 @@ export function addTimeSignatureToMeasure(timeSignatureContainer: MsSymbolContai
 // 往小节上添加小节线
 export function addBarLineToMeasure(barLineContainer: MsSymbolContainer, measure: Measure, musicScore: MusicScore) {
     const singleStaff = getDataWithIndex(measure.index, musicScore).singleStaff
-    if (barLineContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine_f) {
+    if (barLineContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine_f) {
         measure.msSymbolContainerArray.unshift(barLineContainer)
-    } else if (barLineContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine) {
+    } else if (barLineContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine) {
         measure.msSymbolContainerArray.push(barLineContainer)
     }
     if (!singleStaff) return console.error('单谱表查找出错，谱号添加失败')
@@ -749,12 +749,12 @@ export function changeClef(clef: ClefEnum, measure: Measure, musicScore: MusicSc
     // 如果是单谱表内第一个小节
     if (index.measureIndex === 0) {
         const clefSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
-            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef_f
+            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef_f
         })?.msSymbolArray[0] as (ClefMsSymbol | undefined)
         if (clefSymbol) {
             updateMsSymbol(clefSymbol, {clef}, musicScore)
         } else { // clef不存在则添加clef
-            const newClef = msSymbolTemplate({type: MsSymbolTypeEnum.clef_f, clef})
+            const newClef = msSymbolTemplate({type: MsSymbolTypeEnum.Clef_f, clef})
             const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.frontFixed})
             newMsSymbolContainer.msSymbolArray.push(newClef)
             addClefToMeasure(newMsSymbolContainer, measure, musicScore)
@@ -765,12 +765,12 @@ export function changeClef(clef: ClefEnum, measure: Measure, musicScore: MusicSc
         const preMeasure = getDataWithIndex(index, musicScore).measure
         if (!preMeasure) return console.error("找不到当前小节的前一个小节，谱号添加失败")
         const clefSymbol = preMeasure.msSymbolContainerArray.find((msSymbolContainer) => {
-            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.clef
+            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.Clef
         })?.msSymbolArray[0] as (ClefMsSymbol | undefined)
         if (clefSymbol) {
             updateMsSymbol(clefSymbol, {clef}, musicScore)
         } else { // clef不存在则添加clef
-            const newClef = msSymbolTemplate({type: MsSymbolTypeEnum.clef, clef})
+            const newClef = msSymbolTemplate({type: MsSymbolTypeEnum.Clef, clef})
             const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.rearFixed})
             newMsSymbolContainer.msSymbolArray.push(newClef)
             addClefToMeasure(newMsSymbolContainer, preMeasure, musicScore)
@@ -781,12 +781,12 @@ export function changeClef(clef: ClefEnum, measure: Measure, musicScore: MusicSc
 // 更改调号
 export function changeKeySignature(keySignature: KeySignatureEnum, measure: Measure, musicScore: MusicScore) {
     const keySignatureSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
-        return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.keySignature
+        return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.KeySignature
     })?.msSymbolArray[0] as (KeySignatureMsSymbol | undefined)
     if (keySignatureSymbol) {
         updateMsSymbol(keySignatureSymbol, {keySignature}, musicScore)
     } else { // keySignature不存在则添加keySignature
-        const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.keySignature, keySignature})
+        const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.KeySignature, keySignature})
         const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.frontFixed})
         newMsSymbolContainer.msSymbolArray.push(newKeySignature)
         addKeySignatureToMeasure(newMsSymbolContainer, measure, musicScore)
@@ -796,12 +796,12 @@ export function changeKeySignature(keySignature: KeySignatureEnum, measure: Meas
 // 更改拍号
 export function changeTimeSignature(timeSignature: TimeSignature, measure: Measure, musicScore: MusicScore) {
     const timeSignatureSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
-        return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.timeSignature
+        return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.TimeSignature
     })?.msSymbolArray[0] as (TimeSignatureMsSymbol | undefined)
     if (timeSignatureSymbol) {
         updateMsSymbol(timeSignatureSymbol, {timeSignature}, musicScore)
     } else { // keySignature不存在则添加keySignature
-        const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.timeSignature, timeSignature})
+        const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.TimeSignature, timeSignature})
         const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.frontFixed})
         newMsSymbolContainer.msSymbolArray.push(newKeySignature)
         addTimeSignatureToMeasure(newMsSymbolContainer, measure, musicScore)
@@ -813,12 +813,12 @@ export function changeBarLine(barLineType: BarLineTypeEnum, measure: Measure, mu
     const isFront = [BarLineTypeEnum.reverseFinal, BarLineTypeEnum.startRepeatSign].includes(barLineType)
     if (isFront) { // 插入前置小节线逻辑
         const barLineSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
-            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine_f
+            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine_f
         })?.msSymbolArray[0] as (BarLine | undefined)
         if (barLineSymbol) {
             updateMsSymbol(barLineSymbol, {barLineType}, musicScore)
         } else { // barLine_f不存在则添加keySignature
-            const newBarLine = msSymbolTemplate({type: MsSymbolTypeEnum.barLine_f, barLineType})
+            const newBarLine = msSymbolTemplate({type: MsSymbolTypeEnum.BarLine_f, barLineType})
             const newBarLineContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.frontFixed})
             newBarLineContainer.msSymbolArray.push(newBarLine)
             addBarLineToMeasure(newBarLineContainer, measure, musicScore)
@@ -826,12 +826,12 @@ export function changeBarLine(barLineType: BarLineTypeEnum, measure: Measure, mu
 
     } else { // 插入后置小节线逻辑
         const barLineSymbol = measure.msSymbolContainerArray.find((msSymbolContainer) => {
-            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.barLine
+            return msSymbolContainer.msSymbolArray[0].type === MsSymbolTypeEnum.BarLine
         })?.msSymbolArray[0] as (BarLine | undefined)
         if (barLineSymbol) {
             updateMsSymbol(barLineSymbol, {barLineType}, musicScore)
         } else { // keySignature不存在则添加keySignature
-            const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.barLine, barLineType})
+            const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.BarLine, barLineType})
             const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.rearFixed})
             newMsSymbolContainer.msSymbolArray.push(newKeySignature)
             addBarLineToMeasure(newMsSymbolContainer, measure, musicScore)
@@ -848,9 +848,9 @@ export function changeBeamId(newBeamId: number, noteHead: NoteHead, musicScore: 
 }
 
 // 更新符杠方向
-export function changeNoteBarDirection(direction: 'up' | 'down', noteBar: NoteBar) {
-    noteBar.direction = direction
-    noteBar.vueKey = Date.now()
+export function changeNoteStemDirection(direction: 'up' | 'down', noteStem: NoteStem) {
+    noteStem.direction = direction
+    noteStem.vueKey = Date.now()
 }
 
 // 更新符尾方向
@@ -862,27 +862,28 @@ export function changeNoteTailDirection(direction: 'up' | 'down', noteTail: Note
 
 // 成组音符更新
 export function updateBeamGroupNote(beamId: number, measure: Measure, musicScore: MusicScore) {
-    const group: { noteBar: NoteBar, noteTail: NoteTail }[] = []
+    const group: { noteStem: NoteStem, noteTail: NoteTail }[] = []
     let direction: 'up' | 'down' = 'up'
-    let farthestRegion: StaffRegion = StaffRegion.line_3
+    // main_lin_3 = 4
+    let farthestRegionIndex: number = 4
     let start = false
     for (const i in measure.msSymbolContainerArray) {
         const msSymbolContainer = measure.msSymbolContainerArray[i]
         for (const j in msSymbolContainer.msSymbolArray) {
             const mainSymbol = msSymbolContainer.msSymbolArray[j]
             // 找到音符头存储(这里要考虑多声部，container中可能有多个音符头)
-            if (mainSymbol.type === MsSymbolTypeEnum.noteHead
+            if (mainSymbol.type === MsSymbolTypeEnum.NoteHead
                 && ![ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(mainSymbol.chronaxie)) {
-                const distanceFromMiddle = Math.abs(mainSymbol.region - StaffRegion.line_3)
-                const currentFarthest = Math.abs(farthestRegion - StaffRegion.line_3)
+                const distanceFromMiddle = Math.abs(staffRegionToIndex(mainSymbol.region) - 4)
+                const currentFarthest = Math.abs(farthestRegionIndex - 4)
                 if (distanceFromMiddle > currentFarthest) {
-                    farthestRegion = mainSymbol.region
+                    farthestRegionIndex = staffRegionToIndex(mainSymbol.region)
                 }
 
-                const noteBar = mainSymbol.msSymbolArray.find(item => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null
-                const noteTail = mainSymbol.msSymbolArray.find(item => item.type === MsSymbolTypeEnum.noteTail) as NoteTail | null
-                if (noteTail && noteBar && mainSymbol.beamId === beamId) {
-                    group.push({noteBar, noteTail})
+                const noteStem = mainSymbol.msSymbolArray.find(item => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null
+                const noteTail = mainSymbol.msSymbolArray.find(item => item.type === MsSymbolTypeEnum.NoteTail) as NoteTail | null
+                if (noteTail && noteStem && mainSymbol.beamId === beamId) {
+                    group.push({noteStem, noteTail})
                     start = true
                 }
             } else if (start) {
@@ -890,12 +891,12 @@ export function updateBeamGroupNote(beamId: number, measure: Measure, musicScore
             }
         }
     }
-    // 更新 direction
-    direction = farthestRegion >= StaffRegion.space_2 ? 'down' : 'up'
+    // 更新 direction  main_space_2 = 3
+    direction = farthestRegionIndex >= 3 ? 'down' : 'up'
     for (const i in group) {
-        const noteBar = group[i].noteBar
+        const noteStem = group[i].noteStem
         const noteTail = group[i].noteTail
-        changeNoteBarDirection(direction, noteBar)
+        changeNoteStemDirection(direction, noteStem)
         changeNoteTailDirection(direction, noteTail)
     }
 }

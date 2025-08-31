@@ -1,18 +1,18 @@
 // 复合性aspectRatiao获取
 
 
-import {MsSymbol} from "deciphony-core/types";
-import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
-import {MsSymbolInformationMap} from "@/constant";
+import {MsSymbol} from "../../../deciphony-core/src/types";
+import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {MsSymbolInformationMap} from "../constant";
 
 export function getMultipleAspectRatio(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum): number {
-    const information = MsSymbolInformationMap[showMode][msSymbol.type]
+    const information = MsSymbolInformationMap[msSymbol.type]
     if ('aspectRatio' in information && typeof information.aspectRatio === 'object') {
-        if (msSymbol.type === MsSymbolTypeEnum.keySignature) {
+        if (msSymbol.type === MsSymbolTypeEnum.KeySignature) {
             return information.aspectRatio[msSymbol.keySignature]
-        } else if (msSymbol.type === MsSymbolTypeEnum.barLine || msSymbol.type === MsSymbolTypeEnum.barLine_f) {
+        } else if (msSymbol.type === MsSymbolTypeEnum.BarLine || msSymbol.type === MsSymbolTypeEnum.BarLine_f) {
             return information.aspectRatio[msSymbol.barLineType]
-        } else if (msSymbol.type === MsSymbolTypeEnum.noteTail) {
+        } else if (msSymbol.type === MsSymbolTypeEnum.NoteTail) {
             return information.aspectRatio[msSymbol.chronaxie]
         }
     }
@@ -28,7 +28,7 @@ export function getMsSymbolAspectRatio(msSymbol: MsSymbol, showMode: MusicScoreS
         return 1
     }
     // 单小节符号，赋值
-    const information = MsSymbolInformationMap[showMode][msSymbol.type]
+    const information = MsSymbolInformationMap[msSymbol.type]
     if ('aspectRatio' in information && (typeof information.aspectRatio === 'number')) {
         return information.aspectRatio
     } else if ('aspectRatio' in information && (typeof information.aspectRatio === 'object')) {
@@ -45,7 +45,7 @@ export function getHeightMultiplier(msSymbol: MsSymbol, showMode: MusicScoreShow
         return 1
     }
     // 单小节符号，赋值
-    const information = MsSymbolInformationMap[showMode][msSymbol.type]
+    const information = MsSymbolInformationMap[msSymbol.type]
     if ('heightMultiplier' in information && (typeof information.aspectRatio === 'number')) {
         return information.heightMultiplier
     }

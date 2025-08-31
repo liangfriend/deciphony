@@ -8,9 +8,11 @@ import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    StaffRegion,
+    MusicScoreShowModeEnum,
     SpanSymbolFollowingCategoryEnum,
-    SpanSymbolTypeEnum
+    SpanSymbolTypeEnum,
+    StaffPositionTypeEnum,
+    StaffRegionEnum
 } from "../musicScoreEnum";
 import {
     BaseMsSymbol,
@@ -18,11 +20,13 @@ import {
     MsSymbol,
     MsSymbolContainer,
     MultipleStaves,
+    MusicScore,
     SingleStaff,
     SpanSymbol,
+    StaffRegion,
     TimeSignature
 } from "../types";
-import {judgeDirection} from "./musicScoreDataUtil";
+import {judgeDirection, staffRegionToIndex} from "./musicScoreDataUtil";
 
 export function spanSymbolTemplate(options: {
     type?: SpanSymbolTypeEnum,
@@ -129,23 +133,27 @@ export function msSymbolTemplate(options: {
         vueKey: Date.now(),
     }
     switch (options.type) {
-        case MsSymbolTypeEnum.noteHead: {
+        case MsSymbolTypeEnum.NoteHead: {
 
-            const region = options.region || StaffRegion.space_3
+            const region = options.region || {
+                region: StaffRegionEnum.Main,
+                type: StaffPositionTypeEnum.Line,
+                index: 1
+            }
             // chronaxie不存在默认为四分音符，添加符杠
             if (!options.chronaxie || ![ChronaxieEnum.whole].includes(options.chronaxie)) {
-                const noteBar = msSymbolTemplate({
-                    type: MsSymbolTypeEnum.noteBar,
-                    direction: judgeDirection(region),
+                const noteStem = msSymbolTemplate({
+                    type: MsSymbolTypeEnum.NoteStem,
+                    direction: judgeDirection(staffRegionToIndex(region)),
                 })
-                baseMsSymbol.msSymbolArray.push(noteBar)
+                baseMsSymbol.msSymbolArray.push(noteStem)
 
             }
             // 如果不为全，二分，四分音符，添加符尾
             if (options.chronaxie && ![ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(options.chronaxie)) {
 
                 const noteTail = msSymbolTemplate({
-                    type: MsSymbolTypeEnum.noteTail,
+                    type: MsSymbolTypeEnum.NoteTail,
                     chronaxie: options.chronaxie || ChronaxieEnum.quarter,
                     direction: judgeDirection(region),
                 })
@@ -154,106 +162,106 @@ export function msSymbolTemplate(options: {
             return {
                 ...baseMsSymbol,
                 beamId: -1,
-                type: MsSymbolTypeEnum.noteHead,
+                type: MsSymbolTypeEnum.NoteHead,
                 region: region,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
             }
         }
-        case MsSymbolTypeEnum.rest: {
+        case MsSymbolTypeEnum.Rest: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.rest,
+                type: MsSymbolTypeEnum.Rest,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
             }
         }
-        case MsSymbolTypeEnum.barLine: {
+        case MsSymbolTypeEnum.BarLine: {
             const barLineType = options.barLineType ?? BarLineTypeEnum.single
             if (BarLineTypeEnum.endRepeatSign === barLineType || BarLineTypeEnum.startRepeatSign === barLineType) {
                 return {
                     ...baseMsSymbol,
-                    type: MsSymbolTypeEnum.barLine,
+                    type: MsSymbolTypeEnum.BarLine,
                     barLineType: barLineType,
                     loopCount: 2
                 }
             } else {
                 return {
                     ...baseMsSymbol,
-                    type: MsSymbolTypeEnum.barLine,
+                    type: MsSymbolTypeEnum.BarLine,
                     barLineType: barLineType
                 }
             }
 
         }
 
-        case MsSymbolTypeEnum.barLine_f: {
+        case MsSymbolTypeEnum.BarLine_f: {
             const barLineType = options.barLineType ?? BarLineTypeEnum.single
             if (BarLineTypeEnum.endRepeatSign === barLineType || BarLineTypeEnum.startRepeatSign === barLineType) {
                 return {
                     ...baseMsSymbol,
-                    type: MsSymbolTypeEnum.barLine_f,
+                    type: MsSymbolTypeEnum.BarLine_f,
                     barLineType: barLineType,
                     loopCount: 2
                 }
             } else {
                 return {
                     ...baseMsSymbol,
-                    type: MsSymbolTypeEnum.barLine_f,
+                    type: MsSymbolTypeEnum.BarLine_f,
                     barLineType: barLineType
                 }
             }
 
         }
-        case MsSymbolTypeEnum.noteBar: {
+        case MsSymbolTypeEnum.NoteStem: {
             return {
                 ...baseMsSymbol,
                 direction: options.direction || 'up',
-                type: MsSymbolTypeEnum.noteBar,
+                type: MsSymbolTypeEnum.NoteStem,
             }
         }
-        case MsSymbolTypeEnum.noteTail: {
+        case MsSymbolTypeEnum.NoteTail: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.noteTail,
+                type: MsSymbolTypeEnum.NoteTail,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
                 beamType: BeamTypeEnum.left,
                 direction: options.direction || 'up',
             }
         }
-        case MsSymbolTypeEnum.clef_f: {
+        case MsSymbolTypeEnum.Clef_f: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.clef_f,
+                type: MsSymbolTypeEnum.Clef_f,
                 clef: options.clef || ClefEnum.Treble
             }
         }
-        case MsSymbolTypeEnum.clef: {
+        case MsSymbolTypeEnum.Clef: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.clef,
+                type: MsSymbolTypeEnum.Clef,
                 clef: options.clef || ClefEnum.Treble
             }
         }
-        case MsSymbolTypeEnum.keySignature: {
+        case MsSymbolTypeEnum.KeySignature: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.keySignature,
+                type: MsSymbolTypeEnum.KeySignature,
                 keySignature: options.keySignature || KeySignatureEnum.C
             }
         }
-        case MsSymbolTypeEnum.timeSignature: {
+        case MsSymbolTypeEnum.TimeSignature: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.timeSignature,
+                type: MsSymbolTypeEnum.TimeSignature,
                 timeSignature: options.timeSignature || {
                     beat: 1,
                     chronaxie: 4
                 }
             }
         }
-        case MsSymbolTypeEnum.accidental: {
+        case MsSymbolTypeEnum.Accidental: {
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.accidental,
+                type: MsSymbolTypeEnum.Accidental,
                 accidental: options.accidental || AccidentalEnum.Sharp
             }
         }
@@ -261,8 +269,12 @@ export function msSymbolTemplate(options: {
             console.error('type不被识别，符号模版返回noteHead')
             return {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.noteHead,
-                region: options.region || StaffRegion.space_3,
+                type: MsSymbolTypeEnum.NoteHead,
+                region: options.region || {
+                    region: StaffRegionEnum.Main,
+                    type: StaffPositionTypeEnum.Line,
+                    index: 1
+                },
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
                 beamId: -1,
             }
@@ -322,7 +334,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
     }
     // 小节必须有结束小节线
     const barLine: MsSymbol = msSymbolTemplate({
-        type: MsSymbolTypeEnum.barLine,
+        type: MsSymbolTypeEnum.BarLine,
         barLineType: options.barLineType || BarLineTypeEnum.single
     });
     const container = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.rearFixed})
@@ -395,4 +407,20 @@ export function multipleStavesTemplate(options: {} = {}): MultipleStaves {
 
 
     return multipleStaves;
+}
+
+// 返回空musicScore
+export function musicScoreTemplate(options: {} = {}) {
+    const multipleStaves = multipleStavesTemplate({})
+    const musicScore: MusicScore = {
+        title: '空曲谱',
+        multipleStavesArray: [multipleStaves],
+        measureHeight: 60,
+        showMode: MusicScoreShowModeEnum.standardStaff,
+        spanSymbolArray: [],
+        widthDynamicRatio: 0.6,
+        map: {},
+        vueKey: Date.now() + 6,
+    }
+    return musicScore
 }

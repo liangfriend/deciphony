@@ -75,11 +75,11 @@ export enum NoteLetterEnum {
 
 // 升降号（Accidental）
 export enum AccidentalEnum {
-    Natural = "",   // 还原
-    Sharp = "#",    // 升
-    Flat = "b",     // 降
-    DoubleSharp = "##", // 重升
-    DoubleFlat = "bb",  // 重降
+    Natural = "natural",   // 还原
+    Sharp = "sharp",    // 升
+    Flat = "flat",     // 降
+    DoubleSharp = "doubleSharp", // 重升
+    DoubleFlat = "doubleFlat",  // 重降
 }
 
 // 八度数（可以用 number，而不是枚举）
@@ -99,22 +99,22 @@ export enum ChronaxieEnum {
 
 // 符号类型
 export enum MsSymbolTypeEnum {
-    noteHead = 'noteHead', // 线谱指音符头， 简谱指音符
-    noteBar = 'noteBar',
-    noteTail = 'noteTail',
-    noteNumber = 'noteNumber', // 简谱的数字符号
-    rest = 'rest',
-    slur = 'slur', // 圆滑线  不同音高
-    tie = 'tie',  // 延音线  延音线只能连接两个音
-    durationDot = 'durationDot', // 附点
-    accidental = 'accidental',
-    tuplet = 'tuplet', // 连音符
-    clef = 'clef',
-    clef_f = 'clef_f', // 前置谱号
-    keySignature = 'keySignature',  //
-    timeSignature = 'timeSignature',
-    barLine = 'barLine', // 小节线
-    barLine_f = 'barLine_f',
+    NoteHead = 'noteHead', // 线谱指音符头， 简谱指音符
+    NoteStem = 'noteStem',
+    NoteTail = 'noteTail',
+    NoteNumber = 'noteNumber', // 简谱的数字符号
+    Rest = 'rest',
+    Slur = 'slur', // 圆滑线  不同音高
+    Tie = 'tie',  // 延音线  延音线只能连接两个音
+    DurationDot = 'durationDot', // 附点
+    Accidental = 'accidental',
+    Tuplet = 'tuplet', // 连音符
+    Clef = 'clef',
+    Clef_f = 'clef_f', // 前置谱号
+    KeySignature = 'keySignature',  //
+    TimeSignature = 'timeSignature',
+    BarLine = 'barLine', // 小节线
+    BarLine_f = 'barLine_f',
 }
 
 // 曲谱展示模式

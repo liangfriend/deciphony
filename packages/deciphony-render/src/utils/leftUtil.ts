@@ -6,7 +6,7 @@ import type {
     MsSymbolContainer,
     MusicScore, NoteHead, NoteTail,
     SingleStaff
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {
     getBeamGroup,
     getDataWithIndex,
@@ -18,16 +18,16 @@ import {
     getMsSymbolSlotWidth,
     getMsSymbolWidth, getNoteTailWidth,
     getWidthFixedContainerWidthSumInMeasure
-} from "@/utils/widthUtil";
+} from "../utils/widthUtil";
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
-    StaffRegion, MusicScoreShowModeEnum
-} from "deciphony-core/musicScoreEnum";
+    MusicScoreShowModeEnum
+} from "../../../deciphony-core/src/musicScoreEnum";
 import {
     getWidthConstantInMeasure
-} from "@/utils/widthConstantUtil";
-import {MsSymbolInformationMap} from "@/constant";
+} from "../utils/widthConstantUtil";
+import {MsSymbolInformationMap} from "../constant";
 
 
 export function getMeasureLeftToMusicScore(measure: Measure, musicScore: MusicScore, componentWidth: number, showMode: MusicScoreShowModeEnum): number {
@@ -59,21 +59,21 @@ export function getNoteTailLeftToSlot(noteTail: NoteTail, noteHead: NoteHead, ms
     const width = getMsSymbolWidth(noteTail, msSymbolContainer, measure,
         singleStaff, musicScore, componentWidth, showMode)
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
-    const noteBarInfo = MsSymbolInformationMap[showMode][MsSymbolTypeEnum.noteBar]
-    if (!('aspectRatio' in noteBarInfo) || typeof noteBarInfo.aspectRatio !== 'number') {
+    const noteStemInfo = MsSymbolInformationMap[MsSymbolTypeEnum.NoteStem]
+    if (!('aspectRatio' in noteStemInfo) || typeof noteStemInfo.aspectRatio !== 'number') {
         console.error('符杠aspectRatio获取失败,符尾left计算出错')
         return 0
     }
-    const noteBarWidth = measureHeight * noteBarInfo.heightMultiplier * noteBarInfo.aspectRatio
+    const noteStemWidth = measureHeight * noteStemInfo.heightMultiplier * noteStemInfo.aspectRatio
     if (beamGroup.length > 1) { // 成组情况
         // 如果是连音组首尾处音符
-        if (noteHead.id === beamGroup[0].noteHead.id) { // 头部
+        if (noteHead.id === beamGroup[0].note.id) { // 头部
             if (noteTail.direction === 'up') {
                 return slotWidth
             } else {
                 return 0
             }
-        } else if (noteHead.id === beamGroup[beamGroup.length - 1].noteHead.id) { // 尾部
+        } else if (noteHead.id === beamGroup[beamGroup.length - 1].note.id) { // 尾部
             if (noteTail.direction === 'up') {
                 return -width + slotWidth
             } else {
@@ -88,13 +88,13 @@ export function getNoteTailLeftToSlot(noteTail: NoteTail, noteHead: NoteHead, ms
         if (noteTail.direction === 'up') {
             return slotWidth
         } else {
-            const noteBarInfo = MsSymbolInformationMap[showMode][MsSymbolTypeEnum.noteBar]
-            if (!('aspectRatio' in noteBarInfo) || typeof noteBarInfo.aspectRatio !== 'number') {
+            const noteStemInfo = MsSymbolInformationMap[MsSymbolTypeEnum.NoteStem]
+            if (!('aspectRatio' in noteStemInfo) || typeof noteStemInfo.aspectRatio !== 'number') {
                 console.error('符杠aspectRatio获取失败,符杠left计算出错')
                 return 0
             }
-            const noteBarWidth = measureHeight * noteBarInfo.heightMultiplier * noteBarInfo.aspectRatio
-            return noteBarWidth
+            const noteStemWidth = measureHeight * noteStemInfo.heightMultiplier * noteStemInfo.aspectRatio
+            return noteStemWidth
 
         }
     }
@@ -109,10 +109,10 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
     const width = getMsSymbolWidth(msSymbol, msSymbolContainer, measure,
         singleStaff, musicScore, componentWidth, showMode)
     switch (msSymbol?.type) {
-        case MsSymbolTypeEnum.noteHead: { // 音符头居中
+        case MsSymbolTypeEnum.NoteHead: { // 音符头居中
             return 0
         }
-        case MsSymbolTypeEnum.noteBar: { // 音符头居中
+        case MsSymbolTypeEnum.NoteStem: { // 音符头居中
             if (msSymbol.direction === 'up') {
                 return slotWidth - width
             } else {
@@ -120,8 +120,8 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
 
             }
         }
-        case MsSymbolTypeEnum.noteTail: { // 音符头居中
-            if (mainMsSymbol.type !== MsSymbolTypeEnum.noteHead) {
+        case MsSymbolTypeEnum.NoteTail: { // 音符头居中
+            if (mainMsSymbol.type !== MsSymbolTypeEnum.NoteHead) {
                 console.error("找不到音符头，符尾left计算出错")
                 return 0
             }
@@ -130,7 +130,7 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
                 measureWidth, componentWidth, showMode)
 
         }
-        case MsSymbolTypeEnum.accidental: { // 音符头居中
+        case MsSymbolTypeEnum.Accidental: { // 音符头居中
             return -width
         }
     }
@@ -143,10 +143,10 @@ export function getSlotLeftToContainer(msSymbol: MsSymbol, msSymbolContainer: Ms
     const containerWidth = getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode)
     const measureHeight = musicScore.measureHeight
     switch (mainMsSymbol?.type) {
-        case MsSymbolTypeEnum.noteHead: { // 音符头居中
+        case MsSymbolTypeEnum.NoteHead: { // 音符头居中
             return containerWidth / 2 - slotWidth / 2
         }
-        case MsSymbolTypeEnum.rest: { // 休止符居中
+        case MsSymbolTypeEnum.Rest: { // 休止符居中
             return containerWidth / 2 - slotWidth / 2
         }
     }

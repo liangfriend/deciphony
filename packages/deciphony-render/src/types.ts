@@ -1,5 +1,5 @@
-import {MsMode, OrderTypeEnum, ReserveMsSymbolType} from "deciphony-core/musicScoreEnum";
-import {MsType} from "deciphony-core/types";
+import {MsMode, OrderTypeEnum, ReserveMsSymbolType} from "../../deciphony-core/src/musicScoreEnum";
+import {MsType, MusicScore} from "../../deciphony-core/src/types";
 import {Ref} from "vue";
 
 export declare interface MouseDownData {
@@ -20,6 +20,7 @@ export declare interface MusicScoreRef {
     getReserveMsSymbol: (key: ReserveMsSymbolType) => MsType | null,
     cancelSelect: () => void,
     reserveMsSymbolMap: Ref<ReserveMsSymbolMapType>,
+    switchShowMode: (musicScore: MusicScore) => void,
 }
 
 // 点击事件处理

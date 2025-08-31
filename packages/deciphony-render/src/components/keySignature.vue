@@ -4,14 +4,14 @@ import {
   KeySignatureMsSymbol,
   MsSymbol,
   type MusicScore
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {
   ClefEnum,
   KeySignatureEnum,
   MsSymbolTypeEnum
-} from "deciphony-core/musicScoreEnum";
-import sharpSvg from '@/assets/msSymbols/sharp.svg';
-import flatSvg from '@/assets/msSymbols/flat.svg';
+} from "../../../deciphony-core/src/musicScoreEnum";
+import sharpSvg from '../assets/msSymbols/sharp.svg';
+import flatSvg from '../assets/msSymbols/flat.svg';
 import {getMsSymbolClef} from "deciphony-core/utils/musicScoreDataUtil";
 
 const props = defineProps({
@@ -55,7 +55,7 @@ const keySignatureInfo = computed(() => {
     'F#': {type: 'sharp', count: 6},
     'C#': {type: 'sharp', count: 7},
   }
-  if (props.keySignature.type === MsSymbolTypeEnum.keySignature) {
+  if (props.keySignature.type === MsSymbolTypeEnum.KeySignature) {
     return map[props.keySignature.keySignature];
   } else {
     console.error("keySignature出错，没有keySignature属性", props.keySignature)

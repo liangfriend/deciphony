@@ -5,16 +5,16 @@ import type {
   MsSymbolContainer,
   MultipleStaves, MusicScore,
   SingleStaff,
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {computed, CSSProperties, onMounted, PropType} from "vue";
 import msSymbolVue from "./msSymbol.vue";
 
-import {getMsSymbolHeight} from "@/utils/heightUtil";
-import {getSlotBottomToMeasure} from "@/utils/bottomUtil";
-import {getMsSymbolSlotWidth} from "@/utils/widthUtil";
-import {getSlotLeftToContainer} from "@/utils/leftUtil";
-import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
-import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+import {getMsSymbolHeight} from "../utils/heightUtil";
+import {getSlotBottomToMeasure} from "../utils/bottomUtil";
+import {getMsSymbolSlotWidth} from "../utils/widthUtil";
+import {getSlotLeftToContainer} from "../utils/leftUtil";
+import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 const props = defineProps({
   msSymbol: {
@@ -45,7 +45,7 @@ const props = defineProps({
     required: true,
   },
   showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     default: MusicScoreShowModeEnum.numberNotation
   },
   measure: {

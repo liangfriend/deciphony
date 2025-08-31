@@ -1,22 +1,13 @@
 <script setup lang="ts">
-// import MusicScoreVue from "@render/musicScore.vue";
-import test from "./musicScoreData/test.ts"
-import {onMounted, ref} from "vue";
-import type {MusicScore} from "@core/types";
-import PlayerTest from "./views/playerTest.vue";
+import MusicScoreVue from "deciphony-render/musicScore.vue";
+import RenderTest from "./views/renderTest.vue";
 
 
-// const musicScore = ref<MusicScore>(test)
-
-onMounted(() => {
-  // window.musicScore = musicScore.value
-  // console.log('chicken', MusicScoreVue)
-})
 </script>
 
 <template>
-  <!--  <music-score-vue :music-score="musicScore"></music-score-vue>-->
-  <player-test></player-test>
+  <render-test></render-test>
+  <!--  <player-test></player-test>-->
 </template>
 
 <style scoped>

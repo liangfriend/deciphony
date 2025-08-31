@@ -6,21 +6,21 @@ import {
     NoteHead,
     SingleStaff,
     WidthConstant
-} from "deciphony-core/types";
-import {MsSymbolInformationMap,} from "@/constant";
-import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+} from "../../../deciphony-core/src/types";
+import {MsSymbolInformationMap,} from "../constant";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 // 获取当前符号的宽度系数之和
 export function getWidthConstantInMsSymbol(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum): WidthConstant {
     let widthConstant: WidthConstant = 0
-    const information = MsSymbolInformationMap[showMode][msSymbol.type]
+    const information = MsSymbolInformationMap[msSymbol.type]
     if ('widthRatioConstant' in information) {
         widthConstant += information.widthRatioConstant
     }
     if (msSymbol.msSymbolArray) {
         for (let k = 0; k < msSymbol.msSymbolArray.length; k++) {
             const childMsSymbol = msSymbol.msSymbolArray[k]
-            const childInformation = MsSymbolInformationMap[showMode][childMsSymbol.type]
+            const childInformation = MsSymbolInformationMap[childMsSymbol.type]
             if ('widthRatioConstant' in childInformation) {
                 widthConstant += childInformation.widthRatioConstant
             }

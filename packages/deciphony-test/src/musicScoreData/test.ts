@@ -1,5 +1,5 @@
-import type{ MusicScore } from 'deciphony-core/types'
-import { MsSymbolTypeEnum } from 'deciphony-core/musicScoreEnum'
+import type {MusicScore} from 'packages/deciphony-core/src/types.ts'
+import {MsSymbolTypeEnum} from 'packages/deciphony-core/src/musicScoreEnum.ts'
 
 const data: MusicScore = {
     "showMode": 1,
@@ -157,7 +157,7 @@ const data: MusicScore = {
                                                     "msSymbolArray": [],
                                                     "vueKey": 1755955010886,
                                                     "direction": "up",
-                                                    "type": "noteBar"
+                                                    "type": "noteStem"
                                                 }
                                             ],
                                             "vueKey": 1755955010886,
@@ -226,7 +226,7 @@ const data: MusicScore = {
                                                     "msSymbolArray": [],
                                                     "vueKey": 1755955014638,
                                                     "direction": "up",
-                                                    "type": "noteBar"
+                                                    "type": "noteStem"
                                                 }
                                             ],
                                             "vueKey": 1755955014638,
@@ -295,7 +295,7 @@ const data: MusicScore = {
                                                     "msSymbolArray": [],
                                                     "vueKey": 1755955015814,
                                                     "direction": "down",
-                                                    "type": "noteBar"
+                                                    "type": "noteStem"
                                                 }
                                             ],
                                             "vueKey": 1755955015814,
@@ -364,7 +364,7 @@ const data: MusicScore = {
                                                     "msSymbolArray": [],
                                                     "vueKey": 1755955013118,
                                                     "direction": "down",
-                                                    "type": "noteBar"
+                                                    "type": "noteStem"
                                                 }
                                             ],
                                             "vueKey": 1755955013118,

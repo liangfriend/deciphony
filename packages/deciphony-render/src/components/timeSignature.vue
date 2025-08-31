@@ -1,10 +1,7 @@
-
-
-
 <script setup lang="ts">
 import {computed, CSSProperties, PropType} from "vue";
-import {MsSymbol, TimeSignatureMsSymbol} from "deciphony-core/types";
-import {MsSymbolTypeEnum} from "deciphony-core/musicScoreEnum";
+import {MsSymbol, TimeSignatureMsSymbol} from "../../../deciphony-core/src/types";
+import {MsSymbolTypeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 const props = defineProps({
   timeSignature: {
@@ -27,7 +24,7 @@ const timeSignatureStyle = computed((): CSSProperties => {
 })
 </script>
 <template>
-  <div class="timeSignature" v-if="timeSignature && timeSignature.type === MsSymbolTypeEnum.timeSignature"
+  <div class="timeSignature" v-if="timeSignature && timeSignature.type === MsSymbolTypeEnum.TimeSignature"
        :style="timeSignatureStyle">
     <div>{{ timeSignature.timeSignature.beat }}</div>
     <div>{{ timeSignature.timeSignature.chronaxie }}</div>

@@ -4,11 +4,11 @@ import type {
   MusicScore,
   Slur,
   SpanSymbol, Volta
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {
   MsTypeNameEnum, MusicScoreShowModeEnum,
   SpanSymbolTypeEnum
-} from "deciphony-core/musicScoreEnum";
+} from "../../../deciphony-core/src/musicScoreEnum";
 import {
   getDataWithIndex,
   getTarget,
@@ -17,19 +17,19 @@ import {
 import {
   getContainerLeftToMeasure,
   getMeasureLeftToMusicScore, getSlotLeftToMeasure
-} from "@/utils/leftUtil";
+} from "../utils/leftUtil";
 import {
   getMeasureWidth,
   getMsSymbolSlotWidth
-} from "@/utils/widthUtil";
+} from "../utils/widthUtil";
 import {
   getMaxMsSymbolBottomInMeasure,
   getMeasureBottomToMusicScore
-} from "@/utils/bottomUtil";
+} from "../utils/bottomUtil";
 import RectDragShell from "./rectDragShell.vue";
 import voltaVue from './volta.vue'
 import slurVue from './slur.vue'
-import {MsState} from "@/types";
+import {MsState} from "../types";
 
 const props = defineProps({
   spanSymbol: {
@@ -48,7 +48,7 @@ const props = defineProps({
     type: Number,
     default: 800,
   }, showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     default: MusicScoreShowModeEnum.numberNotation
   },
 })
@@ -72,7 +72,7 @@ function voltaRect(volta: Volta, musicScore: MusicScore, componentWidth: number,
   }
   rect.left = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth, props.showMode)
   traverseMeasure(startMeasure.index, endMeasure.index, musicScore, (measure, singleStaff, multipleStaves) => {
-    rect.width += getMeasureWidth(measure, singleStaff, musicScore, componentWidth)
+    rect.width += getMeasureWidth(measure, singleStaff, musicScore, componentWidth, props.showMode)
     const measureBottom = getMeasureBottomToMusicScore(measure, musicScore, componentHeight)
     const maxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(measure, musicScore, props.showMode)
     const measureHeight = musicScore.measureHeight
@@ -178,13 +178,13 @@ onBeforeMount(() => {
   <rect-drag-shell v-if="spanSymbol && spanSymbol.type === SpanSymbolTypeEnum.volta"
                    :rect="spanSymbol.rect">
     <voltaVue :volta="spanSymbol"
-              @mousedown.self="handleMouseDown" @mouseup.self="handleMouseUp"
+              ..mousedown.self="handleMouseDown" ..mouseup.self="handleMouseUp"
     ></voltaVue>
   </rect-drag-shell>
   <rect-drag-shell v-if="spanSymbol && spanSymbol.type === SpanSymbolTypeEnum.slur" :slur="spanSymbol"
                    :rect="spanSymbol.rect">
     <slurVue :slur="spanSymbol"
-             @mousedown.self="handleMouseDown" @mouseup.self="handleMouseUp"></slurVue>
+             ..mousedown.self="handleMouseDown" ..mouseup.self="handleMouseUp"></slurVue>
   </rect-drag-shell>
 
 </template>

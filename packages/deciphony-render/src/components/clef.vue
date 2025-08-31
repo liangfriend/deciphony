@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {ClefEnum} from "deciphony-core/musicScoreEnum";
+import {ClefEnum} from "../../../deciphony-core/src/musicScoreEnum";
 import {computed, PropType} from "vue";
-import trebleClefSvg from "@/assets/msSymbols/trebleClef.svg";
-import altoClefSvg from "@/assets/msSymbols/altoClef.svg";
-import bassClefSvg from "@/assets/msSymbols/bassClef.svg";
-import {ClefMsSymbol, MusicScore} from "deciphony-core/types";
+import trebleClefSvg from "../assets/msSymbols/trebleClef.svg";
+import altoClefSvg from "../assets/msSymbols/altoClef.svg";
+import bassClefSvg from "../assets/msSymbols/bassClef.svg";
+import {ClefMsSymbol, MusicScore} from "../../../deciphony-core/src/types";
 
 const props = defineProps({
   clef: {

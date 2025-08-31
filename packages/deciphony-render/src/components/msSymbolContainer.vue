@@ -4,14 +4,14 @@ import type {
   MsSymbolContainer,
   MultipleStaves, MusicScore,
   SingleStaff,
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {computed, CSSProperties, onMounted, PropType} from "vue";
 import MsSymbolSlot from "./msSymbolSlot.vue";
 import {
   getMsSymbolContainerWidth,
-} from "@/utils/widthUtil";
-import {getContainerLeftToMeasure} from "@/utils/leftUtil";
-import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+} from "../utils/widthUtil";
+import {getContainerLeftToMeasure} from "../utils/leftUtil";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 const props = defineProps({
   msSymbolContainer: {
@@ -59,7 +59,7 @@ const props = defineProps({
     required: true, // 改为必须传入，移除 default: {}
   },
   showMode: {
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     required: true, // 改为必须传入，移除 default: {}
   },
 });

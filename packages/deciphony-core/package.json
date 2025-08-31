@@ -26,6 +26,13 @@
       "import": "./dist/utils/*.js",
       "require": "./dist/utils/*.js"
     },
+    "./utils/core": {
+      "types": "./dist/utils/core/*.d.ts",
+      "default": "./dist/utils/core/*.js",
+      "module": "./dist/utils/core/*.js",
+      "import": "./dist/utils/core/*.js",
+      "require": "./dist/utils/core/*.js"
+    },
     "./utils/musicScoreDataUtil": {
       "types": "./dist/utils/musicScoreDataUtil.d.ts",
       "default": "./dist/utils/musicScoreDataUtil.js"

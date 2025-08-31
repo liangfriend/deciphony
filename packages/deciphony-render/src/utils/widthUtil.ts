@@ -1,7 +1,7 @@
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum, MusicScoreShowModeEnum
-} from "deciphony-core/musicScoreEnum";
+} from "../../../deciphony-core/src/musicScoreEnum";
 
 import {
     Measure,
@@ -9,13 +9,13 @@ import {
     MsSymbolContainer,
     MusicScore, NoteHead, NoteTail,
     SingleStaff
-} from "deciphony-core/types";
-import {MsSymbolInformationMap,} from "@/constant";
+} from "../../../deciphony-core/src/types";
+import {MsSymbolInformationMap,} from "../constant";
 import {
     getWidthConstantInMeasure,
     getWidthConstantInMsSymbolContainer,
     getWidthConstantInSingleStaff
-} from "@/utils/widthConstantUtil";
+} from "./widthConstantUtil";
 import {
     getBeamGroup,
     getDataWithIndex,
@@ -23,7 +23,7 @@ import {
 
 } from "deciphony-core/utils/musicScoreDataUtil";
 import {getMsSymbolHeight} from "./heightUtil";
-import {getHeightMultiplier, getMsSymbolAspectRatio} from "@/utils/geometryUtil";
+import {getHeightMultiplier, getMsSymbolAspectRatio} from "./geometryUtil";
 
 
 // 获取定宽容器的宽度
@@ -31,14 +31,14 @@ export function getWidthFixedContainerWidth(msSymbolContainer: MsSymbolContainer
     let width = 0
     for (let i = 0; i < msSymbolContainer.msSymbolArray.length; i++) {
         const curMsSymbol: MsSymbol = msSymbolContainer.msSymbolArray[i]
-        const information = MsSymbolInformationMap[showMode][curMsSymbol.type]
+        const information = MsSymbolInformationMap[curMsSymbol.type]
         let curW = 0
         if ('aspectRatio' in information && (typeof information.aspectRatio === 'number')) {
             curW += information.aspectRatio * measureHeight
         } else if ('aspectRatio' in information && (typeof information.aspectRatio === 'object')) { // 特殊情况处理
-            if (curMsSymbol.type === MsSymbolTypeEnum.keySignature) {
+            if (curMsSymbol.type === MsSymbolTypeEnum.KeySignature) {
                 curW += information.aspectRatio[curMsSymbol.keySignature] * measureHeight
-            } else if (curMsSymbol.type === MsSymbolTypeEnum.barLine || curMsSymbol.type === MsSymbolTypeEnum.barLine_f) {
+            } else if (curMsSymbol.type === MsSymbolTypeEnum.BarLine || curMsSymbol.type === MsSymbolTypeEnum.BarLine_f) {
                 curW += information.aspectRatio[curMsSymbol.barLineType] * measureHeight
             }
         } else {
@@ -129,7 +129,7 @@ export function getNoteTailWidth(noteTail: NoteTail, noteHead: NoteHead, msSymbo
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
     if (beamGroup.length > 1) {
         // 如果是连音组首尾处的音符，符尾只有一半的宽度
-        if (noteHead.id === beamGroup[0].noteHead.id || noteHead.id === beamGroup[beamGroup.length - 1].noteHead.id) {
+        if (noteHead.id === beamGroup[0].note.id || noteHead.id === beamGroup[beamGroup.length - 1].note.id) {
             return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode) / 2
         }
         return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode)
@@ -144,11 +144,11 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
     const heightMultiplier = getHeightMultiplier(msSymbol, showMode)
     const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
     switch (msSymbol?.type) {
-        case MsSymbolTypeEnum.noteBar: {
-            // noteBar的高度是动态的，所以宽度不能按照真实宽度乘以宽高比，而是乘以最小高度
+        case MsSymbolTypeEnum.NoteStem: {
+            // noteStem的高度是动态的，所以宽度不能按照真实宽度乘以宽高比，而是乘以最小高度
             return measureHeight * heightMultiplier * aspectRatio
         }
-        case MsSymbolTypeEnum.noteTail: {
+        case MsSymbolTypeEnum.NoteTail: {
             const noteHead = getDataWithIndex(msSymbol.index, musicScore).msSymbol as NoteHead | null
             if (!noteHead) {
                 console.error('音符头索引失败，符尾宽度计算失败')

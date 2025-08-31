@@ -16,6 +16,7 @@ import {
     BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, Octave, SolmizationEnum
 } from "./musicScoreEnum";
 
+export declare type Midi = number
 
 export declare interface MusicScoreOptions {
     highlight: Boolean;
@@ -68,66 +69,67 @@ export declare type BaseMsSymbol = {
     vueKey: number,
 }
 export declare type NoteHead = ({
-    type: MsSymbolTypeEnum.noteHead,
+    type: MsSymbolTypeEnum.NoteHead,
     region: StaffRegion   // 五线谱区域
     chronaxie: ChronaxieEnum; // 时值
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
 
 export declare type NoteNumber = ({
-    type: MsSymbolTypeEnum.noteHead,
+    type: MsSymbolTypeEnum.NoteNumber,
     solmization: SolmizationEnum   // 唱名
     chronaxie: ChronaxieEnum; // 时值
+    octave: Octave; // 八度，首调
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
 
-export declare type NoteBar = ({
-    type: MsSymbolTypeEnum.noteBar,
+export declare type NoteStem = ({
+    type: MsSymbolTypeEnum.NoteStem,
     direction: 'up' | 'down',
 } & BaseMsSymbol)
 export declare type NoteTail = ({
-    type: MsSymbolTypeEnum.noteTail,
+    type: MsSymbolTypeEnum.NoteTail,
     chronaxie: ChronaxieEnum,
     beamType: BeamTypeEnum,
     direction: 'up' | 'down',
 } & BaseMsSymbol)
 export declare type TimeSignatureMsSymbol = ({
-    type: MsSymbolTypeEnum.timeSignature,
+    type: MsSymbolTypeEnum.TimeSignature,
     timeSignature: TimeSignature
 } & BaseMsSymbol)
 export declare type KeySignatureMsSymbol = ({
-    type: MsSymbolTypeEnum.keySignature,
+    type: MsSymbolTypeEnum.KeySignature,
     keySignature: KeySignatureEnum,
 } & BaseMsSymbol)
 export declare type AccidentalMsSymbol = ({
-    type: MsSymbolTypeEnum.accidental,
+    type: MsSymbolTypeEnum.Accidental,
     accidental: AccidentalEnum,
 } & BaseMsSymbol)
 
 export declare type ClefMsSymbol = ({
-    type: MsSymbolTypeEnum.clef | MsSymbolTypeEnum.clef_f,
+    type: MsSymbolTypeEnum.Clef | MsSymbolTypeEnum.Clef_f,
     clef: ClefEnum
 } & BaseMsSymbol)
 export declare type BarLine = ({
-    type: MsSymbolTypeEnum.barLine | MsSymbolTypeEnum.barLine_f,
+    type: MsSymbolTypeEnum.BarLine | MsSymbolTypeEnum.BarLine_f,
     barLineType: Exclude<BarLineTypeEnum, BarLineTypeEnum.endRepeatSign | BarLineTypeEnum.startRepeatSign>,
 } & BaseMsSymbol) | ({
-    type: MsSymbolTypeEnum.barLine | MsSymbolTypeEnum.barLine_f,
+    type: MsSymbolTypeEnum.BarLine | MsSymbolTypeEnum.BarLine_f,
     barLineType: BarLineTypeEnum.endRepeatSign | BarLineTypeEnum.startRepeatSign,
     loopCount: number
 } & BaseMsSymbol)
 export declare type Rest = ({
-    type: MsSymbolTypeEnum.rest,
+    type: MsSymbolTypeEnum.Rest,
     chronaxie: ChronaxieEnum,
 } & BaseMsSymbol)
-export declare type MsSymbol = NoteHead | ClefMsSymbol
+export declare type MsSymbol = NoteHead | ClefMsSymbol | NoteNumber
     | TimeSignatureMsSymbol | KeySignatureMsSymbol
-    | AccidentalMsSymbol | NoteTail | BarLine | Rest | NoteBar | ({
-    type: Exclude<MsSymbolTypeEnum, MsSymbolTypeEnum.noteHead | MsSymbolTypeEnum.clef |
-        MsSymbolTypeEnum.timeSignature | MsSymbolTypeEnum.clef_f
-        | MsSymbolTypeEnum.noteTail | MsSymbolTypeEnum.keySignature
-        | MsSymbolTypeEnum.accidental | MsSymbolTypeEnum.barLine
-        | MsSymbolTypeEnum.barLine_f | MsSymbolTypeEnum.rest | MsSymbolTypeEnum.noteBar>,
+    | AccidentalMsSymbol | NoteTail | BarLine | Rest | NoteStem | ({
+    type: Exclude<MsSymbolTypeEnum, MsSymbolTypeEnum.NoteHead | MsSymbolTypeEnum.NoteNumber | MsSymbolTypeEnum.Clef |
+        MsSymbolTypeEnum.TimeSignature | MsSymbolTypeEnum.Clef_f
+        | MsSymbolTypeEnum.NoteTail | MsSymbolTypeEnum.KeySignature
+        | MsSymbolTypeEnum.Accidental | MsSymbolTypeEnum.BarLine
+        | MsSymbolTypeEnum.BarLine_f | MsSymbolTypeEnum.Rest | MsSymbolTypeEnum.NoteStem>,
 
 
 } & BaseMsSymbol)
@@ -242,7 +244,7 @@ export declare type VirtualSymbolContainerType = 'front' | 'middle' | 'end' | 's
 // 连音组
 export declare type BeamGroupItem = {
     beamId: number,
-    noteHead: NoteHead,
+    note: NoteHead | NoteNumber,
     region: StaffRegion,
     chronaxie: ChronaxieEnum
 }

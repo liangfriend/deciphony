@@ -15,24 +15,25 @@ import type {
   Measure,
   MsSymbolContainer,
   MultipleStaves, MusicScore,
-  SingleStaff, VirtualSymbolContainerType,
-} from "deciphony-core/types";
+  SingleStaff, VirtualSymbolContainerType, StaffRegion
+} from "../../../deciphony-core/src/types";
 import {computed, CSSProperties, inject, onMounted, PropType, ref} from "vue";
 
 import {
   getMsSymbolContainerWidth,
   getWidthFixedContainerWidthSumInMeasure
-} from "@/utils/widthUtil";
+} from "../utils/widthUtil";
 import {
   getWidthConstantInMeasure, getWidthConstantInMsSymbolContainer
-} from "@/utils/widthConstantUtil";
-import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
+} from "../utils/widthConstantUtil";
+import noteHeadWholeSvg from "../assets/msSymbols/noteHeadWhole.svg"
 import {
   getMeasureBottomToMusicScore, getSlotBottomToMeasure, staffRegionToBottom
-} from "@/utils/bottomUtil";
-import {StaffRegion, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
-import {MsState} from "@/types";
-import {virtualSymbolMouseDown} from "@/utils/eventUtil";
+} from "../utils/bottomUtil";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {MsState} from "../types";
+import {virtualSymbolMouseDown} from "../utils/eventUtil";
+import {indexToStaffRegion} from "deciphony-core/utils/musicScoreDataUtil";
 
 const props = defineProps({
   ind: {},
@@ -78,7 +79,7 @@ const props = defineProps({
     default: {}
   },
   showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     default: MusicScoreShowModeEnum.numberNotation
   },
 })
@@ -117,7 +118,7 @@ const containerLeft = computed(() => {
     const widthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, props.showMode)
     const widthConstantInMeasure = getWidthConstantInMeasure(props.measure, props.showMode)
     const preWidConstantInMeasure = getWidthConstantInMeasure(props.measure, props.showMode, props.msSymbolContainer)
-    const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, 'front')
+    const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(props.measure, props.measureHeight, props.showMode, 'front')
     left = (props.measureWidth - widthFixedContainerWidthSumInMeasure) / widthConstantInMeasure * preWidConstantInMeasure + preWidthFixedContainerWidthSumInMeasure
         - containerWidth.value / 2 // 加上音符的一半距离进行微观居中
     // 将虚拟音符偏移到正确位置，具体逻辑语言表述不清
@@ -162,7 +163,7 @@ function handleMouseDown(e: MouseEvent) {
     },
 
     msSymbolInformation: {
-      region: region.value
+      region: indexToStaffRegion(region.value)
     }
   })
 
@@ -186,13 +187,12 @@ const vitrualSymbolLeft = computed(() => {
 
   return 0
 })
-const region = computed(() => {
+const region = computed((): number => {
   const regionIndex = +((offsetBottom.value - props.measureHeight) / (props.measureHeight / 8)).toFixed(0)
-  return regionIndex + 37
+  return regionIndex + 1
 })
 const virtualSymbolBottom = computed(() => {
-  if (!(region.value in StaffRegion)) return props.measureHeight
-  const bottom = staffRegionToBottom(region.value, props.measureHeight) + props.measureHeight
+  const bottom = staffRegionToBottom(indexToStaffRegion(region.value), props.measureHeight) + props.measureHeight
   return bottom
 })
 const vitrualSymbolStyle = computed<CSSProperties>(() => {

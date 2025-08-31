@@ -1,7 +1,6 @@
 <template>
   <div class="musicScore stack" :style="musicScoreStyle" ref="musicScoreRef" @mousedown.stop="handleMouseDown"
        @mousemove.stop="handleMouseMove" @mouseup.stop="handleMouseUp">
-
     <measure-container :disabled="false" :musicScore="musicScore" class="stackItem lineLayer"
                        :style="{width:width+'px',height:height+'px'}"
                        :showMode="showMode"
@@ -131,13 +130,13 @@ import type {
   SingleStaff,
 
   SpanSymbol
-} from "deciphony-core/types";
-import MeasureContainer from "@/components/measureContainer.vue";
+} from "../../deciphony-core/src/types";
+import MeasureContainer from "./components/measureContainer.vue";
 
 import MsSymbolContainer
-  from "@/components/msSymbolContainer.vue";
+  from "./components/msSymbolContainer.vue";
 
-import SpanSymbolVue from "@/components/spanSymbol.vue";
+import SpanSymbolVue from "./components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
@@ -148,7 +147,7 @@ import {
   MsSymbolContainerTypeEnum,
   MsSymbolTypeEnum, MusicScoreShowModeEnum,
   ReserveMsSymbolType,
-} from "deciphony-core/musicScoreEnum";
+} from "../../deciphony-core/src/musicScoreEnum";
 import {
   eventConstant,
   handleMouseMoveSelected,
@@ -159,11 +158,12 @@ import {
   singleStaffMouseDown,
   spanSymbolMouseDown,
   spanSymbolMouseUp
-} from "@/utils/eventUtil";
+} from "./utils/eventUtil";
 import VirtualSymbolContainer
-  from "@/components/virtualSymbolContainer.vue";
+  from "./components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
 import {MusicScoreRef, ReserveMsSymbolMapType} from "./types";
+import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core/utils/showModeUtil";
 
 
 const props = defineProps({
@@ -180,8 +180,8 @@ const props = defineProps({
     default: 800,
   },
   showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: Object as PropType<MusicScoreShowModeEnum>,
-    default: MusicScoreShowModeEnum.numberNotation
+    type: MusicScoreShowModeEnum,
+    default: MusicScoreShowModeEnum.standardStaff
   },
   //小节的线条宽度
   strokeWidth: {
@@ -199,7 +199,7 @@ const isGroup = computed(() => {
       let grouped = false;
 
       for (const symbol of container.msSymbolArray) {
-        if (symbol.type === MsSymbolTypeEnum.noteHead) {
+        if (symbol.type === MsSymbolTypeEnum.NoteHead) {
           // symbol 为 NoteHead 类型，有 chronaxie 属性
           if (
               symbol.chronaxie === ChronaxieEnum.eighth ||
@@ -227,8 +227,8 @@ const currentSelected = ref<MsType | null>(null)
 
 
 function initReserveMsSymbolMap() {
-  const note = msSymbolTemplate({type: MsSymbolTypeEnum.noteHead, chronaxie: ChronaxieEnum.quarter})
-  const rest = msSymbolTemplate({type: MsSymbolTypeEnum.rest, chronaxie: ChronaxieEnum.quarter})
+  const note = msSymbolTemplate({type: MsSymbolTypeEnum.NoteHead, chronaxie: ChronaxieEnum.quarter})
+  const rest = msSymbolTemplate({type: MsSymbolTypeEnum.Rest, chronaxie: ChronaxieEnum.quarter})
   reserveMsSymbolMap.value.set(ReserveMsSymbolType.note, note);
   reserveMsSymbolMap.value.set(ReserveMsSymbolType.rest, rest);
 
@@ -309,7 +309,10 @@ const musicScoreStyle = computed(() => {
 });
 
 function beforeMount() {
-
+  if (!props.musicScore) {
+    // console.error("musicScore不存在")
+    return
+  }
   // 索引生成
   setMultipleStavesIndex(props.musicScore)
   // 初始化预备音符
@@ -350,6 +353,15 @@ function cancelSelect() {
   currentSelected.value = null
 }
 
+function switchShowMode(musicScore: MusicScore) {
+
+  if (musicScore.showMode === MusicScoreShowModeEnum.standardStaff) {
+    standardStaffToNumberNotation(musicScore)
+  } else if (musicScore.showMode === MusicScoreShowModeEnum.numberNotation) {
+    numberNotationToStandardStaff(musicScore)
+  }
+}
+
 onMounted(() => {
   // 生成map
 
@@ -377,7 +389,8 @@ defineExpose<MusicScoreRef>({
   getReserveMsSymbol,
   reserveMsSymbolMap,
   setCurrentResevedType,
-  cancelSelect
+  cancelSelect,
+  switchShowMode
 })
 </script>
 <style scoped lang="scss" comment="布局">

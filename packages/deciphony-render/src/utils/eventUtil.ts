@@ -3,9 +3,10 @@ import {
     MsMode,
     MsSymbolTypeEnum,
     MsTypeNameEnum,
-    StaffRegion,
-    ReserveMsSymbolType
-} from "deciphony-core/musicScoreEnum";
+    ReserveMsSymbolType,
+    StaffPositionTypeEnum,
+    StaffRegionEnum
+} from "../../../deciphony-core/src/musicScoreEnum";
 import {
     Measure,
     MsSymbol,
@@ -13,28 +14,28 @@ import {
     MsType,
     MultipleStaves,
     MusicScore,
-    NoteBar, NoteHead,
-    NoteTail, Rest,
+    NoteStem,
+    NoteHead,
+    NoteTail,
+    Rest,
     SingleStaff,
     SpanSymbol,
+    StaffRegion,
     VirtualSymbolContainerType
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 
 import {Ref} from 'vue';
-import {
-    msSymbolContainerTemplate,
-    msSymbolTemplate
-} from "deciphony-core/utils/objectTemplateUtil";
+import {msSymbolContainerTemplate, msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
 import {
     getBeamGroup,
     getDataWithIndex,
-    getSingleStaffRelatedSpanSymbolList,
+    getSingleStaffRelatedSpanSymbolList, indexToStaffRegion, staffRegionToIndex,
     updateSpanSymbolView
 } from "deciphony-core/utils/musicScoreDataUtil";
 import {
     addMsSymbol,
     addMsSymbolContainer,
-    changeNoteBarDirection,
+    changeNoteStemDirection,
     changeNoteTailDirection,
     updateBeamGroupNote
 } from "deciphony-core/utils/changeStructureUtil";
@@ -55,7 +56,11 @@ export function select(value: MsType, currentSelected: Ref<null | MsType>) {
 export const eventConstant: { startX: number, startY: number, originRegion: StaffRegion } = {
     startX: 0, //鼠标按下时相对视口坐标
     startY: 0,
-    originRegion: StaffRegion.space_1, // 音符按下专用，记录初始region
+    originRegion: {
+        region: StaffRegionEnum.Main,
+        type: StaffPositionTypeEnum.Space,
+        index: 1
+    }, // 音符按下专用，记录初始region
 }
 
 // 处理选中元素mousemove事件
@@ -65,50 +70,49 @@ export function handleMouseMoveSelected(e: MouseEvent, measureHeight: number, cu
     switch (currentSelected.value.msTypeName) {
         case MsTypeNameEnum.MsSymbol: {
             const msSymbol = currentSelected.value
-            if (msSymbol.type === MsSymbolTypeEnum.noteHead) {
+            if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {
                 const dx = e.clientX - eventConstant.startX;
                 const dy = e.clientY - eventConstant.startY;
                 if (Math.abs(dy) > measureHeight / 8 && msSymbol) {
                     const index = Math.floor(dy / measureHeight * 8);
-                    const targetIndex = eventConstant.originRegion - index;
-                    if (targetIndex in StaffRegion) {
-                        const originRegion = msSymbol.region
-                        msSymbol.region = targetIndex as StaffRegion;
-                        // 符杠更新
-                        const noteBar = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null;
-                        const noteTail = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.noteTail) as NoteTail | null;
-                        const measure = getDataWithIndex(msSymbol.index, musicScore).measure
-                        if (!measure) {
-                            console.error("measure不存在，音符移动事件出错")
-                            return
-                        }
-                        const beamGroup = getBeamGroup(msSymbol.beamId, measure)
-                        // 更新符杠和符尾方向
-                        if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(msSymbol.chronaxie)
-                            || beamGroup.length < 2) { // 不成连音组
-                            if (noteBar && msSymbol.region >= StaffRegion.line_3 && noteBar.direction !== 'down') {
-                                changeNoteBarDirection('down', noteBar)
-                            } else if (noteBar && msSymbol.region < StaffRegion.line_3 && noteBar.direction !== 'up') {
-                                changeNoteBarDirection('up', noteBar)
-                            }
-                            if (noteTail && msSymbol.region >= StaffRegion.line_3 && noteTail.direction !== 'down') {
-                                changeNoteTailDirection('down', noteTail)
-                            } else if (noteTail && msSymbol.region < StaffRegion.line_3 && noteTail.direction !== 'up') {
-                                changeNoteTailDirection('up', noteTail)
-                            }
-                        } else { // 成连音组
-                            const measure = getDataWithIndex(msSymbol.index, musicScore).measure
-                            if (measure) {
-                                updateBeamGroupNote(msSymbol.beamId, measure, musicScore)
-                            }
-                        }
-
-                        // 跨小节符号位置更新
-                        const singleStaff = getDataWithIndex(currentSelected.value.index, musicScore).singleStaff
-                        if (!singleStaff) return console.error("找不到单谱表，跨小节符号更新失败")
-                        const spanSymbolIdSet = getSingleStaffRelatedSpanSymbolList(singleStaff, musicScore)
-                        updateSpanSymbolView(spanSymbolIdSet, musicScore)
+                    const targetIndex = staffRegionToIndex(eventConstant.originRegion) - index;
+                    const originRegion = msSymbol.region
+                    msSymbol.region = indexToStaffRegion(targetIndex);
+                    // 符杠更新
+                    const noteStem = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null;
+                    const noteTail = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteTail) as NoteTail | null;
+                    const measure = getDataWithIndex(msSymbol.index, musicScore).measure
+                    if (!measure) {
+                        console.error("measure不存在，音符移动事件出错")
+                        return
                     }
+                    const beamGroup = getBeamGroup(msSymbol.beamId, measure)
+                    // 更新符杠和符尾方向
+                    if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(msSymbol.chronaxie)
+                        || beamGroup.length < 2) { // 不成连音组
+                        const currentRegionIndex = staffRegionToIndex(msSymbol.region)
+                        if (noteStem && currentRegionIndex >= 4 && noteStem.direction !== 'down') {
+                            changeNoteStemDirection('down', noteStem)
+                        } else if (noteStem && currentRegionIndex < 4 && noteStem.direction !== 'up') {
+                            changeNoteStemDirection('up', noteStem)
+                        }
+                        if (noteTail && currentRegionIndex >= 4 && noteTail.direction !== 'down') {
+                            changeNoteTailDirection('down', noteTail)
+                        } else if (noteTail && currentRegionIndex < 4 && noteTail.direction !== 'up') {
+                            changeNoteTailDirection('up', noteTail)
+                        }
+                    } else { // 成连音组
+                        const measure = getDataWithIndex(msSymbol.index, musicScore).measure
+                        if (measure) {
+                            updateBeamGroupNote(msSymbol.beamId, measure, musicScore)
+                        }
+                    }
+
+                    // 跨小节符号位置更新
+                    const singleStaff = getDataWithIndex(currentSelected.value.index, musicScore).singleStaff
+                    if (!singleStaff) return console.error("找不到单谱表，跨小节符号更新失败")
+                    const spanSymbolIdSet = getSingleStaffRelatedSpanSymbolList(singleStaff, musicScore)
+                    updateSpanSymbolView(spanSymbolIdSet, musicScore)
                 }
             }
             break
@@ -160,7 +164,7 @@ export function virtualSymbolMouseDown(
             chronaxie = reserveNote.chronaxie
         }
         const newNoteHead: NoteHead = msSymbolTemplate({
-            type: MsSymbolTypeEnum.noteHead,
+            type: MsSymbolTypeEnum.NoteHead,
             region: params.msSymbolInformation.region,
             chronaxie: chronaxie || ChronaxieEnum.quarter
         }) as NoteHead
@@ -186,7 +190,7 @@ export function virtualSymbolMouseDown(
             if (!params.msData.msSymbolContainer) return console.error("没有作为对照的符号容器，符号添加失败")
 
             const sameRegionNoteHead = params.msData.msSymbolContainer.msSymbolArray.find(m => {
-                return m.type === MsSymbolTypeEnum.noteHead && m.region === newNoteHead.region
+                return m.type === MsSymbolTypeEnum.NoteHead && m.region === newNoteHead.region
             })
             if (sameRegionNoteHead) {
                 msSymbolMouseDown(e, params.msState.mode, params.msState.currentSelected, sameRegionNoteHead)
@@ -204,7 +208,7 @@ export function virtualSymbolMouseDown(
             chronaxie = reserveRest.chronaxie
         }
         const newRest: Rest = msSymbolTemplate({
-            type: MsSymbolTypeEnum.rest,
+            type: MsSymbolTypeEnum.Rest,
             chronaxie: chronaxie || ChronaxieEnum.quarter
         }) as Rest
 
@@ -230,7 +234,7 @@ export function virtualSymbolMouseDown(
         } else if (['self'].includes(params.virtualSymbolContainerType)) {
             if (!params.msData.msSymbolContainer) return console.error("没有作为对照的符号容器，符号添加失败")
             const sameRegionNoteHead = params.msData.msSymbolContainer.msSymbolArray.find(m => {
-                return m.type === MsSymbolTypeEnum.rest
+                return m.type === MsSymbolTypeEnum.Rest
             })
             if (sameRegionNoteHead) {
                 msSymbolMouseDown(e, params.msState.mode, params.msState.currentSelected, sameRegionNoteHead)
@@ -255,7 +259,7 @@ export function spanSymbolMouseUp(e: MouseEvent, mode: Ref<MsMode>, currentSelec
 }
 
 export function msSymbolMouseDown(e: MouseEvent, mode: Ref<MsMode>, currentSelected: Ref<MsType | null>, msSymbol: MsSymbol) {
-    if (msSymbol.type === MsSymbolTypeEnum.noteHead) {  // 赋值region
+    if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {  // 赋值region
         eventConstant.originRegion = msSymbol.region
     }
     if (mode.value === MsMode.edit) {
@@ -270,6 +274,7 @@ export function msSymbolMouseUp(e: MouseEvent, mode: Ref<MsMode>, currentSelecte
 
 export function measureMouseDown(e: MouseEvent, mode: Ref<MsMode>, currentSelected: Ref<MsType | null>, measure: Measure) {
     if (mode.value === MsMode.edit) {
+        console.log('chicken',)
         // 订阅
         select(measure, currentSelected)
     }

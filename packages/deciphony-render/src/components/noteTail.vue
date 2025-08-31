@@ -2,7 +2,7 @@
 import {computed, CSSProperties, PropType} from "vue";
 import {
   getBeamGroup,
-  getDataWithIndex,
+  getDataWithIndex, staffRegionToIndex,
 } from "deciphony-core/utils/musicScoreDataUtil";
 import {
   BeamGroup,
@@ -13,26 +13,26 @@ import {
   NoteHead,
   NoteTail,
   type SingleStaff
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {
   ChronaxieEnum,
   MsSymbolTypeEnum,
-  StaffRegion, MusicScoreShowModeEnum
-} from "deciphony-core/musicScoreEnum";
-import noteTailOneUpSvg from "@/assets/msSymbols/noteTailOneUp.svg";
-import noteTailTwoUpSvg from "@/assets/msSymbols/noteTailTwoUp.svg";
+  MusicScoreShowModeEnum
+} from "../../../deciphony-core/src/musicScoreEnum";
+import noteTailOneUpSvg from "../assets/msSymbols/noteTailOneUp.svg";
+import noteTailTwoUpSvg from "../assets/msSymbols/noteTailTwoUp.svg";
 import noteTailOneDownSvg
-  from "@/assets/msSymbols/noteTailOneDown.svg";
+  from "../assets/msSymbols/noteTailOneDown.svg";
 import noteTailTwoDownSvg
-  from "@/assets/msSymbols/noteTailTwoDown.svg";
-import {getMsSymbolHeight} from "@/utils/heightUtil";
+  from "../assets/msSymbols/noteTailTwoDown.svg";
+import {getMsSymbolHeight} from "../utils/heightUtil";
 import {
   getMsSymbolWidth,
   getNoteTailWidth
-} from "@/utils/widthUtil";
-import {getMsSymbolLeftToSlot} from "@/utils/leftUtil";
-import {getMsSymbolBottomToSlot} from "@/utils/bottomUtil";
-import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
+} from "../utils/widthUtil";
+import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
+import {getMsSymbolBottomToSlot} from "../utils/bottomUtil";
+import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
 
 const props = defineProps({
   noteTail: {
@@ -85,7 +85,7 @@ const props = defineProps({
     required: true
   },
   showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     default: MusicScoreShowModeEnum.numberNotation
   },
 })
@@ -115,7 +115,7 @@ const height = computed(() => {
 // 符号宽度
 const width = computed(() => {
   // TODO 补全如果是成组的才这样做
-  if (props.noteTail.type === MsSymbolTypeEnum.noteTail && props.nextContainer) {
+  if (props.noteTail.type === MsSymbolTypeEnum.NoteTail && props.nextContainer) {
     return getNoteTailWidth(props.noteTail, props.noteHead, props.msSymbolContainer,
         props.measure, props.singleStaff, props.musicScore,
         props.componentWidth, props.showMode)
@@ -157,7 +157,7 @@ const mask = computed(() => {
   const noteHead = getDataWithIndex(props.noteTail.index, props.musicScore)
       .msSymbol as NoteHead
   if (noteHead && 'chronaxie' in noteHead
-      && noteHead.region <= StaffRegion.space_2) {
+      && staffRegionToIndex(noteHead.region) <= 3) {
     switch (props.noteTail.chronaxie) {
       case ChronaxieEnum.eighth: {
         return noteTailOneUpSvg

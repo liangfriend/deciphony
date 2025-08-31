@@ -1,9 +1,8 @@
 import {
-    AccidentalEnum,
+    AccidentalEnum, ChronaxieEnum,
     ClefEnum,
     KeySignatureEnum,
-    MsSymbolTypeEnum, MsTypeNameEnum,
-    StaffRegion
+    MsSymbolTypeEnum, MsTypeNameEnum, StaffPositionTypeEnum, StaffRegionEnum,
 } from "../musicScoreEnum";
 
 import {
@@ -17,25 +16,161 @@ import {
     MultipleStaves,
     MusicScore,
     MusicScoreIndex,
-    NoteHead,
-    SingleStaff, SpanSymbol
+    NoteHead, NoteNumber,
+    SingleStaff, SpanSymbol, StaffRegion
 } from "../types";
+import regionToNoteName from "./core/regionToNoteName";
+import {noteNameToSolmization} from "./core/noteNameToSolmization";
 
+// 是否有符尾
+// 是否有符尾（flag）
+export function hasNoteTail(chronaxie: ChronaxieEnum): boolean {
+    // 八分音符及更短时值才有符尾
+    return chronaxie >= ChronaxieEnum.eighth;
+}
+
+// 是否有符杠（stem）
+export function hasNoteStem(chronaxie: ChronaxieEnum): boolean {
+    // 全音符没有符杠，其他都有
+    return chronaxie !== ChronaxieEnum.whole;
+}
 
 // 获取音符的变音符号
-export function getAccidental(noteHead: NoteHead): AccidentalEnum | undefined {
+export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScore: MusicScore): {
+    accidental: AccidentalEnum | null,
+    measureAccidental: AccidentalEnum | null
+} {
     let accidental: AccidentalEnum | null = null
     if (!noteHead.msSymbolArray) {
-        return
+        return {
+            accidental,
+            measureAccidental: null
+        }
+    }
+    const msData = getDataWithIndex(noteHead.index, musicScore)
+    const msSymbolContainer = msData.msSymbolContainer
+    const measure = msData.measure
+    const singleStaff = msData.singleStaff
+
+    const measureIndex = measure?.index.measureIndex
+    const msSymbolContainerIndex = msSymbolContainer?.index.msSymbolContainerIndex
+
+    if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
+        console.error("索引数据查找出错，获取符号的谱号失败")
+        return {
+            accidental: null,
+            measureAccidental: null
+        }
+    }
+    let measureAccidental: AccidentalEnum | null = null
+    for (let i = (measureIndex); i >= 0; i--) {
+        const curMeasure = singleStaff.measureArray[i];
+        if (i === measureIndex) {
+            for (let j = msSymbolContainerIndex; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.Accidental === curMsSymbol.type) {
+                    measureAccidental = curMsSymbol.accidental
+                    break
+                }
+            }
+        } else {
+            for (let j = curMeasure.msSymbolContainerArray.length - 1; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.Accidental === curMsSymbol.type) {
+                    measureAccidental = curMsSymbol.accidental
+                    break
+                }
+            }
+        }
     }
     for (let item of noteHead.msSymbolArray) {
-        if (item.type === MsSymbolTypeEnum.accidental) {
+        if (item.type === MsSymbolTypeEnum.Accidental) {
             accidental = item.accidental
-            return accidental
+            return {accidental, measureAccidental}
         }
     }
 
-    return
+    return {accidental, measureAccidental}
+}
+
+// 获取某一符号所应用的谱号
+export function getMsSymbolKeySignature(msSymbol: MsSymbol, musicScore: MusicScore): KeySignatureEnum {
+    const msData = getDataWithIndex(msSymbol.index, musicScore)
+    const msSymbolContainer = msData.msSymbolContainer
+    const measure = msData.measure
+    const singleStaff = msData.singleStaff
+
+    const measureIndex = measure?.index.measureIndex
+    const msSymbolContainerIndex = msSymbolContainer?.index.msSymbolContainerIndex
+
+    if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
+        console.error("索引数据查找出错，获取符号的谱号失败")
+        return KeySignatureEnum.C
+    }
+    for (let i = (measureIndex); i >= 0; i--) {
+        const curMeasure = singleStaff.measureArray[i];
+        if (i === measureIndex) {
+            for (let j = msSymbolContainerIndex; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.KeySignature === curMsSymbol.type) {
+                    return curMsSymbol.keySignature
+                }
+            }
+        } else {
+            for (let j = curMeasure.msSymbolContainerArray.length - 1; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.KeySignature === curMsSymbol.type) {
+                    return curMsSymbol.keySignature
+                }
+            }
+        }
+
+
+    }
+    return KeySignatureEnum.C
+}
+
+// 获取某一符号所应用的谱号
+export function getMsSymbolClef(msSymbol: MsSymbol, musicScore: MusicScore): ClefEnum {
+    const msData = getDataWithIndex(msSymbol.index, musicScore)
+    const msSymbolContainer = msData.msSymbolContainer
+    const measure = msData.measure
+    const singleStaff = msData.singleStaff
+
+    const measureIndex = measure?.index.measureIndex
+    const msSymbolContainerIndex = msSymbolContainer?.index.msSymbolContainerIndex
+
+    if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
+        console.error("索引数据查找出错，获取符号的谱号失败")
+        return ClefEnum.Treble
+    }
+    for (let i = (measureIndex); i >= 0; i--) {
+        const curMeasure = singleStaff.measureArray[i];
+        if (i === measureIndex) {
+            for (let j = msSymbolContainerIndex; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.Clef === curMsSymbol.type || MsSymbolTypeEnum.Clef_f === curMsSymbol.type) {
+                    return curMsSymbol.clef
+                }
+            }
+        } else {
+            for (let j = curMeasure.msSymbolContainerArray.length - 1; j >= 0; j--) {
+                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
+                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
+                if (MsSymbolTypeEnum.Clef === curMsSymbol.type || MsSymbolTypeEnum.Clef_f === curMsSymbol.type) {
+                    return curMsSymbol.clef
+                }
+            }
+        }
+
+
+    }
+    return ClefEnum.Treble
 }
 
 export type TraverseLevel = 'multipleStaves' | 'singleStaff' | 'measure' | 'container' | 'symbol'
@@ -320,84 +455,6 @@ export function setChildMsSymbolArrayIndex(msSymbol: MsSymbol, musicScore?: Musi
     })
 }
 
-// 获取某一符号所应用的谱号
-export function getMsSymbolClef(msSymbol: MsSymbol, musicScore: MusicScore): ClefEnum {
-    const msData = getDataWithIndex(msSymbol.index, musicScore)
-    const msSymbolContainer = msData.msSymbolContainer
-    const measure = msData.measure
-    const singleStaff = msData.singleStaff
-
-    const measureIndex = measure?.index.measureIndex
-    const msSymbolContainerIndex = msSymbolContainer?.index.msSymbolContainerIndex
-
-    if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
-        console.error("索引数据查找出错，获取符号的谱号失败")
-        return ClefEnum.Treble
-    }
-    for (let i = (measureIndex); i >= 0; i--) {
-        const curMeasure = singleStaff.measureArray[i];
-        if (i === measureIndex) {
-            for (let j = msSymbolContainerIndex; j >= 0; j--) {
-                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
-                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
-                if (MsSymbolTypeEnum.clef === curMsSymbol.type || MsSymbolTypeEnum.clef_f === curMsSymbol.type) {
-                    return curMsSymbol.clef
-                }
-            }
-        } else {
-            for (let j = curMeasure.msSymbolContainerArray.length - 1; j >= 0; j--) {
-                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
-                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
-                if (MsSymbolTypeEnum.clef === curMsSymbol.type || MsSymbolTypeEnum.clef_f === curMsSymbol.type) {
-                    return curMsSymbol.clef
-                }
-            }
-        }
-
-
-    }
-    return ClefEnum.Treble
-}
-
-// 获取某一符号所应用的谱号
-export function getMsSymbolKeySignature(msSymbol: MsSymbol, musicScore: MusicScore): KeySignatureEnum {
-    const msData = getDataWithIndex(msSymbol.index, musicScore)
-    const msSymbolContainer = msData.msSymbolContainer
-    const measure = msData.measure
-    const singleStaff = msData.singleStaff
-
-    const measureIndex = measure?.index.measureIndex
-    const msSymbolContainerIndex = msSymbolContainer?.index.msSymbolContainerIndex
-
-    if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
-        console.error("索引数据查找出错，获取符号的谱号失败")
-        return KeySignatureEnum.C
-    }
-    for (let i = (measureIndex); i >= 0; i--) {
-        const curMeasure = singleStaff.measureArray[i];
-        if (i === measureIndex) {
-            for (let j = msSymbolContainerIndex; j >= 0; j--) {
-                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
-                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
-                if (MsSymbolTypeEnum.keySignature === curMsSymbol.type) {
-                    return curMsSymbol.keySignature
-                }
-            }
-        } else {
-            for (let j = curMeasure.msSymbolContainerArray.length - 1; j >= 0; j--) {
-                const curMsSymbolContainer = curMeasure.msSymbolContainerArray[j]
-                const curMsSymbol = curMsSymbolContainer.msSymbolArray[0]
-                if (MsSymbolTypeEnum.keySignature === curMsSymbol.type) {
-                    return curMsSymbol.keySignature
-                }
-            }
-        }
-
-
-    }
-    return KeySignatureEnum.C
-}
-
 
 // 生成hsahMap()
 export function mapGenerate(musicScore: MusicScore): void {
@@ -430,13 +487,88 @@ export function mapGenerate(musicScore: MusicScore): void {
 
 }
 
-// 判断direction
-export function judgeDirection(region: StaffRegion): 'up' | 'down' {
-    if (region <= StaffRegion.space_2) {
-        return 'up'
-    } else {
-        return 'down'
+/**
+ * 将五线谱位置 (StaffRegion) 映射到整数坐标
+ */
+export function staffRegionToIndex(pos: StaffRegion): number {
+    // 主体区域 (main): line1=0, space1=1, line2=2, ...
+    if (pos.region === StaffRegionEnum.Main) {
+        return (pos.index - 1) * 2 + (pos.type === StaffPositionTypeEnum.Space ? 1 : 0);
     }
+
+    // 下方区域 (lower): line1=-2, space1=-1, line2=-4, space2=-3, ...
+    if (pos.region === StaffRegionEnum.Lower) {
+        return -(pos.index * 2) + (pos.type === StaffPositionTypeEnum.Space ? 1 : 0);
+    }
+
+    // 上方区域 (upper): 第五线=8, 第五间=9
+    // 所以 line1=10, space1=11, line2=12, space2=13 ...
+    if (pos.region === StaffRegionEnum.Upper) {
+        return 8 + (pos.index * 2) + (pos.type === StaffPositionTypeEnum.Space ? 1 : 0);
+    }
+
+    throw new Error("Invalid StaffRegion");
+}
+
+/**
+ * 将整数坐标转换回五线谱位置 (StaffRegion)
+ */
+export function indexToStaffRegion(index: number): StaffRegion {
+    // 主体区域: 0 ~ 9
+    if (index >= 0 && index <= 9) {
+        const type = index % 2 === 0 ? StaffPositionTypeEnum.Line : StaffPositionTypeEnum.Space;
+        const lineIndex = Math.floor(index / 2) + 1; // 1~5
+        const spaceIndex = Math.floor(index / 2) + 1; // 1~4
+        return {
+            region: StaffRegionEnum.Main,
+            type,
+            index: type === StaffPositionTypeEnum.Line ? lineIndex : spaceIndex,
+        };
+    }
+
+    // 下方区域: 负数
+    if (index < 0) {
+        const abs = Math.abs(index);
+        const type = abs % 2 === 0 ? StaffPositionTypeEnum.Line : StaffPositionTypeEnum.Space;
+        const posIndex = Math.floor((abs + 1) / 2);
+        return {
+            region: StaffRegionEnum.Lower,
+            type,
+            index: posIndex,
+        };
+    }
+
+    // 上方区域: >=10
+    if (index >= 10) {
+        const rel = index - 10; // 从上加一线开始
+        const type = rel % 2 === 0 ? StaffPositionTypeEnum.Line : StaffPositionTypeEnum.Space;
+        const posIndex = Math.floor(rel / 2) + 1;
+        return {
+            region: StaffRegionEnum.Upper,
+            type,
+            index: posIndex,
+        };
+    }
+
+    throw new Error("Invalid index for StaffRegion");
+}
+
+// 判断direction
+export function judgeDirection(region: number | StaffRegion): 'up' | 'down' {
+    if (typeof region === 'number') {
+        if (region <= 3) {
+            return 'up'
+        } else {
+            return 'down'
+        }
+    } else {
+        if (staffRegionToIndex(region) <= 3) {
+            return 'up'
+        } else {
+            return 'down'
+        }
+    }
+
 }
 
 // 查询内容
@@ -564,11 +696,11 @@ export function getBeamGroup(beamId: number, measure: Measure): BeamGroup {
     if (beamId === -1) return []
     measure.msSymbolContainerArray.forEach((msSymbolContainer) => {
         msSymbolContainer.msSymbolArray.forEach((msSymbol) => {
-            if (msSymbol.type === MsSymbolTypeEnum.noteHead && msSymbol.beamId === beamId) {
+            if (msSymbol.type === MsSymbolTypeEnum.NoteHead && msSymbol.beamId === beamId) {
 
                 const beamGroupItem: BeamGroupItem = {
                     beamId: msSymbol.beamId,
-                    noteHead: msSymbol,
+                    note: msSymbol,
                     region: msSymbol.region,
                     chronaxie: msSymbol.chronaxie
                 }

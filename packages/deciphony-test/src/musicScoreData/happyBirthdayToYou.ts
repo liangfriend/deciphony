@@ -49,7 +49,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         clef: ClefEnum.Treble,
-                        type: MsSymbolTypeEnum.clef_f,
+                        type: MsSymbolTypeEnum.Clef_f,
                         options: {},
                         bindingStartId: [],
                         bindingEndId: [],
@@ -61,7 +61,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.keySignature,
+                        type: MsSymbolTypeEnum.KeySignature,
                         keySignature: KeySignatureEnum.F,
                         options: {},
                         computed: {},
@@ -75,7 +75,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.timeSignature,
+                        type: MsSymbolTypeEnum.TimeSignature,
                         timeSignature: {
                             beat: 3,
                             chronaxie: 4
@@ -91,7 +91,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.eighth,
                         options: {},
@@ -101,7 +101,7 @@ const data: MusicScore = {
                         index: {},
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -115,7 +115,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.eighth,
                         options: {},
@@ -124,7 +124,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -138,7 +138,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         barLineType: BarLineTypeEnum.single,
                         bindingStartId: [],
@@ -157,7 +157,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.line_4,
                         chronaxie: ChronaxieEnum.quarter,
                         index: {},
@@ -168,7 +168,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -180,7 +180,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.space_3,
                         index: {},
                         chronaxie: ChronaxieEnum.quarter,
@@ -191,7 +191,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -203,7 +203,7 @@ const data: MusicScore = {
                     type: MsSymbolContainerTypeEnum.variable,
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.line_5,
                         chronaxie: ChronaxieEnum.quarter,
@@ -214,7 +214,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -227,7 +227,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         barLineType: BarLineTypeEnum.endRepeatSign,
                         loopCount: 2,
@@ -246,7 +246,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.space_4,
                         chronaxie: ChronaxieEnum.half,
@@ -256,7 +256,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -269,7 +269,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.eighth,
@@ -280,7 +280,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -292,7 +292,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.eighth,
@@ -302,7 +302,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -316,7 +316,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         barLineType: BarLineTypeEnum.single,
                         bindingStartId: [],
@@ -335,7 +335,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.line_4,
                         chronaxie: ChronaxieEnum.quarter,
@@ -345,7 +345,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -358,7 +358,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.quarter,
@@ -368,7 +368,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -381,7 +381,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         region: StaffRegion.upper_space_1,
                         chronaxie: ChronaxieEnum.quarter,
@@ -392,7 +392,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -404,7 +404,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         index: {},
                         options: {},
                         barLineType: BarLineTypeEnum.single,
@@ -424,7 +424,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.line_5,
                         index: {},
                         chronaxie: ChronaxieEnum.half,
@@ -434,7 +434,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -447,7 +447,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.space_3,
                         index: {},
                         chronaxie: ChronaxieEnum.eighth,
@@ -457,7 +457,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -470,7 +470,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         region: StaffRegion.space_3,
                         chronaxie: ChronaxieEnum.eighth,
                         index: {},
@@ -481,7 +481,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -493,7 +493,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         index: {},
                         options: {},
                         barLineType: BarLineTypeEnum.single,
@@ -523,7 +523,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.clef_f,
+                        type: MsSymbolTypeEnum.Clef_f,
                         clef: ClefEnum.Treble,
                         options: {},
                         bindingStartId: [],
@@ -536,7 +536,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.keySignature,
+                        type: MsSymbolTypeEnum.KeySignature,
                         keySignature: KeySignatureEnum.F,
                         options: {},
                         computed: {},
@@ -549,7 +549,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.upper_line_2,
                         index: {},
@@ -560,7 +560,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -572,7 +572,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.upper_line_1,
@@ -582,7 +582,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -595,7 +595,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.line_5,
@@ -606,7 +606,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -619,7 +619,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         barLineType: BarLineTypeEnum.single,
                         bindingStartId: [],
@@ -638,7 +638,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.space_4,
@@ -649,7 +649,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -662,7 +662,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.line_4,
                         options: {},
@@ -672,7 +672,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -684,7 +684,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         chronaxie: ChronaxieEnum.eighth,
                         region: StaffRegion.upper_space_2,
@@ -695,7 +695,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -708,7 +708,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.eighth,
                         region: StaffRegion.upper_space_2,
                         options: {},
@@ -718,7 +718,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -730,7 +730,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         id: 1,
                         barLineType: BarLineTypeEnum.single,
@@ -751,7 +751,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.upper_line_1,
                         options: {},
@@ -761,7 +761,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -774,7 +774,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.line_5,
                         options: {},
@@ -784,7 +784,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             id: 1,
                             index: {},
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -796,7 +796,7 @@ const data: MusicScore = {
                     index: {},
                     msSymbolArray: [{
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         index: {},
                         chronaxie: ChronaxieEnum.quarter,
                         region: StaffRegion.upper_space_1,
@@ -806,7 +806,7 @@ const data: MusicScore = {
                         bindingEndId: [],
                         msSymbolArray: [{
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             index: {},
                             options: {},
                             bindingStartId: [],
@@ -820,7 +820,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         bindingStartId: [],
                         bindingEndId: [],
@@ -840,7 +840,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         index: {},
                         id: 1,
-                        type: MsSymbolTypeEnum.noteHead,
+                        type: MsSymbolTypeEnum.NoteHead,
                         chronaxie: ChronaxieEnum.half,
                         region: StaffRegion.line_5,
                         options: {},
@@ -850,7 +850,7 @@ const data: MusicScore = {
                         msSymbolArray: [{
                             index: {},
                             id: 1,
-                            type: MsSymbolTypeEnum.noteBar,
+                            type: MsSymbolTypeEnum.NoteStem,
                             options: {},
                             bindingStartId: [],
                             bindingEndId: [],
@@ -863,7 +863,7 @@ const data: MusicScore = {
                     msSymbolArray: [{
                         id: 1,
                         index: {},
-                        type: MsSymbolTypeEnum.barLine,
+                        type: MsSymbolTypeEnum.BarLine,
                         options: {},
                         barLineType: BarLineTypeEnum.final,
                         bindingStartId: [],

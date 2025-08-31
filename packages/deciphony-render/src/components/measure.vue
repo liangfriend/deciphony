@@ -6,18 +6,18 @@
 <script setup lang="ts">
 import {computed, CSSProperties, PropType} from 'vue';
 
-import barStandardStaff from '@/assets/msSymbols/bar-standardStaff.svg';
-import barNumberNotation from '@/assets/msSymbols/bar-numberNotation.svg';
-import {Measure,} from "deciphony-core/types";
-import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+import barStandardStaff from '../assets/msSymbols/bar-standardStaff.svg';
+import barNumberNotation from '../assets/msSymbols/bar-numberNotation.svg';
+import {Measure,} from "../../../deciphony-core/src/types";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 const props = defineProps({
   measure: {
     type: Object as PropType<Measure>,
     required: true,
   },
-  showMode:{
-    type: Object as PropType<MusicScoreShowModeEnum>,
+  showMode: {
+    type: MusicScoreShowModeEnum,
     required: true
   },
   x: {
@@ -61,7 +61,7 @@ const measureStyle = computed(() => {
   };
 });
 const barLineStyle = computed((): CSSProperties => {
-  const style:CSSProperties = {
+  const style: CSSProperties = {
     width: (props.width) + 'px',
     height: props.height + 'px',
     'background-color': 'black',
@@ -70,15 +70,15 @@ const barLineStyle = computed((): CSSProperties => {
     background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',
   };
-  switch(props.showMode) {
+  switch (props.showMode) {
     case MusicScoreShowModeEnum.standardStaff: {
       style.mask = `url("${barStandardStaff}") no-repeat center`
-      style['mask-size']='100% 100%'
+      style['mask-size'] = '100% 100%'
       break
     }
     case MusicScoreShowModeEnum.numberNotation: {
       style.mask = `url("${barNumberNotation}") no-repeat center` // 这里有个bug,mask-size写到mask之前，会不生效
-      style['mask-size']='100% 100%'
+      style['mask-size'] = '100% 100%'
 
       break
     }

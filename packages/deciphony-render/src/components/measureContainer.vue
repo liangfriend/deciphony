@@ -33,11 +33,18 @@
 <script setup lang="ts">
 import type {CSSProperties, PropType} from 'vue';
 import {computed} from "vue";
-import type {Measure, MsSymbol, MultipleStaves, MusicScore, SingleStaff, WidthConstant} from "deciphony-core/types";
+import type {
+  Measure,
+  MsSymbol,
+  MultipleStaves,
+  MusicScore,
+  SingleStaff,
+  WidthConstant
+} from "../../../deciphony-core/src/types";
 import {
   getMeasureWidth,
-} from "@/utils/widthUtil";
-import {MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
+} from "../utils/widthUtil";
+import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 
 const props = defineProps({
@@ -58,7 +65,7 @@ const props = defineProps({
     default: 800,
   },
   showMode: {
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     required: true
   }
 });

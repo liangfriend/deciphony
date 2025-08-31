@@ -1,18 +1,24 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",             // 输出 ESM
-    "moduleResolution": "bundler", // 按 Node ESM 规则解析
-    "allowImportingTsExtensions": false,   // 不允许使用ts扩展名
+    "module": "ESNext",
+    // 输出 ESM
+    "moduleResolution": "bundler",
+    // 按 Node ESM 规则解析
+    "allowImportingTsExtensions": false,
+    // 不允许使用ts扩展名
     "resolveJsonModule": true,
     "isolatedModules": false,
     "noEmit": false,
-    "declaration": true,    // 这个被composite强制开启了，所以不写也会是true
+    "declaration": true,
+    // 这个被composite强制开启了，所以不写也会是true
     "declarationDir": "./dist",
-    "emitDeclarationOnly":false,
+    "emitDeclarationOnly": false,
     "composite": true,
-    "outDir": "dist",            // 必须，输出目录
-    "rootDir": "",            // 必须，告诉 TypeScript 从哪里找入口文件
+    "outDir": "dist",
+    // 必须，输出目录
+    "rootDir": "src",
+    // 必须，告诉 TypeScript 从哪里找入口文件
     "strict": true,
     "baseUrl": ".",
     "noUnusedLocals": false,
@@ -25,9 +31,13 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "exactOptionalPropertyTypes": true,
-    "useUnknownInCatchVariables": true,
-
+    "useUnknownInCatchVariables": true
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

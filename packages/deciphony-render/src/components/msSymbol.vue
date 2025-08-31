@@ -7,62 +7,63 @@ import {
   type MusicScore,
   NoteHead,
   type SingleStaff
-} from "deciphony-core/types";
+} from "../../../deciphony-core/src/types";
 import {
   AccidentalEnum,
   BarLineTypeEnum,
   ChronaxieEnum,
   MsSymbolTypeEnum,
   MusicScoreShowModeEnum
-} from "deciphony-core/musicScoreEnum";
+} from "../../../deciphony-core/src/musicScoreEnum";
 // 音符头
-import noteHeadWholeSvg from "@/assets/msSymbols/noteHeadWhole.svg"
-import noteHeadHalfSvg from "@/assets/msSymbols/noteHeadHalf.svg"
-import noteHeadQuarterSvg from "@/assets/msSymbols/noteHeadQuarter.svg"
-import note0Svg from "@/assets/msSymbols/0.svg"
-import note1Svg from "@/assets/msSymbols/1.svg"
-import note2Svg from "@/assets/msSymbols/2.svg"
-import note3Svg from "@/assets/msSymbols/3.svg"
-import note4Svg from "@/assets/msSymbols/4.svg"
-import note5Svg from "@/assets/msSymbols/5.svg"
-import note6Svg from "@/assets/msSymbols/6.svg"
-import note7Svg from "@/assets/msSymbols/7.svg"
+import noteHeadWholeSvg from "../assets/msSymbols/noteHeadWhole.svg"
+import noteHeadHalfSvg from "../assets/msSymbols/noteHeadHalf.svg"
+import noteHeadQuarterSvg from "../assets/msSymbols/noteHeadQuarter.svg"
+import note0Svg from "../assets/msSymbols/0.svg"
+import note1Svg from "../assets/msSymbols/1.svg"
+import note2Svg from "../assets/msSymbols/2.svg"
+import note3Svg from "../assets/msSymbols/3.svg"
+import note4Svg from "../assets/msSymbols/4.svg"
+import note5Svg from "../assets/msSymbols/5.svg"
+import note6Svg from "../assets/msSymbols/6.svg"
+import note7Svg from "../assets/msSymbols/7.svg"
 
 
 // 休止符
-import restWholeSvg from "@/assets/msSymbols/restWhole.svg"
-import restThirySecondSvg from "@/assets/msSymbols/restWhole.svg"
-import restSixtyFourthSvg from "@/assets/msSymbols/restWhole.svg"
-import restHalfSvg from "@/assets/msSymbols/restHalf.svg"
-import restQuarterSvg from "@/assets/msSymbols/restQuarter.svg"
-import restEighthSvg from "@/assets/msSymbols/restEighth.svg"
-import restSixteenthSvg from "@/assets/msSymbols/restSixteenth.svg"
+import restWholeSvg from "../assets/msSymbols/restWhole.svg"
+import restThirySecondSvg from "../assets/msSymbols/restWhole.svg"
+import restSixtyFourthSvg from "../assets/msSymbols/restWhole.svg"
+import restHalfSvg from "../assets/msSymbols/restHalf.svg"
+import restQuarterSvg from "../assets/msSymbols/restQuarter.svg"
+import restEighthSvg from "../assets/msSymbols/restEighth.svg"
+import restSixteenthSvg from "../assets/msSymbols/restSixteenth.svg"
 // 符杠
-import noteBarSvg from '@/assets/msSymbols/noteBar.svg'
+import noteStemSvg from '../assets/msSymbols/noteStem.svg'
 
 // 变音符号
-import sharpSvg from '@/assets/msSymbols/sharp.svg'
-import doubleSharpSvg from '@/assets/msSymbols/sharp.svg'
-import flatSvg from '@/assets/msSymbols/flat.svg'
-import doubleFlatpSvg from '@/assets/msSymbols/flat.svg'
-import natureSvg from '@/assets/msSymbols/nature.svg'
+import sharpSvg from '../assets/msSymbols/sharp.svg'
+import doubleSharpSvg from '../assets/msSymbols/sharp.svg'
+import flatSvg from '../assets/msSymbols/flat.svg'
+import doubleFlatpSvg from '../assets/msSymbols/flat.svg'
+import natureSvg from '../assets/msSymbols/nature.svg'
 // 小节线
-import barLineSingleSvg from '@/assets/msSymbols/barlineSingle.svg'
-import barLineFinalSvg from '@/assets/msSymbols/barlineFinal.svg'
-import barLineReverseFinalSvg from '@/assets/msSymbols/barlineReverseFinal.svg'
-import barLineStartRepeatSignSvg from '@/assets/msSymbols/barlineStartRepeatSign.svg'
-import barLineEndRepeatSignSvg from '@/assets/msSymbols/barlineEndRepeatSign.svg'
+import barLineSingleSvg from '../assets/msSymbols/barlineSingle.svg'
+import barLineFinalSvg from '../assets/msSymbols/barlineFinal.svg'
+import barLineReverseFinalSvg from '../assets/msSymbols/barlineReverseFinal.svg'
+import barLineStartRepeatSignSvg from '../assets/msSymbols/barlineStartRepeatSign.svg'
+import barLineEndRepeatSignSvg from '../assets/msSymbols/barlineEndRepeatSign.svg'
 import Clef from "./clef.vue";
 import KeySignature from "./keySignature.vue";
 import TimeSignature from "./timeSignature.vue";
 
-import {getMsSymbolHeight} from "@/utils/heightUtil";
-import {getMsSymbolBottomToSlot} from "@/utils/bottomUtil";
-import {getMsSymbolLeftToSlot} from "@/utils/leftUtil";
-import {getMsSymbolWidth} from "@/utils/widthUtil";
+import {getMsSymbolHeight} from "../utils/heightUtil";
+import {getMsSymbolBottomToSlot} from "../utils/bottomUtil";
+import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
+import {getMsSymbolWidth} from "../utils/widthUtil";
 import NoteTail from "./noteTail.vue";
-import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
-import barStandardStaff from "@/assets/msSymbols/bar-standardStaff.svg";
+import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
+import barStandardStaff from "../assets/msSymbols/bar-standardStaff.svg";
+import regionToNoteName from "deciphony-core/utils/core/regionToNoteName";
 
 const props = defineProps({
   msSymbol: {
@@ -135,14 +136,14 @@ const props = defineProps({
     required: true
   },
   showMode: {
-    type: Object as PropType<MusicScoreShowModeEnum>,
+    type: MusicScoreShowModeEnum,
     required: true
   }
 })
 
 const svgHref = computed(() => {
   switch (props.msSymbol?.type) {
-    case MsSymbolTypeEnum.noteHead: {
+    case MsSymbolTypeEnum.NoteHead: {
       switch (props.showMode) {
         case MusicScoreShowModeEnum.standardStaff: {
           switch (props.msSymbol?.chronaxie) {
@@ -183,7 +184,7 @@ const svgHref = computed(() => {
       }
 
     }
-    case MsSymbolTypeEnum.rest: {
+    case MsSymbolTypeEnum.Rest: {
       switch (props.msSymbol?.chronaxie) {
         case ChronaxieEnum.whole: {
           return restWholeSvg
@@ -212,19 +213,19 @@ const svgHref = computed(() => {
 
       }
     }
-    case MsSymbolTypeEnum.noteBar: {
-      return noteBarSvg
+    case MsSymbolTypeEnum.NoteStem: {
+      return noteStemSvg
     }
-    case MsSymbolTypeEnum.noteTail: {
+    case MsSymbolTypeEnum.NoteTail: {
       return ''
     }
-    case MsSymbolTypeEnum.clef: {
+    case MsSymbolTypeEnum.Clef: {
       return ''
     }
-    case MsSymbolTypeEnum.clef_f: {
+    case MsSymbolTypeEnum.Clef_f: {
       return ''
     }
-    case MsSymbolTypeEnum.barLine: {
+    case MsSymbolTypeEnum.BarLine: {
       switch (props.msSymbol?.barLineType) {
         case BarLineTypeEnum.single: {
           return barLineSingleSvg
@@ -246,7 +247,7 @@ const svgHref = computed(() => {
 
       return ''
     }
-    case MsSymbolTypeEnum.barLine_f: {
+    case MsSymbolTypeEnum.BarLine_f: {
       switch (props.msSymbol?.barLineType) {
         case BarLineTypeEnum.single: {
           return barLineSingleSvg
@@ -267,13 +268,13 @@ const svgHref = computed(() => {
       console.error("未知的小节线类型", props.msSymbol)
       return ''
     }
-    case MsSymbolTypeEnum.keySignature: {
+    case MsSymbolTypeEnum.KeySignature: {
       return ''
     }
-    case MsSymbolTypeEnum.timeSignature: {
+    case MsSymbolTypeEnum.TimeSignature: {
       return ''
     }
-    case MsSymbolTypeEnum.accidental: {
+    case MsSymbolTypeEnum.Accidental: {
       switch (props.msSymbol?.accidental) {
         case AccidentalEnum.Sharp: {
           return sharpSvg
@@ -281,7 +282,7 @@ const svgHref = computed(() => {
         case AccidentalEnum.Flat: {
           return flatSvg
         }
-        case AccidentalEnum.Nature: {
+        case AccidentalEnum.Natural: {
           return natureSvg
         }
         case AccidentalEnum.DoubleSharp: {
@@ -337,8 +338,8 @@ const msSymbolStyle = computed<CSSProperties>(() => {
     bottom: msSymbolBottom.value + 'px',
     background: props.msSymbol.options.highlight ? props.msSymbol.options.highlightColor : props.msSymbol.options.color,
   }
-  if (props.msSymbol?.type && [MsSymbolTypeEnum.keySignature, MsSymbolTypeEnum.timeSignature,
-    MsSymbolTypeEnum.noteTail].includes(props.msSymbol.type)) {
+  if (props.msSymbol?.type && [MsSymbolTypeEnum.KeySignature, MsSymbolTypeEnum.TimeSignature,
+    MsSymbolTypeEnum.NoteTail].includes(props.msSymbol.type)) {
     style.background = 'unset'
   }
 
@@ -347,7 +348,7 @@ const msSymbolStyle = computed<CSSProperties>(() => {
     style['mask-size'] = '100% 100%'
   }
   // TODO 测试代码
-  // if (props.msSymbol.type === MsSymbolTypeEnum.noteTail) {
+  // if (props.msSymbol.type === MsSymbolTypeEnum.NoteTail) {
   //   style.background = 'red'
   // }
   return style
@@ -371,7 +372,7 @@ defineExpose({aspectRatio})
 </script>
 <template>
   <clef
-      v-if="msSymbol?.type === MsSymbolTypeEnum.clef || msSymbol?.type === MsSymbolTypeEnum.clef_f && 'clef' in msSymbol"
+      v-if="msSymbol?.type === MsSymbolTypeEnum.Clef || msSymbol?.type === MsSymbolTypeEnum.Clef_f && 'clef' in msSymbol"
       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
       :clef="msSymbol"
       @mouseup.self="handleMouseUp"
@@ -379,7 +380,7 @@ defineExpose({aspectRatio})
       :musicScore="musicScore"
       :style="msSymbolStyle"></clef>
   <key-signature
-      v-else-if="msSymbol?.type === MsSymbolTypeEnum.keySignature"
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.KeySignature"
       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
       :measure-height="measureHeight"
       :slotWidth="slotWidth"
@@ -389,14 +390,14 @@ defineExpose({aspectRatio})
       :style="msSymbolStyle"
       :keySignature="msSymbol"></key-signature>
   <time-signature
-      v-else-if="msSymbol?.type === MsSymbolTypeEnum.timeSignature"
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.TimeSignature"
       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
       :style="msSymbolStyle"
       @mouseup.self="handleMouseUp"
       @mousedown.self="handleMouseDown"
       :time-signature="msSymbol" :measure-height="measureHeight"></time-signature>
   <note-tail
-      v-else-if="msSymbol?.type === MsSymbolTypeEnum.noteTail"
+      v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteTail"
       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
       :ms-symbol-container="msSymbolContainer"
       :pre-container="preContainer"
@@ -407,7 +408,7 @@ defineExpose({aspectRatio})
       :component-width="componentWidth"
       :noteTail="msSymbol" :noteHead="parentMsSymbol as NoteHead" :measure="measure"
       :musicScore="musicScore"></note-tail>
-  <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.noteBar"
+  <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteStem"
        v-show="showMode === MusicScoreShowModeEnum.standardStaff"
        ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"

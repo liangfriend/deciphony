@@ -1,11 +1,19 @@
 // 五线谱区域转换bottom
-import {MsSymbolTypeEnum, StaffRegion, MusicScoreShowModeEnum} from "deciphony-core/musicScoreEnum";
-import {Measure, MsSymbol, MsSymbolContainer, MusicScore, NoteBar, SingleStaff} from "deciphony-core/types";
+import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {
+    Measure,
+    MsSymbol,
+    MsSymbolContainer,
+    MusicScore,
+    NoteStem,
+    SingleStaff,
+    StaffRegion
+} from "../../../deciphony-core/src/types";
 import {getMsSymbolHeight} from "./heightUtil";
-import {getDataWithIndex, traverseMusicScore} from "deciphony-core/utils/musicScoreDataUtil";
+import {getDataWithIndex, staffRegionToIndex, traverseMusicScore} from "deciphony-core/utils/musicScoreDataUtil";
 
 export function staffRegionToBottom(region: StaffRegion, measureHeight: number): number {
-    return measureHeight * ((region - 38) * 2) / 16
+    return measureHeight * ((staffRegionToIndex(region) - 1) * 2) / 16
 }
 
 // 获取符号在符号槽位中的相对bottom。
@@ -13,7 +21,7 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
     const parentMsSymbol = getDataWithIndex(msSymbol.index, musicScore).msSymbol
     const measureHeight = musicScore.measureHeight
     switch (msSymbol?.type) {
-        case MsSymbolTypeEnum.noteBar: {
+        case MsSymbolTypeEnum.NoteStem: {
             if (msSymbol.direction === 'up') {
                 return measureHeight / 8
 
@@ -23,21 +31,21 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
 
             }
         }
-        case MsSymbolTypeEnum.noteTail: { // 符尾的
+        case MsSymbolTypeEnum.NoteTail: { // 符尾的
             const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore, showMode)
-            const noteBar = parentMsSymbol?.msSymbolArray.find((item) => item.type === MsSymbolTypeEnum.noteBar) as NoteBar | null
-            if (!noteBar) {
+            const noteStem = parentMsSymbol?.msSymbolArray.find((item) => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null
+            if (!noteStem) {
                 console.error("找不到符杠，符尾bottom计算失败")
                 return 0
             }
-            const noteBarOffset = measureHeight * 1 / 8 // 符杠相对slot的偏差
+            const noteStemOffset = measureHeight * 1 / 8 // 符杠相对slot的偏差
             const height = getMsSymbolHeight(msSymbol, musicScore, showMode)
-            const noteBarHeight = getMsSymbolHeight(noteBar, musicScore, showMode)
+            const noteStemHeight = getMsSymbolHeight(noteStem, musicScore, showMode)
 
             if (msSymbol.direction === 'up') {
-                return noteBarHeight - height + noteBarOffset
+                return noteStemHeight - height + noteStemOffset
             } else {
-                return -noteBarHeight + noteBarOffset
+                return -noteStemHeight + noteStemOffset
             }
         }
         default: {
@@ -53,7 +61,7 @@ export function getSlotBottomToMeasure(msSymbol: MsSymbol, musicScore: MusicScor
     // 未防止传入跟随符号，需要经过下面一行转换
     const targetMsSymbol = getDataWithIndex(msSymbol.index, musicScore)?.msSymbol as MsSymbol
     switch (targetMsSymbol.type) {
-        case MsSymbolTypeEnum.noteHead: {
+        case MsSymbolTypeEnum.NoteHead: {
             if (!targetMsSymbol) return 0
             if (showMode === MusicScoreShowModeEnum.numberNotation) return 0
             const noteRegion: StaffRegion = targetMsSymbol.region

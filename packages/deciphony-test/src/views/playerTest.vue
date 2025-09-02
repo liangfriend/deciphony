@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import Player from '@player/class/Player.ts'
+import SamplerPlayer from 'deciphony-player/class/SamplerPlayer'
 import sample from '../assets/sample-3s.mp3'
 import {onMounted, ref} from "vue";
+import piano from "../assets/piano";
 
-const player = ref<Player>()
+const player = ref<SamplerPlayer>()
 onMounted(async () => {
-  player.value = new Player()
-  await player.value.addAudio(sample)
+  player.value = new SamplerPlayer()
+  await player.value.addSampler(piano)
   console.log('chicken', "加载音频成功")
 })
 
 function play() {
-  player.value.play()
+  player.value.playMIDI(60)
 }
 
 function pause() {

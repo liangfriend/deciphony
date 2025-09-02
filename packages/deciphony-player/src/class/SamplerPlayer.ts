@@ -1,7 +1,9 @@
 import Player from "./Player";
 import {SamplerData} from "../types/type";
-import {NoteString} from "deciphony-core/types";
+import {Midi, NoteString} from "deciphony-core/types";
 import {base64ToArrayBuffer} from "../utils/baseUtil";
+import midiToNoteName from "deciphony-core/utils/core/midiToNoteName";
+import {noteNameToNoteString} from "deciphony-core/utils/musicScoreDataUtil";
 
 class SamplerPlayer extends Player {
     sampler: SamplerData;
@@ -11,11 +13,11 @@ class SamplerPlayer extends Player {
         this.sampler = {};
     }
 
-    async addSampler(sampler: SamplerData): Promise<void> {
-
+    addSampler(sampler: SamplerData) {
+        this.sampler = sampler;
     }
 
-    private async _setSamplerSource(note: NoteString) {
+    private async _setSource(note: NoteString) {
         if (!this.sampler) {
             console.error("音频文件不存在，请调用addSampler方法添加音频")
             return
@@ -32,9 +34,11 @@ class SamplerPlayer extends Player {
     }
 
     // 重写play
-    async play(note: NoteString, onended: (() => any) | null) {
+    async playMIDI(midi: NoteString | Midi, onended: (() => any) | null) {
         if (this.state === 'playing') return
-        await this._setSamplerSource(note)
+        const noteName = ((typeof midi === 'number')?midiToNoteName(midi):midi)
+        const note = noteNameToNoteString(noteName)
+        await this._setSource(note)
         if (!this.source) return
         this.source.onended = () => {
             this.stop()
@@ -48,6 +52,29 @@ class SamplerPlayer extends Player {
         this.startTime = this.context.currentTime;
         this.state = 'playing';
 
+    }
+    pause() {
+        if (['paused', 'stopped'].includes(this.state)) return;
+        if (!this.source) {
+            console.error("音频文件不存在，请调用addAudio方法添加音频")
+            return
+        }
+        // 暂停时钟计时
+        this.context.suspend()
+        this.pauseTime += this.context.currentTime - this.startTime;
+        console.log(this.pauseTime)
+        this.state = 'paused';
+    }
+
+    stop() {
+        if (this.source) {
+            this.source.stop();
+            // disconnect让source更快的释放资源
+            this.source.disconnect();
+        }
+        this.pauseTime = 0;
+        this.startTime = 0
+        this.state = 'stopped';
     }
 }
 

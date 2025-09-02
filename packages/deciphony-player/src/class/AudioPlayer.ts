@@ -1,4 +1,4 @@
-import {Player} from "tone";
+import Player from "./Player";
 
 class AudioPlayer extends Player {
 
@@ -28,7 +28,6 @@ class AudioPlayer extends Player {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
         this.audioBuffer = await this.context.decodeAudioData(arrayBuffer);
-
     }
 
     async play(onended: (() => any) | null) {

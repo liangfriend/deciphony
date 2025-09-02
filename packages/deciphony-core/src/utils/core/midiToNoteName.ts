@@ -1,5 +1,5 @@
-import {Midi, NoteName} from "../../types";
-import {AccidentalEnum, NoteLetterEnum, Octave} from "../../musicScoreEnum";
+import {Midi, NoteName, Octave} from "../../types";
+import {AccidentalEnum, NoteLetterEnum} from "../../musicScoreEnum";
 
 
 // 变音符号优先级（可以调整顺序）

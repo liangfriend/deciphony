@@ -7,15 +7,11 @@
     "dist"
   ],
   "exports": {
-    "./constant": {
-      "types": "./dist/constant.d.ts",
-      "default": "./dist/constant.js"
-    },
     "./types": {
       "types": "./dist/types.d.ts",
       "default": "./dist/types.js"
     },
-    "./musicScoreEnum": {
+    "./enum": {
       "types": "./dist/musicScoreEnum.d.ts",
       "default": "./dist/musicScoreEnum.js"
     },

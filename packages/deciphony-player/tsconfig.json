@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,   // 不允许使用ts扩展名
     "resolveJsonModule": true,
     "isolatedModules": false,

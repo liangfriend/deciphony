@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import MusicScoreVue from "deciphony-render/musicScore.vue";
+import MusicScoreVue from "deciphony-renderer/musicScore.vue";
 import RenderTest from "./views/renderTest.vue";
+import PlayerTest from "./views/playerTest.vue";
 
 
 </script>
 
 <template>
-  <render-test></render-test>
-  <!--  <player-test></player-test>-->
+<!--  <render-test></render-test>-->
+    <player-test></player-test>
 </template>
 
 <style scoped>

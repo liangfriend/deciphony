@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MusicScoreVue, {type MusicScoreRef} from "deciphony-render/musicScore.vue";
+import MusicScoreVue, {type MusicScoreRef} from "deciphony-renderer/musicScore.vue";
 import {onBeforeMount, onMounted, ref} from "vue";
 import type {MusicScore} from "deciphony-core/types";
 import {musicScoreTemplate} from "deciphony-core/utils/objectTemplateUtil";

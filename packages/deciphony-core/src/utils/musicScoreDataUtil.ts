@@ -16,13 +16,16 @@ import {
     MultipleStaves,
     MusicScore,
     MusicScoreIndex,
-    NoteHead, NoteNumber,
+    NoteHead, NoteName, NoteNumber, NoteString,
     SingleStaff, SpanSymbol, StaffRegion
 } from "../types";
 import regionToNoteName from "./core/regionToNoteName";
 import {noteNameToSolmization} from "./core/noteNameToSolmization";
 
-// 是否有符尾
+
+export function noteNameToNoteString(noteName: NoteName): NoteString {
+    return `${noteName.letter}${noteName.accidental}${noteName.octave}`
+}
 // 是否有符尾（flag）
 export function hasNoteTail(chronaxie: ChronaxieEnum): boolean {
     // 八分音符及更短时值才有符尾

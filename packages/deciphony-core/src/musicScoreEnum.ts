@@ -75,11 +75,11 @@ export enum NoteLetterEnum {
 
 // 升降号（Accidental）
 export enum AccidentalEnum {
-    Natural = "natural",   // 还原
-    Sharp = "sharp",    // 升
-    Flat = "flat",     // 降
-    DoubleSharp = "doubleSharp", // 重升
-    DoubleFlat = "doubleFlat",  // 重降
+    Natural = "",   // 还原
+    Sharp = "#",    // 升
+    Flat = "b",     // 降
+    DoubleSharp = "##", // 重升
+    DoubleFlat = "bb",  // 重降
 }
 
 

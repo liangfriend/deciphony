@@ -1,6 +1,7 @@
 import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
+import {fileURLToPath, URL} from "node:url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,11 +14,9 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            'deciphony-render': path.resolve(__dirname, '../deciphony-render/src'),
-            '@player': path.resolve(__dirname, '../deciphony-player/src'),
-            '@core': path.resolve(__dirname, '../deciphony-core/src'),
-            '@render': path.resolve(__dirname, '../deciphony-render/src'),
-            'deciphony-core': path.resolve(__dirname, '../deciphony-core/src')
+            'deciphony-renderer': path.resolve(__dirname, 'node_modules/deciphony-renderer/src'),
+            'deciphony-player':  path.resolve(__dirname, 'node_modules/deciphony-player/src/**'),
+            'deciphony-core/**': path.resolve(__dirname, 'node_modules/deciphony-core/src/**')
         }
     },
 

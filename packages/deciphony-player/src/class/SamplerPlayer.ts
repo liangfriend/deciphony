@@ -34,15 +34,15 @@ class SamplerPlayer extends Player {
     }
 
     // 重写play
-    async playMIDI(midi: NoteString | Midi, onended: (() => any) | null) {
-        if (this.state === 'playing') return
-        const noteName = ((typeof midi === 'number')?midiToNoteName(midi):midi)
+    async playMIDI(midi: NoteString | Midi) {
+
+        const noteName = ((typeof midi === 'number') ? midiToNoteName(midi) : midi)
+
         const note = noteNameToNoteString(noteName)
         await this._setSource(note)
         if (!this.source) return
         this.source.onended = () => {
-            this.stop()
-            if (onended) onended()
+            this.playMIDI(midi)
         }
         if (this.context.state === 'suspended') {
             await this.context.resume(); // 有些浏览器首次需手动激活音频上下文
@@ -50,20 +50,7 @@ class SamplerPlayer extends Player {
         // 播放
         this.source.start(0, this.pauseTime); // 从 pauseTime 的位置继续播放
         this.startTime = this.context.currentTime;
-        this.state = 'playing';
 
-    }
-    pause() {
-        if (['paused', 'stopped'].includes(this.state)) return;
-        if (!this.source) {
-            console.error("音频文件不存在，请调用addAudio方法添加音频")
-            return
-        }
-        // 暂停时钟计时
-        this.context.suspend()
-        this.pauseTime += this.context.currentTime - this.startTime;
-        console.log(this.pauseTime)
-        this.state = 'paused';
     }
 
     stop() {
@@ -74,7 +61,6 @@ class SamplerPlayer extends Player {
         }
         this.pauseTime = 0;
         this.startTime = 0
-        this.state = 'stopped';
     }
 }
 

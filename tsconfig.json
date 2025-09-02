@@ -1,45 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "esModuleInterop": true,
-    /* Bundler mode */
-    "moduleResolution": "Bundler",
-    // "moduleResolution": "node",
     "baseUrl": ".",
-    "types": [
-    ],
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": true,
-    "jsx": "preserve",
-    "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "alwaysStrict": true,
-    "noImplicitReturns": true,
-    "exactOptionalPropertyTypes": true,
-    "useUnknownInCatchVariables": true
-  },
-  "include": [
-    "src", "src/types/*"
-  ],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+    "paths": {
+      "deciphony-player/*": [
+        "packages/deciphony-player/src/*"
+      ]
     }
-  ]
+  }
 }

@@ -1,5 +1,5 @@
 import {Midi, NoteName} from "../../types";
-import {NoteLetterEnum, AccidentalEnum, Octave} from "../../musicScoreEnum";
+import {NoteLetterEnum, AccidentalEnum} from "../../musicScoreEnum";
 
 const basePitchClass: Record<NoteLetterEnum, number> = {
     [NoteLetterEnum.C]: 0,

@@ -13,8 +13,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "deciphony-core": "workspace:*",
-    "tone": "^15.0.4"
+    "deciphony-core": "workspace:*"
   },
   "keywords": [],
   "author": "",

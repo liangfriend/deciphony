@@ -12,8 +12,9 @@
     "vue": "^3.5.17"
   },
   "devDependencies": {
-    "deciphony-render": "workspace:*",
+    "deciphony-renderer": "workspace:*",
     "deciphony-core": "workspace:*",
+    "deciphony-player": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "^5.0.2",

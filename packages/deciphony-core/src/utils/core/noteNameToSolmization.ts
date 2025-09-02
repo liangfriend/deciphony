@@ -1,5 +1,5 @@
-import {NoteName} from "../../types";
-import {AccidentalEnum, KeySignatureEnum, Octave, SolmizationEnum, NoteLetterEnum} from "../../musicScoreEnum";
+import {NoteName, Octave} from "../../types";
+import {AccidentalEnum, KeySignatureEnum,  SolmizationEnum, NoteLetterEnum} from "../../musicScoreEnum";
 
 // 调号对应升降音（以C大调为基准，升降写在音名上）
 const keySignatureAccidentalsMap: Record<KeySignatureEnum, Partial<Record<NoteLetterEnum, AccidentalEnum>>> = {

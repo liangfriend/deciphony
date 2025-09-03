@@ -13,11 +13,7 @@ export default defineConfig({
         open: true, // 可选，启动后自动打开浏览器
     },
     resolve: {
-        alias: {
-            'deciphony-renderer': path.resolve(__dirname, 'node_modules/deciphony-renderer/src'),
-            'deciphony-player':  path.resolve(__dirname, 'node_modules/deciphony-player/src/**'),
-            'deciphony-core/**': path.resolve(__dirname, 'node_modules/deciphony-core/src/**')
-        }
+        alias: {}
     },
 
 });

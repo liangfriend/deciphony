@@ -119,7 +119,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measureVue from "./components/measure.vue";
+import measureVue from "@render/components/measure.vue";
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,

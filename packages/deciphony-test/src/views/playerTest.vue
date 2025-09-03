@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SamplerPlayer from 'deciphony-player/class/SamplerPlayer'
+import SamplerPlayer from 'deciphony-player/src/class/SamplerPlayer'
 import sample from '../assets/sample-3s.mp3'
 import {onMounted, ref} from "vue";
 import piano from "../assets/piano";
@@ -12,7 +12,8 @@ onMounted(async () => {
 })
 
 function play() {
-  player.value.playMIDI(60)
+  console.log('chicken',)
+  player.value.playMIDI(81)
 }
 
 function pause() {

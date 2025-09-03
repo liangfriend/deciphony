@@ -1,16 +1,21 @@
 import Player from "./Player";
 import {SamplerData} from "../types/type";
-import {Midi, NoteString} from "deciphony-core/types";
+import {Midi, NoteName, NoteString} from "deciphony-core/types";
 import {base64ToArrayBuffer} from "../utils/baseUtil";
 import midiToNoteName from "deciphony-core/utils/core/midiToNoteName";
 import {noteNameToNoteString} from "deciphony-core/utils/musicScoreDataUtil";
 
 class SamplerPlayer extends Player {
     sampler: SamplerData;
+    private _onEnd: (() => void) | null = null;
 
     constructor() {
         super();
         this.sampler = {};
+    }
+
+    set onEnd(cb: () => void) {
+        this._onEnd = cb;
     }
 
     addSampler(sampler: SamplerData) {
@@ -36,17 +41,18 @@ class SamplerPlayer extends Player {
     // 重写play
     async playMIDI(midi: NoteString | Midi) {
 
-        const noteName = ((typeof midi === 'number') ? midiToNoteName(midi) : midi)
+        const noteName = ((typeof midi === 'number') ? midiToNoteName(midi) : midi) as NoteName
 
         const note = noteNameToNoteString(noteName)
         await this._setSource(note)
         if (!this.source) return
-        this.source.onended = () => {
-            this.playMIDI(midi)
-        }
+
         if (this.context.state === 'suspended') {
             await this.context.resume(); // 有些浏览器首次需手动激活音频上下文
         }
+        this.source.onended = () => {
+            this._onEnd && this._onEnd();
+        };
         // 播放
         this.source.start(0, this.pauseTime); // 从 pauseTime 的位置继续播放
         this.startTime = this.context.currentTime;

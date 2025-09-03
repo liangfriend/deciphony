@@ -5,15 +5,19 @@ class AudioPlayer extends Player {
     private _onProgress: ((current: number, duration: number) => void) | null = null;
     private _onEnd: (() => void) | null = null;
     private _progressRaf: number | null = null;
+
     constructor() {
         super()
     }
+
     set onProgress(cb: (current: number, duration: number) => void) {
         this._onProgress = cb;
     }
+
     set onEnd(cb: () => void) {
         this._onEnd = cb;
     }
+
     private _setSource() {
         if (!this.audioBuffer) {
             console.error("音频文件不存在，请调用addAudio方法添加音频")
@@ -47,7 +51,7 @@ class AudioPlayer extends Player {
         if (!this.source) return;
 
         if (this.context.state === 'suspended') {
-            await this.context.resume(); // 有些浏览器首次需手动激活音频上下文
+            await this.context.resume();
         }
         // 播放
         this.source.start(0, this.pauseTime); // 从 pauseTime 的位置继续播放

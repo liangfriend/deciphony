@@ -1,33 +1,33 @@
 import Player from "./Player";
-import {SamplerData} from "../types/type";
+import {ToneColor} from "../types/type";
 import {Midi, NoteName, NoteString} from "deciphony-core/types";
 import {base64ToArrayBuffer} from "../utils/baseUtil";
 import midiToNoteName from "deciphony-core/utils/core/midiToNoteName";
 import {noteNameToNoteString} from "deciphony-core/utils/musicScoreDataUtil";
 
-class SamplerPlayer extends Player {
-    sampler: SamplerData;
+class TonePlayer extends Player {
+    toneColor: ToneColor;
     private _onEnd: (() => void) | null = null;
 
     constructor() {
         super();
-        this.sampler = {};
+        this.toneColor = {};
     }
 
     set onEnd(cb: () => void) {
         this._onEnd = cb;
     }
 
-    addSampler(sampler: SamplerData) {
-        this.sampler = sampler;
+    addToneColor(toneColor: ToneColor) {
+        this.toneColor = toneColor;
     }
 
     private async _setSource(note: NoteString) {
-        if (!this.sampler) {
-            console.error("音频文件不存在，请调用addSampler方法添加音频")
+        if (!this.toneColor) {
+            console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
         }
-        if (!this.sampler[note]) {
+        if (!this.toneColor[note]) {
             console.error("note不存在于传入的音色中")
             return
         }
@@ -35,7 +35,7 @@ class SamplerPlayer extends Player {
         // 节点连接
         this.source.connect(this.gainNode).connect(this.panner).connect(this.context.destination);
         // 传入音频数据
-        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.sampler[note]));
+        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[note]));
     }
 
     // 重写play
@@ -70,4 +70,4 @@ class SamplerPlayer extends Player {
     }
 }
 
-export default SamplerPlayer;
+export default TonePlayer;

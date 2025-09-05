@@ -20,8 +20,6 @@ function volumeAnalyser(audioContext: AudioContext, analyser: AnalyserNode, data
 
         const result: DetectRes = {
             volume,
-            frequency: 0,  // 这里不用频率，但为了类型统一可以保留
-            note: ""
         }
 
         // TODO: 触发回调，如果和 frequencyAnalyser 一样的话

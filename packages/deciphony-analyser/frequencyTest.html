@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Frequency Spectrum — AnalyserNode 示例（支持麦克风实时流）</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans CJK JP",
+            "Noto Sans SC", "Microsoft YaHei", "Hiragino Sans", Arial;
+            margin: 24px;
+            background: #0f1226;
+            color: #e6eef8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-size: 13px;
+            color: #c8d6f5;
+        }
+
+        select, input[type="range"], button {
+            background: #1b2340;
+            color: #e6eef8;
+            border: 1px solid #2b3356;
+            padding: 6px 8px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 980px;
+            height: 320px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, rgba(14, 18, 36, 0.6), rgba(6, 8, 16, 0.6));
+            box-shadow: 0 6px 20px rgba(3, 6, 20, 0.6) inset;
+            margin-top: 16px;
+        }
+
+        .meta {
+            font-size: 13px;
+            color: #9fb0df;
+            margin-top: 8px;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #98aee0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <h1>实时频谱（Frequency Domain） — AnalyserNode 示例（麦克风/文件）</h1>
+        <div class="small">选择本地文件、示例音频，或点击“麦克风”直接用麦克风实时检测频谱。</div>
+    </div>
+</header>
+
+<div class="controls" aria-hidden="false">
+    <label>本地文件：<input id="file" type="file" accept="audio/*"/></label>
+
+    <label>或示例：
+        <select id="demoSelect">
+            <option value="">— 选择示例音频 —</option>
+            <option value="https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3">T-rex roar
+                (短示例)
+            </option>
+            <option value="https://www.kozco.com/tech/piano2-CoolEdit.mp3">Piano (长示例)</option>
+        </select>
+    </label>
+
+    <button id="playBtn">播放 / 暂停</button>
+
+    <label>FFT Size:
+        <select id="fftSizeSel">
+            <option>32</option>
+            <option>64</option>
+            <option>128</option>
+            <option>256</option>
+            <option>512</option>
+            <option selected>1024</option>
+            <option>2048</option>
+            <option>4096</option>
+            <option>8192</option>
+        </select>
+    </label>
+
+    <label>平滑:
+        <input id="smooth" type="range" min="0" max="0.99" step="0.01" value="0.6"/>
+        <span id="smoothVal">0.60</span>
+    </label>
+
+    <label>麦克风:
+        <select id="deviceSel" style="min-width:220px;">
+            <option value="">（请选择麦克风/点击“启动麦克风”获取设备）</option>
+        </select>
+    </label>
+
+    <button id="micBtn">启动麦克风</button>
+</div>
+
+<canvas id="canvas" width="960" height="320"></canvas>
+<div class="meta">提示：该页面显示的是 <strong>频域</strong>（FFT 后的能量分布）。</div>
+<audio id="audio" crossorigin="anonymous" hidden></audio>
+
+<script>
+    // DOM
+    const fileInput = document.getElementById('file');
+    const demoSelect = document.getElementById('demoSelect');
+    const playBtn = document.getElementById('playBtn');
+    const fftSizeSel = document.getElementById('fftSizeSel');
+    const smoothRange = document.getElementById('smooth');
+    const smoothVal = document.getElementById('smoothVal');
+    const canvas = document.getElementById('canvas');
+    const deviceSel = document.getElementById('deviceSel');
+    const micBtn = document.getElementById('micBtn');
+    const audio = document.getElementById('audio');
+    const ctx = canvas.getContext('2d');
+
+    // Web Audio
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let analyser = null;
+    let sourceNode = null; // MediaElementSource 或 MediaStreamSource
+    let dataArray = null;
+    let rafId = null;
+    let mediaStream = null; // 当前麦克风流
+    let usingMic = false;
+
+    function ensureAudioContext() {
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (!analyser) {
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = parseInt(fftSizeSel.value);
+            analyser.smoothingTimeConstant = parseFloat(smoothRange.value);
+        }
+    }
+
+    function disconnectSourceNode() {
+        if (sourceNode) {
+            try {
+                sourceNode.disconnect();
+            } catch (e) {
+            }
+            sourceNode = null;
+        }
+        // 如果有媒体流要停止它的 tracks（仅当麦克风流存在）
+        if (mediaStream) {
+            try {
+                mediaStream.getTracks().forEach(t => t.stop());
+            } catch (e) {
+            }
+            mediaStream = null;
+        }
+    }
+
+    function connectMediaElementSource() {
+        // 连接 <audio> 元素
+        disconnectSourceNode();
+        ensureAudioContext();
+        sourceNode = audioCtx.createMediaElementSource(audio);
+        sourceNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        usingMic = false;
+    }
+
+    async function startMic(deviceId) {
+        // 请求麦克风权限并连接流
+        try {
+            disconnectSourceNode();
+            ensureAudioContext();
+            const constraints = {audio: deviceId ? {deviceId: {exact: deviceId}} : true};
+            mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+            sourceNode = audioCtx.createMediaStreamSource(mediaStream);
+            sourceNode.connect(analyser);
+            // 不连接到 destination（这样麦克风默认不会直接回放），但如果你想听麦克风可以 uncomment 下一行
+            // sourceNode.connect(audioCtx.destination);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            usingMic = true;
+            micBtn.textContent = '关闭麦克风';
+            // 如果 audio 正在播放则暂停它
+            if (!audio.paused) {
+                audio.pause();
+                playBtn.textContent = '播放 / 暂停';
+            }
+            if (!rafId) drawFrequency();
+        } catch (err) {
+            console.error('getUserMedia error', err);
+            alert('无法访问麦克风：' + (err && err.message ? err.message : err));
+        }
+    }
+
+    function stopMic() {
+        disconnectSourceNode();
+        if (analyser) try {
+            analyser.disconnect();
+        } catch (e) {
+        }
+        // We keep analyser but won't have source; stop drawing
+        usingMic = false;
+        micBtn.textContent = '启动麦克风';
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+    }
+
+    // 绘制频谱（柱状图）
+    // 绘制频谱（柱状图）
+    function drawFrequency() {
+        if (!analyser) return;
+        analyser.getByteFrequencyData(dataArray); // 0-255
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barCount = dataArray.length;
+        const barWidth = Math.max(1, Math.floor((w * ratio) / barCount));
+        const gap = 1 * ratio;
+
+        // 背景
+        const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        g.addColorStop(0, 'rgba(120,160,255,0.06)');
+        g.addColorStop(1, 'rgba(10,18,36,0.12)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 柱子
+        for (let i = 0; i < barCount; i++) {
+            const val = dataArray[i];
+            const magnitude = val / 255;
+            const barHeight = magnitude * canvas.height;
+            const x = i * (barWidth + gap);
+            const hue = Math.round(220 - (i / barCount) * 220);
+            ctx.fillStyle = `hsl(${hue} 80% ${20 + magnitude * 50}%)`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        }
+
+        // 底部参考线
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1 * ratio;
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height - 1);
+        ctx.lineTo(canvas.width, canvas.height - 1);
+        ctx.stroke();
+
+        // === 频率刻度 ===
+        const sampleRate = audioCtx ? audioCtx.sampleRate : 44100;
+        const nyquist = sampleRate / 2;
+        ctx.fillStyle = '#9fb0df';
+        ctx.font = `${10 * ratio}px sans-serif`;
+        ctx.textAlign = 'center';
+
+        // 每隔固定频率画一个刻度
+        const stepHz = 1000; // 1kHz 一个刻度
+        for (let f = 0; f <= nyquist; f += stepHz) {
+            const i = Math.round(f / nyquist * barCount); // bin 索引
+            const x = i * (barWidth + gap);
+            ctx.beginPath();
+            ctx.moveTo(x, canvas.height - 6 * ratio);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+            ctx.fillText(f >= 1000 ? (f / 1000 + "k") : f.toString(), x, canvas.height - 8 * ratio);
+        }
+
+        rafId = requestAnimationFrame(drawFrequency);
+    }
+
+
+    // 播放 / 暂停（用于 <audio> 文件/示例）
+    playBtn.addEventListener('click', async () => {
+        if (!audio.src) {
+            alert('请先选择一个音频文件或示例音频。');
+            return;
+        }
+        ensureAudioContext();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        if (audio.paused) {
+            // ensure analyser connected to element
+            if (!sourceNode || usingMic) connectMediaElementSource();
+            await audio.play();
+            playBtn.textContent = '暂停';
+            if (!rafId) drawFrequency();
+        } else {
+            audio.pause();
+            playBtn.textContent = '播放 / 暂停';
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        }
+    });
+
+    // 文件选择
+    fileInput.addEventListener('change', (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        audio.src = url;
+        audio.hidden = true;
+        audio.load();
+        playBtn.textContent = '播放 / 暂停';
+    });
+
+    // 示例下拉
+    demoSelect.addEventListener('change', (e) => {
+        const url = e.target.value;
+        if (!url) return;
+        audio.src = url;
+        audio.crossOrigin = "anonymous";
+        audio.load();
+        playBtn.textContent = '播放 / 暂停';
+    });
+
+    // audio play 事件（如果用户直接点击 audio）
+    audio.addEventListener('play', async () => {
+        if (!audioCtx) ensureAudioContext();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        if (!sourceNode || usingMic) connectMediaElementSource();
+        if (!rafId) drawFrequency();
+        playBtn.textContent = '暂停';
+    });
+
+    audio.addEventListener('pause', () => {
+        if (rafId && !usingMic) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+        playBtn.textContent = '播放 / 暂停';
+    });
+    audio.addEventListener('ended', () => {
+        if (rafId && !usingMic) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+        playBtn.textContent = '播放 / 暂停';
+    });
+
+    // FFT size 改变
+    fftSizeSel.addEventListener('change', () => {
+        if (!analyser) ensureAudioContext();
+        analyser.fftSize = parseInt(fftSizeSel.value);
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+    });
+
+    // 平滑
+    smoothRange.addEventListener('input', () => {
+        smoothVal.textContent = Number(smoothRange.value).toFixed(2);
+        if (analyser) analyser.smoothingTimeConstant = parseFloat(smoothRange.value);
+    });
+
+    // 麦克风按钮
+    micBtn.addEventListener('click', async () => {
+        if (!usingMic) {
+            // 如果用户选择了设备 id，则使用该设备
+            const deviceId = deviceSel.value || null;
+            await ensureAudioContext();
+            if (audioCtx.state === 'suspended') try {
+                await audioCtx.resume();
+            } catch (e) {
+            }
+            await startMic(deviceId);
+            // 尝试列出设备（有权限后）
+            try {
+                await populateDeviceList();
+            } catch (e) { /* ignore */
+            }
+        } else {
+            // 关闭麦克风
+            stopMic();
+        }
+    });
+
+    // 选择设备时重启麦克风流（如果麦克风已启动）
+    deviceSel.addEventListener('change', async () => {
+        if (usingMic) {
+            // restart mic with chosen device
+            await startMic(deviceSel.value || null);
+        }
+    });
+
+    // 枚举可用音频输入设备（需在用户授予权限后才能拿到标签）
+    async function populateDeviceList() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const audioInputs = devices.filter(d => d.kind === 'audioinput');
+            deviceSel.innerHTML = '<option value="">（默认设备）</option>';
+            audioInputs.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.deviceId;
+                // label 可能为空（在未授权时），浏览器会返回空字符串
+                opt.textContent = d.label || `麦克风 ${deviceSel.length}`;
+                deviceSel.appendChild(opt);
+            });
+        } catch (e) {
+            console.warn('无法列举设备', e);
+        }
+    }
+
+    // 画布自适应尺寸（高分屏）
+    function fitCanvasToDisplay() {
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        // 设置物理像素大小
+        canvas.width = Math.floor(rect.width * ratio);
+        canvas.height = Math.floor(rect.height * ratio);
+        // 将绘图坐标缩放到 CSS 像素空间，后续绘制使用 canvas.width/height
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    window.addEventListener('resize', fitCanvasToDisplay);
+    // 当页面加载时确保 canvas 尺寸正确
+    requestAnimationFrame(fitCanvasToDisplay);
+
+    // 页面关闭/切换时清理
+    window.addEventListener('beforeunload', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        try {
+            if (sourceNode) sourceNode.disconnect();
+        } catch (e) {
+        }
+        try {
+            if (analyser) analyser.disconnect();
+        } catch (e) {
+        }
+        try {
+            if (audioCtx) audioCtx.close();
+        } catch (e) {
+        }
+        if (mediaStream) try {
+            mediaStream.getTracks().forEach(t => t.stop());
+        } catch (e) {
+        }
+    });
+
+    // 尝试在一开始就列出设备（可能会受限于权限）
+    try {
+        populateDeviceList();
+    } catch (e) {
+    }
+</script>
+</body>
+</html>

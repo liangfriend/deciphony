@@ -83,7 +83,12 @@ export enum AccidentalEnum {
 }
 
 
-
+// 附点类型
+export enum DotEnum {
+    'Single' = '.',
+    'Double' = '..',
+    'Triple' = '...'
+}
 
 // 时值
 export enum ChronaxieEnum {

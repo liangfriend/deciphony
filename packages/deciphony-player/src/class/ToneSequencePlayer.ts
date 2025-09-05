@@ -1,27 +1,36 @@
-import {SamplerData, ToneSequence} from "../types/type";
-import {Midi, NoteName, NoteString} from "deciphony-core/types";
-import {base64ToArrayBuffer} from "../utils/baseUtil";
-import midiToNoteName from "deciphony-core/utils/core/midiToNoteName";
-import {noteNameToNoteString} from "deciphony-core/utils/musicScoreDataUtil";
+import {ToneSequence} from "../types/type";
+import {TimeSignature} from "deciphony-core/types";
 import TonePlayer from "./TonePlayer";
+import {ChronaxieEnum} from "deciphony-core/enum";
 
 class ToneSequencePlayer extends TonePlayer {
-    sampler: SamplerData;
-    private _onEnd: (() => void) | null = null;
-    sequence: ToneSequence
+    sequence: ToneSequence[]
+    bpm: number
+    timeSignature: TimeSignature
+
     constructor() {
         super();
-        this.sampler = {};
-        this.sequence= []
+        this.bpm = 120
+        this.sequence = []
+        this.timeSignature = {
+            beat: 4,
+            chronaxie: ChronaxieEnum.quarter
+        }
     }
-    addSequence(sequence: ToneSequence): void {
+
+    addSequence(sequence: ToneSequence[]): void {
         this.sequence = sequence;
     }
+
+    playSequence(sequence: ToneSequence[]): void {
+
+    }
+
     stop() {
         if (this.source) {
             this.source.stop();
             // disconnect让source更快的释放资源
-   this.source.disconnect();
+            this.source.disconnect();
         }
         this.pauseTime = 0;
         this.startTime = 0
@@ -29,12 +38,3 @@ class ToneSequencePlayer extends TonePlayer {
 }
 
 export default ToneSequencePlayer;
-
-
-if(音色数量 > 2) {
-    文案 = 展示;
-}else if(音色数量 === '亮音大钢琴') {
-    文案 = 不展示
-}else {
-    ???
-}

@@ -22,11 +22,13 @@ class TonePlayer extends Player {
         this.toneColor = toneColor;
     }
 
-    private async _setSource(note: NoteString) {
+    private async _setSource(midi: Midi) {
         if (!this.toneColor) {
             console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
         }
+        // 后续音色文件应该改为midi为键名的格式
+        const note = noteNameToNoteString(midiToNoteName(midi))
         if (!this.toneColor[note]) {
             console.error("note不存在于传入的音色中")
             return

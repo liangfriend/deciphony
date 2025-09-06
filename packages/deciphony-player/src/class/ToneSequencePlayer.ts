@@ -17,15 +17,10 @@ class ToneSequencePlayer extends TonePlayer {
             chronaxie: ChronaxieEnum.quarter
         }
     }
-
-    addSequence(sequence: ToneSequence[]): void {
-        this.sequence = sequence;
-    }
-
     playSequence(sequence: ToneSequence[]): void {
 
+        await this._setSource(note)
     }
-
     stop() {
         if (this.source) {
             this.source.stop();

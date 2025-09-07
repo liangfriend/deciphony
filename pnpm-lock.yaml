@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      tailwindcss:
+        specifier: ^4.1.13
+        version: 4.1.13
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -33,6 +36,37 @@ importers:
       typescript-eslint:
         specifier: ^8.0.1
         version: 8.39.0(eslint@9.32.0)(typescript@5.9.2)
+
+  packages/deciphony-analyser:
+    dependencies:
+      deciphony-core:
+        specifier: workspace:*
+        version: link:../deciphony-core
+
+  packages/deciphony-channel:
+    dependencies:
+      deciphony-player:
+        specifier: workspace:*
+        version: link:../deciphony-player
+      vue:
+        specifier: ^3.5.18
+        version: 3.5.18(typescript@5.8.3)
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@7.1.4(@types/node@22.17.0)(sass@1.91.0))(vue@3.5.18(typescript@5.8.3))
+      '@vue/tsconfig':
+        specifier: ^0.7.0
+        version: 0.7.0(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.4(@types/node@22.17.0)(sass@1.91.0)
+      vue-tsc:
+        specifier: ^3.0.5
+        version: 3.0.6(typescript@5.8.3)
 
   packages/deciphony-core: {}
 
@@ -97,6 +131,9 @@ importers:
       deciphony-renderer:
         specifier: workspace:*
         version: link:../deciphony-renderer
+      deciphony-ui:
+        specifier: workspace:*
+        version: link:../deciphony-ui
       typescript:
         specifier: ^5.0.2
         version: 5.9.2
@@ -1846,6 +1883,9 @@ packages:
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
+  tailwindcss@4.1.13:
+    resolution: {integrity: sha512-i+zidfmTqtwquj4hMEwdjshYYgMbOrPzb9a0M3ZgNa0JMoZeFC6bxZvO8yr8ozS6ix2SDz0+mvryPeBs2TFE+w==}
+
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
@@ -3228,7 +3268,7 @@ snapshots:
 
   dts-bundle-generator@9.5.1:
     dependencies:
-      typescript: 5.8.3
+      typescript: 5.9.2
       yargs: 17.7.2
 
   eastasianwidth@0.2.0: {}
@@ -3946,6 +3986,8 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   symbol-tree@3.2.4: {}
+
+  tailwindcss@4.1.13: {}
 
   tinybench@2.9.0: {}
 

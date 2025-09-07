@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音色生成</title>
+</head>
+<body>
+<button id="btn">音色生成</button>
+
+<script>
+    // 把 URL 写死或拼接，注意路径和实际文件路径一致
+    const audioUrl = './萧C4.mp3';
+
+    async function loadAudioAsBase64(url) {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+
+        let binary = '';
+        const chunkSize = 0x8000; // 每次拼接 32KB
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, i + chunkSize);
+            binary += String.fromCharCode.apply(null, chunk);
+        }
+
+        return btoa(binary);
+    }
+
+    async function generateToneObject() {
+        const base64 = await loadAudioAsBase64(audioUrl);
+        const obj = {C4: base64};
+        console.log(obj);
+    }
+
+    document.getElementById('btn').addEventListener('click', generateToneObject);
+</script>
+</body>
+</html>

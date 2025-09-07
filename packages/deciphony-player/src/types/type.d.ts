@@ -5,12 +5,13 @@ export type Base64 = string
 
 export type ToneColor = Record<NoteString, Base64>;
 
-
+export type ToneDuration = `${ChronaxieEnum}${DotEnum}`
 export type ToneSequence = {
     type: 'note'
     midi: Midi,
     volume: number,// 0~1
-    duration: `${ChronaxieEnum}${DotEnum}`,
+    duration: ToneDuration,
 } | {
-    type: 'rest'
+    type: 'rest',
+    duration: ToneDuration,
 };

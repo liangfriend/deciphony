@@ -1,6 +1,7 @@
 // main.ts
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import App from './App.vue'
+import haloUI from 'deciphony-ui'
 
 // 捕获全局同步错误
 // window.addEventListener('error', (event) => {
@@ -31,5 +32,6 @@ const app = createApp(App)
 //     console.log('调用栈:', err.stack)
 //     console.groupEnd()
 // }
+app.use(haloUI)
 
 app.mount('#app')

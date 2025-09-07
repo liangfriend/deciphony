@@ -1,27 +1,57 @@
 <script setup lang="ts">
-import SamplerPlayer from 'deciphony-player/src/class/SamplerPlayer'
+import ToneSequencePlayer from 'deciphony-player/src/class/ToneSequencePlayer'
 import sample from '../assets/sample-3s.mp3'
 import {onMounted, ref} from "vue";
 import piano from "../assets/piano";
+import {ToneSequence} from "deciphony-player/src/types/type";
+import {testC4} from '../test/testC4'
 
-const player = ref<SamplerPlayer>()
+const player = ref<ToneSequencePlayer>(null!)
+const toneSequence = ref<ToneSequence[]>([{
+  midi: 60,
+  volume: 1,
+  duration: '4',
+  type: 'note'
+}, {
+  midi: 60,
+  volume: 1,
+  duration: '4',
+  type: 'note'
+}, {
+  midi: 62,
+  volume: 1,
+  duration: '2',
+  type: 'note'
+}, {
+  midi: 60,
+  volume: 1,
+  duration: '2',
+  type: 'note'
+}, {
+  midi: 65,
+  volume: 1,
+  duration: '2',
+  type: 'note'
+}, {
+  midi: 64,
+  volume: 1,
+  duration: '2',
+  type: 'note'
+}])
 onMounted(async () => {
-  player.value = new SamplerPlayer()
-  await player.value.addSampler(piano)
-  console.log('chicken', "加载音频成功")
+  player.value = new ToneSequencePlayer()
+  player.value.addToneColor(testC4)
 })
 
-function play() {
-  console.log('chicken',)
-  player.value.playMIDI(81)
+async function play() {
+  await player.value.playMIDI(60, true)
 }
 
 function pause() {
-  player.value.pause()
 }
 
 function stop() {
-  player.value.stop()
+  player.value.stopMIDI()
 }
 </script>
 

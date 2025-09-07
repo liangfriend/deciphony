@@ -5,12 +5,32 @@ class Player {
     panner: StereoPannerNode;
     state: 'stopped' | 'playing' | 'paused';
     audioBuffer: AudioBuffer | null;
-    pauseTime: number;
-    startTime: number;
+    private _pauseTime: number;
+    private _startTime: number;
+    get startTime() {
+        return this._startTime
+    }
+
+    set startTime(time: number) {
+        this._startTime = time;
+    }
+
+    get pauseTime() {
+        return this._pauseTime
+    }
+
+    set pauseTime(time: number) {
+        this._pauseTime = time;
+    }
+
+    get currentTime() {
+        return this.context.currentTime
+    }
+
 
     constructor() {
-        this.pauseTime = 0;
-        this.startTime = 0;
+        this._pauseTime = 0;
+        this._startTime = 0;
         this.state = 'stopped';
         this.source = null
         this.audioBuffer = null;
@@ -22,10 +42,13 @@ class Player {
         const pannerOptions = {pan: 0};
         this.panner = new StereoPannerNode(this.context, pannerOptions);
     }
+
     // 音量调节
     setVolume(volume: number = 1) {
         this.gainNode.gain.value = volume
     }
+
+
 }
 
 export default Player;

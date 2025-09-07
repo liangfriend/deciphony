@@ -12,7 +12,6 @@ onBeforeMount(() => {
   musicScore.value = data
 
   window.musicScore = musicScore.value
-  console.log('chicken', data)
 })
 
 function switchShowMode() {

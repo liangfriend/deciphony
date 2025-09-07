@@ -14,7 +14,7 @@
     "composite": true,
     "outDir": "dist",
     // 必须，输出目录
-    "rootDir": "",
+    "rootDir": "src",
     // 必须，告诉 TypeScript 从哪里找入口文件
     "strict": true,
     "baseUrl": ".",
@@ -28,10 +28,7 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "exactOptionalPropertyTypes": true,
-    "useUnknownInCatchVariables": true,
-    "paths": {
-      "deciphony-core": "deciphony-core"
-    }
+    "useUnknownInCatchVariables": true
   },
   "include": [
     "."

@@ -85,6 +85,7 @@ export enum AccidentalEnum {
 
 // 附点类型
 export enum DotEnum {
+    None = '',
     'Single' = '.',
     'Double' = '..',
     'Triple' = '...'

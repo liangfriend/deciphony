@@ -274,7 +274,6 @@ export function msSymbolMouseUp(e: MouseEvent, mode: Ref<MsMode>, currentSelecte
 
 export function measureMouseDown(e: MouseEvent, mode: Ref<MsMode>, currentSelected: Ref<MsType | null>, measure: Measure) {
     if (mode.value === MsMode.edit) {
-        console.log('chicken',)
         // 订阅
         select(measure, currentSelected)
     }

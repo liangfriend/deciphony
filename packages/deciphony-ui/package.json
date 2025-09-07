@@ -1,15 +1,13 @@
 {
-  "name": "@jsh/halo-ui",
-  "version": "0.0.29",
+  "name": "deciphony-ui",
+  "version": "0.0.0",
   "description": "",
-  "author": "jsh",
-  "license": "MIT",
+  "author": "liam",
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "vitest --halo",
     "postpublish": "npm version patch",
     "prepublishOnly": "npm run build"
   },
@@ -26,9 +24,6 @@
     "./global": {
       "types": "./global.d.ts"
     }
-  },
-  "publishConfig": {
-    "registry": "http://192.168.2.87:4873/"
   },
   "files": [
     "dist"

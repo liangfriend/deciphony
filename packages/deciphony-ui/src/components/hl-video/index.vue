@@ -1,26 +1,26 @@
 <template>
   <div class="hl-video">
     <video
-      v-if="videoAvailable"
-      ref="videoRef"
-      class="video"
-      :src="srcList?.[srcListIndex]?.url"
-      playsinline
-      webkit-playsinline
-      x5-video-player-type="h5"
-      x5-video-player-fullscreen="false"
-      x-webkit-airplay="allow"
-      @pointerdown="videoMouseDown"
-      @ended="onVideoEnded"
-      @timeupdate="updateProgress"
-      @loadedmetadata="updateDuration"
+        v-if="videoAvailable"
+        ref="videoRef"
+        class="video"
+        :src="srcList?.[srcListIndex]?.url"
+        playsinline
+        webkit-playsinline
+        x5-video-player-type="h5"
+        x5-video-player-fullscreen="false"
+        x-webkit-airplay="allow"
+        @pointerdown="videoMouseDown"
+        @ended="onVideoEnded"
+        @timeupdate="updateProgress"
+        @loadedmetadata="updateDuration"
     />
     <div v-else class="hl-video-placeholder">
       <img
-        v-if="placeholderImg"
-        :src="placeholderImg"
-        alt="hl-video-placeholder"
-        class="hl-video-placeholder-img"
+          v-if="placeholderImg"
+          :src="placeholderImg"
+          alt="hl-video-placeholder"
+          class="hl-video-placeholder-img"
       />
       <div v-else class="hl-video-placeholder-default">无视频</div>
     </div>
@@ -28,7 +28,7 @@
     <div v-show="operationShow" class="header">
       <div class="header-mask"></div>
       <div class="back" @click="emits('back')">
-        <img :src="back" />
+        <img :src="back"/>
       </div>
       <div class="title">{{ title }}</div>
     </div>
@@ -41,65 +41,65 @@
       <div class="middle">
         <!-- 进度条 -->
         <div class="progress-bar" @click="seek($event)">
-          <img v-if="props.progressBgImg" :src="props.progressBgImg" class="progress-bg" />
-          <div v-else class="progress-bg default-bg" />
+          <img v-if="props.progressBgImg" :src="props.progressBgImg" class="progress-bg"/>
+          <div v-else class="progress-bg default-bg"/>
 
           <div class="progress-played" :style="{ width: `${progressPercent}%` }">
             <img
-              v-if="props.progressPlayedImg"
-              :src="props.progressPlayedImg"
-              class="progress-played-img"
+                v-if="props.progressPlayedImg"
+                :src="props.progressPlayedImg"
+                class="progress-played-img"
             />
-            <div v-else class="progress-played-img default-played" />
+            <div v-else class="progress-played-img default-played"/>
           </div>
           <div v-if="props.progressThumbImg" @touchstart.prevent="startDrag">
             <img
-              :src="props.progressThumbImg"
-              class="thumb"
-              :style="{ left: `${progressPercent}%` }"
+                :src="props.progressThumbImg"
+                class="thumb"
+                :style="{ left: `${progressPercent}%` }"
             />
           </div>
 
           <div
-            v-else
-            class="thumb default-thumb"
-            :style="{ left: `${progressPercent}%` }"
-            @touchstart.prevent="startDrag"
+              v-else
+              class="thumb default-thumb"
+              :style="{ left: `${progressPercent}%` }"
+              @touchstart.prevent="startDrag"
           />
         </div>
       </div>
       <div class="bottom">
         <div class="left">
           <div
-            v-if="(props.playButtonImg && !isPlaying) || (props.pauseButtonImg && isPlaying)"
-            @click="togglePlay"
+              v-if="(props.playButtonImg && !isPlaying) || (props.pauseButtonImg && isPlaying)"
+              @click="togglePlay"
           >
             <img
-              :src="isPlaying ? props.pauseButtonImg : props.playButtonImg"
-              class="btn play-btn"
+                :src="isPlaying ? props.pauseButtonImg : props.playButtonImg"
+                class="btn play-btn"
             />
           </div>
 
           <div v-else class="play-btn default-icon" @click="togglePlay"></div>
           <div
-            v-if="(props.playButtonImg && !isPlaying) || (props.pauseButtonImg && isPlaying)"
-            @click="nextEpisode"
+              v-if="(props.playButtonImg && !isPlaying) || (props.pauseButtonImg && isPlaying)"
+              @click="nextEpisode"
           >
-            <img :src="props.nextButtonImg" class="btn play-btn" :style="{ marginLeft: '1rem' }" />
+            <img :src="props.nextButtonImg" class="btn play-btn" :style="{ marginLeft: '1rem' }"/>
           </div>
         </div>
         <div class="right">
           <!-- 其他控件 -->
           <input
-            v-if="!hidden.includes('volume')"
-            v-model="volume"
-            type="range"
-            class="volume rightButton"
-            min="0"
-            max="1"
-            step="0.01"
-            :disabled="!videoAvailable"
-            @input="updateVolume"
+              v-if="!hidden.includes('volume')"
+              v-model="volume"
+              type="range"
+              class="volume rightButton"
+              min="0"
+              max="1"
+              step="0.01"
+              :disabled="!videoAvailable"
+              @input="updateVolume"
           />
 
           <div v-if="!hidden.includes('rate')" class="rightButton" @click="selectRate">倍速</div>
@@ -107,10 +107,10 @@
             选集
           </div>
           <div
-            v-if="!hidden.includes('fullscreen')"
-            class="rightButton"
-            :disabled="!videoAvailable"
-            @click="toggleFullScreen"
+              v-if="!hidden.includes('fullscreen')"
+              class="rightButton"
+              :disabled="!videoAvailable"
+              @click="toggleFullScreen"
           >
             全屏
           </div>
@@ -119,30 +119,30 @@
     </div>
     <!--  右侧弹窗  -->
     <div
-      v-if="srcList"
-      v-show="rightModelShow"
-      class="rightModel"
-      :class="{ verticalCenter: rightModelType === 'rate' }"
-      :style="{ width: rightModelType === 'episode' ? '300px' : '150px' }"
+        v-if="srcList"
+        v-show="rightModelShow"
+        class="rightModel"
+        :class="{ verticalCenter: rightModelType === 'rate' }"
+        :style="{ width: rightModelType === 'episode' ? '300px' : '150px' }"
     >
       <template v-if="rightModelType === 'episode'">
         <div
-          v-for="(item, index) in srcList"
-          :key="'episode' + index"
-          class="item"
-          :class="{ active: index === srcListIndex }"
-          @click="changeEpisode(index)"
+            v-for="(item, index) in srcList"
+            :key="'episode' + index"
+            class="item"
+            :class="{ active: index === srcListIndex }"
+            @click="changeEpisode(index)"
         >
           {{ item.title }}
         </div>
       </template>
       <template v-if="rightModelType === 'rate'">
         <div
-          v-for="(item, index) in rateList"
-          :key="'rate' + index"
-          class="item itemRate"
-          :class="{ active: index === curRateIndex }"
-          @click="changeRate(index)"
+            v-for="(item, index) in rateList"
+            :key="'rate' + index"
+            class="item itemRate"
+            :class="{ active: index === curRateIndex }"
+            @click="changeRate(index)"
         >
           {{ item.title }}
         </div>
@@ -152,11 +152,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, PropType } from 'vue';
+import {ref, computed, onMounted, onBeforeUnmount, PropType} from 'vue';
 import playButton from '@assets/images/hl-video/play.png';
 import pauseButton from '@assets/images/hl-video/pause.png';
 import nextButton from '@assets/images/hl-video/next.png';
 import back from '@assets/images/hl-video/back.png';
+
 defineOptions({
   name: 'HlVideo' // 给组件一个全局 name
 });
@@ -165,9 +166,9 @@ type srcListItem = {
   title: string;
 };
 const props = defineProps({
-  playButtonImg: { type: String, default: playButton },
-  pauseButtonImg: { type: String, default: pauseButton },
-  nextButtonImg: { type: String, default: nextButton },
+  playButtonImg: {type: String, default: playButton},
+  pauseButtonImg: {type: String, default: pauseButton},
+  nextButtonImg: {type: String, default: nextButton},
   progressBgImg: {
     type: String,
     default: ''
@@ -192,7 +193,7 @@ const props = defineProps({
     type: String,
     default: ''
   }, // 没传时不展示
-  controlsHeight: { type: String, default: '40px' },
+  controlsHeight: {type: String, default: '40px'},
   hidden: {
     type: Array,
     default: () => []
@@ -244,7 +245,7 @@ const isPlaying = ref(false);
 const currentTime = ref(0);
 const duration = ref(0);
 const progressPercent = computed(() =>
-  duration.value ? (currentTime.value / duration.value) * 100 : 0
+    duration.value ? (currentTime.value / duration.value) * 100 : 0
 );
 
 const volume = ref(1);
@@ -321,6 +322,7 @@ function nextEpisode() {
     changeEpisode(srcListIndex.value + 1);
   }
 }
+
 function changeEpisode(index) {
   srcListIndex.value = index;
   rightModelShow.value = false;
@@ -382,7 +384,6 @@ function onVideoEnded() {
 const emits = defineEmits(['back']);
 
 onMounted(() => {
-  console.log('chicken', props.srcList);
   updateVolume();
   changeSpeed();
   if (props.startPlay) {
@@ -638,6 +639,7 @@ video {
   .itemRate {
     border: unset;
   }
+
   .active {
     color: #ff7882;
   }

@@ -2,13 +2,17 @@
 import MusicScoreVue from "deciphony-renderer/musicScore.vue";
 import RenderTest from "./views/renderTest.vue";
 import PlayerTest from "./views/playerTest.vue";
+import UiTest from "./views/uiTest.vue";
+import WebAudioTest from "./views/webAudioTest.vue";
 
 
 </script>
 
 <template>
-<!--  <render-test></render-test>-->
-    <player-test></player-test>
+  <!--  <render-test></render-test>-->
+  <!--  <player-test></player-test>-->
+  <!--  <ui-test></ui-test>-->
+  <web-audio-test></web-audio-test>
 </template>
 
 <style scoped>

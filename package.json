@@ -21,7 +21,6 @@
   "license": "ISC",
   "packageManager": "pnpm@10.14.0",
   "dependencies": {
-    "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }
 }

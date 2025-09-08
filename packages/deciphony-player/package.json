@@ -20,6 +20,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "tailwindcss": "^4.1.13",
     "deciphony-core": "workspace:*"
   },
   "keywords": [],

@@ -1,3 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+.hide-scrollbar {
+    overflow: auto; /* 或 overflow: scroll */
+    -ms-overflow-style: none; /* IE 和老 Edge */
+    scrollbar-width: none; /* Firefox */
+}

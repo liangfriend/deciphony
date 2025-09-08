@@ -34,7 +34,6 @@ function draw() {
 
   canvasRef.value.width = width
   ctx.clearRect(0, 0, width, height)
-  console.log('chicken', currentChannelNumber.value)
   const data = player.value.getChannelData(currentChannelNumber.value)
   const step = sampleStep.value > 0
       ? sampleStep.value
@@ -141,12 +140,12 @@ onMounted(() => {
     <button v-for="(item,index) in player.numberOfChannels" @click="switchChannel(index)">声道{{ index + 1 }}</button>
     <div
         ref="containerRef"
-        class="border rounded h-52 w-full"
+        class="border rounded h-52 w-full overflow-auto hide-scrollbar"
     >
       <canvas ref="canvasRef" class="h-full"></canvas>
     </div>
 
-    <div class="flex items-center space-x-4">
+    <div class="flex items-center space-x-4 ">
       <button @click="play" class="px-3 py-1 border rounded">
         播放
       </button>
@@ -158,7 +157,7 @@ onMounted(() => {
       </button>
 
       <label>缩放：</label>
-      <input type="range" min="0.5" max="5" step="0.1"
+      <input type="range" min="0.5" max="50" step="0.1"
              v-model="zoom" @input="onZoomChange"/>
 
       <label>采样步长：</label>
@@ -189,5 +188,6 @@ onMounted(() => {
 <style scoped>
 canvas {
   display: block;
+
 }
 </style>

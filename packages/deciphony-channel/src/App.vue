@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import ChannelEdit from "./components/channelEdit.vue";
+import ChannelWorktop from "./components/channelWorktop.vue";
 </script>
 
 <template>
-  <div class="w-full h-full">
 
-  </div>
-  <channel-edit></channel-edit>
+  <channel-worktop></channel-worktop>
 </template>
 
 <style scoped>

@@ -20,7 +20,13 @@ async function onFileChange(e: Event) {
   player.value.current = 0
   await nextTick()
   draw()
+}
 
+async function addAudioBuffer(audioBuffer: AudioBuffer) {
+  await player.value.addAudio(audioBuffer)
+  player.value.current = 0
+  await nextTick()
+  draw()
 }
 
 // 绘制波形 + 播放位置
@@ -132,6 +138,8 @@ onMounted(() => {
     canvasRef.value.height = 200
   }
 })
+
+defineExpose({addAudioBuffer})
 </script>
 
 <template>
@@ -146,13 +154,13 @@ onMounted(() => {
     </div>
 
     <div class="flex items-center space-x-4 ">
-      <button @click="play" class="px-3 py-1 border rounded">
+      <button @click="play">
         播放
       </button>
-      <button @click="pause" class="px-3 py-1 border rounded">
+      <button @click="pause">
         暂停
       </button>
-      <button @click="stop" class="px-3 py-1 border rounded">
+      <button @click="stop">
         停止
       </button>
 
@@ -189,5 +197,11 @@ onMounted(() => {
 canvas {
   display: block;
 
+}
+
+button {
+  border-radius: 6px;
+  padding: 2px 6px;
+  border: 1px solid black;
 }
 </style>

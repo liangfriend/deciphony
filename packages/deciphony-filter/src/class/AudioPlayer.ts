@@ -1,0 +1,180 @@
+import Player from "./Player";
+
+class AudioPlayer extends Player {
+
+    private _onProgress: ((current: number, duration: number) => void) | null = null;
+    private _onEnd: (() => void) | null = null;
+    private _progressRaf: number | null = null;
+    private _current: number;
+
+    constructor() {
+        super()
+        this._current = 0
+    }
+
+    set onProgress(cb: (current: number, duration: number) => void) {
+        this._onProgress = cb;
+    }
+
+    set onEnd(cb: () => void) {
+        this._onEnd = cb;
+    }
+
+    get current() {
+        return this._current
+    }
+
+    get duration() {
+        return this.audioBuffer?.duration || 0
+    }
+
+    // 声道数
+    get numberOfChannels() {
+        return this.audioBuffer?.numberOfChannels || 0
+    }
+
+    // audioBuffer长度
+    get bufferLength() {
+        return this.audioBuffer?.length || 0
+    }
+
+    // 采样率
+    get sampleRate() {
+        return this.audioBuffer?.numberOfChannels || 0
+    }
+
+    set current(value: number) {
+        if (!this.audioBuffer) return;
+
+        // 限制范围，不能小于0或大于总时长
+        const duration = this.audioBuffer.duration;
+        const newTime = Math.max(0, Math.min(value, duration));
+
+        this._current = newTime;
+        this.pauseTime = newTime;   // ✅ 同步修改 pauseTime
+        this.startTime = this.context.currentTime; // 防止下一次计算差值出错
+
+        // 如果需要立即刷新进度 UI
+        if (this._onProgress) {
+            this._onProgress(this._current, duration);
+        }
+    }
+
+    getChannelData(channel: number = 1) {
+        return this.audioBuffer?.getChannelData(channel)
+    }
+
+    private _setSource() {
+        if (!this.audioBuffer) {
+            console.error("音频文件不存在，请调用addAudio方法添加音频")
+            return
+        }
+        this.source = this.context.createBufferSource();
+        // 节点连接
+        this.source.connect(this.gainNode).connect(this.panner).connect(this.context.destination);
+        // 传入音频数据
+        this.source.buffer = this.audioBuffer;
+    }
+
+    // 音量调节
+    setVolume(volume: number = 1) {
+        this.gainNode.gain.value = volume
+    }
+
+    async addAudio(input: string | AudioBuffer | ArrayBuffer) {
+        if (typeof input === "string") {
+            // URL 或文件路径
+            const response = await fetch(input);
+            const arrayBuffer = await response.arrayBuffer();
+            this.audioBuffer = await this.context.decodeAudioData(arrayBuffer);
+        } else if (input instanceof ArrayBuffer) {
+            // 直接是 ArrayBuffer
+            this.audioBuffer = await this.context.decodeAudioData(input);
+        } else if (input instanceof AudioBuffer) {
+            // 已经是解码好的 AudioBuffer
+            this.audioBuffer = input;
+        } else {
+            throw new Error("Unsupported audio input type");
+        }
+    }
+
+
+    async play() {
+        if (this.state === 'playing') return;
+
+        this._setSource();
+        if (!this.source) return;
+
+        if (this.context.state === 'suspended') {
+            await this.context.resume();
+        }
+
+        // 记录开始播放的 context 时间
+        this.startTime = this.context.currentTime;
+
+        // 从 pauseTime 的位置继续
+        this.source.start(0, this.pauseTime);
+
+        this.state = 'playing';
+
+        this.source.onended = () => {
+
+            // 如果是自然播放结束
+            if (this.state === 'playing') {
+                this.stop();
+                this._onEnd && this._onEnd();
+            }
+        };
+
+        if (this._onProgress && this.audioBuffer) {
+            const tick = () => {
+                if (this.state !== 'playing') return;
+                this._current = this.pauseTime + (this.context.currentTime - this.startTime);
+                this._onProgress!(this._current, this.audioBuffer!.duration);
+                this._progressRaf = requestAnimationFrame(tick);
+            };
+            this._progressRaf = requestAnimationFrame(tick);
+        }
+    }
+
+    pause() {
+        if (this.state !== 'playing' || !this.source) return;
+
+        // 停止当前播放
+        this.source.stop();
+        this.source.disconnect();
+
+        // 计算已播放时长
+        this.pauseTime += this.context.currentTime - this.startTime;
+        // 防止pauseTime更新后，导致_onProgress传回current出错
+        this.startTime = this.context.currentTime;
+        this.state = 'paused';
+
+        if (this._progressRaf) {
+            cancelAnimationFrame(this._progressRaf);
+            this._progressRaf = null;
+        }
+    }
+
+    stop() {
+        if (this.source) {
+            this.source.stop();
+            this.source.disconnect();
+            this.source = null;
+        }
+
+        this.pauseTime = 0;
+        // 防止pauseTime更新后，导致_onProgress传回current出错
+        this.startTime = this.context.currentTime;
+        this.current = 0;
+        this.state = 'stopped';
+
+        if (this._progressRaf) {
+            cancelAnimationFrame(this._progressRaf);
+            this._progressRaf = null;
+        }
+    }
+
+}
+
+export default AudioPlayer;

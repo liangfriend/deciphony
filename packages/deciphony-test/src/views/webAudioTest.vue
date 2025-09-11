@@ -1,49 +1,18 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import {testC4} from '../test/testC4'
-import ChannelDataChart from "../components/channelDataChart.vue";
 
-const context = new AudioContext()
-let source = context.createBufferSource()
 onMounted(async () => {
-  bufferCreate()
 })
 
-const channdelData = ref<Float32Array<ArrayBuffer>>()
+const player = new InstrumentPlayer();
 
-async function bufferCreate() {
+// 吹奏类
+player.noteOn(60, 0.5); // C4，音量 0.5
+setTimeout(() => player.noteOff(), 2000); // 2 秒后停止
 
-  const audioBuffer = await context.decodeAudioData(base64ToArrayBuffer(testC4['C4']))
-  const channel = audioBuffer.getChannelData(1) // 获取第 0 声道的采样数组
-  // for (let i = 0; i < channelData.length; i++) {
-  //   channelData[i] = 1 * Math.sin(2 * Math.PI * 440 * i / 44100) // 440Hz 正弦波
-  // }
-  console.log('chicken', channel)
-  console.log('通道数', audioBuffer.numberOfChannels)
-  channdelData.value = channel
-}
+// 钢琴类
+player.playNote(64, 0.8, 1.5); // E4，音量 0.8，时值 1.5s
 
-function setSource() {
-  source = context.createBufferSource()
-  source.connect(context.destination)
-}
-
-function play() {
-  setSource()
-  source.start()
-
-}
-
-function base64ToArrayBuffer(base64: string) {
-  // 先去掉 dataURL 的头部（如果有的话）
-  const binaryString = atob(base64.replace(/^data:.*;base64,/, ''));
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer; // 返回 ArrayBuffer
-}
 </script>
 
 <template>

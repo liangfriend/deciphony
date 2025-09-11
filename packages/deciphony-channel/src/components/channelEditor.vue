@@ -6,7 +6,7 @@ const containerRef = ref<HTMLDivElement | null>(null)
 
 const zoom = ref(1) // 缩放因子（横向）
 const sampleStep = ref(1) // 采样点步长
-const sampleRate = ref(40000) // 采样率
+const sampleRate = ref(41000) // 采样率
 const amplitudeScale = ref(1) // 振幅缩放因子
 const channelData = ref<number[]>([])
 const selectedIndx = ref(0)
@@ -91,9 +91,9 @@ const duration = computed(() => {
   return channelData.value.length * copyCount.value / sampleRate.value
 })
 // 数据长度
-const dataLength = ref(10)
+const dataLength = ref(157)
 // 复制次数
-const copyCount = ref(5000)
+const copyCount = ref(261)
 // 当前选中点索引
 const currentSelectedDotIndex = ref(0)
 // 影响范围
@@ -135,30 +135,30 @@ function getWeight(offset: number, range: number, type: number): number {
 }
 
 // 监听选中点高度变化，应用影响范围算法
-watch(
-    () => channelData.value[currentSelectedDotIndex.value],
-    (newVal, oldVal) => {
-      if (newVal === undefined || oldVal === undefined) return
-      const diff = newVal - oldVal
-      if (diff === 0) return
 
-      const center = currentSelectedDotIndex.value
-      const range = influenceLength.value
-      const len = channelData.value.length
+function changeHeight(val: number) {
+  console.log('chicken',)
 
-      for (let offset = -range; offset <= range; offset++) {
-        const idx = center + offset
-        if (idx < 0 || idx >= len) continue
-        if (idx === center) continue // 中心点已直接修改过
+  if (val === 0) return
+  channelData.value[currentSelectedDotIndex.value] += val
+  const center = currentSelectedDotIndex.value
+  const range = influenceLength.value
+  const len = channelData.value.length
 
-        // 权重 = 距离反比（越远影响越小）
-        const weight = getWeight(offset, range, +influenceType.value)
-        channelData.value[idx] += diff * weight
-      }
+  for (let offset = -range; offset <= range; offset++) {
+    const idx = center + offset
+    if (idx < 0 || idx >= len) continue
+    if (idx === center) continue // 中心点已直接修改过
 
-      draw()
-    }
-)
+    // 权重 = 距离反比（越远影响越小）
+    const weight = getWeight(offset, range, +influenceType.value)
+    channelData.value[idx] += val * weight
+  }
+
+  draw()
+
+}
+
 const influenceType = ref(0) // 默认，向下凹 向上凸
 
 const cacheChannel = ref<{ channel: Array<number>, sampleRate: number }>({
@@ -197,6 +197,7 @@ defineExpose({getCacheChannelData})
       </div>
 
       <button @click="channelGenerate">生成</button>
+      <div>标准C4(261.63赫兹)，再采样率为41000时，需要156.7个数据点</div>
     </div>
     <div class="flex items-center space-x-4 " v-if="channelData.length">
       <label>当前编辑波形信息：</label>
@@ -245,12 +246,21 @@ defineExpose({getCacheChannelData})
       <div class="mr-4">
         选中点索引：<input type="number" v-model="currentSelectedDotIndex"/>
       </div>
-      <div class="mr-4">
-        高度：<input type="number" v-model="channelData[currentSelectedDotIndex]"/>
+      <div class="mr-4 w-64 flex">
+        <div class="w-fit">高度：</div>
+        <div class="flex justify-between w-52 items-center">
+          <button @click="changeHeight(-0.05)">-</button>
+          <div>{{ channelData[currentSelectedDotIndex] }}</div>
+          <button @click="changeHeight(0.05)">+</button>
+        </div>
+
       </div>
       <div class="mr-4">
-        影响范围：<input type="number" v-model="influenceLength"/>
+        影响范围：<input type="number" step="1" v-model="influenceLength"/>
       </div>
+
+    </div>
+    <div class="flex items-center" v-if="channelData.length">
       <div class="mr-4">
         影响模式：
         <label><input type="radio" value="0" v-model.number="influenceType"/> 直线</label>
@@ -258,6 +268,7 @@ defineExpose({getCacheChannelData})
         <label><input type="radio" value="2" v-model.number="influenceType"/> 尖锐</label>
       </div>
     </div>
+
   </div>
 </template>
 

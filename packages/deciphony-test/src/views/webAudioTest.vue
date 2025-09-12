@@ -1,26 +1,61 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 
+let audioContext: AudioContext | null = null;
+let newProcessorNode: AudioWorkletNode | null = null;
+
+async function createMyAudioProcessor() {
+  if (!audioContext) {
+    try {
+      audioContext = new AudioContext();
+      await audioContext.audioWorklet.addModule(
+          new URL("./class/WhiteNoiseProcessor.js", import.meta.url)
+      );
+    } catch (e) {
+      console.error("Failed to load processor", e);
+      return null;
+    }
+  }
+
+  return new AudioWorkletNode(audioContext, "my-audio-processor");
+}
+
 onMounted(async () => {
-})
+  newProcessorNode = await createMyAudioProcessor();
+  if (newProcessorNode) {
+    newProcessorNode.connect(audioContext!.destination);
+  }
+});
 
-const player = new InstrumentPlayer();
+const freq = ref(440);
+const volume = ref(0.5);
 
-// 吹奏类
-player.noteOn(60, 0.5); // C4，音量 0.5
-setTimeout(() => player.noteOff(), 2000); // 2 秒后停止
+function updateFreq() {
+  newProcessorNode?.port.postMessage({type: "setFreq", value: freq.value});
+}
 
-// 钢琴类
-player.playNote(64, 0.8, 1.5); // E4，音量 0.8，时值 1.5s
+function updateVolume() {
+  newProcessorNode?.port.postMessage({type: "setVolume", value: volume.value});
+}
 
+function play() {
+  if (audioContext?.state === "suspended") {
+    audioContext.resume();
+  }
+}
 </script>
 
 <template>
-  <button @click="setSource">查看数据</button>
-  <button @click="play">播放</button>
-  <channel-data-chart :channel-data="channdelData"></channel-data-chart>
+  <buton @click="play">播放</buton>
+  <div>
+    <label>
+      频率: {{ freq }} Hz
+      <input type="range" min="100" max="2000" v-model="freq" @input="updateFreq"/>
+    </label>
+    <br/>
+    <label>
+      音量: {{ volume }}
+      <input type="range" min="0" max="1" step="0.01" v-model="volume" @input="updateVolume"/>
+    </label>
+  </div>
 </template>
-
-<style scoped>
-
-</style>

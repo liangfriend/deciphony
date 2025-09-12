@@ -1,59 +1,38 @@
-// white-noise-processor.js
 import {AudioWorkletProcessor, registerProcessor} from "../../types/type";
 
-class WhiteNoiseProcessor extends AudioWorkletProcessor {
-    isPlaying: boolean;
-    frequency: number;
-    volume: number;
-    stopTime: number;
-
+class MyAudioProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-        this.isPlaying = false;
-        this.frequency = 440;
-        this.volume = 0.5;
-        this.stopTime = 0;
-
-        this.port.onmessage = (event) => {
-            const data = event.data;
-            if (data.type === "noteOn") {
-                this.isPlaying = true;
-                this.frequency = data.frequency;
-                this.volume = data.volume;
-                this.stopTime = 0;
-            }
-            if (data.type === "noteOff") {
-                this.isPlaying = false;
-            }
-            if (data.type === "playNote") {
-                this.isPlaying = true;
-                this.frequency = data.frequency;
-                this.volume = data.volume;
-                this.stopTime = currentTime + data.duration;
-            }
-        };
     }
 
-    process(inputs, outputs) {
-        const output = outputs[0];
-        const channel = output[0];
+    process(inputList: Float32Array[][],
+            outputList: Float32Array[][],
+            parameters: Record<string, Float32Array>) {
+        // 判断最小通道
+        const sourceLimit = Math.min(inputList.length, outputList.length);
+        for (let inputNum = 0; inputNum < sourceLimit; inputNum++) {
+            let input = inputList[inputNum];
+            let output = outputList[0];
+            let channelCount = Math.min(input.length, output.length);
 
-        if (this.isPlaying) {
-            for (let i = 0; i < channel.length; i++) {
-                // 白噪声
-                channel[i] = (Math.random() * 2 - 1) * this.volume;
-            }
+            for (let channelNum = 0; channelNum < channelCount; channelNum++) {
+                for (let i = 0; i < input[channelNum].length; i++) {
+                    let sample = output[channelNum][i] + input[channelNum][i];
 
-            // 如果是触发乐器，到点就停止
-            if (this.stopTime && currentTime >= this.stopTime) {
-                this.isPlaying = false;
+                    if (sample > 1.0) {
+                        sample = 1.0;
+                    } else if (sample < -1.0) {
+                        sample = -1.0;
+                    }
+
+                    output[channelNum][i] = sample;
+                }
             }
-        } else {
-            channel.fill(0);
         }
-
+        ;
+// 出于兼容性原因，您必须始终从 process() 返回 true，至少在 Chrome 上如此
         return true;
     }
 }
 
-registerProcessor("white-noise-processor", WhiteNoiseProcessor);
+registerProcessor("my-audio-processor", MyAudioProcessor);

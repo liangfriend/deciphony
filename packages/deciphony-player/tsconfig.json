@@ -15,9 +15,11 @@
     "outDir": "dist",
     // 必须，输出目录
     "rootDir": "src",
+    "allowJs": true,
     // 必须，告诉 TypeScript 从哪里找入口文件
     "strict": true,
     "baseUrl": ".",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,

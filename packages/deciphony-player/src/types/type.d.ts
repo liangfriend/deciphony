@@ -3,7 +3,7 @@ import {ChronaxieEnum, DotEnum} from "deciphony-core/enum";
 
 export type Base64 = string
 
-export type ToneColor = Record<NoteString, Base64>;
+export type ToneColor = Record<Midi, Base64>;
 
 export type ToneDuration = `${ChronaxieEnum}${DotEnum}`
 export type ToneSequence = {

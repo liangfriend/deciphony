@@ -12,8 +12,13 @@ export default defineConfig({
         host: '0.0.0.0', // 可选，允许局域网访问
         open: true, // 可选，启动后自动打开浏览器
     },
+    assetsInclude: ['**/*.glb'],
     resolve: {
-        alias: {}
+        alias: {
+            '@deciphony-player': path.resolve(__dirname, './node_modules/deciphony-player/src/index.ts'),
+            '@deciphony-ui': path.resolve(__dirname, './node_modules/deciphony-ui/src/index.ts'),
+            '@assets': path.resolve(__dirname, './node_modules/deciphony-ui/src/assets')
+        }
     },
 
 });

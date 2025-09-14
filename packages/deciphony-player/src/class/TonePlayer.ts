@@ -26,9 +26,7 @@ class TonePlayer extends Player {
             console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
         }
-        // 后续音色文件应该改为midi为键名的格式
-        const note = noteNameToNoteString(midiToNoteName(midi))
-        if (!this.toneColor[note]) {
+        if (!this.toneColor[midi]) {
             console.error("note不存在于传入的音色中")
             return
         }
@@ -36,7 +34,7 @@ class TonePlayer extends Player {
         // 节点连接
         this.source.connect(this.gainNode).connect(this.panner).connect(this.context.destination);
         // 传入音频数据
-        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[note]));
+        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[midi]));
     }
 
     // 重写play

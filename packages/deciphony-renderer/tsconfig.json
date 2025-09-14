@@ -16,6 +16,7 @@
         "src/*"
       ]
     },
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "allowSyntheticDefaultImports": true,

@@ -4,6 +4,7 @@ declare module 'vue' {
         HlIcon: (typeof import('deciphony-ui'))['HlIcon'];
         HlVideo: (typeof import('deciphony-ui'))['HlVideo'];
         HlProgressBar: (typeof import('deciphony-ui'))['HlProgressBar'];
+        DsModelBox: (typeof import('deciphony-ui'))['DsModelBox'];
     }
 
     // interface ComponentCustomProperties {

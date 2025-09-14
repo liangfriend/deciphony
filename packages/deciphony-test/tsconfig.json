@@ -28,7 +28,11 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "exactOptionalPropertyTypes": true,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "paths": {
+      "@deciphony-player": "deciphony-player/src/index",
+      "@deciphony-player": "deciphony-ui/src/index"
+    }
   },
   "include": [
     "."

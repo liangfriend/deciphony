@@ -1,16 +1,11 @@
 class InstrumentPlayer {
-    private audioContext: AudioContext;
-    private node: AudioWorkletNode | null = null;
+
+    audioContext: AudioContext;
+    audioWorklet: AudioWorkletNode | null
 
     constructor() {
         this.audioContext = new AudioContext();
-        this.init();
-    }
-
-    private async init() {
-        await this.audioContext.audioWorklet.addModule("./WhiteNoiseProcessor.js");
-        this.node = new AudioWorkletNode(this.audioContext, "white-noise-processor");
-        this.node.connect(this.audioContext.destination);
+        this.audioWorklet = null;
     }
 
     /**
@@ -20,27 +15,30 @@ class InstrumentPlayer {
         return 440 * Math.pow(2, (midi - 69) / 12);
     }
 
-    /**
-     * 吹奏类乐器：持续发声
-     */
-    public noteOn(midi: number, volume: number) {
-        if (!this.node) return;
-        const frequency = this.midiToHz(midi);
-        this.node.port.postMessage({type: "noteOn", frequency, volume});
+    async createAudioProcessor() {
+        this.audioContext = new AudioContext();
+        await this.audioContext.audioWorklet.addModule(
+            new URL("./processors/WhiteNoiseProcessor.js", import.meta.url).href
+        );
+        this.audioWorklet = new AudioWorkletNode(this.audioContext, "my-audio-processor");
+        this.audioWorklet.connect(this.audioContext!.destination);
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+        const mic = this.audioContext.createMediaStreamSource(stream);
+        mic.connect(this.audioWorklet);
     }
 
-    public noteOff() {
-        if (!this.node) return;
-        this.node.port.postMessage({type: "noteOff"});
+    play() {
+        if (this.audioContext?.state === "suspended") {
+            this.audioContext.resume();
+        }
     }
 
-    /**
-     * 打击类乐器：触发发声（自动停止）
-     */
-    public playNote(midi: number, volume: number, duration: number) {
-        if (!this.node) return;
-        const frequency = this.midiToHz(midi);
-        this.node.port.postMessage({type: "playNote", frequency, volume, duration});
+    stop() {
+        this.audioContext.suspend();
+    }
+
+    updateParameters(data: Record<string, any>) {
+        this.audioWorklet?.port.postMessage(data);
     }
 }
 

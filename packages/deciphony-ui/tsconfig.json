@@ -9,11 +9,23 @@
     "outDir": "dist",
     "baseUrl": ".",
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "three/examples/jsm/loaders/GLTFLoader": [
+        "./node_modules/@types/three/examples/jsm/loaders/GLTFLoader"
+      ],
+      "three/examples/jsm/controls/OrbitControls": [
+        "./node_modules/@types/three/examples/jsm/loaders/OrbitControls"
+      ]
+    }
   },
-  "include": ["."],
-  "exclude": ["dist","node_modules"],
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
   "references": [
-
   ]
 }

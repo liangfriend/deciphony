@@ -29,7 +29,9 @@
     "dist"
   ],
   "dependencies": {
+    "@types/three": "^0.167.2",
     "sass": "^1.91.0",
+    "three": "^0.180.0",
     "vite-plugin-static-copy": "^3.1.2"
   },
   "peerDependencies": {

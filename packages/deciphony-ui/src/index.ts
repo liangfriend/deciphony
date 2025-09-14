@@ -1,6 +1,6 @@
 import {App} from 'vue';
 import './types/components';
-import components, {HlVideo, HlIcon, HlProgressBar} from './components';
+import components, {HlVideo, HlIcon, HlProgressBar, DsModelBox} from './components';
 
 export default {
     install(app: App) {
@@ -10,4 +10,4 @@ export default {
     }
 };
 
-export {HlVideo, HlIcon, HlProgressBar};
+export {HlVideo, HlIcon, HlProgressBar, DsModelBox};

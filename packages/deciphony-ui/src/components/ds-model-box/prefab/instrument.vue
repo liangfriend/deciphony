@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, PropType, ref} from 'vue'
-import xiaoModel from "@assets/models/xiao.glb"
+import xiaoModel from "@assets/models/xiao.glb?url"
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
 import {instrumentConfig} from './instrumentsConfig'

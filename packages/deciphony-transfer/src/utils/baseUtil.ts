@@ -1,6 +1,6 @@
 import {ToneDuration} from "../types/type";
 import {TimeSignature} from "deciphony-core/types";
-import {ChronaxieEnum} from "deciphony-core/enum";
+import {ChronaxieEnum} from "deciphony-core/musicScoreEnum";
 
 export function base64ToArrayBuffer(base64: string) {
     // 先去掉 dataURL 的头部（如果有的话）

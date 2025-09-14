@@ -41,6 +41,6 @@
   "scripts": {
     "build": "tsc",
     "dev": "node index.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm version patch"
   }
 }

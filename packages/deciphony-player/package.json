@@ -20,8 +20,7 @@
     "prepublishOnly": "npm version patch"
   },
   "dependencies": {
-    "tailwindcss": "^4.1.13",
-    "deciphony-core": "workspace:*"
+    "deciphony-core": "0.0.12"
   },
   "keywords": [],
   "author": "",

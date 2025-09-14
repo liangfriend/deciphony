@@ -1,6 +1,6 @@
 {
   "name": "deciphony-player",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "type": "module",
   "files": [
@@ -17,7 +17,7 @@
     "build": "tsc",
     "dev": "node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm version patch"
   },
   "dependencies": {
     "tailwindcss": "^4.1.13",

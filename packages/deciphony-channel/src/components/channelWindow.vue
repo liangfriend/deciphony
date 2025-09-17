@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import {onMounted, PropType, ref} from "vue";
+
+const props = defineProps({
+  channelData: {
+    type: Array as PropType<number[]>,
+    default: () => []
+  },
+  zoom: {
+    type: Number,
+    default: 200,
+  },
+  // 采样点步长
+  sampleStep: {
+    type: Number,
+    default: 1,
+  },
+  // 振幅高度缩放因子
+  amplitudeScale: {
+    type: Number,
+    default: 1
+  },
+  // 高亮索引列表
+  highlighList: {
+    type: Array as PropType<Array<{ color: string; index: number }>>,
+    default: () => [{index: 20000, color: 'red'}],
+  },
+
+
+})
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+
+
+// 绘制波形 + 播放位置
+function draw() {
+  if (!canvasRef.value) return
+  const ctx = canvasRef.value.getContext("2d")!
+  const height = canvasRef.value.height
+  const widthScale = 1
+  const pxPerSecond = 200 * props.zoom
+  const width = Math.floor(widthScale * pxPerSecond)
+
+  canvasRef.value.width = width
+  ctx.clearRect(0, 0, width, height)
+  const data = props.channelData
+  const step = props.sampleStep > 0
+      ? props.sampleStep
+      : Math.max(1, Math.floor(data.length / width))
+
+  const amp = (height / 2) * props.amplitudeScale
+  ctx.beginPath()
+  ctx.moveTo(0, height / 2)
+  for (let i = 0; i < data.length; i += step) {
+    const x = (i / data.length) * width
+    const y = height / 2 - data[i] * amp
+    ctx.lineTo(x, y)
+  }
+  ctx.strokeStyle = "#333"
+  ctx.stroke()
+
+  // === 绘制高亮线 ===
+  if (props.highlighList && props.highlighList.length > 0) {
+    props.highlighList.forEach(({color, index}) => {
+      if (index >= 0 && index < data.length) {
+        const x = (index / data.length) * width;
+
+        // 竖线
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height - 20);
+        ctx.strokeStyle = color || "red";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // === 底部文字标识 ===
+        ctx.fillStyle = color || "red";
+        ctx.font = "12px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(data[index].toFixed(4), x, height - 2); // 距离底部留 2px
+      }
+    });
+  }
+}
+
+defineExpose({draw})
+onMounted(() => {
+  // if (canvasRef.value) {
+  //   canvasRef.value.height = 200
+  // }
+})
+</script>
+
+<template>
+  <canvas ref="canvasRef" class="h-full"></canvas>
+</template>
+
+<style scoped>
+
+</style>

@@ -5,18 +5,14 @@ import {ChronaxieEnum} from "deciphony-core/enum";
 import {toneDurationToTimestamp} from "../utils/baseUtil";
 
 class ToneSequencePlayer extends TonePlayer {
-    sequence: ToneSequence[]
-    bpm: number
-    timeSignature: TimeSignature
+    sequence: ToneSequence[] = []
+    timeSignature: TimeSignature = {
+        beat: 4,
+        chronaxie: ChronaxieEnum.quarter
+    }
 
-    constructor() {
-        super();
-        this.bpm = 120
-        this.sequence = []
-        this.timeSignature = {
-            beat: 4,
-            chronaxie: ChronaxieEnum.quarter
-        }
+    constructor({context}: { context: AudioContext }) {
+        super({context})
     }
 
     async playSequence(sequence: ToneSequence[]) {

@@ -1,12 +1,11 @@
 class Player {
     context: AudioContext; // 音频上下文
     gainNode: GainNode; // 增益节点
-    source: AudioBufferSourceNode | null; // 音频源
-    panner: StereoPannerNode;
-    state: 'stopped' | 'playing' | 'paused';
-    audioBuffer: AudioBuffer | null;
-    private _pauseTime: number;
-    private _startTime: number;
+    source: AudioBufferSourceNode | null = null; // 音频源
+    state: 'stopped' | 'playing' | 'paused' = 'stopped';
+    audioBuffer: AudioBuffer | null = null;
+    private _pauseTime: number = 0; // 相对音频时长的播放暂停时间
+    private _startTime: number = 0; // 相对context.currentTime的播放开始时间，用于计算pauseTime
     get startTime() {
         return this._startTime
     }
@@ -28,19 +27,9 @@ class Player {
     }
 
 
-    constructor() {
-        this._pauseTime = 0;
-        this._startTime = 0;
-        this.state = 'stopped';
-        this.source = null
-        this.audioBuffer = null;
-        this.context = new AudioContext({
-            latencyHint: 'interactive', // 或 'playback', 'balanced'
-            sampleRate: 44100           // 也可以指定采样率（默认一般是 44100Hz）
-        });
+    constructor({context}: { context: AudioContext }) {
+        this.context = context
         this.gainNode = this.context.createGain();
-        const pannerOptions = {pan: 0};
-        this.panner = new StereoPannerNode(this.context, pannerOptions);
     }
 
     // 音量调节

@@ -1,11 +1,11 @@
-class InstrumentPlayer {
+import Player from "./Player";
 
-    audioContext: AudioContext;
-    audioWorklet: AudioWorkletNode | null
+class InstrumentPlayer extends Player {
 
-    constructor() {
-        this.audioContext = new AudioContext();
-        this.audioWorklet = null;
+    audioWorklet: AudioWorkletNode | null = null
+
+    constructor({context}: { context: AudioContext }) {
+        super({context})
     }
 
     /**
@@ -16,25 +16,25 @@ class InstrumentPlayer {
     }
 
     async createAudioProcessor() {
-        this.audioContext = new AudioContext();
-        await this.audioContext.audioWorklet.addModule(
-            new URL("./processors/WhiteNoiseProcessor.js", import.meta.url).href
+        this.context = new AudioContext();
+        await this.context.audioWorklet.addModule(
+            new URL("./processors/XiaoProcessor.js", import.meta.url).href
         );
-        this.audioWorklet = new AudioWorkletNode(this.audioContext, "my-audio-processor");
-        this.audioWorklet.connect(this.audioContext!.destination);
+        this.audioWorklet = new AudioWorkletNode(this.context, "xiao-processor");
+        this.audioWorklet.connect(this.context!.destination);
         const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-        const mic = this.audioContext.createMediaStreamSource(stream);
+        const mic = this.context.createMediaStreamSource(stream);
         mic.connect(this.audioWorklet);
     }
 
     play() {
-        if (this.audioContext?.state === "suspended") {
-            this.audioContext.resume();
+        if (this.context?.state === "suspended") {
+            this.context.resume();
         }
     }
 
     stop() {
-        this.audioContext.suspend();
+        this.context.suspend();
     }
 
     updateParameters(data: Record<string, any>) {

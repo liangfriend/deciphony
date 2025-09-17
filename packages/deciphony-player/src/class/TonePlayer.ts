@@ -7,15 +7,12 @@ import {noteNameToNoteString} from "deciphony-core/utils/musicScoreDataUtil";
 import noteNameToMidi from "deciphony-core/utils/core/noteNameToMidi";
 
 class TonePlayer extends Player {
-    toneColor: ToneColor;
-    bpm: number;
+    toneColor: ToneColor = {};
+    bpm: number = 120;
 
-    constructor() {
-        super();
-        this.bpm = 120
-        this.toneColor = {};
+    constructor({context}: { context: AudioContext }) {
+        super({context})
     }
-
 
     addToneColor(toneColor: ToneColor) {
         this.toneColor = toneColor;
@@ -32,7 +29,7 @@ class TonePlayer extends Player {
         }
         this.source = this.context.createBufferSource();
         // 节点连接
-        this.source.connect(this.gainNode).connect(this.panner).connect(this.context.destination);
+        this.source.connect(this.gainNode).connect(this.context.destination);
         // 传入音频数据
         this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[midi]));
     }

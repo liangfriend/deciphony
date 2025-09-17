@@ -5,17 +5,19 @@ class AudioPlayer extends Player {
     private _onProgress: ((current: number, duration: number) => void) | null = null;
     private _onEnd: (() => void) | null = null;
     private _progressRaf: number | null = null;
-    private _current: number;
+    private _current: number = 0; // 相对音频时长的当前播放时长
 
-    constructor() {
-        super()
-        this._current = 0
+
+    constructor({context}: { context: AudioContext }) {
+        super({context})
     }
 
+    // 播放过程进度回调 current 当前播放时长 duration 音频总时长
     set onProgress(cb: (current: number, duration: number) => void) {
         this._onProgress = cb;
     }
 
+    // 播放结束回调
     set onEnd(cb: () => void) {
         this._onEnd = cb;
     }
@@ -51,17 +53,40 @@ class AudioPlayer extends Player {
         const newTime = Math.max(0, Math.min(value, duration));
 
         this._current = newTime;
-        this.pauseTime = newTime;   // ✅ 同步修改 pauseTime
+        this.pauseTime = newTime;   // 同步修改 pauseTime
         this.startTime = this.context.currentTime; // 防止下一次计算差值出错
-
         // 如果需要立即刷新进度 UI
         if (this._onProgress) {
             this._onProgress(this._current, duration);
         }
     }
 
+    // 获取音频通道数据
     getChannelData(channel: number = 1) {
         return this.audioBuffer?.getChannelData(channel)
+    }
+
+    // 获取采样率
+    getSampleRate() {
+        return this.audioBuffer?.sampleRate || 0
+    }
+
+    // 音频总时长（秒）
+    getDuration(): number {
+        return this.audioBuffer?.duration || 0
+    }
+
+    // 获取指定时间点的采样索引
+    getSampleIndexAtTime(time: number): number {
+        if (!this.audioBuffer) return 0
+        // time 秒 → 采样点索引
+        return Math.floor(time * this.audioBuffer.sampleRate)
+    }
+
+    // 获取指定采样点对应的时间（秒）
+    getTimeAtSampleIndex(index: number): number {
+        if (!this.audioBuffer) return 0
+        return index / this.audioBuffer.sampleRate
     }
 
     private _setSource() {
@@ -71,7 +96,7 @@ class AudioPlayer extends Player {
         }
         this.source = this.context.createBufferSource();
         // 节点连接
-        this.source.connect(this.gainNode).connect(this.panner).connect(this.context.destination);
+        this.source.connect(this.gainNode).connect(this.context.destination);
         // 传入音频数据
         this.source.buffer = this.audioBuffer;
     }
@@ -113,7 +138,7 @@ class AudioPlayer extends Player {
         this.startTime = this.context.currentTime;
 
         // 从 pauseTime 的位置继续
-        this.source.start(0, this.pauseTime);
+        this.source.start(this.context.currentTime, this.pauseTime);
 
         this.state = 'playing';
 
@@ -126,11 +151,11 @@ class AudioPlayer extends Player {
             }
         };
 
-        if (this._onProgress && this.audioBuffer) {
+        if (this.audioBuffer) {
             const tick = () => {
                 if (this.state !== 'playing') return;
-                this._current = this.pauseTime + (this.context.currentTime - this.startTime);
-                this._onProgress!(this._current, this.audioBuffer!.duration);
+                this._current = (this.context.currentTime - this.startTime);
+                this._onProgress && this._onProgress!(this._current, this.audioBuffer!.duration);
                 this._progressRaf = requestAnimationFrame(tick);
             };
             this._progressRaf = requestAnimationFrame(tick);
@@ -139,6 +164,11 @@ class AudioPlayer extends Player {
 
     pause() {
         if (this.state !== 'playing' || !this.source) return;
+        if (this._progressRaf) {
+            cancelAnimationFrame(this._progressRaf);
+            this._progressRaf = null;
+        }
+        // 这里有可能要等一帧
 
         // 停止当前播放
         this.source.stop();
@@ -146,14 +176,10 @@ class AudioPlayer extends Player {
 
         // 计算已播放时长
         this.pauseTime += this.context.currentTime - this.startTime;
-        // 防止pauseTime更新后，导致_onProgress传回current出错
-        this.startTime = this.context.currentTime;
+
         this.state = 'paused';
 
-        if (this._progressRaf) {
-            cancelAnimationFrame(this._progressRaf);
-            this._progressRaf = null;
-        }
+
     }
 
     stop() {

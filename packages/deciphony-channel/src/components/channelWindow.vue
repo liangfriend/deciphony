@@ -25,9 +25,12 @@ const props = defineProps({
     type: Array as PropType<Array<{ color: string; index: number }>>,
     default: () => [{index: 20000, color: 'red'}],
   },
-
-
 })
+// === 向外发事件 ===
+const emit = defineEmits<{
+    (e: "pointClick", payload: { index: number; value: number }): void;
+}>();
+
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 
@@ -82,7 +85,20 @@ function draw() {
     });
   }
 }
+// === 点击事件处理 ===
+function handleClick(e: MouseEvent) {
+    if (!canvasRef.value) return;
 
+    const rect = canvasRef.value.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    // 根据点击位置 x 反算采样点索引
+    const data = props.channelData;
+    const width = rect.width;
+    const index = Math.round((x / width) * data.length)
+    if (index >= 0 && index < data.length) {
+        emit("pointClick", { index, value: data[index] });
+    }
+}
 // TODO 暴露点击事件，返回当前选中点索引和值
 defineExpose({draw})
 onMounted(() => {
@@ -93,7 +109,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvasRef" class="h-full"></canvas>
+  <canvas @click="handleClick" ref="canvasRef" class="h-full"></canvas>
 </template>
 
 <style scoped>

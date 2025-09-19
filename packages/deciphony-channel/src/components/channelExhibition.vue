@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick, computed, watchEffect} from "vue"
-import {PlayerManager, Player} from "deciphony-player";
+import {PlayerManager, } from "@deciphony-player";
 import ChannelWindow from "./channelWindow.vue";
 import {ChannlWindowRef} from "@core/types";
 
@@ -112,6 +112,10 @@ function switchChannel(channelNumber: number) {
 const numberOfChannels = computed(() => {
   return player.value?.numberOfChannels || []
 })
+
+function pointClick(payload){
+    console.log('chicken',payload)
+}
 onMounted(() => {
   playerManager.value = new PlayerManager()
   player.value = playerManager.value.addPlayer('audio', 'audio')
@@ -123,8 +127,11 @@ defineExpose({addAudioBuffer})
 </script>
 
 <template>
+
   <div class="p-4 space-y-4">
+      <div class="text-2xl">音频波形展示</div>
     <input type="file" accept="audio/*" @change="onFileChange"/>
+      <span v-if="player">采样率：{{player.sampleRate}}</span>
     <button v-for="(item,index) in numberOfChannels" @click="switchChannel(index)">声道{{ index + 1 }}</button>
     <div
         class="border rounded h-52 w-full overflow-auto hide-scrollbar"
@@ -135,19 +142,12 @@ defineExpose({addAudioBuffer})
           :sampleStep="sampleStep"
           :amplitude-scale="amplitudeScale"
           :highlight-list="highlightList"
+          @pointClick="pointClick"
           ref="channelWindowRef"></channel-window>
     </div>
 
     <div class="flex items-center space-x-4 ">
-      <button @click="play">
-        播放
-      </button>
-      <button @click="pause">
-        暂停
-      </button>
-      <button @click="stop">
-        停止
-      </button>
+
 
       <label>缩放：</label>
       <input type="range" min="0.5" max="100" step="0.1"
@@ -166,6 +166,15 @@ defineExpose({addAudioBuffer})
 
     <!-- 播放进度条 -->
     <div v-if="player">
+        <button @click="play">
+            播放
+        </button>
+        <button @click="pause">
+            暂停
+        </button>
+        <button @click="stop">
+            停止
+        </button>
       <label>进度：</label>
       <input type="range"
              :min="0"
@@ -184,6 +193,10 @@ canvas {
 
 }
 
+.region {
+    background: cadetblue;
+    margin-bottom: 6px;
+}
 button {
   border-radius: 6px;
   padding: 2px 6px;

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-
+import ChannelEditorMicro from "./channelEditorMicro.vue";
+import ChannelEditorMacro from "./channelEditorMacro.vue";
 import ChannelExhibition from "./channelExhibition.vue";
-import ChannelEditor from "./channelEditor.vue";
 import {Ref, ref} from "vue";
+import FloatingWindow from "./floatingWindow.vue";
+
 
 
 const channelEditorRef = ref<Ref>(null!)
@@ -36,16 +38,26 @@ function showAudio() {
 
 }
 
+// 浮窗
+const show=ref(true)
 </script>
 
 <template>
-  <div class="group">
-    <channel-exhibition ref="channelExhibitionRef"/>
-  </div>
-  <div class="group">
-    <channel-editor ref="channelEditorRef"></channel-editor>
-  </div>
-  <button @click="showAudio">生成音频并展示</button>
+
+    <button @click="showAudio">生成音频并展示</button>
+    <div class="group">
+        <channel-exhibition ref="channelExhibitionRef"/>
+    </div>
+    <div class="group">
+        <channel-editor-micro ref="channelEditorRef"></channel-editor-micro>
+    </div>
+    <div class="group">
+        <channel-editor-macro ref="channelEditorRef"></channel-editor-macro>
+    </div>
+    <floating-window v-model="show">
+        缓存波形列表：
+        缓存音频列表：
+    </floating-window>
 </template>
 
 <style scoped>

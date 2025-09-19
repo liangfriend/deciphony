@@ -57,7 +57,7 @@ class AudioPlayer extends Player {
 
     // 采样率
     get sampleRate() {
-        return this.audioBuffer?.numberOfChannels || 0
+        return this.audioBuffer?.sampleRate || 0
     }
 
 

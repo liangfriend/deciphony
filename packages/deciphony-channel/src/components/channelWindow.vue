@@ -21,7 +21,7 @@ const props = defineProps({
     default: 1
   },
   // 高亮索引列表
-  highlighList: {
+  highlightList: {
     type: Array as PropType<Array<{ color: string; index: number }>>,
     default: () => [{index: 20000, color: 'red'}],
   },
@@ -59,8 +59,8 @@ function draw() {
   ctx.stroke()
 
   // === 绘制高亮线 ===
-  if (props.highlighList && props.highlighList.length > 0) {
-    props.highlighList.forEach(({color, index}) => {
+  if (props.highlightList && props.highlightList.length > 0) {
+    props.highlightList.forEach(({color, index}) => {
       if (index >= 0 && index < data.length) {
         const x = (index / data.length) * width;
 
@@ -83,6 +83,7 @@ function draw() {
   }
 }
 
+// TODO 暴露点击事件，返回当前选中点索引和值
 defineExpose({draw})
 onMounted(() => {
   // if (canvasRef.value) {

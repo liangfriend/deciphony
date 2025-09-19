@@ -26,6 +26,21 @@ class AudioPlayer extends Player {
         return this._current
     }
 
+    set current(value: number) {
+        if (!this.audioBuffer) return;
+
+        // 限制范围，不能小于0或大于总时长
+        const duration = this.audioBuffer.duration;
+        const newTime = Math.max(0, Math.min(value, duration));
+
+        this._current = newTime;
+        // this.pauseTime = newTime;   // 同步修改 pauseTime
+        // 如果需要立即刷新进度 UI
+        if (this._onProgress) {
+            this._onProgress(this._current, duration);
+        }
+    }
+
     get duration() {
         return this.audioBuffer?.duration || 0
     }
@@ -45,24 +60,9 @@ class AudioPlayer extends Player {
         return this.audioBuffer?.numberOfChannels || 0
     }
 
-    set current(value: number) {
-        if (!this.audioBuffer) return;
-
-        // 限制范围，不能小于0或大于总时长
-        const duration = this.audioBuffer.duration;
-        const newTime = Math.max(0, Math.min(value, duration));
-
-        this._current = newTime;
-        this.pauseTime = newTime;   // 同步修改 pauseTime
-        this.startTime = this.context.currentTime; // 防止下一次计算差值出错
-        // 如果需要立即刷新进度 UI
-        if (this._onProgress) {
-            this._onProgress(this._current, duration);
-        }
-    }
 
     // 获取音频通道数据
-    getChannelData(channel: number = 1) {
+    getChannelData(channel: number = 0) {
         return this.audioBuffer?.getChannelData(channel)
     }
 
@@ -154,8 +154,8 @@ class AudioPlayer extends Player {
         if (this.audioBuffer) {
             const tick = () => {
                 if (this.state !== 'playing') return;
-                this._current = (this.context.currentTime - this.startTime);
-                this._onProgress && this._onProgress!(this._current, this.audioBuffer!.duration);
+                this.current = (this.context.currentTime - this.startTime + this.pauseTime);
+                this._onProgress && this._onProgress!(this.current, this.audioBuffer!.duration);
                 this._progressRaf = requestAnimationFrame(tick);
             };
             this._progressRaf = requestAnimationFrame(tick);

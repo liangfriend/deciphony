@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, onMounted, nextTick, computed} from "vue"
+import {ref, onMounted, nextTick, computed, watchEffect} from "vue"
 import {PlayerManager, Player} from "deciphony-player";
 import ChannelWindow from "./channelWindow.vue";
 import {ChannlWindowRef} from "@core/types";
@@ -20,7 +20,6 @@ async function onFileChange(e: Event) {
 
   // 播放器同步引入source
   await player.value.addAudio(arrayBuffer)
-  player.value.current = 0
   channelData.value = player.value.getChannelData()
   await nextTick()
   channelWindowRef.value.draw()
@@ -29,7 +28,7 @@ async function onFileChange(e: Event) {
 
 async function addAudioBuffer(audioBuffer: AudioBuffer) {
   await player.value.addAudio(audioBuffer)
-  player.value.current = 0
+  channelData.value = player.value.getChannelData()
   await nextTick()
   channelWindowRef.value.draw()
 }
@@ -60,8 +59,10 @@ function updateProgress() {
   if (player.value.current > player.value.duration) {
     player.value.current = player.value.duration
   }
-  channelWindowRef.value.draw()
+
 }
+
+const highlightList = ref([{color: 'red', index: 0, name: 'progress'}])
 
 // 拖动进度条
 function onProgressChange(e: Event) {
@@ -69,6 +70,18 @@ function onProgressChange(e: Event) {
   channelWindowRef.value.draw()
 
 }
+
+watchEffect(() => {
+  const progressLine = highlightList.value.find(e => e.name === 'progress')
+
+  if (progressLine && player.value) {
+
+    progressLine.index
+        = Math.round(player.value.current / player.value.duration * player.value.getChannelData(0)?.length)
+    channelWindowRef.value.draw()
+  }
+
+})
 
 // slider 控制项
 function onZoomChange(e: Event) {
@@ -121,6 +134,7 @@ defineExpose({addAudioBuffer})
           :channel-data="channelData"
           :sampleStep="sampleStep"
           :amplitude-scale="amplitudeScale"
+          :highlight-list="highlightList"
           ref="channelWindowRef"></channel-window>
     </div>
 

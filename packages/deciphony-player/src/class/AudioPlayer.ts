@@ -34,7 +34,8 @@ class AudioPlayer extends Player {
         const newTime = Math.max(0, Math.min(value, duration));
 
         this._current = newTime;
-        // this.pauseTime = newTime;   // 同步修改 pauseTime
+        this.startTime =
+            this.pauseTime = newTime;   // 同步修改 pauseTime
         // 如果需要立即刷新进度 UI
         if (this._onProgress) {
             this._onProgress(this._current, duration);
@@ -62,7 +63,7 @@ class AudioPlayer extends Player {
 
 
     // 获取音频通道数据
-    getChannelData(channel: number = 0) {
+    getChannelData(channel: number = 0): Float32Array<ArrayBuffer> | undefined {
         return this.audioBuffer?.getChannelData(channel)
     }
 
@@ -154,7 +155,7 @@ class AudioPlayer extends Player {
         if (this.audioBuffer) {
             const tick = () => {
                 if (this.state !== 'playing') return;
-                this.current = (this.context.currentTime - this.startTime + this.pauseTime);
+                this._current = (this.context.currentTime - this.startTime + this.pauseTime);
                 this._onProgress && this._onProgress!(this.current, this.audioBuffer!.duration);
                 this._progressRaf = requestAnimationFrame(tick);
             };

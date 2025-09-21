@@ -6,25 +6,22 @@ import {Ref, ref} from "vue";
 import FloatingWindow from "./floatingWindow.vue";
 
 
-
 const channelEditorRef = ref<Ref>(null!)
 const channelExhibitionRef = ref<Ref>(null!)
 
-function audioBufferGenerate() {
-  const {channel, sampleRate} = channelEditorRef.value.getCacheChannelData()
-
+function audioBufferGenerate(item) {
   // 创建 AudioContext
-  const audioContext = new AudioContext({sampleRate})
+  const audioContext = new AudioContext({sampleRate: item.sampleRate})
 
   // 创建一个单声道的 AudioBuffer
   const audioBuffer = audioContext.createBuffer(
       1,               // 声道数（单声道用 1）
-      channel.length,  // 每个声道的采样点数
-      sampleRate       // 采样率
+      item.channel.length,  // 每个声道的采样点数
+      item.sampleRate       // 采样率
   )
 
   // 把数据复制到 buffer
-  audioBuffer.copyToChannel(new Float32Array(channel), 0, 0)
+  audioBuffer.copyToChannel(new Float32Array(item.channel), 0, 0)
 
   // 播放（可选）
   const source = audioContext.createBufferSource()
@@ -32,32 +29,59 @@ function audioBufferGenerate() {
   return audioBuffer
 }
 
-function showAudio() {
-  const audioBuffer = audioBufferGenerate()
+function addToAudioShow(item) {
+  const cloneData = JSON.parse(JSON.stringify(item));
+  const audioBuffer = audioBufferGenerate(cloneData)
   channelExhibitionRef.value.addAudioBuffer(audioBuffer)
 
 }
 
+function addToMicroEditor(item) {
+  channelEditorRef.value.setChannel(item)
+}
+
+// function addToMacroEditor(item) {
+//
+// }
+
 // 浮窗
-const show=ref(true)
+const show = ref(true)
+
+// 缓存波形列表
+const cacheChannelDataList = ref<{ channel: Array<number>, sampleRate: number, name: string }[]>([])
+
+function cacheChannelData(channelData: { channel: Array<number>, sampleRate: number, name: string }) {
+  cacheChannelDataList.value.push(channelData)
+}
 </script>
 
 <template>
 
-    <button @click="showAudio">生成音频并展示</button>
-    <div class="group">
-        <channel-exhibition ref="channelExhibitionRef"/>
+  <div class="group">
+    <channel-exhibition @cache-channel="cacheChannelData" ref="channelExhibitionRef"/>
+  </div>
+  <div class="group">
+    <channel-editor-micro @cache-channel="cacheChannelData" ref="channelEditorRef"></channel-editor-micro>
+  </div>
+  <div class="group">
+    <!--    <channel-editor-macro ref="channelEditorRef"></channel-editor-macro>-->
+  </div>
+  <floating-window :initial-x="900" :initial-y="0" v-model="show">
+    <div>
+
     </div>
-    <div class="group">
-        <channel-editor-micro ref="channelEditorRef"></channel-editor-micro>
+    缓存波形列表：
+    <div class="max-h-60 w-96">
+      <div class=" flex justify-between bg-amber-200 mb-2" v-for="(item,index) in cacheChannelDataList">
+        <div>{{ item.name }}</div>
+        <div>
+          <button @click="addToAudioShow(item)">音频预览</button>
+          <button @click="addToMicroEditor(item)">波形编辑</button>
+          <!--          <button @click="addToMacroEditor(item)">谐波编辑</button>-->
+        </div>
+      </div>
     </div>
-    <div class="group">
-        <channel-editor-macro ref="channelEditorRef"></channel-editor-macro>
-    </div>
-    <floating-window v-model="show">
-        缓存波形列表：
-        缓存音频列表：
-    </floating-window>
+  </floating-window>
 </template>
 
 <style scoped>
@@ -71,5 +95,10 @@ button {
   border-radius: 6px;
   padding: 2px 6px;
   border: 1px solid black;
+}
+</style>
+<style>
+* {
+  user-select: none;
 }
 </style>

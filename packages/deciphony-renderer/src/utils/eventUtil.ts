@@ -25,20 +25,20 @@ import {
 } from "../../../deciphony-core/src/types";
 
 import {Ref} from 'vue';
-import {msSymbolContainerTemplate, msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
+import {msSymbolContainerTemplate, msSymbolTemplate} from "deciphony-core";
 import {
     getBeamGroup,
     getDataWithIndex,
     getSingleStaffRelatedSpanSymbolList, indexToStaffRegion, staffRegionToIndex,
     updateSpanSymbolView
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
     addMsSymbol,
     addMsSymbolContainer,
     changeNoteStemDirection,
     changeNoteTailDirection,
     updateBeamGroupNote
-} from "deciphony-core/utils/changeStructureUtil";
+} from "deciphony-core";
 import {MsState} from "../types";
 
 

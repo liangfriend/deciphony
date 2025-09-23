@@ -3,7 +3,7 @@ import {computed, CSSProperties, PropType} from "vue";
 import {
   getBeamGroup,
   getDataWithIndex, staffRegionToIndex,
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   BeamGroup,
   type Measure,

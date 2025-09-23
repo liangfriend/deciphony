@@ -1,7 +1,7 @@
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum, MusicScoreShowModeEnum
-} from "../../../deciphony-core/src/musicScoreEnum";
+} from "../../../deciphony-core";
 
 import {
     Measure,
@@ -21,7 +21,7 @@ import {
     getDataWithIndex,
     getMainMsSymbol,
 
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
 import {getHeightMultiplier, getMsSymbolAspectRatio} from "./geometryUtil";
 

@@ -33,7 +33,7 @@ import {
 import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 import {MsState} from "../types";
 import {virtualSymbolMouseDown} from "../utils/eventUtil";
-import {indexToStaffRegion} from "deciphony-core/utils/musicScoreDataUtil";
+import {indexToStaffRegion} from "deciphony-core";
 
 const props = defineProps({
   ind: {},

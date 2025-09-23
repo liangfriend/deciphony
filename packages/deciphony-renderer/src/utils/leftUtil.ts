@@ -11,7 +11,7 @@ import {
     getBeamGroup,
     getDataWithIndex,
     getMainMsSymbol
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
     getMeasureWidth,
     getMsSymbolContainerWidth,

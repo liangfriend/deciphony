@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import MusicScoreVue, {type MusicScoreRef} from "deciphony-renderer/musicScore.vue";
+import editor from './editor/index.vue'
 import {onBeforeMount, onMounted, ref} from "vue";
-import type {MusicScore} from "deciphony-core/types";
-import {musicScoreTemplate} from "deciphony-core/utils/objectTemplateUtil";
+import type {MusicScore} from "deciphony-core";
+import {musicScoreTemplate} from "deciphony-core";
+import {MusicScoreRef} from "deciphony-renderer";
 
 
 const musicScore = ref<MusicScore>(null!)
@@ -21,7 +22,7 @@ function switchShowMode() {
 
 <template>
   <button @click="switchShowMode">简线切换</button>
-  <music-score-vue :music-score="musicScore" ref="musicScoreRef"></music-score-vue>
+  <!--  <editor/>-->
 </template>
 
 <style scoped>

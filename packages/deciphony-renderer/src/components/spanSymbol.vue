@@ -13,7 +13,7 @@ import {
   getDataWithIndex,
   getTarget,
   traverseMeasure
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   getContainerLeftToMeasure,
   getMeasureLeftToMusicScore, getSlotLeftToMeasure

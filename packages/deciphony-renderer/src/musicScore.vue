@@ -119,7 +119,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measureVue from "@render/components/measure.vue";
+import measureVue from "@/components/measure.vue";
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -140,7 +140,7 @@ import SpanSymbolVue from "./components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   ChronaxieEnum,
   MsMode,
@@ -161,9 +161,9 @@ import {
 } from "./utils/eventUtil";
 import VirtualSymbolContainer
   from "./components/virtualSymbolContainer.vue";
-import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
+import {msSymbolTemplate} from "deciphony-core";
 import {MusicScoreRef, ReserveMsSymbolMapType} from "./types";
-import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core/utils/showModeUtil";
+import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core";
 
 
 const props = defineProps({

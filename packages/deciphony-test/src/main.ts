@@ -1,7 +1,7 @@
 // main.ts
 import {createApp} from 'vue'
 import App from './App.vue'
-import haloUI from '@deciphony-ui'
+import haloUI from 'deciphony-ui'
 
 // 捕获全局同步错误
 // window.addEventListener('error', (event) => {

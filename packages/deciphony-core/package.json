@@ -7,13 +7,9 @@
     "dist"
   ],
   "exports": {
-    "./types": {
-      "types": "./dist/types.d.ts",
-      "default": "./dist/types.js"
-    },
-    "./enum": {
-      "types": "./dist/musicScoreEnum.d.ts",
-      "default": "./dist/musicScoreEnum.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./utils/*": {
       "types": "./dist/utils/*.d.ts",
@@ -28,10 +24,6 @@
       "module": "./dist/utils/core/*.js",
       "import": "./dist/utils/core/*.js",
       "require": "./dist/utils/core/*.js"
-    },
-    "./utils/musicScoreDataUtil": {
-      "types": "./dist/utils/musicScoreDataUtil.d.ts",
-      "default": "./dist/utils/musicScoreDataUtil.js"
     }
   },
   "dependencies": {},

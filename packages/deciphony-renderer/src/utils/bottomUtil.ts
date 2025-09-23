@@ -1,5 +1,5 @@
 // 五线谱区域转换bottom
-import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "deciphony-core";
 import {
     Measure,
     MsSymbol,
@@ -8,9 +8,9 @@ import {
     NoteStem,
     SingleStaff,
     StaffRegion
-} from "../../../deciphony-core/src/types";
+} from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
-import {getDataWithIndex, staffRegionToIndex, traverseMusicScore} from "deciphony-core/utils/musicScoreDataUtil";
+import {getDataWithIndex, staffRegionToIndex, traverseMusicScore} from "deciphony-core";
 
 export function staffRegionToBottom(region: StaffRegion, measureHeight: number): number {
     return measureHeight * ((staffRegionToIndex(region) - 1) * 2) / 16

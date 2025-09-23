@@ -15,9 +15,14 @@ export default defineConfig({
     assetsInclude: ['**/*.glb'],
     resolve: {
         alias: {
-            '@deciphony-player': path.resolve(__dirname, './node_modules/deciphony-player/src/index.ts'),
-            '@deciphony-ui': path.resolve(__dirname, './node_modules/deciphony-ui/src/index.ts'),
-            '@assets': path.resolve(__dirname, './node_modules/deciphony-ui/src/assets')
+            'deciphony-renderer': path.resolve(__dirname, './node_modules/deciphony-renderer/src/index.ts'),
+            'deciphony-player': path.resolve(__dirname, './node_modules/deciphony-player/src/index.ts'),
+            'deciphony-ui': path.resolve(__dirname, './node_modules/deciphony-ui/src/index.ts'),
+            'deciphony-core': path.resolve(__dirname, './node_modules/deciphony-core/src/index.ts'),
+            'deciphony-core/utils/*': path.resolve(__dirname, './node_modules/deciphony-core/src/utils/*'),
+            '@assets': path.resolve(__dirname, './node_modules/deciphony-ui/src/assets'),
+            '@': path.resolve(__dirname, './node_modules/deciphony-renderer/src'),
+
         }
     },
 

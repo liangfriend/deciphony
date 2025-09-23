@@ -8,7 +8,7 @@ import {getSlotBottomToMeasure} from "../utils/bottomUtil";
 import {
     getBeamGroup,
     getDataWithIndex, staffRegionToIndex
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 
 export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore, showMode: MusicScoreShowModeEnum): number {
     const information = MsSymbolInformationMap[msSymbol?.type]

@@ -9,6 +9,7 @@ import WebAudioTest from "./views/webAudioTest.vue";
 </script>
 
 <template>
+  
   <!--    <ui-test></ui-test>-->
   <render-test></render-test>
   <!--  <player-test></player-test>-->

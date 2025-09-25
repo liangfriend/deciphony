@@ -64,10 +64,7 @@ const props = defineProps({
     type: Number,
     default: 800,
   },
-  showMode: {
-    type: MusicScoreShowModeEnum,
-    required: true
-  }
+
 });
 
 
@@ -94,7 +91,7 @@ const singleStaffStyle = computed(() => (singleStaff: SingleStaff, _multipleStav
   };
 });
 const measureWidth = computed(() => (measure: Measure, singleStaff: SingleStaff, _multipleStaves: MultipleStaves) => {
-  return getMeasureWidth(measure, singleStaff, props.musicScore, props.width, props.showMode)
+  return getMeasureWidth(measure, singleStaff, props.musicScore, props.width)
 });
 const measureSlotStyle = computed(() => (measure: Measure, singleStaff: SingleStaff, multipleStaves: MultipleStaves): CSSProperties => {
   let style: CSSProperties = {};

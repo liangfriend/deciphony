@@ -26,6 +26,7 @@ import {noteNameToSolmization} from "./core/noteNameToSolmization";
 export function noteNameToNoteString(noteName: NoteName): NoteString {
     return `${noteName.letter}${noteName.accidental}${noteName.octave}`
 }
+
 // 是否有符尾（flag）
 export function hasNoteTail(chronaxie: ChronaxieEnum): boolean {
     // 八分音符及更短时值才有符尾
@@ -509,6 +510,7 @@ export function staffRegionToIndex(pos: StaffRegion): number {
     if (pos.region === StaffRegionEnum.Upper) {
         return 8 + (pos.index * 2) + (pos.type === StaffPositionTypeEnum.Space ? 1 : 0);
     }
+    console.log(pos)
 
     throw new Error("Invalid StaffRegion");
 }

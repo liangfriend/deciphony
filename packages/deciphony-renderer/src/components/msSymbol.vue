@@ -75,11 +75,11 @@ const props = defineProps({
     required: true,
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer> | undefined,
     required: true
   },
   nextContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer | undefined>,
     required: true
   },
   measure: {
@@ -135,16 +135,13 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  showMode: {
-    type: MusicScoreShowModeEnum,
-    required: true
-  }
+
 })
 
 const svgHref = computed(() => {
   switch (props.msSymbol?.type) {
     case MsSymbolTypeEnum.NoteHead: {
-      switch (props.showMode) {
+      switch (props.musicScore.showMode) {
         case MusicScoreShowModeEnum.standardStaff: {
           switch (props.msSymbol?.chronaxie) {
             case ChronaxieEnum.whole: {
@@ -305,26 +302,26 @@ const svgHref = computed(() => {
 const msSymbolRef = ref(null!)
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.msSymbol, props.showMode)
+  return getMsSymbolAspectRatio(props.msSymbol, props.musicScore.showMode)
 })
 
 
 const height = computed(() => {
   // const parentMsSymbol = getDataWithIndex(props.msSymbol).msSymbol
-  return getMsSymbolHeight(props.msSymbol, props.musicScore, props.showMode)
+  return getMsSymbolHeight(props.msSymbol, props.musicScore)
 })
 // 符号宽度
 const width = computed(() => {
 
   return getMsSymbolWidth(props.msSymbol, props.msSymbolContainer, props.measure,
-      props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
+      props.singleStaff, props.musicScore, props.componentWidth,)
 })
 const msSymbolLeft = computed(() => {
-  return getMsSymbolLeftToSlot(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth, props.showMode)
+  return getMsSymbolLeftToSlot(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth)
 })
 
 const msSymbolBottom = computed(() => {
-  return getMsSymbolBottomToSlot(props.msSymbol, props.musicScore, props.showMode)
+  return getMsSymbolBottomToSlot(props.msSymbol, props.musicScore)
 
 })
 const msSymbolStyle = computed<CSSProperties>(() => {
@@ -373,7 +370,7 @@ defineExpose({aspectRatio})
 <template>
   <clef
       v-if="msSymbol?.type === MsSymbolTypeEnum.Clef || msSymbol?.type === MsSymbolTypeEnum.Clef_f && 'clef' in msSymbol"
-      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
       :clef="msSymbol"
       @mouseup.self="handleMouseUp"
       @mousedown.self="handleMouseDown"
@@ -381,7 +378,7 @@ defineExpose({aspectRatio})
       :style="msSymbolStyle"></clef>
   <key-signature
       v-else-if="msSymbol?.type === MsSymbolTypeEnum.KeySignature"
-      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
       :measure-height="measureHeight"
       :slotWidth="slotWidth"
       @mouseup.self="handleMouseUp"
@@ -391,7 +388,7 @@ defineExpose({aspectRatio})
       :keySignature="msSymbol"></key-signature>
   <time-signature
       v-else-if="msSymbol?.type === MsSymbolTypeEnum.TimeSignature"
-      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
       :style="msSymbolStyle"
       @mouseup.self="handleMouseUp"
       @mousedown.self="handleMouseDown"

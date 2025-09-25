@@ -111,7 +111,7 @@ export function addSpanSymbol(newSpanSymbol: SpanSymbol, startMsData: Exclude<Ms
 }
 
 // 添加符号
-export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsSymbol | MsSymbolContainer, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbol) {
         const msSymbolContainer = getDataWithIndex(currSelected.index, musicScore).msSymbolContainer
         const msSymbol = getDataWithIndex(currSelected.index, musicScore).msSymbol
@@ -124,12 +124,14 @@ export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsType, musicSc
         } else {
             array.splice(targetIndex + 1, 0, newMsSymbol);
         }
+        // 计算index
         setMsSymbolArrayIndex(msSymbolContainer)
     } else if (currSelected.msTypeName === MsTypeNameEnum.MsSymbolContainer) {
         const msSymbolContainer = currSelected
         if (!msSymbolContainer) return console.error("小节不存在，符号容器添加失败")
         const array = msSymbolContainer.msSymbolArray;
         array.push(newMsSymbol)
+        // 计算index
         setMsSymbolArrayIndex(msSymbolContainer)
     }
     musicScoreMapAdd(newMsSymbol, musicScore)
@@ -156,13 +158,14 @@ export function removeMsSymbol(
 
     if (index === -1) return console.error("找不到目标符号")
     array.splice(index, 1);
+    // 计算index
     setMsSymbolArrayIndex(msSymbolContainer)
     musicScoreMapRemove(msSymbolContainer.id, musicScore)
 
 }
 
 // 添加符号容器
-export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, currSelected: MsSymbolContainer | Measure, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbolContainer) {
         const measure = getDataWithIndex(currSelected.index, musicScore).measure
@@ -176,12 +179,14 @@ export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, cu
         } else {
             array.splice(targetIndex + 1, 0, newMsSymbolContainer);
         }
+        // 计算index
         setMsSymbolContainerArrayIndex(measure)
     } else if (currSelected.msTypeName === MsTypeNameEnum.Measure) {
         const measure = currSelected
         if (!measure) return console.error("小节不存在，符号容器添加失败")
         const array = measure.msSymbolContainerArray;
         array.push(newMsSymbolContainer)
+        // 计算index
         setMsSymbolContainerArrayIndex(measure)
     }
     musicScoreMapAdd(newMsSymbolContainer, musicScore)
@@ -202,6 +207,7 @@ export function removeMsSymbolContainer(
     if (index === -1) return console.error("找不到目标符号容器")
     array.splice(index, 1);
     musicScoreMapRemove(msSymbolContainer.id, musicScore)
+    // 计算index
     setMsSymbolContainerArrayIndex(measure)
     // 移除符号容器相关联跨小节符号
     removeMsSymbolContainerRelatedSpanSymbol(msSymbolContainer, musicScore)
@@ -213,7 +219,7 @@ export function removeMsSymbolContainer(
 }
 
 // 添加小节
-export function addMeasure(newMeasure: Measure, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMeasure(newMeasure: Measure, currSelected: Measure | SingleStaff, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.Measure) {
         const singleStaff = getDataWithIndex(currSelected.index, musicScore).singleStaff
@@ -357,7 +363,7 @@ export function removeMultipleStavesRelatedSpanSymbol(multipleStaves: MultipleSt
 }
 
 // 添加单谱表
-export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: SingleStaff | MultipleStaves, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.SingleStaff) {
         const multipleStaves = getDataWithIndex(currSelected.index, musicScore).multipleStaves
@@ -413,7 +419,7 @@ export function removeSingleStaff(
 }
 
 // 添加复谱表
-export function addMultipleStaves(newMultipleStaves: MultipleStaves, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMultipleStaves(newMultipleStaves: MultipleStaves, currSelected: MultipleStaves, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
     if (currSelected.msTypeName === MsTypeNameEnum.MultipStaves) {
         const array = musicScore.multipleStavesArray;
         const targetIndex = array.findIndex(item => item === currSelected);

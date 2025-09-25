@@ -44,6 +44,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                             const keySignature = getMsSymbolKeySignature(msSymbol, musicScore)
                             const noteName = regionToNoteName(msSymbol.region, acc, clef);
                             const solmization = noteNameToSolmization(noteName, keySignature)
+                            console.log('chicken', solmization)
                             noteNumber.solmization = solmization.solmization;
                             noteNumber.octave = solmization.octave
                             // TODO 如果跟随符号会绑定跨小节符号，这里可能不能这样直接置空, 不对！ 跟随符号上绝对不能绑定跨小节符号

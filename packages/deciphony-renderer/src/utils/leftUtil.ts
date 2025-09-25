@@ -146,6 +146,9 @@ export function getSlotLeftToContainer(msSymbol: MsSymbol, msSymbolContainer: Ms
         case MsSymbolTypeEnum.NoteHead: { // 音符头居中
             return containerWidth / 2 - slotWidth / 2
         }
+        case MsSymbolTypeEnum.NoteNumber: { // 音符居中
+            return containerWidth / 2 - slotWidth / 2
+        }
         case MsSymbolTypeEnum.Rest: { // 休止符居中
             return containerWidth / 2 - slotWidth / 2
         }

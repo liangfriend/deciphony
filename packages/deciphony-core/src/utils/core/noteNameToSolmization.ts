@@ -1,5 +1,5 @@
 import {NoteName, Octave} from "../../types";
-import {AccidentalEnum, KeySignatureEnum,  SolmizationEnum, NoteLetterEnum} from "../../musicScoreEnum";
+import {AccidentalEnum, KeySignatureEnum, SolmizationEnum, NoteLetterEnum} from "../../musicScoreEnum";
 
 // 调号对应升降音（以C大调为基准，升降写在音名上）
 const keySignatureAccidentalsMap: Record<KeySignatureEnum, Partial<Record<NoteLetterEnum, AccidentalEnum>>> = {
@@ -133,7 +133,6 @@ function testNoteNameToSolmization() {
         {note: {letter: NoteLetterEnum.B, accidental: AccidentalEnum.Sharp, octave: 5}, key: KeySignatureEnum['C#']},
         {note: {letter: NoteLetterEnum.E, accidental: AccidentalEnum.Flat, octave: 3}, key: KeySignatureEnum.Eb},
     ];
-
     testCases.forEach(({note, key}) => {
         const result = noteNameToSolmization(note, key);
         console.log(`Key: ${key}, Note: ${note.letter}${note.accidental}${note.octave} -> Solmization: ${SolmizationEnum[result.solmization]}${result.accidental}${result.octave}`);
@@ -141,4 +140,4 @@ function testNoteNameToSolmization() {
 }
 
 // 执行测试
-testNoteNameToSolmization();
+// testNoteNameToSolmization();

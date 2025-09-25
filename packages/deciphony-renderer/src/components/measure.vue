@@ -70,6 +70,7 @@ const barLineStyle = computed((): CSSProperties => {
     background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',
   };
+
   switch (props.musicScore.showMode) {
     case MusicScoreShowModeEnum.standardStaff: {
       style.mask = `url("${barStandardStaff}") no-repeat center`

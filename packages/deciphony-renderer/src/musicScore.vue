@@ -13,6 +13,7 @@
             :x="measureIndex * measureWidth"
             :width="measureWidth"
             :height="musicScore.measureHeight"
+            :musicScore="musicScore"
             :componentWidth="width"
             @measureMouseDown="handleMeasureMouseDown"
             :componentHeight="height"

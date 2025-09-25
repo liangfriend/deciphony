@@ -89,8 +89,6 @@ const jianxianSwitch = () => {
 const wbDrag = ref(false)
 
 
-const musicScoreData = ref(musicScoreTemplate({}));
-
 const bottomMenuData = ref([{
   title: curModeText,
   callback: switchMode
@@ -121,14 +119,14 @@ const musicLoaded = ref(false)
 const currentSelected = computed(() => {
   return msRef.value?.currentSelected || null
 })
-onBeforeMount(() => {
-})
+
+const musicScoreData = ref(musicScoreTemplate({}));
 onMounted(() => {
   const msSymbol = msSymbolTemplate({
     type: MsSymbolTypeEnum.NoteHead, region: {
       region: StaffRegionEnum.Main,
-      type: StaffPositionTypeEnum.Line,
-      index: 1
+      type: StaffPositionTypeEnum.Space,
+      index: 3
     }
   })
   const msSymbolContainer = msSymbolContainerTemplate({
@@ -140,6 +138,8 @@ onMounted(() => {
   window.musicScore = musicScoreData.value
   jianxianSwitch()
 });
+onBeforeMount(() => {
+})
 
 </script>
 <template>

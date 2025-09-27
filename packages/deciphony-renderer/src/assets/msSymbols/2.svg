@@ -1,11 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
-    <!-- 上半部弧线 + 斜滑到右下 + 底边横线 -->
-    <path d="
-    M6 14
-    Q15 4 24 14
-    Q24 20 18 24
-    Q12 28 9 32
-    Q6 36 6 40
-    H24
-  " fill="none" stroke="black" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<svg version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     width="30" height="50"
+     viewBox="0 0 30 50">
+    <!-- y 设为 20，让文字落在可见范围 -->
+    <text x="-2" y="48" font-size="70" fill="black">2</text>
 </svg>

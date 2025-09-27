@@ -31,7 +31,6 @@ class MyAudioProcessor extends AudioWorkletProcessor {
         const alpha = 0.1;
         this.smoothVolume = this.smoothVolume * (1 - alpha) + micVolume * alpha;
         const increment = (2 * Math.PI * this.freq) / sampleRate;
-        console.log('chicken', micVolume)
         for (let channel = 0; channel < output.length; channel++) {
             const outputChannel = output[channel];
             for (let i = 0; i < outputChannel.length; i++) {

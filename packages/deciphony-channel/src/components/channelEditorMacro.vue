@@ -69,7 +69,6 @@ function getWeight(offset: number, range: number, type: number): number {
   switch (type) {
     case 0: {
       // 默认：线性衰减
-      console.log('chicken', 0)
       return 1 - d
     }
 
@@ -78,7 +77,6 @@ function getWeight(offset: number, range: number, type: number): number {
     }
 
     case 2: {
-      console.log('chicken', 2)
       return (1 - d) ** 2
     }
 
@@ -127,7 +125,6 @@ function getCacheChannelData(): { channel: Array<number>, sampleRate: number } {
 }
 
 function pointClick(payload) {
-  console.log('chicken', payload)
 }
 
 onMounted(() => {

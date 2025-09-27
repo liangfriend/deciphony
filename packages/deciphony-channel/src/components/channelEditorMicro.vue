@@ -31,9 +31,7 @@ function onAmpChange(e: Event) {
 
 // 生成逻辑
 function channelGenerate() {
-  console.log('chicken', channelData.value)
   channelData.value = Array.from({length: dataLength.value}, (v, i) => 0);
-  console.log('chicken', channelData.value)
 }
 
 

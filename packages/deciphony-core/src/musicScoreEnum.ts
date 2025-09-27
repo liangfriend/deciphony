@@ -75,7 +75,8 @@ export enum NoteLetterEnum {
 
 // 升降号（Accidental）
 export enum AccidentalEnum {
-    Natural = "",   // 还原
+    None = "",
+    Natural = "&",   // 还原
     Sharp = "#",    // 升
     Flat = "b",     // 降
     DoubleSharp = "##", // 重升
@@ -108,6 +109,7 @@ export enum MsSymbolTypeEnum {
     NoteStem = 'noteStem',
     NoteTail = 'noteTail',
     NoteNumber = 'noteNumber', // 简谱的数字符号
+    NoteDot = 'noteDot', // 八度点
     Rest = 'rest',
     Slur = 'slur', // 圆滑线  不同音高
     Tie = 'tie',  // 延音线  延音线只能连接两个音

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, CSSProperties, onMounted, PropType, ref} from "vue";
+import {computed, CSSProperties, onMounted, PropType, ref, watch} from "vue";
 import {
   type Measure,
   MsSymbol,
@@ -19,7 +19,6 @@ import {
 import noteHeadWholeSvg from "../assets/msSymbols/noteHeadWhole.svg"
 import noteHeadHalfSvg from "../assets/msSymbols/noteHeadHalf.svg"
 import noteHeadQuarterSvg from "../assets/msSymbols/noteHeadQuarter.svg"
-import note0Svg from "../assets/msSymbols/0.svg"
 import note1Svg from "../assets/msSymbols/1.svg"
 import note2Svg from "../assets/msSymbols/2.svg"
 import note3Svg from "../assets/msSymbols/3.svg"
@@ -139,7 +138,6 @@ const props = defineProps({
 })
 
 const svgHref = computed(() => {
-
   switch (props.musicScore.showMode) {
     case MusicScoreShowModeEnum.standardStaff: {
       switch (props.msSymbol?.type) {
@@ -292,7 +290,7 @@ const svgHref = computed(() => {
               return note3Svg
             }
             case SolmizationEnum.FA: {
-              return note5Svg
+              return note4Svg
             }
             case SolmizationEnum.SOL: {
               return note5Svg
@@ -447,7 +445,7 @@ const height = computed(() => {
 })
 // 符号宽度
 const width = computed(() => {
-
+  
   return getMsSymbolWidth(props.msSymbol, props.msSymbolContainer, props.measure,
       props.singleStaff, props.musicScore, props.componentWidth,)
 })
@@ -460,7 +458,6 @@ const msSymbolBottom = computed(() => {
 
 })
 const msSymbolStyle = computed<CSSProperties>(() => {
-
   const style: CSSProperties = {
     width: `${width.value}px`,
     height: `${height.value}px`,

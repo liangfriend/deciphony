@@ -44,7 +44,6 @@ const currentResevedType = computed(() => {
 
 function changeCurrentReservedType(value: ReserveMsSymbolType) {
   if (msRef.value) {
-    console.log('chicken', value)
     msRef.value.setCurrentResevedType(value)
   }
 }
@@ -63,7 +62,6 @@ function switchMode() {
 }
 
 const play = async () => {
-  console.log('chicken',)
 // 存储播放序列
 //   await msPlayUtils.addMusicToMap(MusicMapKey.CMK, musicScoreData.value)
 //   await msPlayUtils.play(MusicMapKey.CMK)
@@ -124,9 +122,9 @@ const musicScoreData = ref(musicScoreTemplate({}));
 onMounted(() => {
   const msSymbol = msSymbolTemplate({
     type: MsSymbolTypeEnum.NoteHead, region: {
-      region: StaffRegionEnum.Main,
+      region: StaffRegionEnum.Upper,
       type: StaffPositionTypeEnum.Space,
-      index: 3
+      index: 1
     }
   })
   const msSymbolContainer = msSymbolContainerTemplate({
@@ -136,7 +134,7 @@ onMounted(() => {
   addMsSymbol(msSymbol, msSymbolContainer, musicScoreData.value)
   //TEST
   window.musicScore = musicScoreData.value
-  jianxianSwitch()
+  // jianxianSwitch()
 });
 onBeforeMount(() => {
 })

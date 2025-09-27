@@ -33,7 +33,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                         const msSymbol = msSymbolContainer.msSymbolArray[n];
                         if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {
                             // 断言为 NoteNumber
-                            const noteNumber = msSymbol as unknown as NoteNumber;
+                            const noteNumber = JSON.parse(JSON.stringify(msSymbol)) as unknown as NoteNumber;
                             noteNumber.type = MsSymbolTypeEnum.NoteNumber
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
                             let acc: AccidentalEnum = AccidentalEnum.Natural;
@@ -44,7 +44,6 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                             const keySignature = getMsSymbolKeySignature(msSymbol, musicScore)
                             const noteName = regionToNoteName(msSymbol.region, acc, clef);
                             const solmization = noteNameToSolmization(noteName, keySignature)
-                            console.log('chicken', solmization)
                             noteNumber.solmization = solmization.solmization;
                             noteNumber.octave = solmization.octave
                             // TODO 如果跟随符号会绑定跨小节符号，这里可能不能这样直接置空, 不对！ 跟随符号上绝对不能绑定跨小节符号
@@ -57,6 +56,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                                 noteNumber.msSymbolArray.push(newAccidental);
                             }
                             delete (msSymbol as any).region;
+                            Object.assign(msSymbol, noteNumber)
                         }
                     }
                 }
@@ -67,7 +67,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
 
 // 简谱转五线谱
 export function numberNotationToStandardStaff(musicScore: MusicScore): void {
-    musicScore.showMode = MusicScoreShowModeEnum.standardStaff
+
     for (let i = 0; i < musicScore.multipleStavesArray.length; i++) {
         const multipleStaves = musicScore.multipleStavesArray[i];
         for (let j = 0; j < multipleStaves.singleStaffArray.length; j++) {
@@ -79,10 +79,10 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                     for (let n = 0; n < msSymbolContainer.msSymbolArray.length; n++) {
                         const msSymbol = msSymbolContainer.msSymbolArray[n];
                         if (msSymbol.type === MsSymbolTypeEnum.NoteNumber) {
-                            // 断言为 NoteNumber
-                            const noteHead = msSymbol as unknown as NoteHead;
+                            // 断言为 NoteNumber, 深拷贝
+                            const noteHead = JSON.parse(JSON.stringify(msSymbol)) as unknown as NoteHead;
 
-                            noteHead.type = MsSymbolTypeEnum.NoteHead
+
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
                             let acc: AccidentalEnum = AccidentalEnum.Natural;
                             if (accidental) acc = accidental;
@@ -92,6 +92,7 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                             const noteName = solmizationToNoteName(msSymbol.solmization, keySignature, msSymbol.octave);
                             const region = noteNameToRegion(noteName, clef)
                             noteHead.region = region.staffRegion;
+                            noteHead.vueKey = Date.now()
                             noteHead.msSymbolArray = []
                             if (region.accidental) {
                                 const newAccidental = msSymbolTemplate({
@@ -100,9 +101,11 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                                 });
                                 noteHead.msSymbolArray.push(newAccidental);
                             }
+                            noteHead.type = MsSymbolTypeEnum.NoteHead
                             // 添加符杠
                             if (hasNoteStem(noteHead.chronaxie)) {
                                 const noteStem = msSymbolTemplate({type: MsSymbolTypeEnum.NoteStem});
+                                noteStem.index = noteHead.index;
                                 noteHead.msSymbolArray.push(noteStem);
                             }
                             // 添加符尾
@@ -116,10 +119,12 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
 
                             delete (msSymbol as any).region;
                             delete (msSymbol as any).octave;
+                            Object.assign(msSymbol, noteHead)
                         }
                     }
                 }
             }
         }
     }
+    musicScore.showMode = MusicScoreShowModeEnum.standardStaff
 }

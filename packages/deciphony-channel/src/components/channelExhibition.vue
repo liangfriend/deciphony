@@ -15,7 +15,6 @@ const sampleRate = ref(1) // 采样率
 
 // 上传文件
 async function onFileChange(e: Event) {
-  console.log('chicken',)
   const file = (e.target as HTMLInputElement).files?.[0]
 
   if (!file) return
@@ -26,7 +25,6 @@ async function onFileChange(e: Event) {
   const floatArray = player.value.getChannelData()
 
   channelData.value = Array.from(floatArray);
-  console.log('chicken', channelData.value.length)
   await nextTick()
 }
 

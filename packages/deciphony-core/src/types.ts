@@ -15,7 +15,7 @@ import {
     ReserveMsSymbolType,
     BeamTypeEnum, StaffRegionEnum, StaffPositionTypeEnum, NoteLetterEnum, SolmizationEnum
 } from "./musicScoreEnum";
-// 八度数
+// 八度数  4就是中央C的位置
 export type Octave = number
 
 export declare type Midi = number
@@ -33,10 +33,10 @@ export interface StaffRegion {
     index: number                // 第几条线/间，从 1 开始,例：下加三线=lower Line 3
 }
 
-// 组合成音名 (NoteName)
+// 组合成音名 (NoteName)  C4为中央C
 export interface NoteName {
     letter: NoteLetterEnum
-    accidental: AccidentalEnum
+    accidental: AccidentalEnum.None | AccidentalEnum.Sharp | AccidentalEnum.Flat | AccidentalEnum.DoubleFlat | AccidentalEnum.DoubleSharp
     octave: Octave
 }
 
@@ -86,7 +86,10 @@ export declare type NoteNumber = ({
     octave: Octave; // 八度，首调
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
-
+export declare type NoteDot = ({
+    type: MsSymbolTypeEnum.NoteDot,
+    octave: Octave,
+} & BaseMsSymbol)
 export declare type NoteStem = ({
     type: MsSymbolTypeEnum.NoteStem,
     direction: 'up' | 'down',

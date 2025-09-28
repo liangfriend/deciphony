@@ -62,7 +62,6 @@ import {getMsSymbolWidth} from "../utils/widthUtil";
 import NoteTail from "./noteTail.vue";
 import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
 import barStandardStaff from "../assets/msSymbols/bar-standardStaff.svg";
-import regionToNoteName from "deciphony-core/utils/core/regionToNoteName";
 
 const props = defineProps({
   msSymbol: {
@@ -445,7 +444,7 @@ const height = computed(() => {
 })
 // 符号宽度
 const width = computed(() => {
-  
+
   return getMsSymbolWidth(props.msSymbol, props.msSymbolContainer, props.measure,
       props.singleStaff, props.musicScore, props.componentWidth,)
 })

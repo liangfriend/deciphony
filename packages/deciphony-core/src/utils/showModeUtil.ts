@@ -1,8 +1,6 @@
 // 五线谱转简谱
 import {MusicScore, NoteHead, NoteNumber} from "../types";
 import {AccidentalEnum, MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../musicScoreEnum";
-import regionToNoteName from "./core/regionToNoteName";
-import {noteNameToSolmization} from "./core/noteNameToSolmization";
 import {
     getMsSymbolAccidental,
     getMsSymbolClef,
@@ -11,8 +9,10 @@ import {
     hasNoteTail
 } from "./musicScoreDataUtil";
 import {msSymbolTemplate} from "./objectTemplateUtil";
-import solmizationToNoteName from "./core/solmizationToNoteName";
-import noteNameToRegion from "./core/noteNameToRegion";
+import solmizationToMidi from "./core/solmizationToMidi";
+import midiToRegion from "./core/midiToRegion";
+import regionToMidi from "./core/regionToMidi";
+import midiToSolmization from "./core/midiToSolmization";
 
 // 五线谱转简谱
 export function standardStaffToNumberNotation(musicScore: MusicScore): void {
@@ -36,14 +36,13 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                             const noteNumber = JSON.parse(JSON.stringify(msSymbol)) as unknown as NoteNumber;
                             noteNumber.type = MsSymbolTypeEnum.NoteNumber
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
-                            let acc: AccidentalEnum = AccidentalEnum.Natural;
-                            if (accidental) acc = accidental;
-                            else if (measureAccidental) acc = measureAccidental;
+                            let acc: AccidentalEnum = accidental
+                            if (measureAccidental && acc === AccidentalEnum.Natural) acc = measureAccidental;
 
                             const clef = getMsSymbolClef(msSymbol, musicScore);
                             const keySignature = getMsSymbolKeySignature(msSymbol, musicScore)
-                            const noteName = regionToNoteName(msSymbol.region, acc, clef);
-                            const solmization = noteNameToSolmization(noteName, keySignature)
+                            const midi = regionToMidi(msSymbol.region, acc, clef);
+                            const solmization = midiToSolmization(midi, keySignature)
                             noteNumber.solmization = solmization.solmization;
                             noteNumber.octave = solmization.octave
                             // TODO 如果跟随符号会绑定跨小节符号，这里可能不能这样直接置空, 不对！ 跟随符号上绝对不能绑定跨小节符号
@@ -84,13 +83,13 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
 
 
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
-                            let acc: AccidentalEnum = AccidentalEnum.Natural;
-                            if (accidental) acc = accidental;
+                            let acc: AccidentalEnum = accidental
+                            if (measureAccidental && acc === AccidentalEnum.Natural) acc = measureAccidental;
 
                             const clef = getMsSymbolClef(msSymbol, musicScore);
                             const keySignature = getMsSymbolKeySignature(msSymbol, musicScore)
-                            const noteName = solmizationToNoteName(msSymbol.solmization, keySignature, msSymbol.octave);
-                            const region = noteNameToRegion(noteName, clef)
+                            const midi = solmizationToMidi(msSymbol.solmization, acc as Exclude<AccidentalEnum, AccidentalEnum.Natural>, keySignature, msSymbol.octave)
+                            const region = midiToRegion(midi, clef)
                             noteHead.region = region.staffRegion;
                             noteHead.vueKey = Date.now()
                             noteHead.msSymbolArray = []

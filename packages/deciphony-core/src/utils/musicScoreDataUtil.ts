@@ -1,8 +1,12 @@
 import {
-    AccidentalEnum, ChronaxieEnum,
+    AccidentalEnum,
+    ChronaxieEnum,
     ClefEnum,
     KeySignatureEnum,
-    MsSymbolTypeEnum, MsTypeNameEnum, StaffPositionTypeEnum, StaffRegionEnum,
+    MsSymbolTypeEnum,
+    MsTypeNameEnum,
+    StaffPositionTypeEnum,
+    StaffRegionEnum,
 } from "../musicScoreEnum";
 
 import {
@@ -16,11 +20,14 @@ import {
     MultipleStaves,
     MusicScore,
     MusicScoreIndex,
-    NoteHead, NoteName, NoteNumber, NoteString,
-    SingleStaff, SpanSymbol, StaffRegion
+    NoteHead,
+    NoteName,
+    NoteNumber,
+    NoteString,
+    SingleStaff,
+    SpanSymbol,
+    StaffRegion
 } from "../types";
-import regionToNoteName from "./core/regionToNoteName";
-import {noteNameToSolmization} from "./core/noteNameToSolmization";
 
 
 export function noteNameToNoteString(noteName: NoteName): NoteString {
@@ -41,14 +48,14 @@ export function hasNoteStem(chronaxie: ChronaxieEnum): boolean {
 
 // 获取音符的变音符号
 export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScore: MusicScore): {
-    accidental: AccidentalEnum | null,
-    measureAccidental: AccidentalEnum | null
+    accidental: AccidentalEnum,
+    measureAccidental: AccidentalEnum
 } {
-    let accidental: AccidentalEnum | null = null
+    let accidental: AccidentalEnum = AccidentalEnum.None
     if (!noteHead.msSymbolArray) {
         return {
             accidental,
-            measureAccidental: null
+            measureAccidental: AccidentalEnum.None
         }
     }
     const msData = getDataWithIndex(noteHead.index, musicScore)
@@ -62,8 +69,8 @@ export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScor
     if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
         console.error("索引数据查找出错，获取符号的谱号失败")
         return {
-            accidental: null,
-            measureAccidental: null
+            accidental,
+            measureAccidental: AccidentalEnum.None
         }
     }
     let measureAccidental: AccidentalEnum | null = null

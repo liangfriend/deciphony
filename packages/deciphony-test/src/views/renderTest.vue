@@ -4,7 +4,7 @@ import {computed, onBeforeMount, onMounted, ref, UnwrapRef} from 'vue';
 import BottomMenu from "./editor/components/bottomMenu.vue";
 import {
   addMsSymbol,
-  addMsSymbolContainer,
+  addMsSymbolContainer, ChronaxieEnum,
   MsMode,
   msSymbolContainerTemplate,
   MsSymbolContainerTypeEnum,
@@ -79,6 +79,7 @@ const showMode = ref(MusicScoreShowModeEnum.standardStaff)
 const jianxianSwitch = () => {
   //
   if (showMode.value === MusicScoreShowModeEnum.standardStaff) {
+    console.log('chicken',)
     msRef.value.switchShowMode(musicScoreData.value)
   } else {
     msRef.value.switchShowMode(musicScoreData.value)
@@ -118,20 +119,25 @@ const currentSelected = computed(() => {
   return msRef.value?.currentSelected || null
 })
 
-const musicScoreData = ref(musicScoreTemplate({}));
-onMounted(() => {
+const musicScoreData = ref(musicScoreTemplate({}))
+function addMsSymbolQuickly() {
   const msSymbol = msSymbolTemplate({
     type: MsSymbolTypeEnum.NoteHead, region: {
       region: StaffRegionEnum.Upper,
       type: StaffPositionTypeEnum.Space,
       index: 1
-    }
+    },
+    chronaxie:ChronaxieEnum.eighth,
   })
   const msSymbolContainer = msSymbolContainerTemplate({
     type: MsSymbolContainerTypeEnum.variable
   })
   addMsSymbolContainer(msSymbolContainer, musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0], musicScoreData.value)
   addMsSymbol(msSymbol, msSymbolContainer, musicScoreData.value)
+}
+onMounted(() => {
+  addMsSymbolQuickly()
+  addMsSymbolQuickly()
   //TEST
   window.musicScore = musicScoreData.value
   // jianxianSwitch()

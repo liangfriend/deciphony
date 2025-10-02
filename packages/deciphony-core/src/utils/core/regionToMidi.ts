@@ -2,7 +2,8 @@ import {StaffRegion} from "../../types";
 import {AccidentalEnum, ClefEnum, StaffPositionTypeEnum, StaffRegionEnum} from "../../musicScoreEnum";
 
 /*
-* AI 没有全面测试
+* AI (基于自己的思路)没有全面测试
+* 手动修复过一次bug,大致理解
 * */
 const clefMidiMap: Record<number, Record<StaffRegionEnum, number>> = {
     // 高音谱号（G 谱号，G4 在第 2 线）
@@ -117,7 +118,6 @@ function regionToMidi(
     }
 
     const upPattern = rotateArray(baseDiatonicPattern, startIdx); // 从 base note 向上走的步距序列
-
     // 3) 累加 semitone offset
     let semitoneOffset = 0;
     if (posIndex > 0) {
@@ -130,7 +130,8 @@ function regionToMidi(
         for (let i = 0; i < n; i++) {
             // 取 upPattern[6 - i], upPattern[5 - i], ...
             const idx = (upPattern.length - 1 - i) % upPattern.length;
-            semitoneOffset -= upPattern[(upPattern.length - 1 - i) % upPattern.length];
+
+            semitoneOffset -= upPattern[(upPattern.length - 1 - i%7) % upPattern.length];
         }
     }
 
@@ -152,13 +153,12 @@ function regionToMidi(
         default:
             accOffset = 0;
     }
-
     return baseMidi + semitoneOffset + accOffset;
 }
 
 export default regionToMidi;
 // console.log(regionToMidi({
-//     region: StaffRegionEnum.Upper,
+//     region: StaffRegionEnum.Lower,
 //     type: StaffPositionTypeEnum.Line,
-//     index: 1
-// }, AccidentalEnum.None, ClefEnum.Bass))
+//     index: 6
+// }, AccidentalEnum.None, ClefEnum.Treble))

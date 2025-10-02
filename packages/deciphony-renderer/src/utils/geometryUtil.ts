@@ -14,6 +14,8 @@ export function getMultipleAspectRatio(msSymbol: MsSymbol, showMode: MusicScoreS
             return information.aspectRatio[msSymbol.barLineType]
         } else if (msSymbol.type === MsSymbolTypeEnum.NoteTail) {
             return information.aspectRatio[msSymbol.chronaxie]
+        }else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
+            return information.aspectRatio[msSymbol.octave]
         }
     }
     console.error('符号有误或符号不是复合aspectRatio类型')

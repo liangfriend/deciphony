@@ -517,7 +517,6 @@ export function staffRegionToIndex(pos: StaffRegion): number {
     if (pos.region === StaffRegionEnum.Upper) {
         return 8 + (pos.index * 2) + (pos.type === StaffPositionTypeEnum.Space ? 1 : 0);
     }
-    console.log(pos)
 
     throw new Error("Invalid StaffRegion");
 }
@@ -695,6 +694,8 @@ export function updateSpanSymbolView(spanSymbolIdList: Set<number>, musicScore: 
 // 获取主符号
 export function getMainMsSymbol(msSymbol: MsSymbol, musicScore: MusicScore): MsSymbol {
     const mainMsSymbol = getDataWithIndex(msSymbol.index, musicScore).msSymbol
+
+
     if (!mainMsSymbol) {
         console.error("获取主符号失败")
         return msSymbol

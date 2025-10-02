@@ -131,12 +131,12 @@ export declare type Rest = ({
 } & BaseMsSymbol)
 export declare type MsSymbol = NoteHead | ClefMsSymbol | NoteNumber
     | TimeSignatureMsSymbol | KeySignatureMsSymbol
-    | AccidentalMsSymbol | NoteTail | BarLine | Rest | NoteStem | ({
+    | AccidentalMsSymbol | NoteTail | BarLine | Rest | NoteStem | NoteDot | ({
     type: Exclude<MsSymbolTypeEnum, MsSymbolTypeEnum.NoteHead | MsSymbolTypeEnum.NoteNumber | MsSymbolTypeEnum.Clef |
         MsSymbolTypeEnum.TimeSignature | MsSymbolTypeEnum.Clef_f
         | MsSymbolTypeEnum.NoteTail | MsSymbolTypeEnum.KeySignature
         | MsSymbolTypeEnum.Accidental | MsSymbolTypeEnum.BarLine
-        | MsSymbolTypeEnum.BarLine_f | MsSymbolTypeEnum.Rest | MsSymbolTypeEnum.NoteStem>,
+        | MsSymbolTypeEnum.BarLine_f | MsSymbolTypeEnum.Rest | MsSymbolTypeEnum.NoteStem | MsSymbolTypeEnum.NoteDot>,
 
 
 } & BaseMsSymbol)

@@ -21,7 +21,7 @@ export default defineConfig({
         })
     ],
     server: {
-        port: 9999, // 指定开发服务器端口
+        port: 12347, // 指定开发服务器端口
         host: '0.0.0.0', // 可选，允许局域网访问
         open: true, // 可选，启动后自动打开浏览器
     },

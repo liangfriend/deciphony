@@ -83,6 +83,39 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
                 1,
         }
     ,
+    [MsSymbolTypeEnum.NoteDot]:
+        {
+            aspectRatio: {
+                [0]:
+                    0.5,   // 7 flats
+                [1]:
+                    0.5,   // 7 flats
+                [2]:
+                    0.5,   // 6 flats
+                [3]:
+                    0.5,   // 6 flats
+                [4]:
+                    0,   // 6 flats
+                [5]:
+                    0.5,   // 6 flats
+                [6]:
+                    0.5,   // 6 flats
+                [7]:
+                    0.5,   // 6 flats
+                [8]:
+                    0.5,   // 6 flats
+                [9]:
+                    0.5,   // 6 flats
+
+            }
+            ,
+            category: MsSymbolCategoryEnum.singleMeasure,
+            widthRatioConstant:
+                0,
+            heightMultiplier:
+                0.5,
+        }
+    ,
     [MsSymbolTypeEnum.NoteStem]:
         {  // 有些纯粹的符号跟随类型是没有符号容器类型的
             aspectRatio: 0.05,

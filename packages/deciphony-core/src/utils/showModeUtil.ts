@@ -13,6 +13,7 @@ import solmizationToMidi from "./core/solmizationToMidi";
 import midiToRegion from "./core/midiToRegion";
 import regionToMidi from "./core/regionToMidi";
 import midiToSolmization from "./core/midiToSolmization";
+import {addChildMsSymbol, addMsSymbol} from "./changeStructureUtil";
 
 // 五线谱转简谱
 export function standardStaffToNumberNotation(musicScore: MusicScore): void {
@@ -30,6 +31,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                     const msSymbolContainer = measure.msSymbolContainerArray[m];
 
                     for (let n = 0; n < msSymbolContainer.msSymbolArray.length; n++) {
+
                         const msSymbol = msSymbolContainer.msSymbolArray[n];
                         if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {
                             // 断言为 NoteNumber
@@ -45,14 +47,21 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                             const solmization = midiToSolmization(midi, keySignature)
                             noteNumber.solmization = solmization.solmization;
                             noteNumber.octave = solmization.octave
-                            // TODO 如果跟随符号会绑定跨小节符号，这里可能不能这样直接置空, 不对！ 跟随符号上绝对不能绑定跨小节符号
                             noteNumber.msSymbolArray = []
+                            // 添加NoteDot
+                            if(solmization.octave !== 4) {
+                                const noteDot = msSymbolTemplate({type:MsSymbolTypeEnum.NoteDot, octave: solmization.octave})
+                                noteNumber.msSymbolArray.push(noteDot);
+                                noteNumber.msSymbolArray
+                                addChildMsSymbol(noteDot,noteNumber,musicScore)
+                            }
+                            // 添加变音符号
                             if (solmization.accidental) {
                                 const newAccidental = msSymbolTemplate({
                                     type: MsSymbolTypeEnum.Accidental,
                                     accidental: solmization.accidental
                                 });
-                                noteNumber.msSymbolArray.push(newAccidental);
+                                addChildMsSymbol(newAccidental,noteNumber,musicScore)
                             }
                             delete (msSymbol as any).region;
                             Object.assign(msSymbol, noteNumber)

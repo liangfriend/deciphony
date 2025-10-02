@@ -48,6 +48,17 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
                 return -noteStemHeight + noteStemOffset
             }
         }
+        case MsSymbolTypeEnum.NoteDot: {
+            const space = 0.2*measureHeight
+            if([0,1,2,3].includes(msSymbol.octave)) {
+                const height = getMsSymbolHeight(msSymbol,musicScore)
+                return -height - space
+            }else if([5,6,7,8].includes(msSymbol.octave)){
+
+                return measureHeight + space
+            }
+            return 0
+        }
         default: {
             return 0
         }

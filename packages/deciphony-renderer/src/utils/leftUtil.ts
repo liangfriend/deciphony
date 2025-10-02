@@ -4,19 +4,17 @@ import type {
     Measure,
     MsSymbol,
     MsSymbolContainer,
-    MusicScore, NoteHead, NoteTail,
+    MusicScore,
+    NoteHead,
+    NoteTail,
     SingleStaff
 } from "../../../deciphony-core/src/types";
-import {
-    getBeamGroup,
-    getDataWithIndex,
-    getMainMsSymbol
-} from "deciphony-core";
+import {getBeamGroup, getDataWithIndex, getMainMsSymbol} from "deciphony-core";
 import {
     getMeasureWidth,
     getMsSymbolContainerWidth,
     getMsSymbolSlotWidth,
-    getMsSymbolWidth, getNoteTailWidth,
+    getMsSymbolWidth,
     getWidthFixedContainerWidthSumInMeasure
 } from "../utils/widthUtil";
 import {
@@ -24,9 +22,7 @@ import {
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum
 } from "../../../deciphony-core/src/musicScoreEnum";
-import {
-    getWidthConstantInMeasure
-} from "../utils/widthConstantUtil";
+import {getWidthConstantInMeasure} from "../utils/widthConstantUtil";
 import {MsSymbolInformationMap} from "../constant";
 
 
@@ -132,6 +128,10 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
         }
         case MsSymbolTypeEnum.Accidental: { // 音符头居中
             return -width
+        }
+        case MsSymbolTypeEnum.NoteDot: {
+            const noteDotWidth = getMsSymbolWidth(msSymbol,msSymbolContainer,measure,singleStaff,musicScore,componentWidth)
+            return slotWidth / 2 - noteDotWidth/2
         }
     }
     return 0

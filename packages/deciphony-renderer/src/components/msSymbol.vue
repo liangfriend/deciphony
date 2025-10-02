@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, CSSProperties, onMounted, PropType, ref, watch} from "vue";
+import {computed, CSSProperties, onMounted, PropType, ref} from "vue";
 import {
   type Measure,
   MsSymbol,
@@ -13,7 +13,8 @@ import {
   BarLineTypeEnum,
   ChronaxieEnum,
   MsSymbolTypeEnum,
-  MusicScoreShowModeEnum, SolmizationEnum
+  MusicScoreShowModeEnum,
+  SolmizationEnum
 } from "../../../deciphony-core/src/musicScoreEnum";
 // 音符头
 import noteHeadWholeSvg from "../assets/msSymbols/noteHeadWhole.svg"
@@ -26,6 +27,12 @@ import note4Svg from "../assets/msSymbols/4.svg"
 import note5Svg from "../assets/msSymbols/5.svg"
 import note6Svg from "../assets/msSymbols/6.svg"
 import note7Svg from "../assets/msSymbols/7.svg"
+// 音符八度点
+import noteDot1Svg from "../assets/msSymbols/noteDot1.svg"
+import noteDot2Svg from "../assets/msSymbols/noteDot2.svg"
+import noteDot3Svg from "../assets/msSymbols/noteDot3.svg"
+import noteDot4Svg from "../assets/msSymbols/noteDot4.svg"
+
 
 
 // 休止符
@@ -61,7 +68,6 @@ import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
 import {getMsSymbolWidth} from "../utils/widthUtil";
 import NoteTail from "./noteTail.vue";
 import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
-import barStandardStaff from "../assets/msSymbols/bar-standardStaff.svg";
 
 const props = defineProps({
   msSymbol: {
@@ -137,296 +143,197 @@ const props = defineProps({
 })
 
 const svgHref = computed(() => {
-  switch (props.musicScore.showMode) {
-    case MusicScoreShowModeEnum.standardStaff: {
-      switch (props.msSymbol?.type) {
-        case MsSymbolTypeEnum.NoteHead: {
-          switch (props.msSymbol?.chronaxie) {
-            case ChronaxieEnum.whole: {
-              return noteHeadWholeSvg
-            }
-            case ChronaxieEnum.half: {
-              return noteHeadHalfSvg
-            }
-            case ChronaxieEnum.quarter: {
-              return noteHeadQuarterSvg
-            }
-            default: {
-              return noteHeadQuarterSvg
-            }
-          }
-
+  switch (props.msSymbol?.type) {
+    case MsSymbolTypeEnum.NoteHead: {
+      switch (props.msSymbol?.chronaxie) {
+        case ChronaxieEnum.whole: {
+          return noteHeadWholeSvg
         }
-        case MsSymbolTypeEnum.Rest: {
-          switch (props.msSymbol?.chronaxie) {
-            case ChronaxieEnum.whole: {
-              return restWholeSvg
-            }
-            case ChronaxieEnum.half: {
-              return restHalfSvg
-            }
-            case ChronaxieEnum.quarter: {
-              return restQuarterSvg
-            }
-            case ChronaxieEnum.eighth: {
-              return restEighthSvg
-            }
-            case ChronaxieEnum.sixteenth: {
-              return restSixteenthSvg
-            }
-            case ChronaxieEnum.thirtySecond: {
-              return restThirySecondSvg
-            }
-            case ChronaxieEnum.sixtyFourth: {
-              return restSixtyFourthSvg
-            }
-            default: {
-              return restQuarterSvg
-            }
-
-          }
+        case ChronaxieEnum.half: {
+          return noteHeadHalfSvg
         }
-        case MsSymbolTypeEnum.NoteStem: {
-          return noteStemSvg
-        }
-        case MsSymbolTypeEnum.NoteTail: {
-          return ''
-        }
-        case MsSymbolTypeEnum.Clef: {
-          return ''
-        }
-        case MsSymbolTypeEnum.Clef_f: {
-          return ''
-        }
-        case MsSymbolTypeEnum.BarLine: {
-          switch (props.msSymbol?.barLineType) {
-            case BarLineTypeEnum.single: {
-              return barLineSingleSvg
-            }
-            case BarLineTypeEnum.final: {
-              return barLineFinalSvg
-            }
-            case BarLineTypeEnum.reverseFinal: {
-              return barLineReverseFinalSvg
-            }
-            case BarLineTypeEnum.startRepeatSign: {
-              return barLineStartRepeatSignSvg
-            }
-            case BarLineTypeEnum.endRepeatSign: {
-              return barLineEndRepeatSignSvg
-            }
-
-          }
-
-          return ''
-        }
-        case MsSymbolTypeEnum.BarLine_f: {
-          switch (props.msSymbol?.barLineType) {
-            case BarLineTypeEnum.single: {
-              return barLineSingleSvg
-            }
-            case BarLineTypeEnum.final: {
-              return barLineFinalSvg
-            }
-            case BarLineTypeEnum.reverseFinal: {
-              return barLineReverseFinalSvg
-            }
-            case BarLineTypeEnum.startRepeatSign: {
-              return barLineStartRepeatSignSvg
-            }
-            case BarLineTypeEnum.endRepeatSign: {
-              return barLineEndRepeatSignSvg
-            }
-          }
-          console.error("未知的小节线类型", props.msSymbol)
-          return ''
-        }
-        case MsSymbolTypeEnum.KeySignature: {
-          return ''
-        }
-        case MsSymbolTypeEnum.TimeSignature: {
-          return ''
-        }
-        case MsSymbolTypeEnum.Accidental: {
-          switch (props.msSymbol?.accidental) {
-            case AccidentalEnum.Sharp: {
-              return sharpSvg
-            }
-            case AccidentalEnum.Flat: {
-              return flatSvg
-            }
-            case AccidentalEnum.Natural: {
-              return natureSvg
-            }
-            case AccidentalEnum.DoubleSharp: {
-              return doubleSharpSvg
-            }
-            case AccidentalEnum.DoubleFlat: {
-              return doubleFlatpSvg
-            }
-
-          }
-          console.error("未知的变音符号", props.msSymbol)
-          return ''
+        case ChronaxieEnum.quarter: {
+          return noteHeadQuarterSvg
         }
         default: {
-          console.error("未知的符号类别", props.msSymbol?.type)
-          return ''
+          return noteHeadQuarterSvg
         }
       }
     }
-    case MusicScoreShowModeEnum.numberNotation: {
-      switch (props.msSymbol?.type) {
-        case MsSymbolTypeEnum.NoteNumber: {
-          switch (props.msSymbol?.solmization) {
-            case SolmizationEnum.DO: {
-              return note1Svg
-            }
-            case SolmizationEnum.RE: {
-              return note2Svg
-            }
-            case SolmizationEnum.MI: {
-              return note3Svg
-            }
-            case SolmizationEnum.FA: {
-              return note4Svg
-            }
-            case SolmizationEnum.SOL: {
-              return note5Svg
-            }
-            case SolmizationEnum.LA: {
-              return note6Svg
-            }
-            case SolmizationEnum.TI: {
-              return note7Svg
-            }
-            default: {
-              return note1Svg
-            }
-
-          }
+    case MsSymbolTypeEnum.Rest: {
+      switch (props.msSymbol?.chronaxie) {
+        case ChronaxieEnum.whole: {
+          return restWholeSvg
         }
-        case MsSymbolTypeEnum.Rest: {
-          switch (props.msSymbol?.chronaxie) {
-            case ChronaxieEnum.whole: {
-              return restWholeSvg
-            }
-            case ChronaxieEnum.half: {
-              return restHalfSvg
-            }
-            case ChronaxieEnum.quarter: {
-              return restQuarterSvg
-            }
-            case ChronaxieEnum.eighth: {
-              return restEighthSvg
-            }
-            case ChronaxieEnum.sixteenth: {
-              return restSixteenthSvg
-            }
-            case ChronaxieEnum.thirtySecond: {
-              return restThirySecondSvg
-            }
-            case ChronaxieEnum.sixtyFourth: {
-              return restSixtyFourthSvg
-            }
-            default: {
-              return restQuarterSvg
-            }
-
-          }
+        case ChronaxieEnum.half: {
+          ``
+          return restHalfSvg
         }
-        case MsSymbolTypeEnum.NoteStem: {
-          return noteStemSvg
+        case ChronaxieEnum.quarter: {
+          return restQuarterSvg
         }
-        case MsSymbolTypeEnum.NoteTail: {
-          return ''
+        case ChronaxieEnum.eighth: {
+          return restEighthSvg
         }
-        case MsSymbolTypeEnum.Clef: {
-          return ''
+        case ChronaxieEnum.sixteenth: {
+          return restSixteenthSvg
         }
-        case MsSymbolTypeEnum.Clef_f: {
-          return ''
+        case ChronaxieEnum.thirtySecond: {
+          return restThirySecondSvg
         }
-        case MsSymbolTypeEnum.BarLine: {
-          switch (props.msSymbol?.barLineType) {
-            case BarLineTypeEnum.single: {
-              return barLineSingleSvg
-            }
-            case BarLineTypeEnum.final: {
-              return barLineFinalSvg
-            }
-            case BarLineTypeEnum.reverseFinal: {
-              return barLineReverseFinalSvg
-            }
-            case BarLineTypeEnum.startRepeatSign: {
-              return barLineStartRepeatSignSvg
-            }
-            case BarLineTypeEnum.endRepeatSign: {
-              return barLineEndRepeatSignSvg
-            }
-
-          }
-
-          return ''
-        }
-        case MsSymbolTypeEnum.BarLine_f: {
-          switch (props.msSymbol?.barLineType) {
-            case BarLineTypeEnum.single: {
-              return barLineSingleSvg
-            }
-            case BarLineTypeEnum.final: {
-              return barLineFinalSvg
-            }
-            case BarLineTypeEnum.reverseFinal: {
-              return barLineReverseFinalSvg
-            }
-            case BarLineTypeEnum.startRepeatSign: {
-              return barLineStartRepeatSignSvg
-            }
-            case BarLineTypeEnum.endRepeatSign: {
-              return barLineEndRepeatSignSvg
-            }
-          }
-          console.error("未知的小节线类型", props.msSymbol)
-          return ''
-        }
-        case MsSymbolTypeEnum.KeySignature: {
-          return ''
-        }
-        case MsSymbolTypeEnum.TimeSignature: {
-          return ''
-        }
-        case MsSymbolTypeEnum.Accidental: {
-          switch (props.msSymbol?.accidental) {
-            case AccidentalEnum.Sharp: {
-              return sharpSvg
-            }
-            case AccidentalEnum.Flat: {
-              return flatSvg
-            }
-            case AccidentalEnum.Natural: {
-              return natureSvg
-            }
-            case AccidentalEnum.DoubleSharp: {
-              return doubleSharpSvg
-            }
-            case AccidentalEnum.DoubleFlat: {
-              return doubleFlatpSvg
-            }
-
-          }
-          console.error("未知的变音符号", props.msSymbol)
-          return ''
+        case ChronaxieEnum.sixtyFourth: {
+          return restSixtyFourthSvg
         }
         default: {
-          console.error("未知的符号类别", props.msSymbol?.type)
+          return restQuarterSvg
+        }
+
+      }
+    }
+    case MsSymbolTypeEnum.NoteStem: {
+      return noteStemSvg
+    }
+    case MsSymbolTypeEnum.NoteTail: {
+      return ''
+    }
+    case MsSymbolTypeEnum.Clef: {
+      return ''
+    }
+    case MsSymbolTypeEnum.Clef_f: {
+      return ''
+    }
+    case MsSymbolTypeEnum.BarLine: {
+      switch (props.msSymbol?.barLineType) {
+        case BarLineTypeEnum.single: {
+          return barLineSingleSvg
+        }
+        case BarLineTypeEnum.final: {
+          return barLineFinalSvg
+        }
+        case BarLineTypeEnum.reverseFinal: {
+          return barLineReverseFinalSvg
+        }
+        case BarLineTypeEnum.startRepeatSign: {
+          return barLineStartRepeatSignSvg
+        }
+        case BarLineTypeEnum.endRepeatSign: {
+          return barLineEndRepeatSignSvg
+        }
+
+      }
+
+      return ''
+    }
+    case MsSymbolTypeEnum.BarLine_f: {
+      switch (props.msSymbol?.barLineType) {
+        case BarLineTypeEnum.single: {
+          return barLineSingleSvg
+        }
+        case BarLineTypeEnum.final: {
+          return barLineFinalSvg
+        }
+        case BarLineTypeEnum.reverseFinal: {
+          return barLineReverseFinalSvg
+        }
+        case BarLineTypeEnum.startRepeatSign: {
+          return barLineStartRepeatSignSvg
+        }
+        case BarLineTypeEnum.endRepeatSign: {
+          return barLineEndRepeatSignSvg
+        }
+      }
+      console.error("未知的小节线类型", props.msSymbol)
+      return ''
+    }
+    case MsSymbolTypeEnum.KeySignature: {
+      return ''
+    }
+    case MsSymbolTypeEnum.TimeSignature: {
+      return ''
+    }
+    case MsSymbolTypeEnum.Accidental: {
+      switch (props.msSymbol?.accidental) {
+        case AccidentalEnum.Sharp: {
+          return sharpSvg
+        }
+        case AccidentalEnum.Flat: {
+          return flatSvg
+        }
+        case AccidentalEnum.Natural: {
+          return natureSvg
+        }
+        case AccidentalEnum.DoubleSharp: {
+          return doubleSharpSvg
+        }
+        case AccidentalEnum.DoubleFlat: {
+          return doubleFlatpSvg
+        }
+
+      }
+      console.error("未知的变音符号", props.msSymbol)
+      return ''
+    }
+    case MsSymbolTypeEnum.NoteNumber: {
+      switch (props.msSymbol?.solmization) {
+        case SolmizationEnum.DO: {
+          return note1Svg
+        }
+        case SolmizationEnum.RE: {
+          return note2Svg
+        }
+        case SolmizationEnum.MI: {
+          return note3Svg
+        }
+        case SolmizationEnum.FA: {
+          return note4Svg
+        }
+        case SolmizationEnum.SOL: {
+          return note5Svg
+        }
+        case SolmizationEnum.LA: {
+          return note6Svg
+        }
+        case SolmizationEnum.TI: {
+          return note7Svg
+        }
+        default: {
+          return note1Svg
+        }
+
+      }
+    }
+    case MsSymbolTypeEnum.NoteDot: {
+      console.log('chicken',props.msSymbol.octave)
+      switch(props.msSymbol.octave) {
+        case 1: {
+          return noteDot4Svg
+        }
+        case 2: {
+          return noteDot2Svg
+        }
+        case 3: {
+          return noteDot1Svg
+        }
+        case 5: {
+          return noteDot1Svg
+        }
+        case 6: {
+          return noteDot2Svg
+        }
+        case 7: {
+          return noteDot3Svg
+        }
+        case 8: {
+          return noteDot4Svg
+        }
+        default: {
           return ''
         }
       }
-
     }
     default: {
-      return noteHeadWholeSvg
+      console.error("未知的符号类别", props.msSymbol?.type)
+      return ''
     }
   }
 
@@ -526,7 +433,7 @@ defineExpose({aspectRatio})
       :time-signature="msSymbol" :measure-height="measureHeight"></time-signature>
   <note-tail
       v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteTail"
-      v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+      v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
       :ms-symbol-container="msSymbolContainer"
       :pre-container="preContainer"
       :next-container="nextContainer"
@@ -537,7 +444,7 @@ defineExpose({aspectRatio})
       :noteTail="msSymbol" :noteHead="parentMsSymbol as NoteHead" :measure="measure"
       :musicScore="musicScore"></note-tail>
   <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteStem"
-       v-show="showMode === MusicScoreShowModeEnum.standardStaff"
+       v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
        ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
   ></div>

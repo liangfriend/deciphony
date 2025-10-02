@@ -2,7 +2,7 @@ import {
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum
 } from "../../../deciphony-core/src/musicScoreEnum";
-import {MsSymbol, MusicScore, NoteHead} from "../../../deciphony-core/src/types";
+import {MsSymbol, MusicScore, NoteDot, NoteHead} from "../../../deciphony-core/src/types";
 import {MsSymbolInformationMap} from "../constant";
 import {getSlotBottomToMeasure} from "../utils/bottomUtil";
 import {
@@ -98,6 +98,20 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
             }
 
             break
+        }
+        case MsSymbolTypeEnum.NoteDot:{
+            const noteDot = msSymbol as NoteDot
+            const octave = noteDot.octave
+            if([0,8].includes(octave)) {
+                return 1.4 * measureHeight
+            }else if([1,7].includes(octave)) {
+                return measureHeight
+            }else if([2,6].includes(octave)) {
+                return 0.6 * measureHeight
+            }else if([3,5].includes(octave)) {
+                return 0.2 * measureHeight
+            }
+            return 0
         }
         default: {
             if ('heightMultiplier' in information) {

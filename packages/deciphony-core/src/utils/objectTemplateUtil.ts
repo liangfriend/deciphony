@@ -20,7 +20,7 @@ import {
     MsSymbol,
     MsSymbolContainer,
     MultipleStaves,
-    MusicScore,
+    MusicScore, NoteDot,
     SingleStaff,
     SpanSymbol,
     StaffRegion,
@@ -110,7 +110,8 @@ export function msSymbolTemplate(options: {
     keySignature?: KeySignatureEnum,
     timeSignature?: TimeSignature,
     accidental?: AccidentalEnum,
-    direction?: 'up' | 'down'
+    direction?: 'up' | 'down',
+    octave?:number
 } = {}): MsSymbol {
     const baseMsSymbol: BaseMsSymbol = {
         id: Date.now() + 1,
@@ -140,6 +141,7 @@ export function msSymbolTemplate(options: {
                 type: StaffPositionTypeEnum.Line,
                 index: 1
             }
+            console.log('chicken',options.chronaxie)
             // chronaxie不存在默认为四分音符，添加符杠
             if (!options.chronaxie || ![ChronaxieEnum.whole].includes(options.chronaxie)) {
                 const noteStem = msSymbolTemplate({
@@ -166,6 +168,14 @@ export function msSymbolTemplate(options: {
                 region: region,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
             }
+        }
+        case MsSymbolTypeEnum.NoteDot: {
+            const noteDot:NoteDot = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.NoteDot,
+                octave: options.octave ?? 4
+            }
+            return noteDot
         }
         case MsSymbolTypeEnum.Rest: {
             return {

@@ -56,13 +56,13 @@ export function musicScoreMapRemove(id: number, musicScore: MusicScore) {
     }
 }
 
-
+// 添加子符号
 export function addChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, musicScore: MusicScore) {
     msSymbol.msSymbolArray.push(childMsSymbol);
     setChildMsSymbolArrayIndex(msSymbol)
     musicScoreMapAdd(childMsSymbol, musicScore)
 }
-
+// 移除子符号
 export function removeChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, musicScore: MusicScore) {
     const index = msSymbol.msSymbolArray.indexOf(childMsSymbol)
     if (index === -1) return console.error('符号内找不到目标跟随符号，跟随符号删除失败')
@@ -109,6 +109,7 @@ export function addSpanSymbol(newSpanSymbol: SpanSymbol, startMsData: Exclude<Ms
     }
 
 }
+
 
 // 添加符号
 export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsSymbol | MsSymbolContainer, musicScore: MusicScore, position: 'after' | 'before' = 'after') {

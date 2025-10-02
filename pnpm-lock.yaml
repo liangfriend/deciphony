@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      pnpm:
+        specifier: ^10.17.1
+        version: 10.17.1
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -85,8 +88,8 @@ importers:
   packages/deciphony-player:
     dependencies:
       deciphony-core:
-        specifier: 0.0.14
-        version: 0.0.14
+        specifier: workspace:*
+        version: link:../deciphony-core
 
   packages/deciphony-renderer:
     dependencies:
@@ -1352,9 +1355,6 @@ packages:
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
-  deciphony-core@0.0.14:
-    resolution: {integrity: sha512-P5BiVbF7i/St/QqJurv6Y9W9q9rSZHabcCCLPdvK0IGiq3WzOiAeOLtR110VFF2Lyd2ewCOzGVL8BFZ4AB78Eg==}
-
   deep-eql@5.0.2:
     resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
     engines: {node: '>=6'}
@@ -1998,6 +1998,11 @@ packages:
 
   pkg-types@2.2.0:
     resolution: {integrity: sha512-2SM/GZGAEkPp3KWORxQZns4M+WSeXbC2HEvmOIJe3Cmiv6ieAJvdVhDldtHqM5J1Y7MrR1XhkBT/rMlhh9FdqQ==}
+
+  pnpm@10.17.1:
+    resolution: {integrity: sha512-F8Vg/KSGeulHOjiZrYSogzSRTzeb5G1FXL+S5c9LOdNJhdRS0lg7rxmWf6dstcF7yeJFUp0LmHRXIapyAOyveg==}
+    engines: {node: '>=18.12'}
+    hasBin: true
 
   postcss-selector-parser@6.1.2:
     resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
@@ -3738,8 +3743,6 @@ snapshots:
 
   decimal.js@10.6.0: {}
 
-  deciphony-core@0.0.14: {}
-
   deep-eql@5.0.2: {}
 
   deep-is@0.1.4: {}
@@ -4395,6 +4398,8 @@ snapshots:
       confbox: 0.2.2
       exsolve: 1.0.7
       pathe: 2.0.3
+
+  pnpm@10.17.1: {}
 
   postcss-selector-parser@6.1.2:
     dependencies:

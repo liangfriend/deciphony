@@ -130,9 +130,9 @@ export function getNoteTailWidth(noteTail: NoteTail, noteHead: NoteHead, msSymbo
     if (beamGroup.length > 1) {
         // 如果是连音组首尾处的音符，符尾只有一半的宽度
         if (noteHead.id === beamGroup[0].note.id || noteHead.id === beamGroup[beamGroup.length - 1].note.id) {
-            return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode) / 2
+            return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth) / 2
         }
-        return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth, showMode)
+        return getMsSymbolContainerWidth(msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
     } else {
         return height * aspectRatio
     }
@@ -154,8 +154,10 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
                 console.error('音符头索引失败，符尾宽度计算失败')
                 return height * aspectRatio
             }
-
             return getNoteTailWidth(msSymbol, noteHead, msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
+        }
+        case MsSymbolTypeEnum.NoteDot: {
+            return measureHeight * 0.2
         }
         default: {
             return height * aspectRatio
@@ -165,7 +167,9 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
 }
 
 export function getMsSymbolSlotWidth(msSymbol: MsSymbol, musicScore: MusicScore, isMain: boolean = false) {
+
     const mainMsSymbol = isMain ? msSymbol : getMainMsSymbol(msSymbol, musicScore)
+
     const aspectRatio = getMsSymbolAspectRatio(mainMsSymbol, musicScore.showMode)
     const height = getMsSymbolHeight(mainMsSymbol, musicScore)
     return height * aspectRatio

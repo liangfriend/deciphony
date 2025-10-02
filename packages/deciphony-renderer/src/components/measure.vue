@@ -50,7 +50,6 @@ const props = defineProps({
   },
 
 });
-
 const measureStyle = computed(() => {
   return {
     'width': '100%',

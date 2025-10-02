@@ -857,13 +857,13 @@ export function changeBeamId(newBeamId: number, noteHead: NoteHead, musicScore: 
 // 更新符杠方向
 export function changeNoteStemDirection(direction: 'up' | 'down', noteStem: NoteStem) {
     noteStem.direction = direction
-    noteStem.vueKey = Date.now()
+    noteStem.vueKey = Math.random * Date.now()
 }
 
 // 更新符尾方向
 export function changeNoteTailDirection(direction: 'up' | 'down', noteTail: NoteTail) {
     noteTail.direction = direction
-    noteTail.vueKey = Date.now()
+    noteTail.vueKey = Math.random * Date.now()
 }
 
 

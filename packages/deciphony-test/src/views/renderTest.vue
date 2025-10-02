@@ -123,19 +123,24 @@ const musicScoreData = ref(musicScoreTemplate({}))
 function addMsSymbolQuickly() {
   const msSymbol = msSymbolTemplate({
     type: MsSymbolTypeEnum.NoteHead, region: {
-      region: StaffRegionEnum.Upper,
+      region: StaffRegionEnum.Lower,
       type: StaffPositionTypeEnum.Space,
-      index: 1
+      index: 3
     },
     chronaxie:ChronaxieEnum.eighth,
   })
+
   const msSymbolContainer = msSymbolContainerTemplate({
     type: MsSymbolContainerTypeEnum.variable
   })
   addMsSymbolContainer(msSymbolContainer, musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0], musicScoreData.value)
   addMsSymbol(msSymbol, msSymbolContainer, musicScoreData.value)
+  msSymbol.beamId = 2
 }
 onMounted(() => {
+  addMsSymbolQuickly()
+  addMsSymbolQuickly()
+  addMsSymbolQuickly()
   addMsSymbolQuickly()
   addMsSymbolQuickly()
   //TEST

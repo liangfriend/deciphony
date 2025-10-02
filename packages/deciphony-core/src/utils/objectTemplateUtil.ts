@@ -41,7 +41,7 @@ export function spanSymbolTemplate(options: {
                 "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.measure,
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
-                "id": Date.now(),
+                "id": Math.random() * Date.now(),
                 "rect": {
                     top: 0,
                     left: 0,
@@ -53,7 +53,7 @@ export function spanSymbolTemplate(options: {
                     "highlightColor": "red",
                     "color": "black"
                 },
-                "vueKey": Date.now()
+                "vueKey": Math.random() * Date.now()
             }
         }
         case SpanSymbolTypeEnum.slur: {
@@ -63,7 +63,7 @@ export function spanSymbolTemplate(options: {
                 "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.msSymbol,
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
-                "id": Date.now(),
+                "id": Math.random() * Date.now(),
                 "rect": {
                     top: 0,
                     left: 0,
@@ -75,7 +75,7 @@ export function spanSymbolTemplate(options: {
                     "highlightColor": "red",
                     "color": "black"
                 },
-                "vueKey": Date.now()
+                "vueKey": Math.random() * Date.now()
             }
         }
     }
@@ -85,7 +85,7 @@ export function spanSymbolTemplate(options: {
         "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.measure,
         "startTargetId": options.startTargetId,
         "endTargetId": options.endTargetId,
-        "id": Date.now(),
+        "id": Math.random() * Date.now(),
         "rect": {
             top: 0,
             left: 0,
@@ -97,7 +97,7 @@ export function spanSymbolTemplate(options: {
             "highlightColor": "red",
             "color": "black"
         },
-        "vueKey": Date.now()
+        "vueKey": Math.random() * Date.now()
     }
 }
 
@@ -114,7 +114,7 @@ export function msSymbolTemplate(options: {
     octave?:number
 } = {}): MsSymbol {
     const baseMsSymbol: BaseMsSymbol = {
-        id: Date.now() + 1,
+        id: Math.random() * Date.now() + 1,
         msTypeName: MsTypeNameEnum.MsSymbol,
         index: {
             multipleStavesIndex: -1,
@@ -131,7 +131,7 @@ export function msSymbolTemplate(options: {
         bindingStartId: [],
         bindingEndId: [],
         msSymbolArray: [],
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
     }
     switch (options.type) {
         case MsSymbolTypeEnum.NoteHead: {
@@ -141,7 +141,6 @@ export function msSymbolTemplate(options: {
                 type: StaffPositionTypeEnum.Line,
                 index: 1
             }
-            console.log('chicken',options.chronaxie)
             // chronaxie不存在默认为四分音符，添加符杠
             if (!options.chronaxie || ![ChronaxieEnum.whole].includes(options.chronaxie)) {
                 const noteStem = msSymbolTemplate({
@@ -295,7 +294,7 @@ export function msSymbolTemplate(options: {
 
 export function msSymbolContainerTemplate(options: { type?: MsSymbolContainerTypeEnum } = {}): MsSymbolContainer {
     const msSymbolContainer: MsSymbolContainer = {
-        id: Date.now() + 2,
+        id: Math.random() * Date.now() + 2,
         msSymbolArray: [],
         type: options.type || MsSymbolContainerTypeEnum.variable,
         index: {
@@ -312,7 +311,7 @@ export function msSymbolContainerTemplate(options: { type?: MsSymbolContainerTyp
             highlightColor: 'red',
             color: 'black',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         msTypeName: MsTypeNameEnum.MsSymbolContainer,
     }
 
@@ -323,7 +322,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
 
 
     const measure: Measure = {
-        id: Date.now() + 3,
+        id: Math.random() * Date.now() + 3,
         msTypeName: MsTypeNameEnum.Measure,
         index: {
             multipleStavesIndex: -1,
@@ -339,7 +338,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
             highlightColor: 'red',
             color: 'black',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         msSymbolContainerArray: []
     }
     // 小节必须有结束小节线
@@ -358,7 +357,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
 // 会默认添加一个小节
 export function singleStaffTemplate(options: {} = {}): SingleStaff {
     const singleStaff: SingleStaff = {
-        id: Date.now() + 4,
+        id: Math.random() * Date.now() + 4,
         msTypeName: MsTypeNameEnum.SingleStaff,
         index: {
             multipleStavesIndex: -1,
@@ -376,7 +375,7 @@ export function singleStaffTemplate(options: {} = {}): SingleStaff {
             highlightColor: 'red',
             color: 'transparent',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         singleStaffMarginBottom: 30,
         measureArray: []
     }
@@ -390,7 +389,7 @@ export function singleStaffTemplate(options: {} = {}): SingleStaff {
 // 会默认添加一个带小节的单谱表
 export function multipleStavesTemplate(options: {} = {}): MultipleStaves {
     const multipleStaves: MultipleStaves = {
-        id: Date.now() + 5,
+        id: Math.random() * Date.now() + 5,
         msTypeName: MsTypeNameEnum.MultipStaves,
         index: {
             multipleStavesIndex: -1,
@@ -409,7 +408,7 @@ export function multipleStavesTemplate(options: {} = {}): MultipleStaves {
             highlightColor: 'red',
             color: 'transparent',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         singleStaffArray: []
     }
     const singleStaff = singleStaffTemplate({})
@@ -430,7 +429,7 @@ export function musicScoreTemplate(options: {} = {}) {
         spanSymbolArray: [],
         widthDynamicRatio: 0.6,
         map: {},
-        vueKey: Date.now() + 6,
+        vueKey: Math.random() * Date.now() + 6,
     }
     return musicScore
 }

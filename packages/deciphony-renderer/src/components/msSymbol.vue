@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, CSSProperties, onMounted, PropType, ref} from "vue";
+import {computed, CSSProperties, onMounted, PropType, ref, watch, watchEffect} from "vue";
 import {
   type Measure,
   MsSymbol,
@@ -141,8 +141,11 @@ const props = defineProps({
   },
 
 })
-
-const svgHref = computed(() => {
+watch(()=>props.msSymbol?.vueKey,() =>{
+  console.log('chicken','watch',props.msSymbol.type)
+getSvgHref()
+})
+function getSvgHref() {
   switch (props.msSymbol?.type) {
     case MsSymbolTypeEnum.NoteHead: {
       switch (props.msSymbol?.chronaxie) {
@@ -336,6 +339,9 @@ const svgHref = computed(() => {
       return ''
     }
   }
+}
+const svgHref = computed(() => {
+  return getSvgHref()
 
 })
 const msSymbolRef = ref(null!)
@@ -450,7 +456,7 @@ defineExpose({aspectRatio})
   ></div>
   <div v-else ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
-  ></div>
+  ></div>{{(''+msSymbol.vueKey)[12]}}
 </template>
 <style scoped>
 .msSymbol {

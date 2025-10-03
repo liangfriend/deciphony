@@ -20,7 +20,9 @@ import {
     MsSymbol,
     MsSymbolContainer,
     MultipleStaves,
-    MusicScore, NoteDot,
+    MusicScore,
+    NoteDot,
+    ChronaxieLine,
     SingleStaff,
     SpanSymbol,
     StaffRegion,
@@ -175,6 +177,14 @@ export function msSymbolTemplate(options: {
                 octave: options.octave ?? 4
             }
             return noteDot
+        }
+        case MsSymbolTypeEnum.ChronaxieLine: {
+            const chronaxieLine:ChronaxieLine = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.ChronaxieLine,
+                chronaxie: options.chronaxie ?? ChronaxieEnum.eighth
+            }
+            return chronaxieLine
         }
         case MsSymbolTypeEnum.Rest: {
             return {

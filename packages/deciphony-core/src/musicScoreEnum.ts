@@ -109,8 +109,10 @@ export enum MsSymbolTypeEnum {
     NoteStem = 'noteStem',
     NoteTail = 'noteTail',
     NoteNumber = 'noteNumber', // 简谱的数字符号
+    ChronaxieLine = 'chronaxieLine', // 简谱的时值线
+    DelayLine = 'delayLine', // 简谱的增时线
     NoteDot = 'noteDot', // 八度点
-    Rest = 'rest',
+    Rest = 'rest', // 休止符
     Slur = 'slur', // 圆滑线  不同音高
     Tie = 'tie',  // 延音线  延音线只能连接两个音
     DurationDot = 'durationDot', // 附点

@@ -145,7 +145,7 @@ onMounted(() => {
   addMsSymbolQuickly()
   //TEST
   window.musicScore = musicScoreData.value
-  // jianxianSwitch()
+  jianxianSwitch()
 });
 onBeforeMount(() => {
 })

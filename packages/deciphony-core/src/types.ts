@@ -82,9 +82,17 @@ export declare type NoteHead = ({
 export declare type NoteNumber = ({
     type: MsSymbolTypeEnum.NoteNumber,
     solmization: SolmizationEnum   // 唱名
-    chronaxie: ChronaxieEnum; // 时值
+    chronaxie: Exclude<ChronaxieEnum,[ChronaxieEnum.whole,ChronaxieEnum.half]>; // 时值，简谱数字音符最大时值就是4分音符
     octave: Octave; // 八度，首调
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
+} & BaseMsSymbol)
+export declare type DelayLine = ({
+    type: MsSymbolTypeEnum.DelayLine,
+} & BaseMsSymbol)
+// 简谱的时值线
+export declare type ChronaxieLine = ({
+    type: MsSymbolTypeEnum.ChronaxieLine;
+    chronaxie: ChronaxieEnum; // 时值
 } & BaseMsSymbol)
 export declare type NoteDot = ({
     type: MsSymbolTypeEnum.NoteDot,
@@ -131,15 +139,8 @@ export declare type Rest = ({
 } & BaseMsSymbol)
 export declare type MsSymbol = NoteHead | ClefMsSymbol | NoteNumber
     | TimeSignatureMsSymbol | KeySignatureMsSymbol
-    | AccidentalMsSymbol | NoteTail | BarLine | Rest | NoteStem | NoteDot | ({
-    type: Exclude<MsSymbolTypeEnum, MsSymbolTypeEnum.NoteHead | MsSymbolTypeEnum.NoteNumber | MsSymbolTypeEnum.Clef |
-        MsSymbolTypeEnum.TimeSignature | MsSymbolTypeEnum.Clef_f
-        | MsSymbolTypeEnum.NoteTail | MsSymbolTypeEnum.KeySignature
-        | MsSymbolTypeEnum.Accidental | MsSymbolTypeEnum.BarLine
-        | MsSymbolTypeEnum.BarLine_f | MsSymbolTypeEnum.Rest | MsSymbolTypeEnum.NoteStem | MsSymbolTypeEnum.NoteDot>,
+    | AccidentalMsSymbol | NoteTail | BarLine | ChronaxieLine | Rest | NoteStem | NoteDot | DelayLine
 
-
-} & BaseMsSymbol)
 
 export declare type BaseSpanSymbol = {
     id: number,

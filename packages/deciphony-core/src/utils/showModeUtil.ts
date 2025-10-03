@@ -1,6 +1,6 @@
 // 五线谱转简谱
 import {MusicScore, NoteHead, NoteNumber} from "../types";
-import {AccidentalEnum, MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../musicScoreEnum";
+import {AccidentalEnum, ChronaxieEnum, MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../musicScoreEnum";
 import {
     getMsSymbolAccidental,
     getMsSymbolClef,
@@ -55,6 +55,7 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                                 noteNumber.msSymbolArray
                                 addChildMsSymbol(noteDot,noteNumber,musicScore)
                             }
+                            // 添加toneLine
                             // 添加变音符号
                             if (solmization.accidental) {
                                 const newAccidental = msSymbolTemplate({
@@ -102,19 +103,20 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                             noteHead.region = region.staffRegion;
                             noteHead.vueKey = Date.now()
                             noteHead.msSymbolArray = []
+                            // TODO 这里要重构，简谱和五线谱不一样的，增加了增时线和时值线
                             if (region.accidental) {
                                 const newAccidental = msSymbolTemplate({
                                     type: MsSymbolTypeEnum.Accidental,
                                     accidental: region.accidental
                                 });
-                                noteHead.msSymbolArray.push(newAccidental);
+                                addChildMsSymbol(newAccidental,noteHead,musicScore)
                             }
                             noteHead.type = MsSymbolTypeEnum.NoteHead
                             // 添加符杠
                             if (hasNoteStem(noteHead.chronaxie)) {
                                 const noteStem = msSymbolTemplate({type: MsSymbolTypeEnum.NoteStem});
                                 noteStem.index = noteHead.index;
-                                noteHead.msSymbolArray.push(noteStem);
+                                addChildMsSymbol(noteStem,noteHead,musicScore)
                             }
                             // 添加符尾
                             if (hasNoteTail(noteHead.chronaxie)) {
@@ -122,228 +124,13 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                                     type: MsSymbolTypeEnum.NoteTail,
                                     chronaxie: noteHead.chronaxie
                                 });
-                                noteHead.msSymbolArray.push(noteTail);
+                                addChildMsSymbol(noteTail,noteHead,musicScore)
                             }
 
                             delete (msSymbol as any).region;
                             delete (msSymbol as any).octave;
                             Object.assign(msSymbol, noteHead)
                             musicScore.vueKey = Math.random()*Date.now()
-                            console.log('chicken', msSymbol.vueKey)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                         }
                     }
                 }

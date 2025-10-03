@@ -306,7 +306,6 @@ function getSvgHref() {
       }
     }
     case MsSymbolTypeEnum.NoteDot: {
-      console.log('chicken',props.msSymbol.octave)
       switch(props.msSymbol.octave) {
         case 1: {
           return noteDot4Svg

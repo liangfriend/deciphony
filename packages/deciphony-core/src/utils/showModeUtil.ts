@@ -1,19 +1,26 @@
 // 五线谱转简谱
 import {MusicScore, NoteHead, NoteNumber} from "../types";
-import {AccidentalEnum, ChronaxieEnum, MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../musicScoreEnum";
+import {
+    AccidentalEnum,
+    ChronaxieEnum,
+    MsSymbolContainerTypeEnum,
+    MsSymbolTypeEnum,
+    MusicScoreShowModeEnum
+} from "../musicScoreEnum";
 import {
     getMsSymbolAccidental,
     getMsSymbolClef,
     getMsSymbolKeySignature,
     hasNoteStem,
-    hasNoteTail
+    hasNoteTail,
+    msSymbolPropertiesInherit
 } from "./musicScoreDataUtil";
-import {msSymbolTemplate} from "./objectTemplateUtil";
+import {msSymbolContainerTemplate, msSymbolTemplate} from "./objectTemplateUtil";
 import solmizationToMidi from "./core/solmizationToMidi";
 import midiToRegion from "./core/midiToRegion";
 import regionToMidi from "./core/regionToMidi";
 import midiToSolmization from "./core/midiToSolmization";
-import {addChildMsSymbol, addMsSymbol} from "./changeStructureUtil";
+import {addChildMsSymbol, addMsSymbol, addMsSymbolContainer, removeMsSymbolContainer} from "./changeStructureUtil";
 
 // 五线谱转简谱
 export function standardStaffToNumberNotation(musicScore: MusicScore): void {
@@ -33,10 +40,12 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                     for (let n = 0; n < msSymbolContainer.msSymbolArray.length; n++) {
 
                         const msSymbol = msSymbolContainer.msSymbolArray[n];
+                        // 遇到noteHead转换成noteNumber
                         if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {
                             // 断言为 NoteNumber
-                            const noteNumber = JSON.parse(JSON.stringify(msSymbol)) as unknown as NoteNumber;
-                            noteNumber.type = MsSymbolTypeEnum.NoteNumber
+                            const noteNumber = msSymbolTemplate({type:MsSymbolTypeEnum.NoteNumber,chronaxie:ChronaxieEnum.quarter}) as NoteNumber;
+                            // 继承原符号的id和绑定的跨小节符号
+                            msSymbolPropertiesInherit(noteNumber,msSymbol)
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
                             let acc: AccidentalEnum = accidental
                             if (measureAccidental && acc === AccidentalEnum.Natural) acc = measureAccidental;
@@ -48,14 +57,25 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                             noteNumber.solmization = solmization.solmization;
                             noteNumber.octave = solmization.octave
                             noteNumber.msSymbolArray = []
+                            // 设置chronaxie
+                            if(![ChronaxieEnum.whole,ChronaxieEnum.half,ChronaxieEnum.quarter].includes(msSymbol.chronaxie)){
+                                noteNumber.chronaxie = msSymbol.chronaxie;
+                            }
+
+                            // 删除原noteHead
+                            msSymbolContainer.msSymbolArray.splice(n,1);
+                            // 添加新noteNumber
+                            addMsSymbol(noteNumber,msSymbolContainer,musicScore,n)
                             // 添加NoteDot
                             if(solmization.octave !== 4) {
                                 const noteDot = msSymbolTemplate({type:MsSymbolTypeEnum.NoteDot, octave: solmization.octave})
-                                noteNumber.msSymbolArray.push(noteDot);
-                                noteNumber.msSymbolArray
                                 addChildMsSymbol(noteDot,noteNumber,musicScore)
                             }
-                            // 添加toneLine
+                            // 添加减时线
+                            if(![ChronaxieEnum.whole,ChronaxieEnum.half,ChronaxieEnum.quarter].includes(noteNumber.chronaxie)) {
+                                const chronaxieReducingLine = msSymbolTemplate({type:MsSymbolTypeEnum.ChronaxieReducingLine,chronaxie: noteNumber.chronaxie})
+                                addChildMsSymbol(chronaxieReducingLine,noteNumber,musicScore)
+                            }
                             // 添加变音符号
                             if (solmization.accidental) {
                                 const newAccidental = msSymbolTemplate({
@@ -64,8 +84,27 @@ export function standardStaffToNumberNotation(musicScore: MusicScore): void {
                                 });
                                 addChildMsSymbol(newAccidental,noteNumber,musicScore)
                             }
-                            delete (msSymbol as any).region;
-                            Object.assign(msSymbol, noteNumber)
+                        }
+
+                        // 在noteNumber后方添加对应数量的增时线
+                        if(msSymbol.type === MsSymbolTypeEnum.NoteHead) {
+                            if(msSymbol.chronaxie === ChronaxieEnum.whole){
+
+                                for(let d = 0; d < 3; d++) {
+                                    const chronaxieIncreasingLine = msSymbolTemplate({type:MsSymbolTypeEnum.ChronaxieIncreasingLine})
+                                    const chronaxieIncreasingLineContainer = msSymbolContainerTemplate({type:MsSymbolContainerTypeEnum.variable})
+                                    addMsSymbolContainer(chronaxieIncreasingLineContainer,msSymbolContainer,musicScore,'after')
+                                    addMsSymbol(chronaxieIncreasingLine,chronaxieIncreasingLineContainer,musicScore,'after')
+                                }
+                                m+=3
+
+                            }else if(msSymbol.chronaxie === ChronaxieEnum.half) {
+                                const chronaxieIncreasingLine = msSymbolTemplate({type:MsSymbolTypeEnum.ChronaxieIncreasingLine})
+                                const chronaxieIncreasingLineContainer = msSymbolContainerTemplate({type:MsSymbolContainerTypeEnum.variable})
+                                addMsSymbolContainer(chronaxieIncreasingLineContainer,msSymbolContainer,musicScore,'after')
+                                addMsSymbol(chronaxieIncreasingLine,chronaxieIncreasingLineContainer,musicScore,'after')
+                                m+=1
+                            }
                         }
                     }
                 }
@@ -87,10 +126,16 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                     const msSymbolContainer = measure.msSymbolContainerArray[m];
                     for (let n = 0; n < msSymbolContainer.msSymbolArray.length; n++) {
                         const msSymbol = msSymbolContainer.msSymbolArray[n];
+                        if(msSymbol.type === MsSymbolTypeEnum.ChronaxieIncreasingLine) {
+                            removeMsSymbolContainer(msSymbolContainer,musicScore)
+                            // 删除当前元素，需要将当前索引减1
+                            m--
+                            continue
+                        }
                         if (msSymbol.type === MsSymbolTypeEnum.NoteNumber) {
                             // 断言为 NoteNumber, 深拷贝
-                            const noteHead = JSON.parse(JSON.stringify(msSymbol)) as unknown as NoteHead;
-
+                            const noteHead =msSymbolTemplate({type:MsSymbolTypeEnum.NoteHead}) as NoteHead
+                            msSymbolPropertiesInherit(noteHead,msSymbol)
 
                             const {accidental, measureAccidental} = getMsSymbolAccidental(msSymbol, musicScore);
                             let acc: AccidentalEnum = accidental
@@ -103,7 +148,33 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                             noteHead.region = region.staffRegion;
                             noteHead.vueKey = Date.now()
                             noteHead.msSymbolArray = []
-                            // TODO 这里要重构，简谱和五线谱不一样的，增加了增时线和时值线
+
+                            if(msSymbol.chronaxie === ChronaxieEnum.quarter) {
+                                // 通过noteNumber后方ChronaxieIncreasingLine数量设置时值
+                                let dlCount = 0
+                                for(let dl = m+1; dl <  measure.msSymbolContainerArray.length; dl++) {
+                                    const dlMsSymbol = measure.msSymbolContainerArray[dl]?.msSymbolArray[0]
+                                    if(dlMsSymbol.type === MsSymbolTypeEnum.ChronaxieIncreasingLine) {
+                                        dlCount++
+                                    }else {
+                                        break
+                                    }
+                                }
+                                if(dlCount === 0) {
+                                    noteHead.chronaxie = ChronaxieEnum.quarter
+                                }else if(dlCount === 1) {
+                                    noteHead.chronaxie = ChronaxieEnum.half
+                                }else if(dlCount === 3) {
+                                    noteHead.chronaxie = ChronaxieEnum.whole
+                                }
+                            }else { // 时值小于四分音符的情况直接赋值
+                                noteHead.chronaxie = msSymbol.chronaxie
+                            }
+                            // 删除原符号
+                            msSymbolContainer.msSymbolArray.splice(n,1);
+                            // 添加新符号
+                            addMsSymbol(noteHead,msSymbolContainer,musicScore,n)
+                            // 添加变音符号
                             if (region.accidental) {
                                 const newAccidental = msSymbolTemplate({
                                     type: MsSymbolTypeEnum.Accidental,
@@ -111,7 +182,6 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                                 });
                                 addChildMsSymbol(newAccidental,noteHead,musicScore)
                             }
-                            noteHead.type = MsSymbolTypeEnum.NoteHead
                             // 添加符杠
                             if (hasNoteStem(noteHead.chronaxie)) {
                                 const noteStem = msSymbolTemplate({type: MsSymbolTypeEnum.NoteStem});
@@ -126,11 +196,6 @@ export function numberNotationToStandardStaff(musicScore: MusicScore): void {
                                 });
                                 addChildMsSymbol(noteTail,noteHead,musicScore)
                             }
-
-                            delete (msSymbol as any).region;
-                            delete (msSymbol as any).octave;
-                            Object.assign(msSymbol, noteHead)
-                            musicScore.vueKey = Math.random()*Date.now()
                         }
                     }
                 }

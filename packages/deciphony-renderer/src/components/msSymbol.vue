@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, CSSProperties, onMounted, PropType, ref, watch, watchEffect} from "vue";
+import {computed, CSSProperties, onMounted, PropType, ref, watch} from "vue";
 import {
   type Measure,
   MsSymbol,
@@ -32,7 +32,6 @@ import noteDot1Svg from "../assets/msSymbols/noteDot1.svg"
 import noteDot2Svg from "../assets/msSymbols/noteDot2.svg"
 import noteDot3Svg from "../assets/msSymbols/noteDot3.svg"
 import noteDot4Svg from "../assets/msSymbols/noteDot4.svg"
-
 
 
 // 休止符
@@ -68,6 +67,14 @@ import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
 import {getMsSymbolWidth} from "../utils/widthUtil";
 import NoteTail from "./noteTail.vue";
 import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
+
+// 增时线&减时线
+import chronaxieIncreasingLineSvg from '../assets/msSymbols/chronaxieIncreasingLine.svg'
+import chronaxieReducingLine1Svg from '../assets/msSymbols/chronaxieReducingLine1.svg'
+import chronaxieReducingLine2Svg from '../assets/msSymbols/chronaxieReducingLine2.svg'
+import chronaxieReducingLine3Svg from '../assets/msSymbols/chronaxieReducingLine3.svg'
+import chronaxieReducingLine4Svg from '../assets/msSymbols/chronaxieReducingLine4.svg'
+
 
 const props = defineProps({
   msSymbol: {
@@ -142,7 +149,6 @@ const props = defineProps({
 
 })
 watch(()=>props.msSymbol?.vueKey,() =>{
-  console.log('chicken','watch',props.msSymbol.type)
 getSvgHref()
 })
 function getSvgHref() {
@@ -333,6 +339,30 @@ function getSvgHref() {
         }
       }
     }
+    case MsSymbolTypeEnum.ChronaxieReducingLine: {
+      switch(props.msSymbol.chronaxie) {
+        case ChronaxieEnum.eighth: {
+          return chronaxieReducingLine1Svg
+        }
+        case ChronaxieEnum.sixteenth: {
+          return chronaxieReducingLine2Svg
+        }
+        case ChronaxieEnum.thirtySecond: {
+          return chronaxieReducingLine3Svg
+        }
+        case ChronaxieEnum.sixtyFourth: {
+          return chronaxieReducingLine4Svg
+        }
+
+        default: {
+          return ''
+        }
+      }
+    }
+    case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
+      return chronaxieIncreasingLineSvg
+    }
+
     default: {
       console.error("未知的符号类别", props.msSymbol?.type)
       return ''
@@ -455,7 +485,7 @@ defineExpose({aspectRatio})
   ></div>
   <div v-else ref="msSymbolRef" class="msSymbol" :style="msSymbolStyle" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
-  ></div>{{(''+msSymbol.vueKey)[12]}}
+  ></div>
 </template>
 <style scoped>
 .msSymbol {

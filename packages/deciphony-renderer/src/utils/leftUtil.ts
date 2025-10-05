@@ -152,6 +152,9 @@ export function getSlotLeftToContainer(msSymbol: MsSymbol, msSymbolContainer: Ms
         case MsSymbolTypeEnum.Rest: { // 休止符居中
             return containerWidth / 2 - slotWidth / 2
         }
+        case MsSymbolTypeEnum.ChronaxieIncreasingLine: { // 休止符居中
+            return containerWidth / 2 - slotWidth / 2
+        }
     }
     return 0
 }

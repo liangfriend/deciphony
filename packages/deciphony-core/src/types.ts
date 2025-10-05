@@ -86,12 +86,12 @@ export declare type NoteNumber = ({
     octave: Octave; // 八度，首调
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
-export declare type DelayLine = ({
-    type: MsSymbolTypeEnum.DelayLine,
+export declare type ChronaxieIncreasingLine = ({
+    type: MsSymbolTypeEnum.ChronaxieIncreasingLine,
 } & BaseMsSymbol)
 // 简谱的时值线
-export declare type ChronaxieLine = ({
-    type: MsSymbolTypeEnum.ChronaxieLine;
+export declare type ChronaxieReducingLine = ({
+    type: MsSymbolTypeEnum.ChronaxieReducingLine;
     chronaxie: ChronaxieEnum; // 时值
 } & BaseMsSymbol)
 export declare type NoteDot = ({
@@ -139,7 +139,7 @@ export declare type Rest = ({
 } & BaseMsSymbol)
 export declare type MsSymbol = NoteHead | ClefMsSymbol | NoteNumber
     | TimeSignatureMsSymbol | KeySignatureMsSymbol
-    | AccidentalMsSymbol | NoteTail | BarLine | ChronaxieLine | Rest | NoteStem | NoteDot | DelayLine
+    | AccidentalMsSymbol | NoteTail | BarLine | ChronaxieReducingLine | Rest | NoteStem | NoteDot | ChronaxieIncreasingLine
 
 
 export declare type BaseSpanSymbol = {

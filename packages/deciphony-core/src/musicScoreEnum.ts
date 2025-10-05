@@ -103,14 +103,15 @@ export enum ChronaxieEnum {
     sixtyFourth = 64,
 }
 
+
 // 符号类型
 export enum MsSymbolTypeEnum {
     NoteHead = 'noteHead', // 线谱指音符头， 简谱指音符
     NoteStem = 'noteStem',
     NoteTail = 'noteTail',
     NoteNumber = 'noteNumber', // 简谱的数字符号
-    ChronaxieLine = 'chronaxieLine', // 简谱的时值线
-    DelayLine = 'delayLine', // 简谱的增时线
+    ChronaxieReducingLine = 'chronaxieReducingLine', // 简谱的时值线
+    ChronaxieIncreasingLine = 'chronaxieIncreasingLine', // 简谱的增时线
     NoteDot = 'noteDot', // 八度点
     Rest = 'rest', // 休止符
     Slur = 'slur', // 圆滑线  不同音高

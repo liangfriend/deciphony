@@ -73,7 +73,7 @@ export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScor
             measureAccidental: AccidentalEnum.None
         }
     }
-    let measureAccidental: AccidentalEnum | null = null
+    let measureAccidental: AccidentalEnum = AccidentalEnum.None
     for (let i = (measureIndex); i >= 0; i--) {
         const curMeasure = singleStaff.measureArray[i];
         if (i === measureIndex) {
@@ -695,7 +695,6 @@ export function updateSpanSymbolView(spanSymbolIdList: Set<number>, musicScore: 
 export function getMainMsSymbol(msSymbol: MsSymbol, musicScore: MusicScore): MsSymbol {
     const mainMsSymbol = getDataWithIndex(msSymbol.index, musicScore).msSymbol
 
-
     if (!mainMsSymbol) {
         console.error("获取主符号失败")
         return msSymbol
@@ -799,4 +798,10 @@ export function getNext(target: Exclude<MsType, SpanSymbol>, musicScore: MusicSc
             console.error("获取next异常，未知类型", target)
             return target
     }
+}
+// 符号进行替换时，对必要属性进行继承
+export function msSymbolPropertiesInherit(newMsSymbol:MsSymbol,oldMsSymbol:MsSymbol) {
+    newMsSymbol.id = oldMsSymbol.id;
+    newMsSymbol.bindingEndId = oldMsSymbol.bindingEndId;
+    newMsSymbol.bindingStartId = oldMsSymbol.bindingStartId;
 }

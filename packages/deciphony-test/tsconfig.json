@@ -40,7 +40,7 @@
         "node_modules/deciphony-ui/src/index.ts"
       ],
       "deciphony-core": [
-        "node_modules/deciphony-core/src/types/index.ts"
+        "node_modules/deciphony-core/src/index.ts"
       ],
       "deciphony-core/utils": [
         "node_modules/deciphony-core/src/utils/*.ts"

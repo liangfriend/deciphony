@@ -9,6 +9,7 @@ import {
     getBeamGroup,
     getDataWithIndex, staffRegionToIndex
 } from "deciphony-core";
+import {getHeightMultiplier} from "@/utils/geometryUtil";
 
 export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
     const noteHead = getDataWithIndex(noteStem.index, musicScore).msSymbol as NoteHead
@@ -99,30 +100,13 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
 export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): number {
     const information = MsSymbolInformationMap[msSymbol?.type]
     const measureHeight = musicScore.measureHeight
+    const heightMultiplier = getHeightMultiplier(msSymbol)
     switch (msSymbol.type) {
         case MsSymbolTypeEnum.NoteStem: {
-
-
             return getNoteStemHeight(msSymbol, musicScore)
         }
-        case MsSymbolTypeEnum.NoteDot:{
-            const noteDot = msSymbol as NoteDot
-            const octave = noteDot.octave
-            if([0,8].includes(octave)) {
-                return 1.4 * measureHeight
-            }else if([1,7].includes(octave)) {
-                return measureHeight
-            }else if([2,6].includes(octave)) {
-                return 0.6 * measureHeight
-            }else if([3,5].includes(octave)) {
-                return 0.2 * measureHeight
-            }
-            return 0
-        }
         default: {
-            if ('heightMultiplier' in information) {
-                return measureHeight * information.heightMultiplier
-            }
+                return measureHeight * heightMultiplier
         }
     }
     return measureHeight

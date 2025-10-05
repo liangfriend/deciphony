@@ -1,16 +1,17 @@
 import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum, MusicScoreShowModeEnum
-} from "../../../deciphony-core";
+} from "deciphony-core";
 
 import {
+    KeySignatureMsSymbol,
     Measure,
     MsSymbol,
     MsSymbolContainer,
     MusicScore, NoteHead, NoteTail,
     SingleStaff
-} from "../../../deciphony-core/src/types";
-import {MsSymbolInformationMap,} from "../constant";
+} from "deciphony-core";
+import {MsSymbolInformationMap,} from "@/constant";
 import {
     getWidthConstantInMeasure,
     getWidthConstantInMsSymbolContainer,
@@ -20,7 +21,6 @@ import {
     getBeamGroup,
     getDataWithIndex,
     getMainMsSymbol,
-
 } from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
 import {getHeightMultiplier, getMsSymbolAspectRatio} from "./geometryUtil";
@@ -124,7 +124,7 @@ export function getNoteTailWidth(noteTail: NoteTail, noteHead: NoteHead, msSymbo
                                  measure: Measure,
                                  singleStaff: SingleStaff, musicScore: MusicScore,
                                  componentWidth: number) {
-    const aspectRatio = getMsSymbolAspectRatio(noteTail, musicScore.showMode)
+    const aspectRatio = getMsSymbolAspectRatio(noteTail)
     const height = getMsSymbolHeight(noteTail, musicScore)
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
     if (beamGroup.length > 1) {
@@ -140,8 +140,8 @@ export function getNoteTailWidth(noteTail: NoteTail, noteHead: NoteHead, msSymbo
 
 export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbolContainer, measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore, componentWidth: number) {
     const measureHeight = musicScore.measureHeight
-    const aspectRatio = getMsSymbolAspectRatio(msSymbol, musicScore.showMode)
-    const heightMultiplier = getHeightMultiplier(msSymbol, musicScore.showMode)
+    const aspectRatio = getMsSymbolAspectRatio(msSymbol)
+    const heightMultiplier = getHeightMultiplier(msSymbol)
     const height = getMsSymbolHeight(msSymbol, musicScore)
     switch (msSymbol?.type) {
         case MsSymbolTypeEnum.NoteStem: {
@@ -156,9 +156,7 @@ export function getMsSymbolWidth(msSymbol: MsSymbol, msSymbolContainer: MsSymbol
             }
             return getNoteTailWidth(msSymbol, noteHead, msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
         }
-        case MsSymbolTypeEnum.NoteDot: {
-            return measureHeight * 0.2
-        }
+
         default: {
             return height * aspectRatio
 
@@ -170,7 +168,7 @@ export function getMsSymbolSlotWidth(msSymbol: MsSymbol, musicScore: MusicScore,
 
     const mainMsSymbol = isMain ? msSymbol : getMainMsSymbol(msSymbol, musicScore)
 
-    const aspectRatio = getMsSymbolAspectRatio(mainMsSymbol, musicScore.showMode)
+    const aspectRatio = getMsSymbolAspectRatio(mainMsSymbol)
     const height = getMsSymbolHeight(mainMsSymbol, musicScore)
     return height * aspectRatio
 }

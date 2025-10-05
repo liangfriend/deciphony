@@ -1,16 +1,20 @@
 // 五线谱区域转换bottom
-import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "deciphony-core";
 import {
+    MsSymbolTypeEnum, MusicScoreShowModeEnum,
     Measure,
     MsSymbol,
     MsSymbolContainer,
     MusicScore,
     NoteStem,
     SingleStaff,
-    StaffRegion
+    StaffRegion,
+    MultipleStaves,
+    getDataWithIndex, staffRegionToIndex, traverseMusicScore, getMainMsSymbol
 } from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
-import {getDataWithIndex, staffRegionToIndex, traverseMusicScore} from "deciphony-core";
+import { MsSymbolInformationMap} from "@/constant";
+import {MsSymbolInformation,VariableWidthSymbolInfo} from "@/types";
+import {getHeightMultiplier, getSpace} from "@/utils/geometryUtil";
 
 export function staffRegionToBottom(region: StaffRegion, measureHeight: number): number {
     return measureHeight * ((staffRegionToIndex(region) - 1) * 2) / 16
@@ -26,21 +30,21 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
                 return measureHeight / 8
 
             } else {
-                const height = getMsSymbolHeight(msSymbol, musicScore, musicScore.showMode)
+                const height = getMsSymbolHeight(msSymbol, musicScore)
                 return -height + measureHeight / 8
 
             }
         }
         case MsSymbolTypeEnum.NoteTail: { // 符尾的
-            const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore, musicScore.showMode)
+            const slotBottom = getSlotBottomToMeasure(msSymbol, musicScore)
             const noteStem = parentMsSymbol?.msSymbolArray.find((item) => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null
             if (!noteStem) {
                 console.error("找不到符杠，符尾bottom计算失败")
                 return 0
             }
             const noteStemOffset = measureHeight * 1 / 8 // 符杠相对slot的偏差
-            const height = getMsSymbolHeight(msSymbol, musicScore, musicScore.showMode)
-            const noteStemHeight = getMsSymbolHeight(noteStem, musicScore, musicScore.showMode)
+            const height = getMsSymbolHeight(msSymbol, musicScore)
+            const noteStemHeight = getMsSymbolHeight(noteStem, musicScore)
 
             if (msSymbol.direction === 'up') {
                 return noteStemHeight - height + noteStemOffset
@@ -49,15 +53,42 @@ export function getMsSymbolBottomToSlot(msSymbol: MsSymbol, musicScore: MusicSco
             }
         }
         case MsSymbolTypeEnum.NoteDot: {
-            const space = 0.2*measureHeight
+            const information = MsSymbolInformationMap[MsSymbolTypeEnum.NoteDot] as VariableWidthSymbolInfo
+            const bSpace = getSpace(msSymbol,musicScore).bottom
+            const tSpace = getSpace(msSymbol,musicScore).top
+            // 如果有减时线，需要加上减时线的高度
+            const mainMsSymbol = getMainMsSymbol(msSymbol, musicScore)
+            let chronaxieReducingLineHeight = 0
+            const chronaxieReducingLine= mainMsSymbol.msSymbolArray.find((item) => item.type === MsSymbolTypeEnum.ChronaxieReducingLine)
+            // 减时线的下间距
+            let bChronaxieReducingLineSpace = 0
+            if(chronaxieReducingLine) {
+                bChronaxieReducingLineSpace = getSpace(chronaxieReducingLine,musicScore).bottom
+                chronaxieReducingLineHeight = getMsSymbolHeight(chronaxieReducingLine,musicScore)
+            }
             if([0,1,2,3].includes(msSymbol.octave)) {
                 const height = getMsSymbolHeight(msSymbol,musicScore)
-                return -height - space
-            }else if([5,6,7,8].includes(msSymbol.octave)){
 
-                return measureHeight + space
+                return -height - bSpace - chronaxieReducingLineHeight - bChronaxieReducingLineSpace
+            }else if([5,6,7,8].includes(msSymbol.octave)){
+                return measureHeight + tSpace
             }
             return 0
+        }
+        case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
+            const information = MsSymbolInformationMap[MsSymbolTypeEnum.ChronaxieIncreasingLine] as VariableWidthSymbolInfo
+            const heightMultiplier = information.heightMultiplier as number
+            const height = heightMultiplier * measureHeight
+            // 居中写法
+            return measureHeight / 2-height / 2
+        }
+        case MsSymbolTypeEnum.ChronaxieReducingLine: {
+            const information = MsSymbolInformationMap[MsSymbolTypeEnum.ChronaxieReducingLine] as VariableWidthSymbolInfo
+            const heightMultiplier = getHeightMultiplier(msSymbol)
+            const bSpace = getSpace(msSymbol,musicScore).bottom
+            const height = heightMultiplier * measureHeight
+            // 居中写法
+            return -height - bSpace
         }
         default: {
             return 0

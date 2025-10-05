@@ -79,7 +79,6 @@ const showMode = ref(MusicScoreShowModeEnum.standardStaff)
 const jianxianSwitch = () => {
   //
   if (showMode.value === MusicScoreShowModeEnum.standardStaff) {
-    console.log('chicken',)
     msRef.value.switchShowMode(musicScoreData.value)
   } else {
     msRef.value.switchShowMode(musicScoreData.value)
@@ -137,12 +136,30 @@ function addMsSymbolQuickly() {
   addMsSymbol(msSymbol, msSymbolContainer, musicScoreData.value)
   msSymbol.beamId = 2
 }
+function add() {
+  const msSymbol = msSymbolTemplate({
+    type: MsSymbolTypeEnum.NoteHead, region: {
+      region: StaffRegionEnum.Lower,
+      type: StaffPositionTypeEnum.Space,
+      index: 3
+    },
+    chronaxie:ChronaxieEnum.eighth,
+  })
+
+  const msSymbolContainer = msSymbolContainerTemplate({
+    type: MsSymbolContainerTypeEnum.variable
+  })
+  addMsSymbolContainer(msSymbolContainer, musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0], musicScoreData.value)
+  addMsSymbol(msSymbol, msSymbolContainer, musicScoreData.value)
+  msSymbol.beamId = 2
+}
 onMounted(() => {
+  console.log('chicken',MsSymbolTypeEnum.NoteNumber)
   addMsSymbolQuickly()
-  addMsSymbolQuickly()
-  addMsSymbolQuickly()
-  addMsSymbolQuickly()
-  addMsSymbolQuickly()
+  // addMsSymbolQuickly()
+  // addMsSymbolQuickly()
+  // addMsSymbolQuickly()
+  // addMsSymbolQuickly()
   //TEST
   window.musicScore = musicScoreData.value
   jianxianSwitch()

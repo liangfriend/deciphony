@@ -9,6 +9,7 @@ import {
     MsSymbolTypeEnum,
     MsTypeNameEnum,
     MusicScoreShowModeEnum,
+    SolmizationEnum,
     SpanSymbolFollowingCategoryEnum,
     SpanSymbolTypeEnum,
     StaffPositionTypeEnum,
@@ -16,13 +17,15 @@ import {
 } from "../musicScoreEnum";
 import {
     BaseMsSymbol,
+    ChronaxieReducingLine,
+    ChronaxieIncreasingLine,
     Measure,
     MsSymbol,
     MsSymbolContainer,
     MultipleStaves,
     MusicScore,
     NoteDot,
-    ChronaxieLine,
+    NoteNumber,
     SingleStaff,
     SpanSymbol,
     StaffRegion,
@@ -113,7 +116,8 @@ export function msSymbolTemplate(options: {
     timeSignature?: TimeSignature,
     accidental?: AccidentalEnum,
     direction?: 'up' | 'down',
-    octave?:number
+    octave?:number,
+    solmization?: SolmizationEnum,
 } = {}): MsSymbol {
     const baseMsSymbol: BaseMsSymbol = {
         id: Math.random() * Date.now() + 1,
@@ -178,13 +182,46 @@ export function msSymbolTemplate(options: {
             }
             return noteDot
         }
-        case MsSymbolTypeEnum.ChronaxieLine: {
-            const chronaxieLine:ChronaxieLine = {
+        case MsSymbolTypeEnum.NoteNumber: {
+            if(options.chronaxie && [ChronaxieEnum.whole,ChronaxieEnum.half].includes(options.chronaxie)){
+                console.error("noteNumber的时值最大为四分音符")
+                options.chronaxie = ChronaxieEnum.quarter
+            }
+            const noteNumber:NoteNumber = {
                 ...baseMsSymbol,
-                type: MsSymbolTypeEnum.ChronaxieLine,
+                type: MsSymbolTypeEnum.NoteNumber,
+                solmization: options.solmization|| SolmizationEnum.DO,
+                chronaxie:options.chronaxie || ChronaxieEnum.quarter,
+                octave: options.octave ?? 4,
+                beamId:-1
+            }
+
+            // 如果不为全，二分，四分音符，添加时值线
+            if (options.chronaxie && ![ChronaxieEnum.quarter].includes(options.chronaxie)) {
+
+                const chronaxieReducingLine = msSymbolTemplate({
+                    type: MsSymbolTypeEnum.ChronaxieReducingLine,
+                    chronaxie: options.chronaxie,
+                })
+                // 这种还没有绑定到musicScore的不需要使用changeData中的函数
+                baseMsSymbol.msSymbolArray.push(chronaxieReducingLine)
+            }
+            return noteNumber
+        }
+        case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
+            const chronaxieIncreasingLine:ChronaxieIncreasingLine = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.ChronaxieIncreasingLine,
+            }
+            return chronaxieIncreasingLine
+        }
+        case MsSymbolTypeEnum.ChronaxieReducingLine: {
+            const chronaxieReducingLine:ChronaxieReducingLine = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.ChronaxieReducingLine,
                 chronaxie: options.chronaxie ?? ChronaxieEnum.eighth
             }
-            return chronaxieLine
+            return chronaxieReducingLine
         }
         case MsSymbolTypeEnum.Rest: {
             return {

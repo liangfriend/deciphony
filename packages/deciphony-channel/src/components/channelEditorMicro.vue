@@ -55,7 +55,8 @@ const selectPoint = ref({
   coefficient: 2, // 系数
   influenceLength: 0,// 影响范围
   weightType: 1,//权重模式 始终相等1，直线递减2 圆滑递减3 尖锐递减4
-  direction: 1 // 两侧1 左侧2 右侧3
+  direction: 1, // 两侧1 左侧2 右侧3
+  relativeHeight:0, // 相对高度调整
 })
 
 function getWeightForPoint(offset: number, range: number, type: number, coefficient: number = 2): number {
@@ -80,7 +81,7 @@ function getWeightForPoint(offset: number, range: number, type: number, coeffici
 }
 
 function changeHeightForPoint(val: number) {
-
+console.log('chicken',)
   if (val === 0) return
   channelData.value[highlightList.value[0].index] += val
   const center = +highlightList.value[0].index// 不知道为啥，这里总会变成字符串，所以加了+
@@ -388,7 +389,7 @@ defineExpose({setChannel})
             <div class="w-fit">高度：</div>
             <div class="flex justify-between items-center">
               <button @click="changeHeightForPoint(-0.01)">-</button>
-              <div><input type="number" step="0.05" v-model="channelData[highlightList[0].index]"/>{{ }}</div>
+              <div><input type="number" step="0.05" disabled v-model="channelData[highlightList[0].index]"/>{{ }}</div>
               <button @click="changeHeightForPoint(0.01)">+</button>
             </div>
             <input type="range" v-model="highlightList[0].index" min="0" :max="channelData.length-1"/>
@@ -402,6 +403,11 @@ defineExpose({setChannel})
               系数（默认=2，只对圆滑和尖锐模式有效）：<input class="w-16" type="number" step="1"
                                                          v-model="selectPoint.coefficient"/>
             </div>
+          </div>
+          <div class="mr-2">
+            相对高度调整：
+            <input type="number" v-model="selectPoint.relativeHeight"/>
+            <button @click="changeHeightForPoint(selectPoint.relativeHeight)">更新</button>
           </div>
           <div class="mr-4">
             权重模式：

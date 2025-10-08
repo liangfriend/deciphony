@@ -7,7 +7,7 @@ import Player from "deciphony-player/dist/class/Player";
 
 const playerManager = ref<PlayerManager>();
 const channelWindowRef = ref<ChannlWindowRef>(null!)
-const zoom = ref(1) // 缩放因子（横向）
+const zoom = ref(200) // 缩放因子（横向）
 const sampleStep = ref(1) // 采样点步长
 const amplitudeScale = ref(1) // 振幅缩放因子
 const channelData = ref<Array<number>>([]) // 波形数据
@@ -237,7 +237,6 @@ function cacheChannel() {
   cacheChannelData.value.sampleRate = player.value.sampleRate
   emits('cacheChannel', JSON.parse(JSON.stringify(cacheChannelData.value)));
 }
-
 
 onMounted(() => {
   playerManager.value = new PlayerManager()

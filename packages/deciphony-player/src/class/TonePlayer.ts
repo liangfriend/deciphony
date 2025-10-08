@@ -2,9 +2,7 @@ import Player from "./Player";
 import {ToneColor, ToneDuration} from "../types/type";
 import {Midi, NoteName, NoteString} from "deciphony-core";
 import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
-import midiToNoteName from "deciphony-core/utils/core/midiToNoteName";
-import {noteNameToNoteString} from "deciphony-core";
-import noteNameToMidi from "deciphony-core/utils/core/noteNameToMidi";
+import {midiToNoteName,noteNameToMidi} from "deciphony-core";
 
 class TonePlayer extends Player {
     toneColor: ToneColor = {};

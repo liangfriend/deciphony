@@ -20,7 +20,16 @@ class InstrumentPlayer extends Player {
         await this.context.audioWorklet.addModule(
             new URL("./processors/XiaoProcessor.js", import.meta.url).href
         );
-        this.audioWorklet = new AudioWorkletNode(this.context, "xiao-processor");
+        this.audioWorklet = new AudioWorkletNode(this.context, "xiao-processor", {
+            parameterData: {
+                frequency:440
+            },
+            processorOptions: { // 这里可以随便写点变量
+
+            },
+    });
+        // 平滑调频
+        // this.audioWorklet.parameters.get('frequency').linearRampToValueAtTime(880, this.context.currentTime + 2);
         this.audioWorklet.connect(this.context!.destination);
         const stream = await navigator.mediaDevices.getUserMedia({audio: true});
         const mic = this.context.createMediaStreamSource(stream);

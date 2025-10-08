@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {onMounted, onBeforeUnmount, ref} from "vue";
-import {InstrumentPlayer} from "@deciphony-player";
+import {InstrumentPlayer} from "deciphony-player";
 
 const player = ref<InstrumentPlayer | null>(null);
 
+const context = new AudioContext()
 onMounted(async () => {
-  player.value = new InstrumentPlayer();
+  player.value = new InstrumentPlayer({context});
   await player.value.createAudioProcessor(); // 等待 Processor 加载完成
 });
 

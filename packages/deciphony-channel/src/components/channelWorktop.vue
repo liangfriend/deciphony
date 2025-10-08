@@ -2,8 +2,9 @@
 import ChannelEditorMicro from "./channelEditorMicro.vue";
 import ChannelEditorMacro from "./channelEditorMacro.vue";
 import ChannelExhibition from "./channelExhibition.vue";
-import {Ref, ref} from "vue";
+import {onMounted, Ref, ref} from "vue";
 import FloatingWindow from "./floatingWindow.vue";
+import algorithmTestData from './algorithmTest'
 
 
 const channelEditorRef = ref<Ref>(null!)
@@ -29,14 +30,23 @@ function audioBufferGenerate(item) {
   return audioBuffer
 }
 
-function addToAudioShow(item) {
+function addToAudioShow(item:{channel:number[],sampleRate:number}) {
   const cloneData = JSON.parse(JSON.stringify(item));
   const audioBuffer = audioBufferGenerate(cloneData)
   channelExhibitionRef.value.addAudioBuffer(audioBuffer)
 
 }
+// 加载算法测试数据
+function loadAlgorithmTestData() {
+  if(algorithmTestData.channel.length) {
+    addToAudioShow(algorithmTestData)
+  }
 
-function addToMicroEditor(item) {
+}
+onMounted(()=>{
+  loadAlgorithmTestData()
+})
+function addToMicroEditor(item:{channel:number[],sampleRate:number}) {
   channelEditorRef.value.setChannel(item)
 }
 

@@ -1,28 +1,26 @@
 <script setup lang="ts">
 import {onMounted, onBeforeUnmount, ref} from "vue";
-import {InstrumentPlayer} from "deciphony-player";
+import {WindInstrumentPlayer} from "deciphony-player";
+import {WindInstrumentEnum} from "deciphony-player/dist/types/enum";
 
-const player = ref<InstrumentPlayer | null>(null);
+const player = ref<WindInstrumentPlayer | null>(null);
 
 const context = new AudioContext()
 onMounted(async () => {
-  player.value = new InstrumentPlayer({context});
-  await player.value.createAudioProcessor(); // 等待 Processor 加载完成
+  player.value = new WindInstrumentPlayer({context});
+  await player.value.createAudioProcessor('SineWind'); // 等待 Processor 加载完成
 });
 
 const freq = ref(440);
 const volume = ref(0.5);
 
-// 更新参数
-function updateParams() {
-  player.value?.updateParameters({
-    freq: freq.value,
-    volume: volume.value,
-  });
+function midiToHz(midi: number): number {
+  return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
+
 function play() {
-  player.value?.play();
+  player.value?.start();
 }
 
 function stop() {
@@ -42,28 +40,17 @@ const keyToFreq: Record<string, number> = {
 
 function handleKeyDown(e: KeyboardEvent) {
   if (keyToFreq[e.key]) {
-    freq.value = keyToFreq[e.key];
-    updateParams();
-    play(); // 每次按键都触发播放
+    player.value?.setFrequency(keyToFreq[e.key])
   }
 }
 
-// 滚轮控制音量
-function handleWheel(e: WheelEvent) {
-  // 向上滚 -> 增加音量，向下滚 -> 减小音量
-  const delta = e.deltaY < 0 ? 0.05 : -0.05;
-  volume.value = Math.min(1, Math.max(0, volume.value + delta));
-  updateParams();
-}
 
 onMounted(() => {
   window.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("wheel", handleWheel, {passive: true});
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleKeyDown);
-  window.removeEventListener("wheel", handleWheel);
 });
 </script>
 

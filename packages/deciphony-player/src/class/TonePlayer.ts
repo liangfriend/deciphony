@@ -1,12 +1,18 @@
 import Player from "./Player";
-import {ToneColor, ToneDuration} from "../types/type";
-import {Midi, NoteName, NoteString} from "deciphony-core";
+import {ToneColor, ToneDuration, ToneSequence} from "../types/types";
+import {ChronaxieEnum, Midi, NoteName, NoteString, TimeSignature} from "deciphony-core";
 import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
-import {midiToNoteName,noteNameToMidi} from "deciphony-core";
 
+/*
+* 传入音色（一系列不同音高的音频文件）播放
+* */
 class TonePlayer extends Player {
     toneColor: ToneColor = {};
     bpm: number = 120;
+    timeSignature: TimeSignature = {
+        beat: 4,
+        chronaxie: ChronaxieEnum.quarter
+    }
 
     constructor({context}: { context: AudioContext }) {
         super({context})
@@ -16,12 +22,12 @@ class TonePlayer extends Player {
         this.toneColor = toneColor;
     }
 
-    async _setSource(midi: Midi) {
+    async _setSource(tone: string) {
         if (Object.keys(this.toneColor).length === 0) {
             console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
         }
-        if (!this.toneColor[midi]) {
+        if (!this.toneColor[tone]) {
             console.error("note不存在于传入的音色中")
             return
         }
@@ -29,16 +35,12 @@ class TonePlayer extends Player {
         // 节点连接
         this.source.connect(this.gainNode).connect(this.context.destination);
         // 传入音频数据
-        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[midi]));
+        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[tone]));
     }
 
-    // 重写play
-    async playMIDI(midi: NoteString | Midi, loop: boolean = false) {
+    async trigger(tone: string, loop: boolean = false) {
 
-        const noteName = ((typeof midi === 'number') ? midiToNoteName(midi) : midi) as NoteName
-
-        const m: Midi = noteNameToMidi(noteName)
-        await this._setSource(m)
+        await this._setSource(tone)
         if (!this.source) return
 
         if (this.context.state === 'suspended') {
@@ -53,7 +55,37 @@ class TonePlayer extends Player {
         this.startTime = this.context.currentTime;
     }
 
-    stopMIDI() {
+    async playSequence(sequence: ToneSequence[]) {
+        const item = sequence[0]
+        if (item && item.type === 'note') {
+            await this.step(sequence, 0)
+        } else if (item.type === 'rest') {
+            await this.step(sequence, 0)
+        }
+
+    }
+
+    async step(sequence: ToneSequence[], index: number) {
+        if (index === sequence.length) {
+            return
+        }
+        const item = sequence[index]
+        const time = toneDurationToTimestamp(item.duration, this.bpm)
+        if (item.type === 'note') {
+            await this.tap(item.tone, item.duration)
+            setTimeout(() => {
+                this.step(sequence, index + 1);
+            }, time)
+        } else if (item.type === 'rest') {
+            setTimeout(() => {
+                const time = toneDurationToTimestamp(item.duration, this.bpm)
+                this.step(sequence, index + 1);
+            }, time)
+        }
+
+    }
+
+    release() {
         if (this.source) {
             this.source.stop();
             // disconnect让source更快的释放资源
@@ -63,11 +95,11 @@ class TonePlayer extends Player {
         this.startTime = 0
     }
 
-    async tapMiDI(midi: NoteString | Midi, duration: ToneDuration) {
-        await this.playMIDI(midi, true)
+    async tap(tone: string, duration: ToneDuration) {
+        await this.trigger(tone, true)
         const timeStamp = toneDurationToTimestamp(duration, this.bpm)
         setTimeout(() => {
-            this.stopMIDI()
+            this.release()
         }, timeStamp)
     }
 }

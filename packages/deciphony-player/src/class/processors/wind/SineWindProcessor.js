@@ -1,8 +1,8 @@
-class MyAudioProcessor extends AudioWorkletProcessor {
+class SineWindProcessor extends AudioWorkletProcessor {
     static get parameterDescriptors() {
         return [
-            {name: 'frequency', defaultValue: 440, minValue: 20, maxValue: 20000, automationRate: 'a-rate',},
-            {name: 'volume', defaultValue: 0.2, minValue: 0, maxValue: 1,},
+            {name: 'frequency', defaultValue: 0, minValue: 0, maxValue: 20000, automationRate: 'a-rate',},
+            {name: 'airPressure', defaultValue: 0, minValue: 0, maxValue: 1,},
         ];
     }
 
@@ -15,11 +15,11 @@ class MyAudioProcessor extends AudioWorkletProcessor {
     process(inputs, outputs, parameters) {
         const now = currentTime; // AudioContext.currentTime
         const delta = now - this.lastProcessTime;
-        console.log('chicken', inputs)
         this.lastProcessTime = now;
         const output = outputs[0];
         const freqValues = parameters.frequency;
-        const volValues = parameters.volume;
+        // 气压转化为力度
+        const volValues = parameters.airPressure;
         const sampleRate = globalThis.sampleRate;
         const twoPi = 2 * Math.PI;
 
@@ -41,4 +41,4 @@ class MyAudioProcessor extends AudioWorkletProcessor {
     }
 }
 
-registerProcessor('xiao-processor', MyAudioProcessor);
+registerProcessor('sine-wind-processor', SineWindProcessor);

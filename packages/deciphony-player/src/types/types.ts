@@ -3,19 +3,19 @@ import {ChronaxieEnum, DotEnum} from "deciphony-core";
 
 export type Base64 = string
 
-export type ToneColor = Record<Midi, Base64>;
+export type ToneColor = Record<string, Base64>;
 
 export type ToneDuration = `${ChronaxieEnum}${DotEnum}`
 export type ToneSequence = {
     type: 'note'
-    midi: Midi,
+    tone: string,
     volume: number,// 0~1
     duration: ToneDuration,
 } | {
     type: 'rest',
     duration: ToneDuration,
 };
-
+export type Envelope = {}
 
 declare abstract class AudioWorkletProcessor {
     readonly port: MessagePort;
@@ -33,3 +33,4 @@ declare function registerProcessor(
     name: string,
     processorCtor: typeof AudioWorkletProcessor
 ): void;
+

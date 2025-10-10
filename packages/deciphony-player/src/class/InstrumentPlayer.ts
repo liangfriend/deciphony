@@ -1,107 +1,39 @@
-import Player from "./Player";
+import {Envelope} from "../types/types";
+import {WindInstrumentEnum} from "../types/enum";
 
-class InstrumentPlayer extends Player {
-
-    audioWorklet: AudioWorkletNode | null = null
-    micContext: AudioContext = new AudioContext()
-    analyserNode: AnalyserNode | null = null
-    microphoneSource: MediaStreamAudioSourceNode | null = null
+class InstrumentPlayer {
+    context: AudioContext = null!
+    // 播放参数
+    frequency: number = 0; // 频率
+    volume: number = 0; // 最终输出音量
+    envelope: Envelope = {}; // 包络
 
 
     constructor({context}: { context: AudioContext }) {
-        super({context})
+        this.context = context;
     }
 
-    /**
-     * 将 MIDI 转换为频率 (Hz)
-     */
-    private midiToHz(midi: number): number {
-        return 440 * Math.pow(2, (midi - 69) / 12);
-    }
-
-    async createAudioProcessor() {
-        this.context = new AudioContext();
-        await this.context.audioWorklet.addModule(
-            new URL("./processors/XiaoProcessor.js", import.meta.url).href
-        );
-        this.audioWorklet = new AudioWorkletNode(this.context, "xiao-processor", {
-            parameterData: {
-                frequency: 440
-            },
-            processorOptions: { // 这里可以随便写点变量
-
-            },
-        });
-        // 平滑调频
-        // this.audioWorklet.parameters.get('frequency').linearRampToValueAtTime(880, this.context.currentTime + 2);
-        this.audioWorklet.connect(this.context!.destination);
-        await this.createMicAnalyzer()
-    }
-
-    private async createMicAnalyzer() {
-        // 获取麦克风输入流
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-        this.microphoneSource = this.micContext.createMediaStreamSource(stream);
-
-        // 创建一个 AnalyserNode 来分析麦克风的音频数据
-        this.analyserNode = this.micContext.createAnalyser();
-        this.analyserNode.fftSize = 256; // 设置 FFT 大小
-        this.analyserNode.smoothingTimeConstant = 0.9; // 平滑时间常量
-        this.microphoneSource.connect(this.analyserNode);
-        // this.analyserNode.connect(this.micContext.destination);
-
-        // 开始分析麦克风数据并实时更新音量参数
-        this.analyzeMicData();
-    }
-
-    private analyzeMicData() {
-        const bufferLength = this.analyserNode!.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        const updateVolume = () => {
-            // 获取频域数据
-            this.analyserNode!.getByteFrequencyData(dataArray);
-
-            // 计算音量（取频率数据的平均值）
-            let sum = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                sum += dataArray[i];
+    getInstrumentInfo(instrument: WindInstrumentEnum): {
+        path: string,
+        registerName: string
+    } {
+        switch (instrument) {
+            case WindInstrumentEnum.SineWind: {
+                return {
+                    path: "./processors/wind/SineWindProcessor.js",
+                    registerName: "sine-wind-processor"
+                }
             }
-
-            // 计算平均音量，作为 volume 的新值（0 到 1 的范围）
-            const averageVolume = sum / bufferLength;
-            const normalizedVolume = averageVolume / 256; // normalize to 0-1 range
-
-            // 通过 AudioWorkletNode 更新音量参数
-            if (this.audioWorklet) {
-                this.audioWorklet.parameters.get('volume')!.setValueAtTime(normalizedVolume, this.micContext.currentTime);
+            default: {
+                return {
+                    path: "./processors/wind/SineWindProcessor.js",
+                    registerName: "sine-wind-processor"
+                }
             }
-
-            // 每 50ms 更新一次音量
-            requestAnimationFrame(updateVolume);
-        };
-
-        // 开始音量分析
-        updateVolume();
-    }
-
-    play() {
-        if (this.context?.state === "suspended") {
-            this.context.resume();
-        }
-        if (this.micContext?.state === "suspended") {
-            this.micContext.resume();
         }
     }
 
-    stop() {
-        this.context.suspend();
-        this.micContext.suspend();
-    }
 
-    updateParameters(data: Record<string, any>) {
-        this.audioWorklet?.port.postMessage(data);
-    }
 }
 
 export default InstrumentPlayer;

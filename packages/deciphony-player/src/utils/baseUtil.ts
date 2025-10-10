@@ -1,4 +1,4 @@
-import {ToneDuration} from "../types/type";
+import {ToneDuration} from "../types/types";
 import {TimeSignature} from "deciphony-core";
 import {ChronaxieEnum} from "deciphony-core";
 
@@ -13,7 +13,6 @@ export function base64ToArrayBuffer(base64: string) {
     return bytes.buffer; // 返回 ArrayBuffer
 }
 
-// 时值转换毫秒
 // 时值转换毫秒
 export function toneDurationToTimestamp(duration: ToneDuration, bpm: number): number {
     const match = duration.match(/^(\d+)(\.*)$/);

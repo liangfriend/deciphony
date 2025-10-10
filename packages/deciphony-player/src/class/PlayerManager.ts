@@ -1,7 +1,6 @@
 import Player from "./Player";
 import player from "./Player";
 import AudioPlayer from "./AudioPlayer";
-import ToneSequencePlayer from "./ToneSequencePlayer";
 import InstrumentPlayer from "./InstrumentPlayer";
 import TonePlayer from "./TonePlayer";
 

@@ -30,8 +30,27 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": true,
     "paths": {
-      "@deciphony-player": "deciphony-player/src/index",
-      "@deciphony-player": "deciphony-ui/src/index"
+      "deciphony-renderer": [
+        "node_modules/deciphony-renderer/src/index.ts"
+      ],
+      "deciphony-player": [
+        "node_modules/deciphony-player/src/index.ts"
+      ],
+      "deciphony-ui": [
+        "node_modules/deciphony-ui/src/index.ts"
+      ],
+      "deciphony-core": [
+        "node_modules/deciphony-core/src/index.ts"
+      ],
+      "deciphony-core/utils": [
+        "node_modules/deciphony-core/src/utils/*.ts"
+      ],
+      "@assets/*": [
+        "node_modules/deciphony-ui/src/assets/*"
+      ],
+      "@/*": [
+        "node_modules/deciphony-renderer/src/*"
+      ]
     }
   },
   "include": [

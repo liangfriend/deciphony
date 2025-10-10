@@ -1,11 +1,13 @@
-midi -> noteName -> region
-region -> noteName -> midi
+七大核心算法
 
-solmization -> noteName -> midi
-midi -> noteName -> solmization
+midi solmization noteName 之间的相互转换
 
-midi和region、solization和midi,直接转换太过复杂，所以进行二次转换
+midi -> solmization
+midi -> noteName
+midi -> region
 
-所以这里涉及6个核心算法
+solmization -> midi
+noteName -> midi
+region -> midi
 
-计算谱号所携带的变音符号， 第7算法
+五线谱某调下某位置上变音符号

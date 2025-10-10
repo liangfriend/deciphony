@@ -3,7 +3,6 @@
        @mousemove.stop="handleMouseMove" @mouseup.stop="handleMouseUp">
     <measure-container :disabled="false" :musicScore="musicScore" class="stackItem lineLayer"
                        :style="{width:width+'px',height:height+'px'}"
-                       :showMode="showMode"
                        @multipleStavesMouseDown="handleMultipleStavesMouseDown"
                        @single-staff-mouse-down="handleSingleStaffMouseDown"
                        comment="谱线层1">
@@ -14,8 +13,8 @@
             :x="measureIndex * measureWidth"
             :width="measureWidth"
             :height="musicScore.measureHeight"
+            :musicScore="musicScore"
             :componentWidth="width"
-            :showMode="showMode"
             @measureMouseDown="handleMeasureMouseDown"
             :componentHeight="height"
             :measure="measure"
@@ -33,7 +32,6 @@
                      @spanSymbolMouseUp="handleSpanSymbolMouseUp"
                      :spanSymbol="spanSymbol"></span-symbol-vue>
     <measure-container :musicScore="musicScore" class="stackItem symbolLayer"
-                       :showMode="showMode"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="符号层2">
       <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
@@ -44,7 +42,6 @@
                              :preContainer="measure.msSymbolContainerArray.length!==0?
                              measure.msSymbolContainerArray[symbolIndex-1]:null"
                              :measure="measure"
-                             :showMode="showMode"
                              :musicScore="musicScore"
                              :measureWidth="measureWidth"
                              :singleStaff="singleStaff"
@@ -61,7 +58,6 @@
 
     <measure-container v-show="mode === MsMode.edit" :musicScore="musicScore"
                        class="stackItem symbolLayer"
-                       :showMode="showMode"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="编辑模式虚拟音符层">
       <template
@@ -119,7 +115,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import measureVue from "@render/components/measure.vue";
+import measureVue from "@/components/measure.vue";
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
 import type {
   Measure,
@@ -140,7 +136,7 @@ import SpanSymbolVue from "./components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   ChronaxieEnum,
   MsMode,
@@ -161,9 +157,9 @@ import {
 } from "./utils/eventUtil";
 import VirtualSymbolContainer
   from "./components/virtualSymbolContainer.vue";
-import {msSymbolTemplate} from "deciphony-core/utils/objectTemplateUtil";
+import {msSymbolTemplate} from "deciphony-core";
 import {MusicScoreRef, ReserveMsSymbolMapType} from "./types";
-import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core/utils/showModeUtil";
+import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core";
 
 
 const props = defineProps({
@@ -178,10 +174,6 @@ const props = defineProps({
   height: {
     type: Number,
     default: 800,
-  },
-  showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: MusicScoreShowModeEnum,
-    default: MusicScoreShowModeEnum.standardStaff
   },
   //小节的线条宽度
   strokeWidth: {
@@ -394,13 +386,7 @@ defineExpose<MusicScoreRef>({
 })
 </script>
 <style scoped lang="scss" comment="布局">
-.stack {
-  position: relative;
 
-  > .stackItem {
-    position: absolute;
-  }
-}
 </style>
 <style scoped lang="scss">
 .lineLayer {

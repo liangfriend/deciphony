@@ -3,7 +3,7 @@ import {computed, CSSProperties, PropType} from "vue";
 import {
   getBeamGroup,
   getDataWithIndex, staffRegionToIndex,
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   BeamGroup,
   type Measure,
@@ -45,11 +45,11 @@ const props = defineProps({
     required: true
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer> | undefined,
     required: true
   },
   nextContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer | undefined>,
     required: true
   },
   msSymbolContainer: {
@@ -84,17 +84,14 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: MusicScoreShowModeEnum,
-    default: MusicScoreShowModeEnum.numberNotation
-  },
+
 })
 const beamGroup = computed((): BeamGroup => {
   return getBeamGroup(props.noteHead.beamId, props.measure)
 })
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.noteTail, props.showMode)
+  return getMsSymbolAspectRatio(props.noteTail)
 })
 // 符尾条数
 const tailCount = computed(() => {
@@ -110,7 +107,7 @@ const tailCount = computed(() => {
 
 const height = computed(() => {
   // const parentMsSymbol = getDataWithIndex(props.msSymbol).msSymbol
-  return getMsSymbolHeight(props.noteTail, props.musicScore, props.showMode)
+  return getMsSymbolHeight(props.noteTail, props.musicScore)
 })
 // 符号宽度
 const width = computed(() => {
@@ -118,10 +115,10 @@ const width = computed(() => {
   if (props.noteTail.type === MsSymbolTypeEnum.NoteTail && props.nextContainer) {
     return getNoteTailWidth(props.noteTail, props.noteHead, props.msSymbolContainer,
         props.measure, props.singleStaff, props.musicScore,
-        props.componentWidth, props.showMode)
+        props.componentWidth)
   }
   return getMsSymbolWidth(props.noteTail, props.msSymbolContainer, props.measure,
-      props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
+      props.singleStaff, props.musicScore, props.componentWidth)
 })
 const msSymbolStyle = computed<CSSProperties>(() => {
 
@@ -146,11 +143,11 @@ const msSymbolStyle = computed<CSSProperties>(() => {
 });
 const msSymbolLeft = computed(() => {
   return getMsSymbolLeftToSlot(props.noteTail, props.msSymbolContainer, props.measure, props.singleStaff,
-      props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth, props.showMode)
+      props.musicScore, props.slotLeft, props.measureWidth, props.componentWidth)
 })
 
 const msSymbolBottom = computed(() => {
-  return getMsSymbolBottomToSlot(props.noteTail, props.musicScore, props.showMode)
+  return getMsSymbolBottomToSlot(props.noteTail, props.musicScore)
 
 })
 const mask = computed(() => {

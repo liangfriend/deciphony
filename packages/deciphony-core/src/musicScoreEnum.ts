@@ -75,7 +75,8 @@ export enum NoteLetterEnum {
 
 // 升降号（Accidental）
 export enum AccidentalEnum {
-    Natural = "",   // 还原
+    None = "",
+    Natural = "&",   // 还原
     Sharp = "#",    // 升
     Flat = "b",     // 降
     DoubleSharp = "##", // 重升
@@ -102,13 +103,17 @@ export enum ChronaxieEnum {
     sixtyFourth = 64,
 }
 
+
 // 符号类型
 export enum MsSymbolTypeEnum {
     NoteHead = 'noteHead', // 线谱指音符头， 简谱指音符
     NoteStem = 'noteStem',
     NoteTail = 'noteTail',
     NoteNumber = 'noteNumber', // 简谱的数字符号
-    Rest = 'rest',
+    ChronaxieReducingLine = 'chronaxieReducingLine', // 简谱的时值线
+    ChronaxieIncreasingLine = 'chronaxieIncreasingLine', // 简谱的增时线
+    NoteDot = 'noteDot', // 八度点
+    Rest = 'rest', // 休止符
     Slur = 'slur', // 圆滑线  不同音高
     Tie = 'tie',  // 延音线  延音线只能连接两个音
     DurationDot = 'durationDot', // 附点

@@ -9,12 +9,10 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@core/*": [
+      "@/*": [
         "src/*"
       ],
-      "@render/*": [
-        "src/*"
-      ]
+
     },
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "noUnusedLocals": false,

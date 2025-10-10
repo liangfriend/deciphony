@@ -56,13 +56,13 @@ export function musicScoreMapRemove(id: number, musicScore: MusicScore) {
     }
 }
 
-
+// 添加子符号
 export function addChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, musicScore: MusicScore) {
     msSymbol.msSymbolArray.push(childMsSymbol);
     setChildMsSymbolArrayIndex(msSymbol)
     musicScoreMapAdd(childMsSymbol, musicScore)
 }
-
+// 移除子符号
 export function removeChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, musicScore: MusicScore) {
     const index = msSymbol.msSymbolArray.indexOf(childMsSymbol)
     if (index === -1) return console.error('符号内找不到目标跟随符号，跟随符号删除失败')
@@ -110,9 +110,14 @@ export function addSpanSymbol(newSpanSymbol: SpanSymbol, startMsData: Exclude<Ms
 
 }
 
+
 // 添加符号
-export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsSymbol | MsSymbolContainer, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbol) {
+        if(typeof position === 'number') {
+            console.error('以符号为定位元素添加符号时，position只可以传after或before')
+            return
+        }
         const msSymbolContainer = getDataWithIndex(currSelected.index, musicScore).msSymbolContainer
         const msSymbol = getDataWithIndex(currSelected.index, musicScore).msSymbol
         if (!msSymbolContainer) return console.error("符号容器不存在，符号添加失败")
@@ -124,12 +129,22 @@ export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsType, musicSc
         } else {
             array.splice(targetIndex + 1, 0, newMsSymbol);
         }
+        // 计算index
         setMsSymbolArrayIndex(msSymbolContainer)
     } else if (currSelected.msTypeName === MsTypeNameEnum.MsSymbolContainer) {
+
         const msSymbolContainer = currSelected
         if (!msSymbolContainer) return console.error("小节不存在，符号容器添加失败")
         const array = msSymbolContainer.msSymbolArray;
-        array.push(newMsSymbol)
+        if(position === -1 || typeof position === 'string') {
+            array.push(newMsSymbol)
+        }else if(position >=0 && position <= array.length) {
+            array.splice(position, 0, newMsSymbol)
+        }else {
+            console.error('索引有误，符号添加失败')
+            return
+        }
+        // 计算index
         setMsSymbolArrayIndex(msSymbolContainer)
     }
     musicScoreMapAdd(newMsSymbol, musicScore)
@@ -156,15 +171,20 @@ export function removeMsSymbol(
 
     if (index === -1) return console.error("找不到目标符号")
     array.splice(index, 1);
+    // 计算index
     setMsSymbolArrayIndex(msSymbolContainer)
     musicScoreMapRemove(msSymbolContainer.id, musicScore)
 
 }
 
 // 添加符号容器
-export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, currSelected: MsSymbolContainer | Measure, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbolContainer) {
+        if(typeof position === 'number') {
+            console.error('以符号容器为定位元素添加符号容器时，position只可以传after或before')
+            return
+        }
         const measure = getDataWithIndex(currSelected.index, musicScore).measure
         const msSymbolContainer = getDataWithIndex(currSelected.index, musicScore).msSymbolContainer
         if (!measure) return console.error("小节不存在，符号容器添加失败")
@@ -176,12 +196,22 @@ export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, cu
         } else {
             array.splice(targetIndex + 1, 0, newMsSymbolContainer);
         }
+        // 计算index
         setMsSymbolContainerArrayIndex(measure)
     } else if (currSelected.msTypeName === MsTypeNameEnum.Measure) {
         const measure = currSelected
         if (!measure) return console.error("小节不存在，符号容器添加失败")
         const array = measure.msSymbolContainerArray;
-        array.push(newMsSymbolContainer)
+        if(position === -1 || typeof position === 'string') {
+            array.push(newMsSymbolContainer)
+        }else if(position >=0 && position <= array.length) {
+            array.splice(position, 0, newMsSymbolContainer)
+        }else {
+            console.error('索引有误，符号容器添加失败')
+            return
+        }
+
+        // 计算index
         setMsSymbolContainerArrayIndex(measure)
     }
     musicScoreMapAdd(newMsSymbolContainer, musicScore)
@@ -202,6 +232,7 @@ export function removeMsSymbolContainer(
     if (index === -1) return console.error("找不到目标符号容器")
     array.splice(index, 1);
     musicScoreMapRemove(msSymbolContainer.id, musicScore)
+    // 计算index
     setMsSymbolContainerArrayIndex(measure)
     // 移除符号容器相关联跨小节符号
     removeMsSymbolContainerRelatedSpanSymbol(msSymbolContainer, musicScore)
@@ -213,9 +244,13 @@ export function removeMsSymbolContainer(
 }
 
 // 添加小节
-export function addMeasure(newMeasure: Measure, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMeasure(newMeasure: Measure, currSelected: Measure | SingleStaff, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.Measure) {
+        if(typeof position === 'number') {
+            console.error('以小节为定位元素添加小节时，position只可以传after或before')
+            return
+        }
         const singleStaff = getDataWithIndex(currSelected.index, musicScore).singleStaff
         if (!singleStaff) return console.error("单谱表不存在，小节插入失败");
         const array = singleStaff.measureArray;
@@ -232,10 +267,13 @@ export function addMeasure(newMeasure: Measure, currSelected: MsType, musicScore
         updateSpanSymbolView(spanSymbolSet, musicScore)
     } else if (currSelected.msTypeName === MsTypeNameEnum.SingleStaff) {
         const array = currSelected.measureArray
-        if (position === 'before') {
-            array.splice(0, 0, newMeasure);
-        } else {
-            array.push(newMeasure);
+        if(position === -1 || typeof position === 'string') {
+            array.push(newMeasure)
+        }else if(position >=0 && position <= array.length) {
+            array.splice(position, 0, newMeasure)
+        }else {
+            console.error('索引有误，小节添加失败')
+            return
         }
         // 计算index
         setMeasureArrayIndex(currSelected)
@@ -357,9 +395,13 @@ export function removeMultipleStavesRelatedSpanSymbol(multipleStaves: MultipleSt
 }
 
 // 添加单谱表
-export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: SingleStaff | MultipleStaves, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.SingleStaff) {
+        if(typeof position === 'number') {
+            console.error('以单谱表为定位元素添加单谱表时，position只可以传after或before')
+            return
+        }
         const multipleStaves = getDataWithIndex(currSelected.index, musicScore).multipleStaves
         if (!multipleStaves) return console.error("复谱表表不存在，单谱表插入失败");
         const array = multipleStaves.singleStaffArray;
@@ -376,10 +418,13 @@ export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: MsType
         updateSpanSymbolView(spanSymbolSet, musicScore)
     } else if (currSelected.msTypeName === MsTypeNameEnum.MultipStaves) {
         const array = currSelected.singleStaffArray
-        if (position === 'before') {
-            array.splice(0, 0, newSingleStaff);
-        } else {
-            array.push(newSingleStaff);
+        if(position === -1 || typeof position === 'string') {
+            array.push(newSingleStaff)
+        }else if(position >=0 && position <= array.length) {
+            array.splice(position, 0, newSingleStaff)
+        }else {
+            console.error('索引有误，单谱表添加失败')
+            return
         }
         // 计算index
         setSingleStaffArrayIndex(currSelected)
@@ -413,14 +458,17 @@ export function removeSingleStaff(
 }
 
 // 添加复谱表
-export function addMultipleStaves(newMultipleStaves: MultipleStaves, currSelected: MsType, musicScore: MusicScore, position: 'after' | 'before' = 'after') {
+export function addMultipleStaves(newMultipleStaves: MultipleStaves, currSelected: MultipleStaves, musicScore: MusicScore, position: number = -1) {
     if (currSelected.msTypeName === MsTypeNameEnum.MultipStaves) {
         const array = musicScore.multipleStavesArray;
         const targetIndex = array.findIndex(item => item === currSelected);
-        if (position === 'before') {
-            array.splice(targetIndex, 0, newMultipleStaves);
-        } else {
-            array.splice(targetIndex + 1, 0, newMultipleStaves);
+        if(position === -1 ) {
+            array.push(newMultipleStaves)
+        }else if(position >=0 && position <= array.length) {
+            array.splice(position, 0, newMultipleStaves)
+        }else {
+            console.error('索引有误，复谱表添加失败')
+            return
         }
         // 更新index
         setMultipleStavesIndex(musicScore)
@@ -850,13 +898,13 @@ export function changeBeamId(newBeamId: number, noteHead: NoteHead, musicScore: 
 // 更新符杠方向
 export function changeNoteStemDirection(direction: 'up' | 'down', noteStem: NoteStem) {
     noteStem.direction = direction
-    noteStem.vueKey = Date.now()
+    noteStem.vueKey = Math.random() * Date.now()
 }
 
 // 更新符尾方向
 export function changeNoteTailDirection(direction: 'up' | 'down', noteTail: NoteTail) {
     noteTail.direction = direction
-    noteTail.vueKey = Date.now()
+    noteTail.vueKey = Math.random() * Date.now()
 }
 
 

@@ -13,7 +13,7 @@ import {
   getDataWithIndex,
   getTarget,
   traverseMeasure
-} from "deciphony-core/utils/musicScoreDataUtil";
+} from "deciphony-core";
 import {
   getContainerLeftToMeasure,
   getMeasureLeftToMusicScore, getSlotLeftToMeasure
@@ -47,10 +47,7 @@ const props = defineProps({
   componentHeight: {
     type: Number,
     default: 800,
-  }, showMode: { // 展示模式    五线谱  简谱  节奏谱
-    type: MusicScoreShowModeEnum,
-    default: MusicScoreShowModeEnum.numberNotation
-  },
+  }
 })
 const msState = inject('msState') as MsState
 
@@ -70,11 +67,11 @@ function voltaRect(volta: Volta, musicScore: MusicScore, componentWidth: number,
     console.error("反复符号绑定小节有误")
     return
   }
-  rect.left = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth, props.showMode)
+  rect.left = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth)
   traverseMeasure(startMeasure.index, endMeasure.index, musicScore, (measure, singleStaff, multipleStaves) => {
-    rect.width += getMeasureWidth(measure, singleStaff, musicScore, componentWidth, props.showMode)
+    rect.width += getMeasureWidth(measure, singleStaff, musicScore, componentWidth)
     const measureBottom = getMeasureBottomToMusicScore(measure, musicScore, componentHeight)
-    const maxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(measure, musicScore, props.showMode)
+    const maxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(measure, musicScore)
     const measureHeight = musicScore.measureHeight
     rect.top = componentHeight - Math.max(musicScore.measureHeight + measureBottom, maxBottomMsSymbol + measureBottom + measureHeight)
   })
@@ -109,13 +106,13 @@ function slurRect(slur: Slur, musicScore: MusicScore, componentWidth: number, co
     console.error("索引数据出错，连音线rect计算失败")
     return
   }
-  const startSlotWidth = getMsSymbolSlotWidth(startNoteHead, musicScore, props.showMode, true)
-  const startMeasureWidth = getMeasureWidth(startMeasure, startSingleStaff, musicScore, componentWidth, props.showMode)
+  const startSlotWidth = getMsSymbolSlotWidth(startNoteHead, musicScore, true)
+  const startMeasureWidth = getMeasureWidth(startMeasure, startSingleStaff, musicScore, componentWidth)
   const startNoteHeadLeftToMeasure = getSlotLeftToMeasure(startNoteHead, startMsSymbolContainer, startMeasure,
-      startSingleStaff, musicScore, startSlotWidth, startMeasureWidth, componentWidth, props.showMode, true)
-  const startMeasureLeft = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth, props.showMode)
+      startSingleStaff, musicScore, startSlotWidth, startMeasureWidth, componentWidth, true)
+  const startMeasureLeft = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth)
   const startMeasureBottom = getMeasureBottomToMusicScore(startMeasure, musicScore, componentHeight)
-  const startMaxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(startMeasure, musicScore, props.showMode)
+  const startMaxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(startMeasure, musicScore)
   // end信息
   const endMsData = getDataWithIndex(endNoteHead.index, musicScore)
   const endMsSymbolContainer = endMsData.msSymbolContainer
@@ -126,11 +123,11 @@ function slurRect(slur: Slur, musicScore: MusicScore, componentWidth: number, co
     console.error("索引数据出错，连音线rect计算失败")
     return
   }
-  const endSlotWidth = getMsSymbolSlotWidth(endNoteHead, musicScore, props.showMode, true)
-  const endMeasureWidth = getMeasureWidth(endMeasure, endSingleStaff, musicScore, componentWidth, props.showMode)
+  const endSlotWidth = getMsSymbolSlotWidth(endNoteHead, musicScore, true)
+  const endMeasureWidth = getMeasureWidth(endMeasure, endSingleStaff, musicScore, componentWidth)
   const endNoteHeadLeftToMeasure = getSlotLeftToMeasure(endNoteHead, endMsSymbolContainer, endMeasure,
-      endSingleStaff, musicScore, endSlotWidth, endMeasureWidth, componentWidth, props.showMode, true)
-  const endMeasureLeft = getMeasureLeftToMusicScore(endMeasure, musicScore, componentWidth, props.showMode)
+      endSingleStaff, musicScore, endSlotWidth, endMeasureWidth, componentWidth, true)
+  const endMeasureLeft = getMeasureLeftToMusicScore(endMeasure, musicScore, componentWidth)
 
   // 坐标计算
   const startLeft = startMeasureLeft + startNoteHeadLeftToMeasure + startSlotWidth / 2

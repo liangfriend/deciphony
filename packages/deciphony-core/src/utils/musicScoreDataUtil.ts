@@ -1,8 +1,12 @@
 import {
-    AccidentalEnum, ChronaxieEnum,
+    AccidentalEnum,
+    ChronaxieEnum,
     ClefEnum,
     KeySignatureEnum,
-    MsSymbolTypeEnum, MsTypeNameEnum, StaffPositionTypeEnum, StaffRegionEnum,
+    MsSymbolTypeEnum,
+    MsTypeNameEnum,
+    StaffPositionTypeEnum,
+    StaffRegionEnum,
 } from "../musicScoreEnum";
 
 import {
@@ -16,16 +20,20 @@ import {
     MultipleStaves,
     MusicScore,
     MusicScoreIndex,
-    NoteHead, NoteName, NoteNumber, NoteString,
-    SingleStaff, SpanSymbol, StaffRegion
+    NoteHead,
+    NoteName,
+    NoteNumber,
+    NoteString,
+    SingleStaff,
+    SpanSymbol,
+    StaffRegion
 } from "../types";
-import regionToNoteName from "./core/regionToNoteName";
-import {noteNameToSolmization} from "./core/noteNameToSolmization";
 
 
 export function noteNameToNoteString(noteName: NoteName): NoteString {
     return `${noteName.letter}${noteName.accidental}${noteName.octave}`
 }
+
 // 是否有符尾（flag）
 export function hasNoteTail(chronaxie: ChronaxieEnum): boolean {
     // 八分音符及更短时值才有符尾
@@ -40,14 +48,14 @@ export function hasNoteStem(chronaxie: ChronaxieEnum): boolean {
 
 // 获取音符的变音符号
 export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScore: MusicScore): {
-    accidental: AccidentalEnum | null,
-    measureAccidental: AccidentalEnum | null
+    accidental: AccidentalEnum,
+    measureAccidental: AccidentalEnum
 } {
-    let accidental: AccidentalEnum | null = null
+    let accidental: AccidentalEnum = AccidentalEnum.None
     if (!noteHead.msSymbolArray) {
         return {
             accidental,
-            measureAccidental: null
+            measureAccidental: AccidentalEnum.None
         }
     }
     const msData = getDataWithIndex(noteHead.index, musicScore)
@@ -61,11 +69,11 @@ export function getMsSymbolAccidental(noteHead: NoteHead | NoteNumber, musicScor
     if (!msSymbolContainer || !measure || !singleStaff || (msSymbolContainerIndex == null) || (measureIndex == null)) {
         console.error("索引数据查找出错，获取符号的谱号失败")
         return {
-            accidental: null,
-            measureAccidental: null
+            accidental,
+            measureAccidental: AccidentalEnum.None
         }
     }
-    let measureAccidental: AccidentalEnum | null = null
+    let measureAccidental: AccidentalEnum = AccidentalEnum.None
     for (let i = (measureIndex); i >= 0; i--) {
         const curMeasure = singleStaff.measureArray[i];
         if (i === measureIndex) {
@@ -686,6 +694,7 @@ export function updateSpanSymbolView(spanSymbolIdList: Set<number>, musicScore: 
 // 获取主符号
 export function getMainMsSymbol(msSymbol: MsSymbol, musicScore: MusicScore): MsSymbol {
     const mainMsSymbol = getDataWithIndex(msSymbol.index, musicScore).msSymbol
+
     if (!mainMsSymbol) {
         console.error("获取主符号失败")
         return msSymbol
@@ -789,4 +798,10 @@ export function getNext(target: Exclude<MsType, SpanSymbol>, musicScore: MusicSc
             console.error("获取next异常，未知类型", target)
             return target
     }
+}
+// 符号进行替换时，对必要属性进行继承
+export function msSymbolPropertiesInherit(newMsSymbol:MsSymbol,oldMsSymbol:MsSymbol) {
+    newMsSymbol.id = oldMsSymbol.id;
+    newMsSymbol.bindingEndId = oldMsSymbol.bindingEndId;
+    newMsSymbol.bindingStartId = oldMsSymbol.bindingStartId;
 }

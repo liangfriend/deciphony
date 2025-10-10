@@ -1,4 +1,4 @@
-<!--谐波、泛音编辑器-->
+<!--宏观编辑器-->
 <script setup lang="ts">
 import {ref, onMounted, nextTick, computed, watch} from "vue"
 import ChannelWindow from "./channelWindow.vue";
@@ -69,7 +69,6 @@ function getWeight(offset: number, range: number, type: number): number {
   switch (type) {
     case 0: {
       // 默认：线性衰减
-      console.log('chicken', 0)
       return 1 - d
     }
 
@@ -78,7 +77,6 @@ function getWeight(offset: number, range: number, type: number): number {
     }
 
     case 2: {
-      console.log('chicken', 2)
       return (1 - d) ** 2
     }
 
@@ -125,9 +123,10 @@ function cache() {
 function getCacheChannelData(): { channel: Array<number>, sampleRate: number } {
   return cacheChannel.value
 }
-function pointClick(payload){
-    console.log('chicken',payload)
+
+function pointClick(payload) {
 }
+
 onMounted(() => {
   if (canvasRef.value) {
     canvasRef.value.height = 200
@@ -144,7 +143,7 @@ defineExpose({getCacheChannelData})
 
 <template>
   <div class="p-4 space-y-4">
-      <div class="text-2xl">谐波、泛音编辑</div>
+    <div class="text-2xl">宏观编辑</div>
     <div class="flex items-center">
       <label>波形生成：</label>
       <div class="mr-4">

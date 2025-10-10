@@ -9,6 +9,7 @@ import {
     MsSymbolTypeEnum,
     MsTypeNameEnum,
     MusicScoreShowModeEnum,
+    SolmizationEnum,
     SpanSymbolFollowingCategoryEnum,
     SpanSymbolTypeEnum,
     StaffPositionTypeEnum,
@@ -16,11 +17,15 @@ import {
 } from "../musicScoreEnum";
 import {
     BaseMsSymbol,
+    ChronaxieReducingLine,
+    ChronaxieIncreasingLine,
     Measure,
     MsSymbol,
     MsSymbolContainer,
     MultipleStaves,
     MusicScore,
+    NoteDot,
+    NoteNumber,
     SingleStaff,
     SpanSymbol,
     StaffRegion,
@@ -41,7 +46,7 @@ export function spanSymbolTemplate(options: {
                 "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.measure,
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
-                "id": Date.now(),
+                "id": Math.random() * Date.now(),
                 "rect": {
                     top: 0,
                     left: 0,
@@ -53,7 +58,7 @@ export function spanSymbolTemplate(options: {
                     "highlightColor": "red",
                     "color": "black"
                 },
-                "vueKey": Date.now()
+                "vueKey": Math.random() * Date.now()
             }
         }
         case SpanSymbolTypeEnum.slur: {
@@ -63,7 +68,7 @@ export function spanSymbolTemplate(options: {
                 "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.msSymbol,
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
-                "id": Date.now(),
+                "id": Math.random() * Date.now(),
                 "rect": {
                     top: 0,
                     left: 0,
@@ -75,7 +80,7 @@ export function spanSymbolTemplate(options: {
                     "highlightColor": "red",
                     "color": "black"
                 },
-                "vueKey": Date.now()
+                "vueKey": Math.random() * Date.now()
             }
         }
     }
@@ -85,7 +90,7 @@ export function spanSymbolTemplate(options: {
         "spanSymbolFollowingCategoryEnum": SpanSymbolFollowingCategoryEnum.measure,
         "startTargetId": options.startTargetId,
         "endTargetId": options.endTargetId,
-        "id": Date.now(),
+        "id": Math.random() * Date.now(),
         "rect": {
             top: 0,
             left: 0,
@@ -97,7 +102,7 @@ export function spanSymbolTemplate(options: {
             "highlightColor": "red",
             "color": "black"
         },
-        "vueKey": Date.now()
+        "vueKey": Math.random() * Date.now()
     }
 }
 
@@ -110,10 +115,12 @@ export function msSymbolTemplate(options: {
     keySignature?: KeySignatureEnum,
     timeSignature?: TimeSignature,
     accidental?: AccidentalEnum,
-    direction?: 'up' | 'down'
+    direction?: 'up' | 'down',
+    octave?:number,
+    solmization?: SolmizationEnum,
 } = {}): MsSymbol {
     const baseMsSymbol: BaseMsSymbol = {
-        id: Date.now() + 1,
+        id: Math.random() * Date.now() + 1,
         msTypeName: MsTypeNameEnum.MsSymbol,
         index: {
             multipleStavesIndex: -1,
@@ -130,7 +137,7 @@ export function msSymbolTemplate(options: {
         bindingStartId: [],
         bindingEndId: [],
         msSymbolArray: [],
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
     }
     switch (options.type) {
         case MsSymbolTypeEnum.NoteHead: {
@@ -166,6 +173,55 @@ export function msSymbolTemplate(options: {
                 region: region,
                 chronaxie: options.chronaxie || ChronaxieEnum.quarter,
             }
+        }
+        case MsSymbolTypeEnum.NoteDot: {
+            const noteDot:NoteDot = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.NoteDot,
+                octave: options.octave ?? 4
+            }
+            return noteDot
+        }
+        case MsSymbolTypeEnum.NoteNumber: {
+            if(options.chronaxie && [ChronaxieEnum.whole,ChronaxieEnum.half].includes(options.chronaxie)){
+                console.error("noteNumber的时值最大为四分音符")
+                options.chronaxie = ChronaxieEnum.quarter
+            }
+            const noteNumber:NoteNumber = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.NoteNumber,
+                solmization: options.solmization|| SolmizationEnum.DO,
+                chronaxie:options.chronaxie || ChronaxieEnum.quarter,
+                octave: options.octave ?? 4,
+                beamId:-1
+            }
+
+            // 如果不为全，二分，四分音符，添加时值线
+            if (options.chronaxie && ![ChronaxieEnum.quarter].includes(options.chronaxie)) {
+
+                const chronaxieReducingLine = msSymbolTemplate({
+                    type: MsSymbolTypeEnum.ChronaxieReducingLine,
+                    chronaxie: options.chronaxie,
+                })
+                // 这种还没有绑定到musicScore的不需要使用changeData中的函数
+                baseMsSymbol.msSymbolArray.push(chronaxieReducingLine)
+            }
+            return noteNumber
+        }
+        case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
+            const chronaxieIncreasingLine:ChronaxieIncreasingLine = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.ChronaxieIncreasingLine,
+            }
+            return chronaxieIncreasingLine
+        }
+        case MsSymbolTypeEnum.ChronaxieReducingLine: {
+            const chronaxieReducingLine:ChronaxieReducingLine = {
+                ...baseMsSymbol,
+                type: MsSymbolTypeEnum.ChronaxieReducingLine,
+                chronaxie: options.chronaxie ?? ChronaxieEnum.eighth
+            }
+            return chronaxieReducingLine
         }
         case MsSymbolTypeEnum.Rest: {
             return {
@@ -285,7 +341,7 @@ export function msSymbolTemplate(options: {
 
 export function msSymbolContainerTemplate(options: { type?: MsSymbolContainerTypeEnum } = {}): MsSymbolContainer {
     const msSymbolContainer: MsSymbolContainer = {
-        id: Date.now() + 2,
+        id: Math.random() * Date.now() + 2,
         msSymbolArray: [],
         type: options.type || MsSymbolContainerTypeEnum.variable,
         index: {
@@ -302,7 +358,7 @@ export function msSymbolContainerTemplate(options: { type?: MsSymbolContainerTyp
             highlightColor: 'red',
             color: 'black',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         msTypeName: MsTypeNameEnum.MsSymbolContainer,
     }
 
@@ -313,7 +369,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
 
 
     const measure: Measure = {
-        id: Date.now() + 3,
+        id: Math.random() * Date.now() + 3,
         msTypeName: MsTypeNameEnum.Measure,
         index: {
             multipleStavesIndex: -1,
@@ -329,7 +385,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
             highlightColor: 'red',
             color: 'black',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         msSymbolContainerArray: []
     }
     // 小节必须有结束小节线
@@ -348,7 +404,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
 // 会默认添加一个小节
 export function singleStaffTemplate(options: {} = {}): SingleStaff {
     const singleStaff: SingleStaff = {
-        id: Date.now() + 4,
+        id: Math.random() * Date.now() + 4,
         msTypeName: MsTypeNameEnum.SingleStaff,
         index: {
             multipleStavesIndex: -1,
@@ -366,7 +422,7 @@ export function singleStaffTemplate(options: {} = {}): SingleStaff {
             highlightColor: 'red',
             color: 'transparent',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         singleStaffMarginBottom: 30,
         measureArray: []
     }
@@ -380,7 +436,7 @@ export function singleStaffTemplate(options: {} = {}): SingleStaff {
 // 会默认添加一个带小节的单谱表
 export function multipleStavesTemplate(options: {} = {}): MultipleStaves {
     const multipleStaves: MultipleStaves = {
-        id: Date.now() + 5,
+        id: Math.random() * Date.now() + 5,
         msTypeName: MsTypeNameEnum.MultipStaves,
         index: {
             multipleStavesIndex: -1,
@@ -399,7 +455,7 @@ export function multipleStavesTemplate(options: {} = {}): MultipleStaves {
             highlightColor: 'red',
             color: 'transparent',
         },
-        vueKey: Date.now(),
+        vueKey: Math.random() * Date.now(),
         singleStaffArray: []
     }
     const singleStaff = singleStaffTemplate({})
@@ -420,7 +476,7 @@ export function musicScoreTemplate(options: {} = {}) {
         spanSymbolArray: [],
         widthDynamicRatio: 0.6,
         map: {},
-        vueKey: Date.now() + 6,
+        vueKey: Math.random() * Date.now() + 6,
     }
     return musicScore
 }

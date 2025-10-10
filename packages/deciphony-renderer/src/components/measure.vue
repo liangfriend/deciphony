@@ -8,17 +8,13 @@ import {computed, CSSProperties, PropType} from 'vue';
 
 import barStandardStaff from '../assets/msSymbols/bar-standardStaff.svg';
 import barNumberNotation from '../assets/msSymbols/bar-numberNotation.svg';
-import {Measure,} from "../../../deciphony-core/src/types";
+import {Measure, type MusicScore,} from "../../../deciphony-core/src/types";
 import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
 const props = defineProps({
   measure: {
     type: Object as PropType<Measure>,
     required: true,
-  },
-  showMode: {
-    type: MusicScoreShowModeEnum,
-    required: true
   },
   x: {
     type: Number,
@@ -47,10 +43,13 @@ const props = defineProps({
   strokeWidth: {
     type: Number,
     default: 1
-  }
+  },
+  musicScore: {
+    type: Object as PropType<MusicScore>,
+    default: {}
+  },
 
 });
-
 const measureStyle = computed(() => {
   return {
     'width': '100%',
@@ -70,7 +69,8 @@ const barLineStyle = computed((): CSSProperties => {
     background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',
   };
-  switch (props.showMode) {
+
+  switch (props.musicScore.showMode) {
     case MusicScoreShowModeEnum.standardStaff: {
       style.mask = `url("${barStandardStaff}") no-repeat center`
       style['mask-size'] = '100% 100%'

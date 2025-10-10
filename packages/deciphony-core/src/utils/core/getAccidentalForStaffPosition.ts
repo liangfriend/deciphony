@@ -56,6 +56,7 @@ function getNoteLetterFromStaffPosition(pos: StaffRegion, clef: ClefEnum): strin
     return sequence[noteIndex];
 }
 
+// 获取五线谱上某位置的变音符号
 function getAccidentalForStaffPosition(
     key: KeySignatureEnum,
     pos: StaffRegion,
@@ -67,7 +68,7 @@ function getAccidentalForStaffPosition(
 
     if (sharps.includes(note)) return AccidentalEnum.Sharp;
     if (flats.includes(note)) return AccidentalEnum.Flat;
-    return AccidentalEnum.Natural;
+    return AccidentalEnum.None;
 }
 
 export default getAccidentalForStaffPosition

@@ -1,7 +1,7 @@
 import {ToneSequence} from "../types/type";
-import {TimeSignature} from "deciphony-core/types";
+import {TimeSignature} from "deciphony-core";
 import TonePlayer from "./TonePlayer";
-import {ChronaxieEnum} from "deciphony-core/enum";
+import {ChronaxieEnum} from "deciphony-core";
 import {toneDurationToTimestamp} from "../utils/baseUtil";
 
 class ToneSequencePlayer extends TonePlayer {

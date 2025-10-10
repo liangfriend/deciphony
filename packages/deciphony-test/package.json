@@ -9,16 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "element-plus": "^2.11.3",
     "vue": "^3.5.17"
   },
   "devDependencies": {
-    "deciphony-renderer": "workspace:*",
-    "deciphony-core": "workspace:*",
-    "deciphony-transfer": "workspace:*",
-    "deciphony-player": "workspace:*",
-    "deciphony-ui": "workspace:*",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
+    "deciphony-core": "workspace:*",
+    "deciphony-player": "workspace:*",
+    "deciphony-renderer": "workspace:*",
+    "deciphony-transfer": "workspace:*",
+    "deciphony-ui": "workspace:*",
     "typescript": "^5.0.2",
     "vite": "^7.0.4",
     "vue-tsc": "^2.2.12"

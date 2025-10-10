@@ -1,5 +1,5 @@
-import {Midi, NoteName, NoteString} from "deciphony-core/types";
-import {ChronaxieEnum, DotEnum} from "deciphony-core/enum";
+import {Midi, NoteName, NoteString} from "deciphony-core";
+import {ChronaxieEnum, DotEnum} from "deciphony-core";
 
 export type Base64 = string
 

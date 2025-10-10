@@ -19,11 +19,11 @@ const props = defineProps({
     required: true,
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer> | undefined,
     required: true,
   },
   nextContainer: {
-    type: Object as PropType<MsSymbolContainer | null>,
+    type: Object as PropType<MsSymbolContainer | undefined>,
     required: true,
   },
   measureHeight: {
@@ -58,10 +58,7 @@ const props = defineProps({
     type: Object as PropType<MusicScore>,
     required: true, // 改为必须传入，移除 default: {}
   },
-  showMode: {
-    type: MusicScoreShowModeEnum,
-    required: true, // 改为必须传入，移除 default: {}
-  },
+
 });
 
 
@@ -84,12 +81,11 @@ const msSymbolContainerStyle = computed<CSSProperties>(() => {
 
 // 符号容器宽度计算
 const containerWidth = computed(() => {
-  return getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth, props.showMode)
+  return getMsSymbolContainerWidth(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.componentWidth)
 })
-
 // 符号容器横坐标计算
 const containerLeft = computed(() => {
-  return getContainerLeftToMeasure(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.measureWidth, props.showMode)
+  return getContainerLeftToMeasure(props.msSymbolContainer, props.measure, props.singleStaff, props.musicScore, props.measureWidth)
 })
 const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
 
@@ -103,7 +99,6 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
                     :preContainer="props.preContainer"
                     :nextContainer="props.nextContainer"
                     :measure="props.measure"
-                    :showMode="showMode"
                     :measureWidth="props.measureWidth"
                     :singleStaff="props.singleStaff"
                     :containerWidth="containerWidth"

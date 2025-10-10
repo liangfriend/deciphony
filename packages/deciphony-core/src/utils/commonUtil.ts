@@ -2,19 +2,19 @@ import {NoteName, NoteString} from "../types";
 import {AccidentalEnum, NoteLetterEnum} from "../musicScoreEnum";
 
 // MIDI 到音名映射 (C 大调，含升号优先)
-const NOTE_TABLE: { letter: NoteLetterEnum; accidental: AccidentalEnum }[] = [
-    {letter: NoteLetterEnum.C, accidental: AccidentalEnum.Natural},
+const NOTE_TABLE: { letter: NoteLetterEnum; accidental: Exclude<AccidentalEnum,AccidentalEnum.Natural> }[] = [
+    {letter: NoteLetterEnum.C, accidental: AccidentalEnum.None},
     {letter: NoteLetterEnum.C, accidental: AccidentalEnum.Sharp},
-    {letter: NoteLetterEnum.D, accidental: AccidentalEnum.Natural},
+    {letter: NoteLetterEnum.D, accidental: AccidentalEnum.None},
     {letter: NoteLetterEnum.D, accidental: AccidentalEnum.Sharp},
-    {letter: NoteLetterEnum.E, accidental: AccidentalEnum.Natural},
-    {letter: NoteLetterEnum.F, accidental: AccidentalEnum.Natural},
+    {letter: NoteLetterEnum.E, accidental: AccidentalEnum.None},
+    {letter: NoteLetterEnum.F, accidental: AccidentalEnum.None},
     {letter: NoteLetterEnum.F, accidental: AccidentalEnum.Sharp},
-    {letter: NoteLetterEnum.G, accidental: AccidentalEnum.Natural},
+    {letter: NoteLetterEnum.G, accidental: AccidentalEnum.None},
     {letter: NoteLetterEnum.G, accidental: AccidentalEnum.Sharp},
-    {letter: NoteLetterEnum.A, accidental: AccidentalEnum.Natural},
+    {letter: NoteLetterEnum.A, accidental: AccidentalEnum.None},
     {letter: NoteLetterEnum.A, accidental: AccidentalEnum.Sharp},
-    {letter: NoteLetterEnum.B, accidental: AccidentalEnum.Natural},
+    {letter: NoteLetterEnum.B, accidental: AccidentalEnum.None},
 ];
 
 export function hzToMidi(

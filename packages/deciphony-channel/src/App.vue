@@ -3,7 +3,6 @@ import ChannelWorktop from "./components/channelWorktop.vue";
 </script>
 
 <template>
-
   <channel-worktop></channel-worktop>
 </template>
 

@@ -20,7 +20,7 @@
     "prepublishOnly": "npm version patch"
   },
   "dependencies": {
-    "deciphony-core": "0.0.14"
+    "deciphony-core": "workspace:*"
   },
   "keywords": [],
   "author": "",

@@ -6,9 +6,10 @@ import {
     NoteHead,
     SingleStaff,
     WidthConstant
-} from "../../../deciphony-core/src/types";
-import {MsSymbolInformationMap,} from "../constant";
-import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+} from "deciphony-core";
+import {MsSymbolInformationMap,} from "@/constant";
+import {MusicScoreShowModeEnum} from "deciphony-core";
+import {MsSymbolTypeEnum} from "deciphony-core";
 
 // 获取当前符号的宽度系数之和
 export function getWidthConstantInMsSymbol(msSymbol: MsSymbol, showMode: MusicScoreShowModeEnum): WidthConstant {

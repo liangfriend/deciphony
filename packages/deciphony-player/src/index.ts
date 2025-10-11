@@ -9,4 +9,4 @@ import InstrumentPlayer from "./class/InstrumentPlayer";
 import WindInstrumentPlayer from "./class/WindInstrumentPlayer";
 
 
-export {AudioPlayer, TonePlayer, InstrumentPlayer, PlayerManager, WindInstrumentPlayer};
+export {AudioPlayer, TonePlayer, PlayerManager, WindInstrumentPlayer};

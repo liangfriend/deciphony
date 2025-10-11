@@ -8,7 +8,7 @@ export type ToneColor = Record<string, Base64>;
 export type ToneDuration = `${ChronaxieEnum}${DotEnum}`
 export type ToneSequence = {
     type: 'note'
-    tone: string,
+    tone: string | number,
     volume: number,// 0~1
     duration: ToneDuration,
 } | {

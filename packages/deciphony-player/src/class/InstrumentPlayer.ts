@@ -9,8 +9,8 @@ class InstrumentPlayer {
     envelope: Envelope = {}; // 包络
 
 
-    constructor({context}: { context: AudioContext }) {
-        this.context = context;
+    constructor() {
+        this.context = this.context = new AudioContext();
     }
 
     getInstrumentInfo(instrument: WindInstrumentEnum): {

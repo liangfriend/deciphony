@@ -1,12 +1,17 @@
-import Player from "./Player";
 import {ToneColor, ToneDuration, ToneSequence} from "../types/types";
-import {ChronaxieEnum, Midi, NoteName, NoteString, TimeSignature} from "deciphony-core";
+import {ChronaxieEnum, TimeSignature} from "deciphony-core";
 import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
 
 /*
 * 传入音色（一系列不同音高的音频文件）播放
 * */
-class TonePlayer extends Player {
+class TonePlayer {
+    context: AudioContext; // 音频上下文
+    gainNode: GainNode; // 增益节点
+    source: AudioBufferSourceNode | null = null; // 音频源
+    state: 'stopped' | 'playing' | 'paused' = 'stopped';
+    audioBuffer: AudioBuffer | null = null;
+    pauseIndex: number = 0;
     toneColor: ToneColor = {};
     bpm: number = 120;
     timeSignature: TimeSignature = {
@@ -14,15 +19,16 @@ class TonePlayer extends Player {
         chronaxie: ChronaxieEnum.quarter
     }
 
-    constructor({context}: { context: AudioContext }) {
-        super({context})
+    constructor() {
+        this.context = new AudioContext()
+        this.gainNode = this.context.createGain();
     }
 
     addToneColor(toneColor: ToneColor) {
         this.toneColor = toneColor;
     }
 
-    async _setSource(tone: string) {
+    async _setSource(tone: string | number) {
         if (Object.keys(this.toneColor).length === 0) {
             console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
@@ -38,7 +44,7 @@ class TonePlayer extends Player {
         this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[tone]));
     }
 
-    async trigger(tone: string, loop: boolean = false) {
+    async trigger(tone: string | number, loop: boolean = false) {
 
         await this._setSource(tone)
         if (!this.source) return
@@ -51,22 +57,44 @@ class TonePlayer extends Player {
             //
         };
         // 播放
-        this.source.start(0, this.pauseTime); // 从 pauseTime 的位置继续播放
-        this.startTime = this.context.currentTime;
+        this.source.start(0); // 从 pauseTime 的位置继续播放
     }
 
     async playSequence(sequence: ToneSequence[]) {
-        const item = sequence[0]
+        this.state = 'playing'
+        const index = this.pauseIndex
+        if (this.pauseIndex !== 0) {
+            this.pauseIndex = 0
+        }
+        const item = sequence[index]
         if (item && item.type === 'note') {
-            await this.step(sequence, 0)
+            await this.step(sequence, index)
         } else if (item.type === 'rest') {
-            await this.step(sequence, 0)
+            await this.step(sequence, index)
         }
 
     }
 
+    async pauseSequence(sequence: ToneSequence[]) {
+        this.state = 'paused';
+    }
+
+    async stopSequence(sequence: ToneSequence[]) {
+        this.state = 'stopped';
+    }
+
     async step(sequence: ToneSequence[], index: number) {
+        if (this.state === 'stopped') {
+            this.pauseIndex = 0
+            this.release()
+            return
+        }
+        if (this.state === 'paused') {
+            this.pauseIndex = index
+            return
+        }
         if (index === sequence.length) {
+            this.state = 'stopped';
             return
         }
         const item = sequence[index]
@@ -78,7 +106,6 @@ class TonePlayer extends Player {
             }, time)
         } else if (item.type === 'rest') {
             setTimeout(() => {
-                const time = toneDurationToTimestamp(item.duration, this.bpm)
                 this.step(sequence, index + 1);
             }, time)
         }
@@ -91,11 +118,9 @@ class TonePlayer extends Player {
             // disconnect让source更快的释放资源
             this.source.disconnect();
         }
-        this.pauseTime = 0;
-        this.startTime = 0
     }
 
-    async tap(tone: string, duration: ToneDuration) {
+    async tap(tone: string | number, duration: ToneDuration) {
         await this.trigger(tone, true)
         const timeStamp = toneDurationToTimestamp(duration, this.bpm)
         setTimeout(() => {

@@ -8,8 +8,8 @@ class AudioPlayer extends Player {
     private _current: number = 0; // 相对音频时长的当前播放时长
 
 
-    constructor({context}: { context: AudioContext }) {
-        super({context})
+    constructor() {
+        super()
     }
 
     // 播放过程进度回调 current 当前播放时长 duration 音频总时长

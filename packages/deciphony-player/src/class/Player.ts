@@ -27,8 +27,8 @@ class Player {
     }
 
 
-    constructor({context}: { context: AudioContext }) {
-        this.context = context
+    constructor() {
+        this.context = new AudioContext()
         this.gainNode = this.context.createGain();
     }
 

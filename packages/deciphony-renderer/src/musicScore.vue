@@ -38,9 +38,9 @@
         <ms-symbol-container v-for="(msSymbolContainer,symbolIndex) in measure.msSymbolContainerArray"
                              :msSymbolContainer="msSymbolContainer"
                              :nextContainer="measure.msSymbolContainerArray.length!==(symbolIndex+1)?
-                             measure.msSymbolContainerArray[symbolIndex+1]:null"
+                             measure.msSymbolContainerArray[symbolIndex+1]:undefined"
                              :preContainer="measure.msSymbolContainerArray.length!==0?
-                             measure.msSymbolContainerArray[symbolIndex-1]:null"
+                             measure.msSymbolContainerArray[symbolIndex-1]:undefined"
                              :measure="measure"
                              :musicScore="musicScore"
                              :measureWidth="measureWidth"

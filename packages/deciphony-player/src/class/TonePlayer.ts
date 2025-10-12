@@ -8,12 +8,12 @@ import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
 class TonePlayer {
     context: AudioContext; // 音频上下文
     gainNode: GainNode; // 增益节点
-    source: AudioBufferSourceNode | null = null; // 音频源
-    state: 'stopped' | 'playing' | 'paused' = 'stopped';
-    audioBuffer: AudioBuffer | null = null;
+    private _state: 'stopped' | 'playing' | 'paused' = 'stopped';
+    private _curPlayingSource: AudioBufferSourceNode | undefined // 当前正在播放序列的的音频源，只用于序列播放
     pauseIndex: number = 0;
-    toneColor: ToneColor = {};
+    private _toneColor: ToneColor = {};
     bpm: number = 120;
+    private timer: number | NodeJS.Timeout = 0;
     timeSignature: TimeSignature = {
         beat: 4,
         chronaxie: ChronaxieEnum.quarter
@@ -25,107 +25,138 @@ class TonePlayer {
     }
 
     addToneColor(toneColor: ToneColor) {
-        this.toneColor = toneColor;
+        this._toneColor = toneColor;
     }
 
     async _setSource(tone: string | number) {
-        if (Object.keys(this.toneColor).length === 0) {
+        if (Object.keys(this._toneColor).length === 0) {
             console.error("音频文件不存在，请调用addToneColor方法添加音频")
             return
         }
-        if (!this.toneColor[tone]) {
+        if (!this._toneColor[tone]) {
             console.error("note不存在于传入的音色中")
             return
         }
-        this.source = this.context.createBufferSource();
+        // 单音符播放时，需要保证多音符同时播放，所以这里不能release
+        // if (this.source) {
+        //     this.release()
+        // }
+        const source = this.context.createBufferSource();
         // 节点连接
-        this.source.connect(this.gainNode).connect(this.context.destination);
+        source.connect(this.gainNode).connect(this.context.destination);
         // 传入音频数据
-        this.source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this.toneColor[tone]));
+        source.buffer = await this.context.decodeAudioData(base64ToArrayBuffer(this._toneColor[tone]));
+        return source
     }
 
-    async trigger(tone: string | number, loop: boolean = false) {
+    async trigger(tone: string | number, loop: boolean = false): Promise<AudioBufferSourceNode | undefined> {
 
-        await this._setSource(tone)
-        if (!this.source) return
-
+        const source = await this._setSource(tone)
+        this._curPlayingSource = source
+        if (!source) {
+            return
+        }
         if (this.context.state === 'suspended') {
             await this.context.resume(); // 有些浏览器首次需手动激活音频上下文
         }
-        this.source.loop = loop
-        this.source.onended = () => {
+        source.loop = loop
+        source.onended = () => {
             //
         };
         // 播放
-        this.source.start(0); // 从 pauseTime 的位置继续播放
+        source.start(0); // 从 pauseTime 的位置继续播放
+        return source
     }
 
     async playSequence(sequence: ToneSequence[]) {
-        this.state = 'playing'
-        const index = this.pauseIndex
-        if (this.pauseIndex !== 0) {
-            this.pauseIndex = 0
+        if (this._state === 'playing') {
+            return
         }
+        this._state = 'playing'
+        const index = this.pauseIndex
+
         const item = sequence[index]
         if (item && item.type === 'note') {
             await this.step(sequence, index)
-        } else if (item.type === 'rest') {
+        } else if (item && item.type === 'rest') {
             await this.step(sequence, index)
         }
 
     }
 
-    async pauseSequence(sequence: ToneSequence[]) {
-        this.state = 'paused';
+    pauseSequence(sequence: ToneSequence[]) {
+        this._state = 'paused';
+        clearTimeout(this.timer);
+        // 不可以直接release,要等当前声音播放完成
     }
 
-    async stopSequence(sequence: ToneSequence[]) {
-        this.state = 'stopped';
+    stopSequence(options?: {
+        immediate?: boolean,// 是否立即停止
+    }) {
+        this._state = 'stopped';
+        this.pauseIndex = 0
+        if (options?.immediate) {
+            this._curPlayingSource && this.release(this._curPlayingSource)
+        }
+        clearTimeout(this.timer);
     }
 
     async step(sequence: ToneSequence[], index: number) {
-        if (this.state === 'stopped') {
-            this.pauseIndex = 0
-            this.release()
-            return
-        }
-        if (this.state === 'paused') {
-            this.pauseIndex = index
-            return
-        }
+        // 自然播放结束时，索引超出，停止。
         if (index === sequence.length) {
-            this.state = 'stopped';
+            this._state = 'stopped';
+            this.pauseIndex = 0
             return
         }
+        // 手动暂停，如果索引为最后一个音符，就要设置pauseIndex=0
+        if (index === sequence.length - 1) {
+            this.pauseIndex = 0
+        } else {
+            this.pauseIndex = index + 1
+        }
+
+        if (this._state === 'stopped') {
+            this._curPlayingSource && this.release(this._curPlayingSource)
+            return
+        }
+        if (this._state === 'paused') {
+            return
+        }
+
         const item = sequence[index]
         const time = toneDurationToTimestamp(item.duration, this.bpm)
         if (item.type === 'note') {
-            await this.tap(item.tone, item.duration)
-            setTimeout(() => {
+            this._curPlayingSource = await this.tap(item.tone, item.duration)
+            this.timer = setTimeout(() => {
+                // 结束事件
                 this.step(sequence, index + 1);
             }, time)
         } else if (item.type === 'rest') {
-            setTimeout(() => {
+            this.timer = setTimeout(() => {
                 this.step(sequence, index + 1);
             }, time)
         }
-
     }
 
-    release() {
-        if (this.source) {
-            this.source.stop();
+    release(source: AudioBufferSourceNode) {
+        if (source) {
+            source.stop();
             // disconnect让source更快的释放资源
-            this.source.disconnect();
+            source.disconnect();
         }
     }
 
     async tap(tone: string | number, duration: ToneDuration) {
-        await this.trigger(tone, true)
+        const source = await this.trigger(tone, true)
+        if (!source) {
+            console.error("source不存在，tap失败，请检查是否正确传入toneColor")
+            return
+        }
         const timeStamp = toneDurationToTimestamp(duration, this.bpm)
         setTimeout(() => {
-            this.release()
+            this.release(source)
         }, timeStamp)
+        return source
     }
 }
 

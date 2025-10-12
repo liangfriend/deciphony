@@ -19,7 +19,7 @@ const props = defineProps({
     required: true,
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer> | undefined,
+    type: Object as PropType<MsSymbolContainer | undefined>,
     required: true,
   },
   nextContainer: {

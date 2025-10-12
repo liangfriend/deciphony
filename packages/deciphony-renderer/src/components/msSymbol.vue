@@ -86,7 +86,7 @@ const props = defineProps({
     required: true,
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer> | undefined,
+    type: Object as PropType<MsSymbolContainer | undefined>,
     required: true
   },
   nextContainer: {
@@ -148,9 +148,10 @@ const props = defineProps({
   },
 
 })
-watch(()=>props.msSymbol?.vueKey,() =>{
-getSvgHref()
+watch(() => props.msSymbol?.vueKey, () => {
+  getSvgHref()
 })
+
 function getSvgHref() {
   switch (props.msSymbol?.type) {
     case MsSymbolTypeEnum.NoteHead: {
@@ -312,7 +313,7 @@ function getSvgHref() {
       }
     }
     case MsSymbolTypeEnum.NoteDot: {
-      switch(props.msSymbol.octave) {
+      switch (props.msSymbol.octave) {
         case 1: {
           return noteDot4Svg
         }
@@ -340,7 +341,7 @@ function getSvgHref() {
       }
     }
     case MsSymbolTypeEnum.ChronaxieReducingLine: {
-      switch(props.msSymbol.chronaxie) {
+      switch (props.msSymbol.chronaxie) {
         case ChronaxieEnum.eighth: {
           return chronaxieReducingLine1Svg
         }
@@ -364,11 +365,12 @@ function getSvgHref() {
     }
 
     default: {
-      console.error("未知的符号类别", props.msSymbol?.type)
+      console.error("未知的符号类别", props.msSymbol)
       return ''
     }
   }
 }
+
 const svgHref = computed(() => {
   return getSvgHref()
 
@@ -376,7 +378,7 @@ const svgHref = computed(() => {
 const msSymbolRef = ref(null!)
 
 const aspectRatio = computed<number>(() => {
-  return getMsSymbolAspectRatio(props.msSymbol, props.musicScore.showMode)
+  return getMsSymbolAspectRatio(props.msSymbol)
 })
 
 

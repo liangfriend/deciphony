@@ -1,6 +1,6 @@
 {
   "name": "deciphony-renderer",
-  "version": "0.0.14",
+  "version": "0.0.18",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm version patch"
   },
   "exports": {
     ".": {
@@ -18,13 +18,14 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
-    "./utils/*": {
-      "types": "./dist/utils/*.d.ts"
+    "./css": {
+      "import": "./dist/deciphony-renderer.css",
+      "require": "./dist/deciphony-renderer.css"
     }
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
-    "deciphony-core": "workspace:*",
+    "deciphony-core": "^0.0.15",
     "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
     "vue": "^3.3.4",

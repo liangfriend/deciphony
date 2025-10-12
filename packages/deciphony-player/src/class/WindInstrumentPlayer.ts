@@ -11,8 +11,8 @@ class WindInstrumentPlayer extends InstrumentPlayer {
     _airPressure: number = 0 // 播放气压
     embouchure?: number = 0// 吹嘴形态，这个还没想好
 
-    constructor({context}: { context: AudioContext }) {
-        super({context})
+    constructor() {
+        super()
     }
 
     async createAudioProcessor(instrument: WindInstrumentEnum) {

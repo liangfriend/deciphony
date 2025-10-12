@@ -1,6 +1,12 @@
-import Player from "./Player";
+class AudioPlayer {
+    context: AudioContext; // 音频上下文
+    gainNode: GainNode; // 增益节点
+    source: AudioBufferSourceNode | null = null; // 音频源
+    state: 'stopped' | 'playing' | 'paused' = 'stopped';
+    audioBuffer: AudioBuffer | null = null;
+    private _pauseTime: number = 0; // 相对音频时长的播放暂停时间
+    private _startTime: number = 0; // 相对context.currentTime的播放开始时间，用于计算pauseTime
 
-class AudioPlayer extends Player {
 
     private _onProgress: ((current: number, duration: number) => void) | null = null;
     private _onEnd: (() => void) | null = null;
@@ -9,7 +15,33 @@ class AudioPlayer extends Player {
 
 
     constructor() {
-        super()
+        this.context = new AudioContext()
+        this.gainNode = this.context.createGain();
+    }
+
+    get startTime() {
+        return this._startTime
+    }
+
+    set startTime(time: number) {
+        this._startTime = time;
+    }
+
+    get pauseTime() {
+        return this._pauseTime
+    }
+
+    set pauseTime(time: number) {
+        this._pauseTime = time;
+    }
+
+    get currentTime() {
+        return this.context.currentTime
+    }
+
+    // 音量调节
+    setVolume(volume: number = 1) {
+        this.gainNode.gain.value = volume
     }
 
     // 播放过程进度回调 current 当前播放时长 duration 音频总时长
@@ -102,10 +134,6 @@ class AudioPlayer extends Player {
         this.source.buffer = this.audioBuffer;
     }
 
-    // 音量调节
-    setVolume(volume: number = 1) {
-        this.gainNode.gain.value = volume
-    }
 
     async addAudio(input: string | AudioBuffer | ArrayBuffer) {
         if (typeof input === "string") {

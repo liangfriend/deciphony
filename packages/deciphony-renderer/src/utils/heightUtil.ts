@@ -17,7 +17,8 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
     const measureHeight = musicScore.measureHeight
     let minHeight = 0
     if ('heightMultiplier' in information) { // noteStem的最小高度
-        minHeight = measureHeight * information.heightMultiplier
+        const heightMultiplier = information.heightMultiplier as number
+        minHeight = measureHeight * heightMultiplier
     }
     const NoteStemBottomToSlotUp = measureHeight * 1 / 8
     const NoteStemBottomToSlotBottom = -measureHeight * 5 / 8
@@ -58,8 +59,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
                 height = slotBottom + measureHeight / 8 - measureHeight + minHeight
                 // 如果超出的是当前音符
 
-                if (farthestNoteHead === noteHead)
-                {
+                if (farthestNoteHead === noteHead) {
                     return minHeight
                 } else { // 如果超出的不是当前音符
                     return -slotBottom + farthestSlotBottom + minHeight
@@ -97,6 +97,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
         }
     }
 }
+
 export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): number {
     const information = MsSymbolInformationMap[msSymbol?.type]
     const measureHeight = musicScore.measureHeight
@@ -106,7 +107,7 @@ export function getMsSymbolHeight(msSymbol: MsSymbol, musicScore: MusicScore): n
             return getNoteStemHeight(msSymbol, musicScore)
         }
         default: {
-                return measureHeight * heightMultiplier
+            return measureHeight * heightMultiplier
         }
     }
     return measureHeight

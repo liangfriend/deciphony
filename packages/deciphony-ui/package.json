@@ -17,8 +17,8 @@
       "require": "./dist/index.cjs.js"
     },
     "./css": {
-      "import": "./dist/halo-ui.css",
-      "require": "./dist/halo-ui.css"
+      "import": "./dist/deciphony-ui.css",
+      "require": "./dist/deciphony-ui.css"
     },
     "./global": {
       "types": "./global.d.ts"

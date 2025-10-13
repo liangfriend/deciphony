@@ -1,9 +1,10 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import UiTest from "./views/uiTest.vue";
+</script>
 
 <template>
 
-    <!--    <ui-test></ui-test>-->
-    sa
+    <ui-test></ui-test>
     <!--  <render-test></render-test>-->
     <!--    <player-test></player-test>-->
 

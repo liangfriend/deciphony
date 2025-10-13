@@ -1,6 +1,6 @@
 import {App} from 'vue';
 import './types/components';
-import components, {DsIcon, DsModelBox, DsProgressBar, DsVideo} from './components';
+import components, {DsBgAudioPlayer, DsFloatingWindow, DsIcon, DsModelBox, DsProgressBar, DsVideo} from './components';
 
 export default {
     install(app: App) {
@@ -10,4 +10,4 @@ export default {
     }
 };
 
-export {DsVideo, DsIcon, DsProgressBar, DsModelBox};
+export {DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer};

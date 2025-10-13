@@ -5,6 +5,8 @@ declare module 'vue' {
         DsVideo: (typeof import('deciphony-ui'))['DsVideo'];
         DsProgressBar: (typeof import('deciphony-ui'))['DsProgressBar'];
         DsModelBox: (typeof import('deciphony-ui'))['DsModelBox'];
+        DsFloatingWindow: (typeof import('deciphony-ui'))['DsFloatingWindow'];
+        DsBgAudioPlayer: (typeof import('deciphony-ui'))['DsBgAudioPlayer'];
     }
 
     // interface ComponentCustomProperties {

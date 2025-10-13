@@ -46,7 +46,9 @@ defineExpose({getSvgBlob});
 
 <style scoped>
 .ds-icon {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     vertical-align: middle;
 }
 

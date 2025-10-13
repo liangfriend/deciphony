@@ -7,6 +7,7 @@
     "emitDeclarationOnly": false,
     "rootDir": "src",
     "outDir": "dist",
+    "jsx": "preserve",
     "baseUrl": ".",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,

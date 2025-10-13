@@ -18,11 +18,11 @@ enum ModelEnum {
 
 const props = defineProps({
     type: {
-        default: 'Instrument',
+        default: 'Instrument' as BoxType,
         type: String as PropType<BoxType>,
     },
     model: {
-        default: 'Xiao', // TODO 后期改为require
+        default: 'Xiao' as ModelEnum, // TODO 后期改为require
         type: String as PropType<ModelEnum>,
     }
 })

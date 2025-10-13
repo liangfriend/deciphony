@@ -1,7 +1,7 @@
 <template>
     <transition name="fw-fade">
         <div
-            v-if="show "
+            v-if="show"
             ref="root"
             :style="containerStyle"
             aria-modal="true"
@@ -39,29 +39,66 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
+import {computed, CSSProperties, nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
 
 defineOptions({
     name: 'DsFloatingWindow' // 给组件一个全局 name
 });
 
-interface Props {
-    modelValue?: boolean;
-    initialX?: number; // px, 以视窗左上为原点
-    initialY?: number;
-    center?: boolean;
-    dragHandleHeight?: number; // header 高度 (px)
-    onlyLeftHandleWidth?: number | null; // 若设置为数字，则仅左侧该宽度可作为拖拽柄
-    restrictToViewport?: boolean; // 是否限制拖动不会超出视窗
-    title?: string;
-    zIndex?: number;
-    height?: string;
-    width?: string;
-    ballImage?: string  // 🆕 自定义小球图标
-    ballSize?: number   // 🆕 小球直径
-}
-
-const props = defineProps<Props>();
+const props = defineProps({
+    modelValue: {
+        type: Boolean,
+        default: false
+    },
+    initialX: {
+        type: Number,
+        default: 100
+    },
+    initialY: {
+        type: Number,
+        default: 100
+    },
+    center: {
+        type: Boolean,
+        default: false
+    },
+    dragHandleHeight: {
+        type: Number,
+        default: 36
+    },
+    onlyLeftHandleWidth: {
+        type: Number,
+        default: null
+    },
+    restrictToViewport: {
+        type: Boolean,
+        default: true
+    },
+    title: {
+        type: String,
+        default: ''
+    },
+    zIndex: {
+        type: Number,
+        default: 2000
+    },
+    height: {
+        type: String,
+        default: '200px'
+    },
+    width: {
+        type: String,
+        default: '400px'
+    },
+    ballImage: {
+        type: String,
+        default: '' // 可以换成默认图片路径
+    },
+    ballSize: {
+        type: Number,
+        default: 48
+    }
+});
 const emit = defineEmits(['update:modelValue', 'close', 'move']);
 
 const show = computed({
@@ -74,7 +111,7 @@ function toggleFold() {
 
     folded.value = !folded.value
     if (folded.value) {
-        height.value = '36px'
+        height.value = props.dragHandleHeight + 'px'
         width.value = '80px'
         left.value += (parseInt(props.width) || 400) - 240
     } else {
@@ -103,14 +140,14 @@ const dragStartY = ref(0);
 const startLeft = ref(0);
 const startTop = ref(0);
 
-const dragHandleHeight = props.dragHandleHeight ?? 36;
+const dragHandleHeight = props.dragHandleHeight ?? props.dragHandleHeight;
 const onlyLeftHandleWidth = props.onlyLeftHandleWidth ?? null;
 const restrictToViewport = props.restrictToViewport ?? true;
 const zIndex = props.zIndex ?? 2000;
 const title = props.title ?? '';
 
-const containerStyle = computed(() => {
-    const res = {
+const containerStyle = computed((): CSSProperties => {
+    const res: CSSProperties = {
         left: `${left.value}px`,
         top:
             `${top.value}px`,
@@ -132,7 +169,7 @@ const headerStyle = computed(() => ({
 }));
 
 // 如果 onlyLeftHandleWidth 有设置，新增一个 overlay 作为拖拽区域（左侧）
-const dragHandleOverlayStyle = computed(() => ({
+const dragHandleOverlayStyle = computed((): CSSProperties => ({
     position: 'absolute',
     left: '0',
     top: '0',

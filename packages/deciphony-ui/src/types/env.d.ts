@@ -21,3 +21,4 @@ declare module '*.mp3' {
     const mp3Url: string;
     export default mp3Url;
 }
+

@@ -2,15 +2,15 @@
 * 算法测试
 * */
 
-const res:{channel:number[],sampleRate:number} ={
-    channel:[],
-    sampleRate:44100
+const res: { channel: number[], sampleRate: number } = {
+    channel: [],
+    sampleRate: 44100
 }
 
 // 参数控制
 
 const harmonics = [
-    { f: 400, amp: 0.5, type: "sine" },      // 基波
+    {f: 400, amp: 0.5, type: "sine"},      // 基波
     // { f: 200, amp: 0.15, type: "square" },  // 方波
     // { f: 200, amp: 0.12, type: "sawtooth" }, // 锯齿波
     // { f: 400, amp: 0.5, type: "triangle" },  // 三角波
@@ -27,7 +27,7 @@ const adsr = {
 };
 
 // 通用波形函数
-function getWaveValue(type:string, f:number, t:number) {
+function getWaveValue(type: string, f: number, t: number) {
     const phase = 2 * Math.PI * f * t;
 
     switch (type) {
@@ -45,9 +45,10 @@ function getWaveValue(type:string, f:number, t:number) {
             return 0;
     }
 }
+
 // ADSR 包络函数
-function getADSRGain(t) {
-    const { attack, decay, sustain, release, total } = adsr;
+function getADSRGain(t: number) {
+    const {attack, decay, sustain, release, total} = adsr;
 
     if (t < attack) {
         return t / attack; // Attack: 0 → 1
@@ -72,7 +73,7 @@ for (let i = 0; i < totalSamples; i++) {
     const env = getADSRGain(t);
 
     let y = 0;
-    for (const { f, amp, type } of harmonics) {
+    for (const {f, amp, type} of harmonics) {
         y += getWaveValue(type, f, t) * amp;
     }
 

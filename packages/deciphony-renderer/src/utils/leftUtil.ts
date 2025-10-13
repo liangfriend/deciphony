@@ -60,7 +60,7 @@ export function getNoteTailLeftToSlot(noteTail: NoteTail, noteHead: NoteHead, ms
         console.error('符杠aspectRatio获取失败,符尾left计算出错')
         return 0
     }
-    const noteStemWidth = measureHeight * noteStemInfo.heightMultiplier * noteStemInfo.aspectRatio
+
     if (beamGroup.length > 1) { // 成组情况
         // 如果是连音组首尾处音符
         if (noteHead.id === beamGroup[0].note.id) { // 头部
@@ -89,7 +89,8 @@ export function getNoteTailLeftToSlot(noteTail: NoteTail, noteHead: NoteHead, ms
                 console.error('符杠aspectRatio获取失败,符杠left计算出错')
                 return 0
             }
-            const noteStemWidth = measureHeight * noteStemInfo.heightMultiplier * noteStemInfo.aspectRatio
+            const heightMultiplier = noteStemInfo.heightMultiplier as number
+            const noteStemWidth = measureHeight * heightMultiplier * noteStemInfo.aspectRatio
             return noteStemWidth
 
         }
@@ -130,8 +131,8 @@ export function getMsSymbolLeftToSlot(msSymbol: MsSymbol, msSymbolContainer: MsS
             return -width
         }
         case MsSymbolTypeEnum.NoteDot: {
-            const noteDotWidth = getMsSymbolWidth(msSymbol,msSymbolContainer,measure,singleStaff,musicScore,componentWidth)
-            return slotWidth / 2 - noteDotWidth/2
+            const noteDotWidth = getMsSymbolWidth(msSymbol, msSymbolContainer, measure, singleStaff, musicScore, componentWidth)
+            return slotWidth / 2 - noteDotWidth / 2
         }
     }
     return 0
@@ -169,15 +170,15 @@ export function getContainerLeftToMeasure(msSymbolContainer: MsSymbolContainer, 
     let left = 0
     const containerType = msSymbolContainer.type
     if ([MsSymbolContainerTypeEnum.frontFixed].includes(containerType)) { // 如果是前置定宽容器 left = 当前符号之前的前置定宽容器的宽度
-        left = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, musicScore.showMode, 'front', msSymbolContainer)
+        left = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, 'front', msSymbolContainer)
     } else if ([MsSymbolContainerTypeEnum.rearFixed].includes(containerType)) {// 如果是后置定宽容器 left =  小节宽度 - 小节定宽容器宽度 + 当前小节之前的定宽容器的宽度
 
-        left = measureWidth - getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, musicScore.showMode) + getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, musicScore.showMode, 'all', msSymbolContainer)
+        left = measureWidth - getWidthFixedContainerWidthSumInMeasure(measure, measureHeight) + getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, 'all', msSymbolContainer)
     } else {  //变宽容器 （小节宽度 - 定宽容器宽度）/ 小节变宽容器宽度系数之和 * 截止当前容器小节的宽度系数之和 + 前置定宽容器宽度之和
-        const widthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, musicScore.showMode)
-        const widthConstantInMeasure = getWidthConstantInMeasure(measure, musicScore.showMode)
-        const preWidConstantInMeasure = getWidthConstantInMeasure(measure, musicScore.showMode, msSymbolContainer)
-        const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, musicScore.showMode, 'front')
+        const widthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight)
+        const widthConstantInMeasure = getWidthConstantInMeasure(measure)
+        const preWidConstantInMeasure = getWidthConstantInMeasure(measure, msSymbolContainer)
+        const preWidthFixedContainerWidthSumInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, 'front')
         left = (measureWidth - widthFixedContainerWidthSumInMeasure) / widthConstantInMeasure * preWidConstantInMeasure + preWidthFixedContainerWidthSumInMeasure
         if (left === 50) {
 
@@ -190,7 +191,7 @@ export function getContainerLeftToMeasure(msSymbolContainer: MsSymbolContainer, 
 
 export function getSlotLeftToMeasure(msSymbol: MsSymbol, msSymbolContainer: MsSymbolContainer,
                                      measure: Measure, singleStaff: SingleStaff, musicScore: MusicScore,
-                                     slotWidth: number, measureWidth: number, componentWidth: number, showMode: MusicScoreShowModeEnum, isMain: boolean = false) {
+                                     slotWidth: number, measureWidth: number, componentWidth: number, isMain: boolean = false) {
     const mainMsSymbol = isMain ? msSymbol : getMainMsSymbol(msSymbol, musicScore)
     const slotLeftToContainer = getSlotLeftToContainer(mainMsSymbol, msSymbolContainer, measure, singleStaff,
         musicScore, slotWidth, componentWidth)

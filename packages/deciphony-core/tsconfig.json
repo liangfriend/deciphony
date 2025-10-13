@@ -23,6 +23,7 @@
     "baseUrl": ".",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "strictNullChecks": true,

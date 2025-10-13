@@ -1,12 +1,10 @@
-import Player from "./Player";
-import player from "./Player";
 import AudioPlayer from "./AudioPlayer";
 import InstrumentPlayer from "./InstrumentPlayer";
 import TonePlayer from "./TonePlayer";
 
 class PlayerManager {
     context: AudioContext; // 音频上下文
-    players: Record<string, Player> = {};
+    players: Record<string, InstrumentPlayer | AudioPlayer | TonePlayer> = {};
 
     constructor() {
         this.context = new AudioContext({
@@ -18,15 +16,15 @@ class PlayerManager {
     addPlayer(key: string, type: 'audio' | 'tone' | 'instrument') {
         switch (type) {
             case 'audio': {
-                this.players[key] = new AudioPlayer({context: this.context})
+                this.players[key] = new AudioPlayer()
                 return this.players[key]
             }
             case 'tone': { // 合并ToneSequencePlayer到TonePlayer
-                this.players[key] = new TonePlayer({context: this.context})
+                this.players[key] = new TonePlayer()
                 return this.players[key]
             }
             case 'instrument': {
-                this.players[key] = new InstrumentPlayer({context: this.context})
+                this.players[key] = new InstrumentPlayer()
                 return this.players[key]
             }
         }

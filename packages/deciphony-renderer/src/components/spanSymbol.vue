@@ -109,7 +109,7 @@ function slurRect(slur: Slur, musicScore: MusicScore, componentWidth: number, co
   const startSlotWidth = getMsSymbolSlotWidth(startNoteHead, musicScore, true)
   const startMeasureWidth = getMeasureWidth(startMeasure, startSingleStaff, musicScore, componentWidth)
   const startNoteHeadLeftToMeasure = getSlotLeftToMeasure(startNoteHead, startMsSymbolContainer, startMeasure,
-      startSingleStaff, musicScore, startSlotWidth, startMeasureWidth, componentWidth, true)
+      startSingleStaff, musicScore, startSlotWidth, startMeasureWidth, componentWidth,)
   const startMeasureLeft = getMeasureLeftToMusicScore(startMeasure, musicScore, componentWidth)
   const startMeasureBottom = getMeasureBottomToMusicScore(startMeasure, musicScore, componentHeight)
   const startMaxBottomMsSymbol = getMaxMsSymbolBottomInMeasure(startMeasure, musicScore)
@@ -126,7 +126,7 @@ function slurRect(slur: Slur, musicScore: MusicScore, componentWidth: number, co
   const endSlotWidth = getMsSymbolSlotWidth(endNoteHead, musicScore, true)
   const endMeasureWidth = getMeasureWidth(endMeasure, endSingleStaff, musicScore, componentWidth)
   const endNoteHeadLeftToMeasure = getSlotLeftToMeasure(endNoteHead, endMsSymbolContainer, endMeasure,
-      endSingleStaff, musicScore, endSlotWidth, endMeasureWidth, componentWidth, true)
+      endSingleStaff, musicScore, endSlotWidth, endMeasureWidth, componentWidth,)
   const endMeasureLeft = getMeasureLeftToMusicScore(endMeasure, musicScore, componentWidth)
 
   // 坐标计算

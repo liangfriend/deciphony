@@ -1,46 +1,46 @@
-<!-- src/components/hl-icon/index.vue -->
-<script setup lang="ts">
-import {onMounted, PropType, ref} from 'vue'
+<!-- src/components/ds-icon/index.vue -->
+<script lang="ts" setup>
+import {PropType, ref} from 'vue'
 import instrument from './prefab/instrument.vue'
 
 defineOptions({
-  name: 'DsModelBox'
+    name: 'DsModelBox'
 });
 
 enum BoxType {
-  Instrument = 'Instrument',
-  Normal = 'Normal'
+    Instrument = 'Instrument',
+    Normal = 'Normal'
 }
 
 enum ModelEnum {
-  Xiao = 'Xiao',
+    Xiao = 'Xiao',
 }
 
 const props = defineProps({
-  type: {
-    default: 'Instrument',
-    type: String as PropType<BoxType>,
-  },
-  model: {
-    default: 'Xiao', // TODO 后期改为require
-    type: String as PropType<ModelEnum>,
-  }
+    type: {
+        default: 'Instrument',
+        type: String as PropType<BoxType>,
+    },
+    model: {
+        default: 'Xiao', // TODO 后期改为require
+        type: String as PropType<ModelEnum>,
+    }
 })
 const modelRef = ref(null)
 
 
 defineExpose({
-  modelRef
+    modelRef
 })
 </script>
 
 <template>
-  <instrument v-if="type === BoxType.Instrument" ref="modelRef" :model="model"></instrument>
+    <instrument v-if="type === BoxType.Instrument" ref="modelRef" :model="model"></instrument>
 </template>
 
 <style scoped>
-.hl-icon {
-  display: inline-block;
-  vertical-align: middle;
+.ds-icon {
+    display: inline-block;
+    vertical-align: middle;
 }
 </style>

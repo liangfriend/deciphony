@@ -1,4 +1,4 @@
-// src/components/hl-icon/instrumentConfig.ts
+// src/components/ds-icon/instrumentConfig.ts
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 

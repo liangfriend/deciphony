@@ -1,9 +1,9 @@
 declare module 'vue' {
     // GlobalComponents for Volar
     export interface GlobalComponents {
-        HlIcon: (typeof import('deciphony-ui'))['HlIcon'];
-        HlVideo: (typeof import('deciphony-ui'))['HlVideo'];
-        HlProgressBar: (typeof import('deciphony-ui'))['HlProgressBar'];
+        DsIcon: (typeof import('deciphony-ui'))['DsIcon'];
+        DsVideo: (typeof import('deciphony-ui'))['DsVideo'];
+        DsProgressBar: (typeof import('deciphony-ui'))['DsProgressBar'];
         DsModelBox: (typeof import('deciphony-ui'))['DsModelBox'];
     }
 

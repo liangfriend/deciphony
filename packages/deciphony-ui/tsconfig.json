@@ -12,12 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "paths": {
-      "three/examples/jsm/loaders/GLTFLoader": [
-        "./node_modules/@types/three/examples/jsm/loaders/GLTFLoader"
-      ],
-      "three/examples/jsm/controls/OrbitControls": [
-        "./node_modules/@types/three/examples/jsm/loaders/OrbitControls"
-      ]
     }
   },
   "include": [

@@ -1,13 +1,13 @@
 {
   "name": "deciphony-ui",
-  "version": "0.0.5",
+  "version": "0.0.14",
   "description": "",
   "author": "liam",
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc",
     "prepublishOnly": "npm version patch"
   },
   "exports": {
@@ -19,9 +19,6 @@
     "./css": {
       "import": "./dist/deciphony-ui.css",
       "require": "./dist/deciphony-ui.css"
-    },
-    "./global": {
-      "types": "./global.d.ts"
     }
   },
   "files": [

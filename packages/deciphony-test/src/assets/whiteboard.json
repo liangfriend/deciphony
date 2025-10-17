@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "elements": [
+    {
+      "id": "text-1",
+      "type": "text",
+      "transform": {
+        "x": 439.167,
+        "y": 296.667,
+        "width": 65.8333,
+        "height": 20,
+        "angle": 167.12457713206155
+      },
+      "data": {
+        "content": "这是一个文本元素",
+        "style": {
+          "color": "blue",
+          "fontSize": "16px"
+        }
+      },
+      "version": "1.0"
+    }
+  ],
+  "floatBoard": {
+    "width": "1000px",
+    "height": "1000px",
+    "position": "center"
+  },
+  "metadata": {
+    "createdAt": 1760711765649,
+    "updatedAt": 1760711765649
+  }
+}

@@ -1,17 +1,20 @@
 import {whiteBoardState} from "./enum";
 
-export type AddElementOptions =
-    | {
-    left: number
-    top: number
+export type AddElementOptions = {
+    left: number,
+    top: number,
+    width?: number,
+    height?: number,
+    angle?: number,
     center?: 'vertical' | 'horizontal' | 'center'
-    cloneNode?: true | false
-}
-    | {
-    left?: number
-    top?: number
-    center: 'vertical' | 'horizontal' | 'center'
-    cloneNode?: true | false
+    cloneNode?: true | false,
+    serializableData: {
+        type: string,
+        id: string,
+        data: any,
+        version: string
+    }
+
 }
 
 export interface WBElement extends HTMLElement {

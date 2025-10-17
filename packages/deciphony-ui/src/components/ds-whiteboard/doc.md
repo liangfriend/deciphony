@@ -23,7 +23,7 @@
 参数：
 
 + mode 模式 edit show
-+ fixed 固定floatBoard boolean
++ drag 控制展示模式白板是否固定
 
 暴露方法和属性：
 
@@ -32,4 +32,5 @@
 + delElement 删除缓存列表元素
 + exportJson 导出序列化的白板数据
 + importJson 引入序列化的白板数据
+
 

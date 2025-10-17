@@ -7,6 +7,7 @@ declare module 'vue' {
         DsModelBox: (typeof import('deciphony-ui'))['DsModelBox'];
         DsFloatingWindow: (typeof import('deciphony-ui'))['DsFloatingWindow'];
         DsBgAudioPlayer: (typeof import('deciphony-ui'))['DsBgAudioPlayer'];
+        DsWhiteboard: (typeof import('deciphony-ui'))['DsWhiteboard'];
     }
 
     // interface ComponentCustomProperties {

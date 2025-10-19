@@ -7,7 +7,9 @@ import components, {
     DsModelBox,
     DsProgressBar,
     DsVideo,
-    DsWhiteboard
+    DsWhiteboard,
+    DsKeyboard,
+    DsPiano
 } from './components';
 
 export default {
@@ -18,4 +20,16 @@ export default {
     }
 };
 
-export {DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer, DsWhiteboard};
+export {
+    DsVideo,
+    DsIcon,
+    DsProgressBar,
+    DsModelBox,
+    DsFloatingWindow,
+    DsBgAudioPlayer,
+    DsWhiteboard,
+    DsKeyboard,
+    DsPiano
+};
+
+export {KeyCodeEnum} from './types/enum'

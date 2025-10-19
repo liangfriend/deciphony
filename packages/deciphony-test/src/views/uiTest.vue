@@ -3,6 +3,7 @@ import {onMounted, ref} from "vue";
 import brokenHeartSrc from '../assets/my_broken_heart.mp3'
 import brokenHeartImg from '../assets/xiDuoChuan.jpg'
 import whiteboardJson from '../assets/whiteboard.json'
+import {KeyCodeEnum} from "deciphony-ui";
 
 const dsModelBoxRef = ref(null)
 
@@ -198,7 +199,8 @@ function downloadJson(json, filename) {
   <!--    <ds-floating-window v-model="showFloatingWindow" :initial-x="200" :initial-y="200" height="150px" width="600px">-->
   <!--        <ds-bg-audio-player :songs="songs"/>-->
   <!--    </ds-floating-window>-->
-  <div style="padding: 20px;">
+  <!--  白板-->
+  <div style="padding: 20px;" v-show="false">
     <div style="margin-bottom: 10px;">
       <button @click="addRedBox">➕ 添加红色方块</button>
       <button @click="switchMode">模式切换</button>
@@ -220,6 +222,11 @@ function downloadJson(json, filename) {
         <div style="width:120px;height:120px;background-color: #FF7882"></div>
       </template>
     </ds-whiteboard>
+  </div>
+  <div style="margin-top:300px">
+    <ds-keyboard v-show="false" height="216.66px" width="781.666px"
+                 :config="[{code:KeyCodeEnum.F6,showText:'FF'}]"></ds-keyboard>
+    <ds-piano></ds-piano>
   </div>
 
 </template>

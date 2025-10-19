@@ -5,10 +5,23 @@ import DsModelBox from './ds-model-box';
 import DsFloatingWindow from './ds-floating-window';
 import DsBgAudioPlayer from './ds-bg-audio-player';
 import DsWhiteboard from './ds-whiteboard';
+import DsKeyboard from './ds-keyboard';
+import DsPiano from './ds-piano';
 
 // 所有组件列表
-const components = [DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer, DsWhiteboard];
+const components = [DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer, DsWhiteboard, DsKeyboard,
+    DsPiano];
 
-export {DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer, DsWhiteboard};
+export {
+    DsVideo,
+    DsIcon,
+    DsProgressBar,
+    DsModelBox,
+    DsFloatingWindow,
+    DsBgAudioPlayer,
+    DsWhiteboard,
+    DsKeyboard,
+    DsPiano
+};
 
 export default components;

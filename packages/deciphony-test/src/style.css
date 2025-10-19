@@ -11,7 +11,7 @@
 }
 
 .stackItem {
-/ / 架空型b 不要绑定事件 pointer-events: none;
+    pointer-events: none;
     position: absolute;
     height: 100%;
     width: 100%;

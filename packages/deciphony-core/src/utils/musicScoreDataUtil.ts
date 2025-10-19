@@ -4,7 +4,7 @@ import {
     ClefEnum,
     KeySignatureEnum,
     MsSymbolTypeEnum,
-    MsTypeNameEnum,
+    MsTypeNameEnum, NoteLetterEnum,
     StaffPositionTypeEnum,
     StaffRegionEnum,
 } from "../musicScoreEnum";
@@ -33,6 +33,61 @@ import {
 export function noteNameToNoteString(noteName: NoteName): NoteString {
     return `${noteName.letter}${noteName.accidental}${noteName.octave}`
 }
+
+// 科学音调记号法转赫尔姆霍兹音调记号法
+export function noteNameToHelmholtz(noteName: NoteName): string {
+    const {letter, accidental, octave} = noteName
+
+    // 变音符
+    let accidentalSymbol = ''
+    switch (accidental) {
+        case AccidentalEnum.Sharp:
+            accidentalSymbol = '#'
+            break
+        case AccidentalEnum.Flat:
+            accidentalSymbol = 'b'
+            break
+        case AccidentalEnum.DoubleSharp:
+            accidentalSymbol = '##'
+            break
+        case AccidentalEnum.DoubleFlat:
+            accidentalSymbol = 'bb'
+            break
+        case AccidentalEnum.None:
+            accidentalSymbol = ''
+            break
+    }
+
+    // 上标/下标映射
+    const superscriptMap: Record<number, string> = {
+        0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹'
+    }
+    const subscriptMap: Record<number, string> = {
+        0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉'
+    }
+
+    let noteSymbol = ''
+
+    if (octave <= 2) {
+        // 大字组
+        noteSymbol = letter.toUpperCase()
+        const digits = String(Math.abs(octave - 3)).split('').map(d => subscriptMap[Number(d)]).join('')
+        noteSymbol += digits
+    } else {
+        // 小字组
+        noteSymbol = letter.toLowerCase()
+        if (octave >= 4) {
+            // 小字一组及以上 -> 上标 (octave-3)
+            const upperNum = octave - 3
+            const digits = String(upperNum).split('').map(d => superscriptMap[Number(d)]).join('')
+            noteSymbol += digits
+        }
+        // octave 3 不加任何标
+    }
+
+    return accidentalSymbol + noteSymbol
+}
+
 
 // 是否有符尾（flag）
 export function hasNoteTail(chronaxie: ChronaxieEnum): boolean {
@@ -799,8 +854,9 @@ export function getNext(target: Exclude<MsType, SpanSymbol>, musicScore: MusicSc
             return target
     }
 }
+
 // 符号进行替换时，对必要属性进行继承
-export function msSymbolPropertiesInherit(newMsSymbol:MsSymbol,oldMsSymbol:MsSymbol) {
+export function msSymbolPropertiesInherit(newMsSymbol: MsSymbol, oldMsSymbol: MsSymbol) {
     newMsSymbol.id = oldMsSymbol.id;
     newMsSymbol.bindingEndId = oldMsSymbol.bindingEndId;
     newMsSymbol.bindingStartId = oldMsSymbol.bindingStartId;

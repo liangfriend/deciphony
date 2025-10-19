@@ -1,7 +1,7 @@
 <template>
   <div :style="whiteboardStyle" ref="whiteboard" class="hidden-scrollbar" comment="白板容器"
        @pointerup="whiteboardPointerup">
-    <div ref="floatBoard" v-drag="state === whiteBoardState.Show?drag:false" :style="floatBoardStyle"
+    <div ref="floatBoard" v-drag="{enable:state === whiteBoardState.Show?drag:false}" :style="floatBoardStyle"
          comment="浮动展示白板，此元素可被拖动位移，背景为白色"
          @pointerup="pointerup">
     </div>
@@ -13,11 +13,11 @@
 </template>
 <script lang="ts" setup>
 import {computed, createApp, CSSProperties, onMounted, onUnmounted, Ref, ref, StyleValue} from 'vue';
-import vDrag from './directives/drag';
+import vDrag from '../../directivces/drag';
 import {AddElementOptions} from "./types";
 import {whiteBoardState} from "./enum";
-import {getRotationAngleFromMatrix, parseAndFormatDimension} from './utils'
 import TransformShell from "./transformShell.vue";
+import {getRotationAngleFromMatrix, parseAndFormatDimension} from "../../utils/commonUtil";
 
 defineOptions({
   name: 'DsWhiteboard' // 给组件一个全局 name

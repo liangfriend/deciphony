@@ -30,23 +30,26 @@ function audioBufferGenerate(item) {
   return audioBuffer
 }
 
-function addToAudioShow(item:{channel:number[],sampleRate:number}) {
+function addToAudioShow(item: { channel: number[], sampleRate: number }) {
   const cloneData = JSON.parse(JSON.stringify(item));
   const audioBuffer = audioBufferGenerate(cloneData)
   channelExhibitionRef.value.addAudioBuffer(audioBuffer)
 
 }
+
 // 加载算法测试数据
 function loadAlgorithmTestData() {
-  if(algorithmTestData.channel.length) {
+  if (algorithmTestData.channel.length) {
     addToAudioShow(algorithmTestData)
   }
 
 }
-onMounted(()=>{
+
+onMounted(() => {
   loadAlgorithmTestData()
 })
-function addToMicroEditor(item:{channel:number[],sampleRate:number}) {
+
+function addToMicroEditor(item: { channel: number[], sampleRate: number }) {
   channelEditorRef.value.setChannel(item)
 }
 
@@ -99,6 +102,8 @@ function cacheChannelData(channelData: { channel: Array<number>, sampleRate: num
 .group {
   border: 2px dashed #ccc;
   border-radius: 12px;
+  position: relative;
+  z-index: 100;
 }
 
 button {

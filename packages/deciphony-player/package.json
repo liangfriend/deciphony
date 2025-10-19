@@ -19,7 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm version patch"
   },
-  "dependencies": {
+  "peerDependencies": {
     "deciphony-core": "^0.0.15"
   },
   "keywords": [],

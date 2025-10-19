@@ -25,11 +25,13 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
-    "deciphony-core": "^0.0.15",
     "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
+  },
+  "peerDependencies": {
+    "deciphony-core": "^0.0.15"
   },
   "devDependencies": {
     "vite": "^6.3.5",

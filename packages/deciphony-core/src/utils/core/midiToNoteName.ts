@@ -37,6 +37,6 @@ function midiToNoteName(midi: Midi, priority: AccidentalEnum.Sharp | AccidentalE
 
 export default midiToNoteName;
 
-// console.log(midiToNoteName(57));
+console.log(midiToNoteName(12));
 //
 // console.log(midiToNoteName(61));

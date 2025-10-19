@@ -179,6 +179,9 @@ importers:
       '@types/three':
         specifier: ^0.167.2
         version: 0.167.2
+      deciphony-core:
+        specifier: ^0.0.15
+        version: 0.0.16
       sass:
         specifier: ^1.91.0
         version: 1.91.0
@@ -1357,6 +1360,9 @@ packages:
 
   deciphony-core@0.0.15:
     resolution: {integrity: sha512-f82s+Vl8Nk3ooy/0x+wtYIenaHN1fbvhsUtfa46ws8si+Zj5l5tgzUhL+V08vZbm7N2FuEKFZ171LbMPaRhnSA==}
+
+  deciphony-core@0.0.16:
+    resolution: {integrity: sha512-Q5EziHC4o1COJZBwlU7wz9aZlUmNOiMPdd6YFjfowDO4XXM4ayOpqMt4X9pzN7WNJkvN8nJMxXTXVi8z/VUn+Q==}
 
   deep-eql@5.0.2:
     resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
@@ -3747,6 +3753,8 @@ snapshots:
   decimal.js@10.6.0: {}
 
   deciphony-core@0.0.15: {}
+
+  deciphony-core@0.0.16: {}
 
   deep-eql@5.0.2: {}
 

@@ -23,7 +23,6 @@ const drag = {
 
             isDragging = true
             el.setPointerCapture(e.pointerId)
-
             const computedStyle = getComputedStyle(el)
             offsetX = e.clientX - parseInt(computedStyle.left)
             offsetY = e.clientY - parseInt(computedStyle.top)

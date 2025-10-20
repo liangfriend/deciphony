@@ -147,7 +147,7 @@ function leftForBlackByMidi(midi: number) {
 }
 
 /** 按键交互 */
-const pressedKeys = ref<number[]>([])
+const activeKeys = ref<Set<number>>(new Set())
 const emit = defineEmits<{
     (e: 'keyDown', key: {
         midi: number
@@ -169,7 +169,7 @@ function handlePointerDown(event: PointerEvent, key: {
     scientificNoteName: [string, string]
     helmholtzNoteName: [string, string]
 }) {
-    if (!pressedKeys.value.includes(key.midi)) pressedKeys.value.push(key.midi)
+    if (!activeKeys.value.has(key.midi)) activeKeys.value.add(key.midi)
     const el = event.target as HTMLAnchorElement
     el.setPointerCapture(event.pointerId);
     emit('keyDown', key)
@@ -181,14 +181,14 @@ function handlePointerUp(event: PointerEvent, key: {
     scientificNoteName: [string, string]
     helmholtzNoteName: [string, string]
 }) {
-    pressedKeys.value = pressedKeys.value.filter(m => m !== key.midi)
+    activeKeys.value.delete(key.midi)
     const el = event.target as HTMLAnchorElement
     el.releasePointerCapture(event.pointerId);
     emit('keyUp', key)
 }
 
 function isKeyActive(midi: number) {
-    return pressedKeys.value.includes(midi)
+    return activeKeys.value.has(midi)
 }
 
 /* 整体宽度 */
@@ -447,45 +447,39 @@ const chordList = ref([
     {name: '属七b9', keyList: [0, 4, 7, 10, 13]},        // 7b9
     {name: '属七#9', keyList: [0, 4, 7, 10, 15]},        // 7#9
 ])
-const chordBoxStyle = computed((): (item: {
-    name: string
-    keyList: number[]
-}) => CSSProperties => {
+const chordBoxStyle = computed((): CSSProperties => {
     const {value, unit} = parseAndFormatDimension(props.whiteKeyWidth)
-    return (item: {
-        name: string
-        keyList: number[]
-    }) => {
-        const whiteKeyWidth = props.whiteKeyWidth
-        return {
-            width: value * 5 + unit,
-            height: value * 1 + unit,
-            backgroundColor: 'white',
-            boxShadow: '0px 0px 5px 2px rgba(200,200,200,1)',
-            bottom: '0',
-            borderRadius: '10px',
-            position: 'absolute',
-        }
-
+    const whiteKeyWidth = props.whiteKeyWidth
+    return {
+        width: value * 5 + unit,
+        height: value * 1 + unit,
+        backgroundColor: 'white',
+        boxShadow: '0px 0px 5px 2px rgba(200,200,200,1)',
+        bottom: '0',
+        borderRadius: '10px',
+        position: 'absolute',
+        display: 'flex'
     }
+
+
 })
 const curChord = ref({
     name: '大三和弦',
     keyList: [0, 4, 7]
 })
+
 const chordBoxRef = ref(null)
+const curActiveChordMidi = ref<Set<number>>(new Set())
 
 function chordBoxPointerDown(event: PointerEvent) {
     const el = event.target as HTMLElement
+    el.setPointerCapture(event.pointerId)
     // 滑块距离左侧位置 TODO 因为这里的left只能是px,所以外部传入的值也必须px,否则计算出错
     const {value: left, unit} = parseAndFormatDimension(getComputedStyle(chordBoxRef.value).left)
-    const blackKeyWidth = blackKeyWidthNum.value + keyUnit.value
     // 键盘起始midi
     const startMidi = props.midi.min
     // 起始midi固定唱名索引
     const solmizationIndex = startMidi % 12 // 比如21键起始9
-    const baseMidi = (Math.floor(left / (whiteKeyWidthNum.value * 7)) - Math.floor(startMidi / 12) + 1) * 12// 比如21键,baseMidi=12
-    console.log('chicken', baseMidi)
     // 计算左侧未出现的已经经过的当前组的宽度，只计算白键
     const passWidth = {
         '0': 0,
@@ -501,6 +495,9 @@ function chordBoxPointerDown(event: PointerEvent) {
         '10': 6,
         '11': 6
     }['' + solmizationIndex] * whiteKeyWidthNum.value
+    // 当前琴键已经走过的八度
+    const baseMidi = (Math.floor((left + passWidth) / (whiteKeyWidthNum.value * 7)) + Math.floor(startMidi / 12)) * 12// 比如21键,baseMidi=12
+
     // 每组对应位置相对增加点midi值
     const relativeMidiAdd = [{
         relativeMidi: 0,
@@ -551,23 +548,36 @@ function chordBoxPointerDown(event: PointerEvent) {
         gte: whiteKeyWidthNum.value * 6 + blackKeyWidthNum.value / 2,
         lt: whiteKeyWidthNum.value * 7
     }]
-    left + passWidth
     let midiAdd = relativeMidiAdd.find((e) => {
         const relativeLeft = (left + passWidth) % (7 * whiteKeyWidthNum.value)
         if (relativeLeft >= e.gte && relativeLeft < e.lt) {
             return true
         }
     }).relativeMidi
-    const midi = baseMidi + midiAdd
+    let midi = baseMidi + midiAdd
 
+    // 特殊逻辑，如果当前钢琴以白键开始，但是原本左侧的0.5的黑键还会参与计算就会导致计算出错,这里进行修正
+    if (midi < startMidi) {
+        midi = startMidi
+    }
 
-    console.log('当前点击对应的MIDI:', midi)
-    return midi
+    // 高亮和弦对应琴键
+    curChord.value.keyList.forEach(key => {
+        activeKeys.value.add(key + midi)
+        curActiveChordMidi.value.add(midi)
+    })
+
 }
 
 
 function chordBoxPointerUp(event: PointerEvent,) {
-    const el = event.target as HTMLElement
+
+    const el = event.currentTarget as HTMLElement
+    el.releasePointerCapture(event.pointerId)
+    curActiveChordMidi.value.forEach((midi => {
+        activeKeys.value.delete(midi)
+    }))
+    curActiveChordMidi.value.clear()
 }
 </script>
 
@@ -634,12 +644,15 @@ function chordBoxPointerUp(event: PointerEvent,) {
                 </div>
             </div>
             <div ref="chordBoxRef" v-drag="{ enabled: true, axis: 'x', limit: true }"
-                 :style="chordBoxStyle(item)"
+                 :style="chordBoxStyle"
                  comment="和弦滑块">
                 <select v-model="curChord">
                     <option v-for="item in chordList" :label="item.name" :value="item"></option>
                 </select>
-                <button @pointerdown="chordBoxPointerDown($event)" @pointerup="chordBoxPointerUp($event)">叩</button>
+                <!--            拖拽指令会设置pointerCaputre导致外部的pointerup不会触发，所以加.stop    -->
+                <div style="pointer-events: auto" @pointerup="chordBoxPointerUp($event)"
+                     @pointerdown.stop="chordBoxPointerDown($event)">叩
+                </div>
             </div>
         </div>
 

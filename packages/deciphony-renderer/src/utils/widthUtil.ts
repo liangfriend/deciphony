@@ -1,14 +1,16 @@
 import {
-    MsSymbolContainerTypeEnum,
-    MsSymbolTypeEnum, MusicScoreShowModeEnum
-} from "deciphony-core";
-
-import {
-    KeySignatureMsSymbol,
+    getBeamGroup,
+    getDataWithIndex,
+    getMainMsSymbol,
     Measure,
     MsSymbol,
     MsSymbolContainer,
-    MusicScore, NoteHead, NoteTail,
+    MsSymbolContainerTypeEnum,
+    MsSymbolTypeEnum,
+    MusicScore,
+    MusicScoreShowModeEnum,
+    NoteHead,
+    NoteTail,
     SingleStaff
 } from "deciphony-core";
 import {MsSymbolInformationMap,} from "@/constant";
@@ -17,11 +19,6 @@ import {
     getWidthConstantInMsSymbolContainer,
     getWidthConstantInSingleStaff
 } from "./widthConstantUtil";
-import {
-    getBeamGroup,
-    getDataWithIndex,
-    getMainMsSymbol,
-} from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
 import {getHeightMultiplier, getMsSymbolAspectRatio} from "./geometryUtil";
 

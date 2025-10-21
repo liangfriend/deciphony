@@ -2,7 +2,7 @@
 
 
 import {MsSymbol} from "../../../deciphony-core/src/types";
-import {MsSymbolTypeEnum, MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {MsSymbolTypeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 import {MsSymbolInformationMap} from "@/constant";
 import {MusicScore} from "deciphony-core";
 
@@ -15,10 +15,12 @@ function getMultipleAspectRatio(msSymbol: MsSymbol): number {
             return information.aspectRatio[msSymbol.barLineType]
         } else if (msSymbol.type === MsSymbolTypeEnum.NoteTail) {
             return information.aspectRatio[msSymbol.chronaxie]
-        }else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
+        } else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
             return information.aspectRatio[msSymbol.octave]
-        }else if (msSymbol.type === MsSymbolTypeEnum.ChronaxieReducingLine) {
+        } else if (msSymbol.type === MsSymbolTypeEnum.ChronaxieReducingLine) {
             return information.aspectRatio[msSymbol.chronaxie]
+        } else if (msSymbol.type === MsSymbolTypeEnum.Clef || msSymbol.type === MsSymbolTypeEnum.Clef_f) {
+            return information.aspectRatio[msSymbol.clef]
         }
 
     }
@@ -43,12 +45,13 @@ export function getMsSymbolAspectRatio(msSymbol: MsSymbol) {
     console.error("未找到符号对应宽高比")
     return 1
 }
+
 function getMultipleHeightMultiplier(msSymbol: MsSymbol): number {
     const information = MsSymbolInformationMap[msSymbol.type]
     if ('heightMultiplier' in information && typeof information.heightMultiplier === 'object') {
         if (msSymbol.type === MsSymbolTypeEnum.ChronaxieReducingLine) {
             return information.heightMultiplier[msSymbol.chronaxie]
-        }else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
+        } else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
             return information.heightMultiplier[msSymbol.octave]
         }
     }
@@ -75,7 +78,7 @@ export function getHeightMultiplier(msSymbol: MsSymbol) {
 }
 
 // 获取space
-export function getSpace(msSymbol: MsSymbol,musicScore:MusicScore) {
+export function getSpace(msSymbol: MsSymbol, musicScore: MusicScore) {
     const information = MsSymbolInformationMap[msSymbol.type]
     const measureHeight = musicScore.measureHeight
     const space = {

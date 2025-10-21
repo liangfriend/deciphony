@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" x="0px"
      y="0px"
-     viewBox="0 0 395 395" style="enable-background:new 0 0 395 395;" xml:space="preserve">
-<path id="XMLID_905_" d="M272.833,80h30l-45-80l-45,80h30v47.358l-90,22.714V90h-30v67.645l-30.666,7.739v60l30.666-7.739v52.478
-	l-30.666,7.739v60l30.666-7.739V395h30v-72.449l90-22.714V365h30v-72.734l29.334-7.403v-60l-29.334,7.403v-52.479l29.334-7.403v-60
-	l-29.334,7.403V80z M242.833,239.837l-90,22.714v-52.479l90-22.714V239.837z"/>
+     viewBox="0 0 88 88" style="enable-background:new 0 0 395 395;" xml:space="preserve">
+<rect id="Rectangle 1264" x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black"/>
+    <rect id="Rectangle 1265" x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black"/>
+    <path id="Rectangle 1266" d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black"/>
+    <path id="Rectangle 1267" d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black"/>
 
 </svg>

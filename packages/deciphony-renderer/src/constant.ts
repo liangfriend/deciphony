@@ -1,8 +1,12 @@
 // 宽度占比常数。与MsSymbolTypeEnum组合使用
 import {
-    BarLineTypeEnum, ChronaxieEnum,
-    KeySignatureEnum, MsSymbolCategoryEnum, MsSymbolContainerTypeEnum,
-    MsSymbolTypeEnum, MusicScoreShowModeEnum
+    BarLineTypeEnum,
+    ChronaxieEnum,
+    ClefEnum,
+    KeySignatureEnum,
+    MsSymbolCategoryEnum,
+    MsSymbolContainerTypeEnum,
+    MsSymbolTypeEnum
 } from "deciphony-core";
 import {MsSymbolInformation} from "@/types";
 
@@ -26,7 +30,6 @@ export const KeySignatureTonicSemitones: Record<KeySignatureEnum, number> = {
 };
 
 
-
 export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformation> = {
     [MsSymbolTypeEnum.NoteHead]:
         {
@@ -40,10 +43,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 0.25,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -59,10 +62,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -70,21 +73,21 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         {
             aspectRatio: { // heightMultiplier除以1，保证宽度不变
                 [0]:
-                    1/0.7,
+                    1 / 0.7,
                 [1]:
-                    1/0.5,
+                    1 / 0.5,
                 [2]:
-                    1/0.3,
+                    1 / 0.3,
                 [3]:
-                    1/0.1,
+                    1 / 0.1,
                 [5]:
-                    1/0.1,
+                    1 / 0.1,
                 [6]:
-                    1/0.3,
+                    1 / 0.3,
                 [7]:
-                    1/0.5,
+                    1 / 0.5,
                 [8]:
-                    1/ 0.7,
+                    1 / 0.7,
 
             },
             category: MsSymbolCategoryEnum.singleMeasure,
@@ -109,14 +112,14 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
                     0.7,
             },
             space: {
-                top:0.1,
-                bottom:0.1,
-                left:0,
-                right:0,
+                top: 0.1,
+                bottom: 0.1,
+                left: 0,
+                right: 0,
             }
         }
     ,
-    [MsSymbolTypeEnum.ChronaxieIncreasingLine]:{
+    [MsSymbolTypeEnum.ChronaxieIncreasingLine]: {
         containerType: MsSymbolContainerTypeEnum.variable,
         aspectRatio:
             5,
@@ -127,17 +130,17 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         heightMultiplier:
             0.1,
         space: {
-            top:0,
-            bottom:0,
-            left:0,
-            right:0,
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
         }
     },
     [MsSymbolTypeEnum.ChronaxieReducingLine]:
         {
             aspectRatio: { // 1 除以heightMultiplier，保持宽度不变
                 [ChronaxieEnum.eighth]:
-                    1/0.1,   // 7 flats
+                    1 / 0.1,   // 7 flats
                 [ChronaxieEnum.sixteenth]:
                     1 / 0.15,   // 7 flats
                 [ChronaxieEnum.thirtySecond]:
@@ -161,10 +164,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
                         0.25,   // 6 flats
                 },
             space: {
-                top:0,
-                bottom:0.1,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0.1,
+                left: 0,
+                right: 0,
             }
         },
     [MsSymbolTypeEnum.NoteStem]:
@@ -177,10 +180,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 0.75, // 符杠的height是动态的，这里只是最小高度
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -199,10 +202,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 0.5,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -218,10 +221,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -229,10 +232,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         {// 圆滑线：跨音符装饰线，不占宽度
             category: MsSymbolCategoryEnum.multipleMeasure,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -240,10 +243,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         {// 延音线：连接两个音符，不影响宽度
             category: MsSymbolCategoryEnum.multipleMeasure,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -257,10 +260,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 0.1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -274,10 +277,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 0.4,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
 
         }
@@ -286,44 +289,78 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         { // 连音记号
             category: MsSymbolCategoryEnum.multipleMeasure,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
     [MsSymbolTypeEnum.Clef]:
         { // 谱号
             containerType: MsSymbolContainerTypeEnum.rearFixed,
-            aspectRatio:
-                0.6,
+            aspectRatio: {
+                [ClefEnum.Treble]:
+                    0.6,
+                [ClefEnum.Alto]:
+                    0.5,
+                [ClefEnum.Bass]:
+                    1,
+                [ClefEnum.BaritoneC]:
+                    0.5,
+                [ClefEnum.Tenor]:
+                    0.5,
+                [ClefEnum.BaritoneF]:
+                    0.5,
+                [ClefEnum.MezzoSoprano]:
+                    0.5,
+                [ClefEnum.Subbass]:
+                    0.5,
+
+            },
             category:
             MsSymbolCategoryEnum.singleMeasure,
             heightMultiplier:
-                1,
+                0.6,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
     [MsSymbolTypeEnum.Clef_f]:
         { // 前置谱号
             containerType: MsSymbolContainerTypeEnum.frontFixed,
-            aspectRatio:
-                0.6,
+            aspectRatio: {
+                [ClefEnum.Treble]:
+                    0.6,
+                [ClefEnum.Alto]:
+                    0.5,
+                [ClefEnum.Bass]:
+                    1,
+                [ClefEnum.BaritoneC]:
+                    0.5,
+                [ClefEnum.Tenor]:
+                    0.5,
+                [ClefEnum.BaritoneF]:
+                    0.5,
+                [ClefEnum.MezzoSoprano]:
+                    0.5,
+                [ClefEnum.Subbass]:
+                    0.5,
+
+            },
             category:
             MsSymbolCategoryEnum.singleMeasure,
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -337,10 +374,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -385,10 +422,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -413,10 +450,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,
@@ -441,10 +478,10 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             heightMultiplier:
                 1,
             space: {
-                top:0,
-                bottom:0,
-                left:0,
-                right:0,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
             }
         }
     ,

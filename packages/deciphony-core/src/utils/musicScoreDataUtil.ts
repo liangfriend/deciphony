@@ -4,7 +4,7 @@ import {
     ClefEnum,
     KeySignatureEnum,
     MsSymbolTypeEnum,
-    MsTypeNameEnum, NoteLetterEnum,
+    MsTypeNameEnum,
     StaffPositionTypeEnum,
     StaffRegionEnum,
 } from "../musicScoreEnum";
@@ -42,16 +42,16 @@ export function noteNameToHelmholtz(noteName: NoteName): string {
     let accidentalSymbol = ''
     switch (accidental) {
         case AccidentalEnum.Sharp:
-            accidentalSymbol = '#'
+            accidentalSymbol = '♯'
             break
         case AccidentalEnum.Flat:
-            accidentalSymbol = 'b'
+            accidentalSymbol = '♭'
             break
         case AccidentalEnum.DoubleSharp:
-            accidentalSymbol = '##'
+            accidentalSymbol = '𝄪'
             break
         case AccidentalEnum.DoubleFlat:
-            accidentalSymbol = 'bb'
+            accidentalSymbol = '𝄫'
             break
         case AccidentalEnum.None:
             accidentalSymbol = ''
@@ -71,7 +71,10 @@ export function noteNameToHelmholtz(noteName: NoteName): string {
     if (octave <= 2) {
         // 大字组
         noteSymbol = letter.toUpperCase()
-        const digits = String(Math.abs(octave - 3)).split('').map(d => subscriptMap[Number(d)]).join('')
+        const digits = String(Math.abs(octave - 3))
+        .split('')
+        .map(d => subscriptMap[Number(d)])
+        .join('')
         noteSymbol += digits
     } else {
         // 小字组
@@ -79,13 +82,17 @@ export function noteNameToHelmholtz(noteName: NoteName): string {
         if (octave >= 4) {
             // 小字一组及以上 -> 上标 (octave-3)
             const upperNum = octave - 3
-            const digits = String(upperNum).split('').map(d => superscriptMap[Number(d)]).join('')
+            const digits = String(upperNum)
+            .split('')
+            .map(d => superscriptMap[Number(d)])
+            .join('')
             noteSymbol += digits
         }
         // octave 3 不加任何标
     }
 
-    return accidentalSymbol + noteSymbol
+    // ✅ 修正：将变音符放在音名之后
+    return noteSymbol.slice(0, 1) + accidentalSymbol + noteSymbol.slice(1)
 }
 
 

@@ -1,25 +1,23 @@
 <script lang="ts" setup>
 import {computed, CSSProperties, onMounted, PropType, ref, watch} from "vue";
 import {
-    type Measure,
-    MsSymbol,
-    type MsSymbolContainer,
-    type MusicScore,
-    NoteHead,
-    type SingleStaff
-} from "../../../deciphony-core/src/types";
-import {
     AccidentalEnum,
     BarLineTypeEnum,
     ChronaxieEnum,
+    type Measure,
+    MsSymbol,
+    type MsSymbolContainer,
     MsSymbolTypeEnum,
+    type MusicScore,
     MusicScoreShowModeEnum,
+    NoteHead,
+    type SingleStaff,
     SolmizationEnum
-} from "../../../deciphony-core/src/musicScoreEnum";
+} from "deciphony-core";
 // 音符头
-import noteHeadWholeSvg from "../assets/msSymbols/noteHeadWhole.svg"
-import noteHeadHalfSvg from "../assets/msSymbols/noteHeadHalf.svg"
-import noteHeadQuarterSvg from "../assets/msSymbols/noteHeadQuarter.svg"
+import noteHeadWholeSvg from "../assets/msSymbols/noteHead1.svg"
+import noteHeadHalfSvg from "../assets/msSymbols/noteHead2.svg"
+import noteHeadQuarterSvg from "../assets/msSymbols/noteHead4.svg"
 import note1Svg from "../assets/msSymbols/1.svg"
 import note2Svg from "../assets/msSymbols/2.svg"
 import note3Svg from "../assets/msSymbols/3.svg"
@@ -35,21 +33,24 @@ import noteDot4Svg from "../assets/msSymbols/noteDot4.svg"
 
 
 // 休止符
-import restWholeSvg from "../assets/msSymbols/restWhole.svg"
-import restThirySecondSvg from "../assets/msSymbols/restWhole.svg"
-import restSixtyFourthSvg from "../assets/msSymbols/restWhole.svg"
-import restHalfSvg from "../assets/msSymbols/restHalf.svg"
-import restQuarterSvg from "../assets/msSymbols/restQuarter.svg"
-import restEighthSvg from "../assets/msSymbols/restEighth.svg"
-import restSixteenthSvg from "../assets/msSymbols/restSixteenth.svg"
+import rest1Svg from "../assets/msSymbols/rest1.svg"
+import rest2Svg from "../assets/msSymbols/rest2.svg"
+import rest4Svg from "../assets/msSymbols/rest4.svg"
+import rest8Svg from "../assets/msSymbols/rest8.svg"
+import rest16Svg from "../assets/msSymbols/rest16.svg"
+import rest32Svg from "../assets/msSymbols/rest32.svg"
+import rest64Svg from "../assets/msSymbols/rest64.svg"
+import rest128Svg from "../assets/msSymbols/rest128.svg"
+import rest256Svg from "../assets/msSymbols/rest256.svg"
+
 // 符杠
 import noteStemSvg from '../assets/msSymbols/noteStem.svg'
 
 // 变音符号
 import sharpSvg from '../assets/msSymbols/sharp.svg'
-import doubleSharpSvg from '../assets/msSymbols/sharp.svg'
+import doubleSharpSvg from '../assets/msSymbols/doubleSharp.svg'
 import flatSvg from '../assets/msSymbols/flat.svg'
-import doubleFlatpSvg from '../assets/msSymbols/flat.svg'
+import doubleFlatpSvg from '../assets/msSymbols/doubleFlat.svg'
 import natureSvg from '../assets/msSymbols/nature.svg'
 // 小节线
 import barLineSingleSvg from '../assets/msSymbols/barlineSingle.svg'
@@ -173,29 +174,35 @@ function getSvgHref() {
         case MsSymbolTypeEnum.Rest: {
             switch (props.msSymbol?.chronaxie) {
                 case ChronaxieEnum.whole: {
-                    return restWholeSvg
+                    return rest1Svg
                 }
                 case ChronaxieEnum.half: {
                     ``
-                    return restHalfSvg
+                    return rest2Svg
                 }
                 case ChronaxieEnum.quarter: {
-                    return restQuarterSvg
+                    return rest4Svg
                 }
                 case ChronaxieEnum.eighth: {
-                    return restEighthSvg
+                    return rest8Svg
                 }
                 case ChronaxieEnum.sixteenth: {
-                    return restSixteenthSvg
+                    return rest16Svg
                 }
                 case ChronaxieEnum.thirtySecond: {
-                    return restThirySecondSvg
+                    return rest32Svg
                 }
                 case ChronaxieEnum.sixtyFourth: {
-                    return restSixtyFourthSvg
+                    return rest64Svg
+                }
+                case ChronaxieEnum.oneTwentyEighth: {
+                    return rest128Svg
+                }
+                case ChronaxieEnum.twoFiftySixth: {
+                    return rest256Svg
                 }
                 default: {
-                    return restQuarterSvg
+                    return rest4Svg
                 }
 
             }

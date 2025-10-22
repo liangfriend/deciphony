@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 7.3"
-     width="90" height="73">
+     width="90" height="90">
     <g transform="translate(0.01,3.63) scale(1.15,1.15)">
         <!-- 外层 + 内层路径叠加 -->
         <path fill="black" fill-rule="evenodd"

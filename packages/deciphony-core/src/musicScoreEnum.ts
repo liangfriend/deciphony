@@ -101,6 +101,8 @@ export enum ChronaxieEnum {
     sixteenth = 16,
     thirtySecond = 32,
     sixtyFourth = 64,
+    oneTwentyEighth = 128,
+    twoFiftySixth = 256,
 }
 
 

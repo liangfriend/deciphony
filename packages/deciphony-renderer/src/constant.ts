@@ -1,5 +1,6 @@
 // 宽度占比常数。与MsSymbolTypeEnum组合使用
 import {
+    AccidentalEnum,
     BarLineTypeEnum,
     ChronaxieEnum,
     ClefEnum,
@@ -191,9 +192,17 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         {
             aspectRatio: {
                 [ChronaxieEnum.eighth]:
-                    0.5,   // 7 flats
+                    4 / 10,   // 7 flats
                 [ChronaxieEnum.sixteenth]:
-                    0.5,   // 6 flats
+                    4 / 10,   // 6 flats
+                [ChronaxieEnum.thirtySecond]:
+                    4 / 15,   // 7 flats
+                [ChronaxieEnum.sixtyFourth]:
+                    4 / 15,   // 6 flats
+                [ChronaxieEnum.oneTwentyEighth]:
+                    4 / 15,   // 7 flats
+                [ChronaxieEnum.twoFiftySixth]:
+                    4 / 20,   // 6 flats
             }
             ,
             category: MsSymbolCategoryEnum.singleMeasure,
@@ -269,7 +278,14 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
     ,
     [MsSymbolTypeEnum.Accidental]:
         {
-            aspectRatio: 1,
+            aspectRatio: {
+                [AccidentalEnum.None]: 0,
+                [AccidentalEnum.Natural]: 1 / 3,
+                [AccidentalEnum.Flat]: 1 / 3,
+                [AccidentalEnum.Sharp]: 1 / 3,
+                [AccidentalEnum.DoubleFlat]: 2 / 3,
+                [AccidentalEnum.DoubleSharp]: 2 / 3,
+            },
             category:
             MsSymbolCategoryEnum.singleMeasure,
             widthRatioConstant:

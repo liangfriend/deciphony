@@ -21,6 +21,8 @@ function getMultipleAspectRatio(msSymbol: MsSymbol): number {
             return information.aspectRatio[msSymbol.chronaxie]
         } else if (msSymbol.type === MsSymbolTypeEnum.Clef || msSymbol.type === MsSymbolTypeEnum.Clef_f) {
             return information.aspectRatio[msSymbol.clef]
+        } else if (msSymbol.type === MsSymbolTypeEnum.Accidental) {
+            return information.aspectRatio[msSymbol.accidental]
         }
 
     }

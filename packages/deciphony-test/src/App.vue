@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import RenderTest from "./views/renderTest.vue";
+import Test from "./views/test.vue";
 </script>
 
 <template>
 
     <!--    <ui-test></ui-test>-->
-    <render-test></render-test>
+    <!--    <render-test></render-test>-->
+    <test></test>
     <!--  <player-test></player-test>-->
 
     <!--    <web-audio-test></web-audio-test>-->

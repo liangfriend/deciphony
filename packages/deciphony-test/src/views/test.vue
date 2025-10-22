@@ -1,83 +1,107 @@
 <script lang="ts" setup>
-import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
 
-const box = ref<HTMLElement | null>(null)
+const dragableBoxList = ref({
+  'startPoint': {position: {x: 0, y: 0}},
+  'endPoint': {position: {x: 80, y: 0}},
+  'leftSlope': {position: {x: 0, y: 80}},
+  'rightSlope': {position: {x: 80, y: 80}}
+})
+
 let isDragging = false
 let offsetX = 0
 let offsetY = 0
+let currentTarget: HTMLElement | null = null
+let currentItem: any = null
 
-// 按下事件
-function onPointerDown(e: PointerEvent) {
-    if (!box.value) return
-    isDragging = true
-    box.value.setPointerCapture(e.pointerId)
-    const rect = box.value.getBoundingClientRect()
-    offsetX = e.clientX - rect.left
-    offsetY = e.clientY - rect.top
+// pointerdown
+function onPointerDown(e: PointerEvent, item: any) {
+  const target = e.target as HTMLElement
+  currentTarget = target
+  currentItem = item
+  isDragging = true
+  target.setPointerCapture(e.pointerId)
+
+  const rect = target.getBoundingClientRect()
+  offsetX = e.clientX - rect.left
+  offsetY = e.clientY - rect.top
 }
 
-// 移动事件
+// pointermove
 function onPointerMove(e: PointerEvent) {
-    if (!isDragging || !box.value) return
-    box.value.style.left = `${e.clientX - offsetX}px`
-    box.value.style.top = `${e.clientY - offsetY}px`
+  if (!isDragging || !currentItem) return
+
+  // 更新 position
+  currentItem.position.x = e.clientX - offsetX
+  currentItem.position.y = e.clientY - offsetY
 }
 
-// 抬起事件
+// pointerup
 function onPointerUp(e: PointerEvent) {
-    isDragging = false
-    box.value?.releasePointerCapture(e.pointerId)
+  isDragging = false
+  currentTarget?.releasePointerCapture(e.pointerId)
+  currentTarget = null
+  currentItem = null
 }
 
 onMounted(() => {
-    document.addEventListener('pointermove', onPointerMove)
-    document.addEventListener('pointerup', onPointerUp)
+  document.addEventListener('pointermove', onPointerMove)
+  document.addEventListener('pointerup', onPointerUp)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointermove', onPointerMove)
+  document.removeEventListener('pointerup', onPointerUp)
 })
 
-onBeforeUnmount(() => {
-    document.removeEventListener('pointermove', onPointerMove)
-    document.removeEventListener('pointerup', onPointerUp)
+// 样式计算
+const dragableBoxStyle = computed(() => {
+  return (item: any) => ({
+    left: item.position.x + 'px',
+    top: item.position.y + 'px',
+  })
 })
-/*
-*
-* 使用三次贝塞尔曲线实现连音线
-* 贝塞尔曲线进行一次往复，左右控制点向内偏移，实现一个月牙形
-* */
+
+const path = computed(() => {
+  const s = dragableBoxList.value.startPoint.position
+  const e = dragableBoxList.value.endPoint.position
+  const l = dragableBoxList.value.leftSlope.position
+  const r = dragableBoxList.value.rightSlope.position
+  return `M ${s.x} ${s.y} C ${l.x} ${l.y}, ${r.x} ${r.y}, ${e.x} ${e.y}`
+})
 </script>
 
 <template>
+  <div class="fullscreen">
+    <svg height="1000" preserveAspectRatio="none"
+         viewBox="0 0 1000 1000" width="1000" xmlns="http://www.w3.org/2000/svg">
+      <path :d="path" stroke="black"></path>
+    </svg>
 
-    <div class="fullscreen">
-        <div ref="box" class="draggable" @pointerdown="onPointerDown">
-            <svg height="100" preserveAspectRatio="none"
-                 viewBox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M 0 0, C 20 20, 80 20, 100 0" stroke="black"></path>
-            </svg>
-        </div>
-    </div>
+    <div
+        v-for="(item,key) in dragableBoxList"
+        :key="key"
+        class="dragable-box"
+        :style="dragableBoxStyle(item)"
+        @pointerdown="(e) => onPointerDown(e, item)"
+    ></div>
+  </div>
 </template>
 
 <style scoped>
 .fullscreen {
-    width: 100vw;
-    height: 100vh;
-    background: #f2f2f2;
-    position: relative;
-    overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: #f2f2f2;
+  position: relative;
+  overflow: hidden;
 }
 
-.draggable {
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    left: 100px;
-    top: 100px;
-    cursor: grab;
-    border: 1px dashed #666;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
+.dragable-box {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px dashed #666;
+  background: white;
+  cursor: grab;
 }
 </style>

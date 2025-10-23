@@ -5,6 +5,7 @@ import BottomMenu from "./editor/components/bottomMenu.vue";
 import {
     addMsSymbol,
     addMsSymbolContainer,
+    addSpanSymbol,
     ChronaxieEnum,
     MsMode,
     msSymbolContainerTemplate,
@@ -15,8 +16,9 @@ import {
     MusicScoreShowModeEnum,
     musicScoreTemplate,
     ReserveMsSymbolType,
+    spanSymbolTemplate, SpanSymbolTypeEnum,
     StaffPositionTypeEnum,
-    StaffRegionEnum
+    StaffRegionEnum, Volta
 } from "deciphony-core";
 import RightTools from "./editor/components/rightTools/rightTools.vue";
 import MeasureFunction from "./editor/components/rightTools/measureFunction.vue";
@@ -168,7 +170,17 @@ onMounted(() => {
     // addMsSymbolQuickly()
     //TEST
     window.musicScore = musicScoreData.value
+    const measure = musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0]
     // jianxianSwitch()
+    // 添加连音线
+
+    const volta = spanSymbolTemplate({
+        type: SpanSymbolTypeEnum.volta,
+        startTargetId: measure.id,
+        endTargetId: measure.id
+    }) as Volta
+    console.log('chicken', volta)
+    addSpanSymbol(volta, measure, measure, musicScoreData.value)
 });
 onBeforeMount(() => {
 })

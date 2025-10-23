@@ -47,13 +47,6 @@ export declare interface TimeSignature {
     chronaxie: ChronaxieEnum,
 }
 
-export declare interface Rect {
-    width: number;
-    height: number;
-    left: number;
-    top: number;
-}
-
 export declare type MusicScoreIndex = {
     multipleStavesIndex: number,
     singleStaffIndex: number,
@@ -156,15 +149,25 @@ export declare type MsSymbol =
 export declare type BaseSpanSymbol = {
     id: number,
     msTypeName: MsTypeNameEnum.SpanSymbol,
-    rect: Rect
     vueKey: number,
 }
+
 export declare type Volta = (BaseSpanSymbol & {
     type: SpanSymbolTypeEnum.volta
     spanSymbolFollowingCategoryEnum: SpanSymbolFollowingCategoryEnum.measure,
     startTargetId: number,
     endTargetId: number,
     options: MusicScoreOptions,
+    style: {
+        startPoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+        endPoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+    }
 })
 export declare type Slur = (BaseSpanSymbol & {
     type: SpanSymbolTypeEnum.slur
@@ -172,6 +175,24 @@ export declare type Slur = (BaseSpanSymbol & {
     startTargetId: number,
     endTargetId: number,
     options: MusicScoreOptions,
+    style: {
+        startPoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+        endPoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+        leftSlopePoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+        rightSlopePoint: {
+            offsetX: number,
+            offsetY: number,
+        },
+    }
 })
 // 跨小节符号.  目前只有小节跟随型和符号（音符头）跟随型
 export declare type SpanSymbol = Volta | Slur

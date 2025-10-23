@@ -47,11 +47,15 @@ export function spanSymbolTemplate(options: {
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
                 "id": Math.random() * Date.now(),
-                "rect": {
-                    top: 0,
-                    left: 0,
-                    width: 0,
-                    height: 0,
+                style: {
+                    startPoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
+                    endPoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
                 },
                 "options": {
                     "highlight": false,
@@ -69,11 +73,23 @@ export function spanSymbolTemplate(options: {
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
                 "id": Math.random() * Date.now(),
-                "rect": {
-                    top: 0,
-                    left: 0,
-                    width: 0,
-                    height: 0,
+                style: {
+                    startPoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
+                    endPoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
+                    leftSlopePoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
+                    rightSlopePoint: {
+                        offsetX: 0,
+                        offsetY: 0,
+                    },
                 },
                 "options": {
                     "highlight": false,
@@ -91,11 +107,15 @@ export function spanSymbolTemplate(options: {
         "startTargetId": options.startTargetId,
         "endTargetId": options.endTargetId,
         "id": Math.random() * Date.now(),
-        "rect": {
-            top: 0,
-            left: 0,
-            width: 0,
-            height: 0,
+        style: {
+            startPoint: {
+                offsetX: 0,
+                offsetY: 0,
+            },
+            endPoint: {
+                offsetX: 0,
+                offsetY: 0,
+            },
         },
         "options": {
             "highlight": false,

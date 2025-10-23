@@ -6,6 +6,8 @@ import {
 } from "../../deciphony-core/src/musicScoreEnum";
 import {MsType, MusicScore} from "../../deciphony-core/src/types";
 import {Ref} from "vue";
+import {MsTypeNameEnum} from "deciphony-core";
+import {DragType} from "@/enum";
 
 export declare interface MouseDownData {
     msData: MsType,
@@ -44,6 +46,7 @@ export declare interface MsState {
     reserveMsSymbolMap: Ref<ReserveMsSymbolMapType>,
     currentResevedType: Ref<ReserveMsSymbolType>,
 }
+
 // constant
 export type FixedWidthSymbolInfo = { // 定宽符号没有宽度占比系数
     containerType: MsSymbolContainerTypeEnum.rearFixed | MsSymbolContainerTypeEnum.frontFixed
@@ -51,10 +54,10 @@ export type FixedWidthSymbolInfo = { // 定宽符号没有宽度占比系数
     category: MsSymbolCategoryEnum.singleMeasure
     heightMultiplier: number | Record<string, number>    // 相对小节的高度倍数，用于计算高度
     space: {
-        top:number,
-        bottom:number,
-        left:number,
-        right:number,
+        top: number,
+        bottom: number,
+        left: number,
+        right: number,
     }
 }
 
@@ -66,10 +69,10 @@ export type VariableWidthSymbolInfo = {
     category: MsSymbolCategoryEnum.singleMeasure
     heightMultiplier: number | Record<string, number>
     space: {
-        top:number,
-        bottom:number,
-        left:number,
-        right:number,
+        top: number,
+        bottom: number,
+        left: number,
+        right: number,
     }
 }
 export type pureFollowSymbolInfo = { // 纯粹的符号跟随类型  没有容器类型属性
@@ -78,20 +81,20 @@ export type pureFollowSymbolInfo = { // 纯粹的符号跟随类型  没有容�
     widthRatioConstant: number
     heightMultiplier: number | Record<string, number> // 相对小节的高度倍数，用于计算高度
     space: {
-        top:number,
-        bottom:number,
-        left:number,
-        right:number,
+        top: number,
+        bottom: number,
+        left: number,
+        right: number,
     }
 }
 
 export type MultipleMeasureSymbolInfo = { // 跨小节类型符号
     category: MsSymbolCategoryEnum.multipleMeasure,
     space: {
-        top:number,
-        bottom:number,
-        left:number,
-        right:number,
+        top: number,
+        bottom: number,
+        left: number,
+        right: number,
     }
 }
 /*
@@ -104,3 +107,29 @@ export type MsSymbolInformation =
     | VariableWidthSymbolInfo
     | MultipleMeasureSymbolInfo
     | pureFollowSymbolInfo
+
+
+/*
+* 样式表
+* */
+
+export type StyleMapItem = {
+    type: MsTypeNameEnum.SpanSymbol,
+    dragType: DragType.CubicBezier,
+    startPoint: {
+        offsetX: number,
+        offsetY: number,
+    },
+    endPoint: {
+        offsetX: number,
+        offsetY: number,
+    },
+    leftSlopePoint: {
+        offsetX: number,
+        offsetY: number,
+    },
+    rightSlopePoint: {
+        offsetX: number,
+        offsetY: number,
+    },
+}

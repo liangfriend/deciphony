@@ -23,14 +23,18 @@
       </template>
     </measure-container>
     <!--    跨小节符号目前只有小节跟随型和符号（音符头）跟随型-->
-    <span-symbol-vue :key="spanSymbol.vueKey"
-                     :musicScore="musicScore"
-                     v-for="(spanSymbol,spanSymbolIndex) in musicScore.spanSymbolArray"
-                     :componentWidth="width"
-                     :componentHeight="height"
-                     @span-symbol-mouse-down="handleSpanSymbolMouseDown"
-                     @spanSymbolMouseUp="handleSpanSymbolMouseUp"
-                     :spanSymbol="spanSymbol"></span-symbol-vue>
+    <div class="stackItem" comment="跨小节符号层">
+
+      <span-symbol-vue :key="spanSymbol.vueKey"
+                       :musicScore="musicScore"
+                       v-for="(spanSymbol,spanSymbolIndex) in musicScore.spanSymbolArray"
+                       :componentWidth="width"
+                       :componentHeight="height"
+                       @span-symbol-mouse-down="handleSpanSymbolMouseDown"
+                       @spanSymbolMouseUp="handleSpanSymbolMouseUp"
+                       :spanSymbol="spanSymbol"></span-symbol-vue>
+    </div>
+
     <measure-container :musicScore="musicScore" class="stackItem symbolLayer"
                        :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
                        comment="符号层2">
@@ -158,7 +162,7 @@ import {
 import VirtualSymbolContainer
   from "./components/virtualSymbolContainer.vue";
 import {msSymbolTemplate} from "deciphony-core";
-import {MusicScoreRef, ReserveMsSymbolMapType} from "./types";
+import {MusicScoreRef, ReserveMsSymbolMapType, StyleMapItem} from "./types";
 import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core";
 
 
@@ -180,6 +184,10 @@ const props = defineProps({
     type: Number,
     default: 1
   },
+  styleMap: {
+    type: Array as PropType<Record<number, StyleMapItem>>,
+
+  }
 
 });
 // 是否与其它音连成组
@@ -299,13 +307,14 @@ const musicScoreStyle = computed(() => {
     overflow: 'visible',
   };
 });
+const styleMap = ref({})
 
 function beforeMount() {
   if (!props.musicScore) {
     // console.error("musicScore不存在")
     return
   }
-  // 索引生成
+  // 索引生成 TODO 这个似乎没有用了，renderer会进行严格的生成
   setMultipleStavesIndex(props.musicScore)
   // 初始化预备音符
   initReserveMsSymbolMap()
@@ -355,10 +364,8 @@ function switchShowMode(musicScore: MusicScore) {
 }
 
 onMounted(() => {
-  // 生成map
 
 })
-// onMounted(mounted);
 onUnmounted(() => {
 
 });

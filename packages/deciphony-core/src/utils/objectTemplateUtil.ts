@@ -116,7 +116,7 @@ export function msSymbolTemplate(options: {
     timeSignature?: TimeSignature,
     accidental?: AccidentalEnum,
     direction?: 'up' | 'down',
-    octave?:number,
+    octave?: number,
     solmization?: SolmizationEnum,
 } = {}): MsSymbol {
     const baseMsSymbol: BaseMsSymbol = {
@@ -175,7 +175,7 @@ export function msSymbolTemplate(options: {
             }
         }
         case MsSymbolTypeEnum.NoteDot: {
-            const noteDot:NoteDot = {
+            const noteDot: NoteDot = {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.NoteDot,
                 octave: options.octave ?? 4
@@ -183,17 +183,17 @@ export function msSymbolTemplate(options: {
             return noteDot
         }
         case MsSymbolTypeEnum.NoteNumber: {
-            if(options.chronaxie && [ChronaxieEnum.whole,ChronaxieEnum.half].includes(options.chronaxie)){
+            if (options.chronaxie && [ChronaxieEnum.whole, ChronaxieEnum.half].includes(options.chronaxie)) {
                 console.error("noteNumber的时值最大为四分音符")
                 options.chronaxie = ChronaxieEnum.quarter
             }
-            const noteNumber:NoteNumber = {
+            const noteNumber: NoteNumber = {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.NoteNumber,
-                solmization: options.solmization|| SolmizationEnum.DO,
-                chronaxie:options.chronaxie || ChronaxieEnum.quarter,
+                solmization: options.solmization || SolmizationEnum.DO,
+                chronaxie: options.chronaxie || ChronaxieEnum.quarter,
                 octave: options.octave ?? 4,
-                beamId:-1
+                beamId: -1
             }
 
             // 如果不为全，二分，四分音符，添加时值线
@@ -209,14 +209,14 @@ export function msSymbolTemplate(options: {
             return noteNumber
         }
         case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
-            const chronaxieIncreasingLine:ChronaxieIncreasingLine = {
+            const chronaxieIncreasingLine: ChronaxieIncreasingLine = {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.ChronaxieIncreasingLine,
             }
             return chronaxieIncreasingLine
         }
         case MsSymbolTypeEnum.ChronaxieReducingLine: {
-            const chronaxieReducingLine:ChronaxieReducingLine = {
+            const chronaxieReducingLine: ChronaxieReducingLine = {
                 ...baseMsSymbol,
                 type: MsSymbolTypeEnum.ChronaxieReducingLine,
                 chronaxie: options.chronaxie ?? ChronaxieEnum.eighth
@@ -477,6 +477,7 @@ export function musicScoreTemplate(options: {} = {}) {
         widthDynamicRatio: 0.6,
         map: {},
         vueKey: Math.random() * Date.now() + 6,
+        style: null
     }
     return musicScore
 }

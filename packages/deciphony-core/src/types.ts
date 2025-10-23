@@ -82,7 +82,7 @@ export declare type NoteHead = ({
 export declare type NoteNumber = ({
     type: MsSymbolTypeEnum.NoteNumber,
     solmization: SolmizationEnum   // 唱名
-    chronaxie: Exclude<ChronaxieEnum,[ChronaxieEnum.whole,ChronaxieEnum.half]>; // 时值，简谱数字音符最大时值就是4分音符
+    chronaxie: Exclude<ChronaxieEnum, [ChronaxieEnum.whole, ChronaxieEnum.half]>; // 时值，简谱数字音符最大时值就是4分音符
     octave: Octave; // 八度，首调
     beamId: number, // 是否成连音组，连音组的话为唯一组号,-1为无
 } & BaseMsSymbol)
@@ -137,9 +137,20 @@ export declare type Rest = ({
     type: MsSymbolTypeEnum.Rest,
     chronaxie: ChronaxieEnum,
 } & BaseMsSymbol)
-export declare type MsSymbol = NoteHead | ClefMsSymbol | NoteNumber
-    | TimeSignatureMsSymbol | KeySignatureMsSymbol
-    | AccidentalMsSymbol | NoteTail | BarLine | ChronaxieReducingLine | Rest | NoteStem | NoteDot | ChronaxieIncreasingLine
+export declare type MsSymbol =
+    NoteHead
+    | ClefMsSymbol
+    | NoteNumber
+    | TimeSignatureMsSymbol
+    | KeySignatureMsSymbol
+    | AccidentalMsSymbol
+    | NoteTail
+    | BarLine
+    | ChronaxieReducingLine
+    | Rest
+    | NoteStem
+    | NoteDot
+    | ChronaxieIncreasingLine
 
 
 export declare type BaseSpanSymbol = {
@@ -224,12 +235,14 @@ export type MsType = MultipleStaves | SingleStaff | Measure | MsSymbolContainer 
 export declare interface MusicScore {
     title?: string;
     multipleStavesArray: Array<MultipleStaves>;
-    measureHeight: number,
     showMode: MusicScoreShowModeEnum
     spanSymbolArray: Array<SpanSymbol>,
+    map: Record<number, MsType>, // 用于快速索引数据
+    // 页面展示相关属性
+    vueKey: number, // 用于刷新
     widthDynamicRatio: number, //动态宽度部分占比
-    map: Record<number, MsType>,
-    vueKey: number,
+    measureHeight: number,  // 记录小节高度
+    style: any, // 用于外部扩展样式
 }
 
 // 宽度系数

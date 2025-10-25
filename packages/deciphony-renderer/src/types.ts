@@ -124,11 +124,11 @@ export type StyleMapItem = {
         offsetX: number,
         offsetY: number,
     },
-    leftSlopePoint: {
+    leftSlope: {
         offsetX: number,
         offsetY: number,
     },
-    rightSlopePoint: {
+    rightSlope: {
         offsetX: number,
         offsetY: number,
     },

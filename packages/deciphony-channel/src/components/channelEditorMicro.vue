@@ -56,7 +56,7 @@ const selectPoint = ref({
   influenceLength: 0,// 影响范围
   weightType: 1,//权重模式 始终相等1，直线递减2 圆滑递减3 尖锐递减4
   direction: 1, // 两侧1 左侧2 右侧3
-  relativeHeight:0, // 相对高度调整
+  relativeHeight: 0, // 相对高度调整
 })
 
 function getWeightForPoint(offset: number, range: number, type: number, coefficient: number = 2): number {
@@ -81,7 +81,7 @@ function getWeightForPoint(offset: number, range: number, type: number, coeffici
 }
 
 function changeHeightForPoint(val: number) {
-console.log('chicken',)
+  console.log('chicken',)
   if (val === 0) return
   channelData.value[highlightList.value[0].index] += val
   const center = +highlightList.value[0].index// 不知道为啥，这里总会变成字符串，所以加了+
@@ -463,7 +463,7 @@ defineExpose({setChannel})
         </div>
       </div>
       <div comment="选区编辑" class="tag">
-        <div class="text-2xl text-red-400">选中区域编辑(两侧开区间)</div>
+        <div class="text-2xl text-red-400">选中区域编辑(两侧闭区间)</div>
         <div>
           起点索引<input type="number" v-model="selectRegion.startIndex"/>-
           <input type="number" v-model="selectRegion.endIndex"/>终点索引

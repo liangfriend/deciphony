@@ -341,7 +341,7 @@ defineExpose({addAudioBuffer})
         </div>
       </div>
       <div comment="选区编辑" class="tag">
-        <div>区域编辑(两侧开区间)</div>
+        <div>区域编辑(两侧闭区间)</div>
         <div>
           起点索引<input type="number" v-model="selectRange.startIndex"/>-
           <input type="number" v-model="selectRange.endIndex"/>终点索引

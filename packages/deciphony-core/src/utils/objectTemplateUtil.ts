@@ -47,20 +47,20 @@ export function spanSymbolTemplate(options: {
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
                 "id": Math.random() * Date.now(),
-                style: {
-                    startPoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                    endPoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                },
                 "options": {
                     "highlight": false,
                     "highlightColor": "red",
-                    "color": "black"
+                    "color": "black",
+                    offset: {
+                        startPoint: {
+                            x: 0,
+                            y: 0,
+                        },
+                        endPoint: {
+                            x: 0,
+                            y: 0,
+                        },
+                    },
                 },
                 "vueKey": Math.random() * Date.now()
             }
@@ -73,28 +73,29 @@ export function spanSymbolTemplate(options: {
                 "startTargetId": options.startTargetId,
                 "endTargetId": options.endTargetId,
                 "id": Math.random() * Date.now(),
-                style: {
-                    startPoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                    endPoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                    leftSlopePoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                    rightSlopePoint: {
-                        offsetX: 0,
-                        offsetY: 0,
-                    },
-                },
+
                 "options": {
                     "highlight": false,
                     "highlightColor": "red",
-                    "color": "black"
+                    "color": "black",
+                    offset: {
+                        startPoint: {
+                            x: 0,
+                            y: 0,
+                        },
+                        endPoint: {
+                            x: 0,
+                            y: 0,
+                        },
+                        leftSlope: {
+                            x: 0,
+                            y: 0,
+                        },
+                        rightSlope: {
+                            x: 0,
+                            y: 0,
+                        },
+                    },
                 },
                 "vueKey": Math.random() * Date.now()
             }
@@ -107,20 +108,21 @@ export function spanSymbolTemplate(options: {
         "startTargetId": options.startTargetId,
         "endTargetId": options.endTargetId,
         "id": Math.random() * Date.now(),
-        style: {
-            startPoint: {
-                offsetX: 0,
-                offsetY: 0,
-            },
-            endPoint: {
-                offsetX: 0,
-                offsetY: 0,
-            },
-        },
+
         "options": {
             "highlight": false,
             "highlightColor": "red",
-            "color": "black"
+            "color": "black",
+            offset: {
+                startPoint: {
+                    x: 0,
+                    y: 0,
+                },
+                endPoint: {
+                    x: 0,
+                    y: 0,
+                },
+            },
         },
         "vueKey": Math.random() * Date.now()
     }

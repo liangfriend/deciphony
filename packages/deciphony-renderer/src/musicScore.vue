@@ -1,125 +1,3 @@
-<template>
-  <div ref="musicScoreRef" :style="musicScoreStyle" class="musicScore stack" @mousedown.stop="handleMouseDown"
-       @mousemove.stop="handleMouseMove" @mouseup.stop="handleMouseUp">
-    <measure-container :disabled="false" :musicScore="musicScore" :style="{width:width+'px',height:height+'px'}"
-                       class="stackItem lineLayer"
-                       comment="谱线层1"
-                       @multipleStavesMouseDown="handleMultipleStavesMouseDown"
-                       @single-staff-mouse-down="handleSingleStaffMouseDown">
-      <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
-        <measureVue
-            :key="'measure'+measureIndex"
-            :componentHeight="height"
-            :componentWidth="width"
-            :height="musicScore.measureHeight"
-            :measure="measure"
-            :musicScore="musicScore"
-            :strokeWidth="strokeWidth"
-            :width="measureWidth"
-            :x="measureIndex * measureWidth"
-            @measureMouseDown="handleMeasureMouseDown"
-        >
-        </measureVue>
-      </template>
-    </measure-container>
-    <!--    跨小节符号目前只有小节跟随型和符号（音符头）跟随型-->
-    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" :viewBox="`0 0 ${width} ${height}`"
-         :width="width"
-         :height="height" class="stackItem spanSymbolLayer" comment="跨小节符号层">
-
-      <span-symbol-vue v-for="(spanSymbol,spanSymbolIndex) in musicScore.spanSymbolArray"
-                       :key="spanSymbol.vueKey"
-                       :componentHeight="height"
-                       :componentWidth="width"
-                       :musicScore="musicScore"
-                       :spanSymbol="spanSymbol"
-                       @spanSymbolMouseUp="handleSpanSymbolMouseUp"
-                       @span-symbol-mouse-down="handleSpanSymbolMouseDown"></span-symbol-vue>
-    </svg>
-
-    <measure-container :musicScore="musicScore" :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
-                       class="stackItem symbolLayer"
-                       comment="符号层2">
-      <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
-        <ms-symbol-container v-for="(msSymbolContainer,symbolIndex) in measure.msSymbolContainerArray"
-                             :key="'note-symbol'+symbolIndex"
-                             :componentHeight="height"
-                             :componentWidth="width"
-                             :measure="measure"
-                             :measureHeight="musicScore.measureHeight"
-                             :measureWidth="measureWidth"
-                             :msSymbolContainer="msSymbolContainer"
-                             :multipleStaves="multipleStaves"
-                             :musicScore="musicScore"
-                             :nextContainer="measure.msSymbolContainerArray.length!==(symbolIndex+1)?
-                             measure.msSymbolContainerArray[symbolIndex+1]:undefined"
-                             :preContainer="measure.msSymbolContainerArray.length!==0?
-                             measure.msSymbolContainerArray[symbolIndex-1]:undefined"
-                             :singleStaff="singleStaff"
-                             @msSymbolMousUp="handleMsSymbolMouseUp"
-                             @msSymbolMouseDown="handleMsSymbolMouseDown"
-        ></ms-symbol-container>
-      </template>
-    </measure-container>
-
-    <measure-container v-show="mode === MsMode.edit" :musicScore="musicScore"
-                       :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
-                       class="stackItem symbolLayer"
-                       comment="编辑模式虚拟音符层">
-      <template
-          #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
-        <template v-if="currentSelected === measure">
-          <virtual-symbol-container
-              :componentHeight="height"
-              :componentWidth="width"
-              :measure="measure"
-              :measureHeight="musicScore.measureHeight"
-              :measureWidth="measureWidth"
-              :msSymbolContainer="variableContainerArray(measure)[0]"
-              :multipleStaves="multipleStaves"
-              :musicScore="musicScore"
-              :singleStaff="singleStaff"
-              comment="第一个变宽容器"
-              type="front"
-          ></virtual-symbol-container>
-          <virtual-symbol-container
-              v-for="(msSymbolContainer,symbolIndex) in variableContainerArray(measure)"
-              :key="'virtual-symbol'+symbolIndex"
-              :componentHeight="height"
-              :componentWidth="width"
-              :ind="symbolIndex"
-              :measure="measure"
-              :measureHeight="musicScore.measureHeight"
-              :measureWidth="measureWidth"
-              :msSymbolContainer="msSymbolContainer"
-              :multipleStaves="multipleStaves"
-              :musicScore="musicScore"
-              :singleStaff="singleStaff"
-              type="self"
-          ></virtual-symbol-container>
-          <virtual-symbol-container
-              v-for="(msSymbolContainer,symbolIndex) in variableContainerArray(measure)"
-
-              :key="'virtual-symbol'+symbolIndex"
-              :componentHeight="height"
-              :componentWidth="width"
-              :ind="symbolIndex"
-              :measure="measure"
-              :measureHeight="musicScore.measureHeight"
-              :measureWidth="measureWidth"
-              :msSymbolContainer="msSymbolContainer"
-              :multipleStaves="multipleStaves"
-              :musicScore="musicScore"
-              :singleStaff="singleStaff"
-              :type="(symbolIndex === (variableContainerArray(measure).length - 1))?'end':'middle'"
-          ></virtual-symbol-container>
-        </template>
-
-      </template>
-    </measure-container>
-
-  </div>
-</template>
 <script lang="ts" setup>
 import measureVue from "@/components/measure.vue";
 import {computed, onBeforeMount, onMounted, onUnmounted, type PropType, provide, Ref, ref} from 'vue';
@@ -394,6 +272,141 @@ defineExpose<MusicScoreRef>({
   switchShowMode
 })
 </script>
+<template>
+  <div ref="musicScoreRef" :style="musicScoreStyle" class="musicScore stack" @mousedown.stop="handleMouseDown"
+       @mousemove.stop="handleMouseMove" @mouseup.stop="handleMouseUp">
+    <measure-container :disabled="false" :musicScore="musicScore" :style="{width:width+'px',height:height+'px'}"
+                       class="stackItem lineLayer"
+                       comment="谱线层1"
+                       @multipleStavesMouseDown="handleMultipleStavesMouseDown"
+                       @single-staff-mouse-down="handleSingleStaffMouseDown">
+      <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
+        <measureVue
+            :key="'measure'+measureIndex"
+            :componentHeight="height"
+            :componentWidth="width"
+            :height="musicScore.measureHeight"
+            :measure="measure"
+            :musicScore="musicScore"
+            :strokeWidth="strokeWidth"
+            :width="measureWidth"
+            :x="measureIndex * measureWidth"
+            @measureMouseDown="handleMeasureMouseDown"
+        >
+        </measureVue>
+      </template>
+    </measure-container>
+    <!--    跨小节符号目前只有小节跟随型和符号（音符头）跟随型-->
+    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" :viewBox="`0 0 ${width} ${height}`"
+         :width="width"
+         :height="height" class="stackItem spanSymbolLayer" comment="跨小节符号层">
+
+      <span-symbol-vue v-for="(spanSymbol,spanSymbolIndex) in musicScore.spanSymbolArray"
+                       :key="spanSymbol.vueKey"
+                       :componentHeight="height"
+                       :componentWidth="width"
+                       :musicScore="musicScore"
+                       :spanSymbol="spanSymbol"
+                       @spanSymbolMouseUp="handleSpanSymbolMouseUp"
+                       @span-symbol-mouse-down="handleSpanSymbolMouseDown"></span-symbol-vue>
+    </svg>
+
+    <measure-container :musicScore="musicScore" :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
+                       class="stackItem symbolLayer"
+                       comment="符号层2">
+      <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
+        <ms-symbol-container v-for="(msSymbolContainer,symbolIndex) in measure.msSymbolContainerArray"
+                             :key="'note-symbol'+symbolIndex"
+                             :componentHeight="height"
+                             :componentWidth="width"
+                             :measure="measure"
+                             :measureHeight="musicScore.measureHeight"
+                             :measureWidth="measureWidth"
+                             :msSymbolContainer="msSymbolContainer"
+                             :multipleStaves="multipleStaves"
+                             :musicScore="musicScore"
+                             :nextContainer="measure.msSymbolContainerArray.length!==(symbolIndex+1)?
+                             measure.msSymbolContainerArray[symbolIndex+1]:undefined"
+                             :preContainer="measure.msSymbolContainerArray.length!==0?
+                             measure.msSymbolContainerArray[symbolIndex-1]:undefined"
+                             :singleStaff="singleStaff"
+                             @msSymbolMousUp="handleMsSymbolMouseUp"
+                             @msSymbolMouseDown="handleMsSymbolMouseDown"
+        ></ms-symbol-container>
+      </template>
+    </measure-container>
+
+    <measure-container v-show="mode === MsMode.edit" :musicScore="musicScore"
+                       :style="{width:width+'px',height:height+'px', pointerEvents:'none'}"
+                       class="stackItem symbolLayer"
+                       comment="编辑模式虚拟音符层">
+      <template
+          #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
+        <template v-if="currentSelected === measure">
+          <virtual-symbol-container
+              v-if="!variableContainerArray(measure).length"
+              :componentHeight="height"
+              :componentWidth="width"
+              :measure="measure"
+              :measureHeight="musicScore.measureHeight"
+              :measureWidth="measureWidth"
+              :multipleStaves="multipleStaves"
+              :musicScore="musicScore"
+              :singleStaff="singleStaff"
+              comment="小节无变宽符号时的虚拟音符容器"
+              type="front"
+          ></virtual-symbol-container>
+          <virtual-symbol-container
+              :componentHeight="height"
+              :componentWidth="width"
+              :measure="measure"
+              :measureHeight="musicScore.measureHeight"
+              :measureWidth="measureWidth"
+              :msSymbolContainer="variableContainerArray(measure)[0]"
+              :multipleStaves="multipleStaves"
+              :musicScore="musicScore"
+              :singleStaff="singleStaff"
+              comment="第一个变宽容器"
+              type="front"
+          ></virtual-symbol-container>
+          <virtual-symbol-container
+              v-for="(msSymbolContainer,symbolIndex) in variableContainerArray(measure)"
+              :key="'virtual-symbol'+symbolIndex"
+              :componentHeight="height"
+              :componentWidth="width"
+              :ind="symbolIndex"
+              :measure="measure"
+              :measureHeight="musicScore.measureHeight"
+              :measureWidth="measureWidth"
+              :msSymbolContainer="msSymbolContainer"
+              :multipleStaves="multipleStaves"
+              :musicScore="musicScore"
+              :singleStaff="singleStaff"
+              type="self"
+          ></virtual-symbol-container>
+          <virtual-symbol-container
+              v-for="(msSymbolContainer,symbolIndex) in variableContainerArray(measure)"
+
+              :key="'virtual-symbol'+symbolIndex"
+              :componentHeight="height"
+              :componentWidth="width"
+              :ind="symbolIndex"
+              :measure="measure"
+              :measureHeight="musicScore.measureHeight"
+              :measureWidth="measureWidth"
+              :msSymbolContainer="msSymbolContainer"
+              :multipleStaves="multipleStaves"
+              :musicScore="musicScore"
+              :singleStaff="singleStaff"
+              :type="(symbolIndex === (variableContainerArray(measure).length - 1))?'end':'middle'"
+          ></virtual-symbol-container>
+        </template>
+
+      </template>
+    </measure-container>
+
+  </div>
+</template>
 <style comment="布局" lang="scss" scoped>
 
 </style>
@@ -407,7 +420,6 @@ defineExpose<MusicScoreRef>({
 }
 
 .spanSymbolLayer {
-  position: relative;
 }
 
 </style>

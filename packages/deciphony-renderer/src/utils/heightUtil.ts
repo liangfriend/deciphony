@@ -4,7 +4,7 @@ import {
 } from "../../../deciphony-core/src/musicScoreEnum";
 import {MsSymbol, MusicScore, NoteDot, NoteHead, NoteStem} from "../../../deciphony-core/src/types";
 import {MsSymbolInformationMap} from "../constant";
-import {getSlotBottomToMeasure} from "../utils/bottomUtil";
+import {getSlotTopToMeasure} from "./topUtil";
 import {
     getBeamGroup,
     getDataWithIndex, staffRegionToIndex
@@ -30,7 +30,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
     if (noteHead.beamId === -1 || !beamGroup || beamGroup.length === 0) {
 
-        const slotBottom = getSlotBottomToMeasure(noteStem, musicScore)
+        const slotBottom = measureHeight - getSlotTopToMeasure(noteStem, musicScore)
 
         if (noteStem.direction === 'up') {
             return Math.max(minHeight, Math.abs(slotBottom) + minHeight - NoteStemBottomToSlotUp)
@@ -39,7 +39,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
         }
     } else { // 成组的情况
 
-        const slotBottom = getSlotBottomToMeasure(noteStem, musicScore)
+        const slotBottom = measureHeight - getSlotTopToMeasure(noteStem, musicScore)
 
         if (noteStem.direction === 'up') {
             // 找到最靠上的音符头
@@ -52,7 +52,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
                 }
                 return acc
             }, beamGroup[0].note) as NoteHead
-            const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore)
+            const farthestSlotBottom = measureHeight - getSlotTopToMeasure(farthestNoteHead, musicScore)
             let height = 0
             //至少一个音符在向上方向超出了连接符尾距离底部的最小距离
             if (staffRegionToIndex(farthestNoteHead.region) > 0) {
@@ -80,7 +80,7 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
                 return acc
             }, beamGroup[0].note) as NoteHead
 
-            const farthestSlotBottom = getSlotBottomToMeasure(farthestNoteHead, musicScore)
+            const farthestSlotBottom = measureHeight - getSlotTopToMeasure(farthestNoteHead, musicScore)
             let height = 0
             //至少一个超出
             if (staffRegionToIndex(farthestNoteHead.region) < 8) {

@@ -72,9 +72,9 @@ export function noteNameToHelmholtz(noteName: NoteName): string {
         // 大字组
         noteSymbol = letter.toUpperCase()
         const digits = String(Math.abs(octave - 3))
-        .split('')
-        .map(d => subscriptMap[Number(d)])
-        .join('')
+            .split('')
+            .map(d => subscriptMap[Number(d)])
+            .join('')
         noteSymbol += digits
     } else {
         // 小字组
@@ -83,9 +83,9 @@ export function noteNameToHelmholtz(noteName: NoteName): string {
             // 小字一组及以上 -> 上标 (octave-3)
             const upperNum = octave - 3
             const digits = String(upperNum)
-            .split('')
-            .map(d => superscriptMap[Number(d)])
-            .join('')
+                .split('')
+                .map(d => superscriptMap[Number(d)])
+                .join('')
             noteSymbol += digits
         }
         // octave 3 不加任何标
@@ -867,4 +867,84 @@ export function msSymbolPropertiesInherit(newMsSymbol: MsSymbol, oldMsSymbol: Ms
     newMsSymbol.id = oldMsSymbol.id;
     newMsSymbol.bindingEndId = oldMsSymbol.bindingEndId;
     newMsSymbol.bindingStartId = oldMsSymbol.bindingStartId;
+}
+
+// 循环符号容器
+export function forEachMsSymbolContainer(
+    startMsSymbolContainer: MsSymbolContainer,
+    endMsSymbolContainer: MsSymbolContainer,
+    musicScore: MusicScore,
+    callback: (container: MsSymbolContainer) => void
+) {
+    if (!startMsSymbolContainer || !endMsSymbolContainer || !musicScore) return;
+
+    const start = startMsSymbolContainer.index;
+    const end = endMsSymbolContainer.index;
+
+    // 为了支持反向的情况（start > end）
+    const isReverse = compareIndexOrder(start, end) > 0;
+
+    const multipleStavesArray = musicScore.multipleStavesArray;
+
+    const startM = Math.min(start.multipleStavesIndex, end.multipleStavesIndex);
+    const endM = Math.max(start.multipleStavesIndex, end.multipleStavesIndex);
+
+    // 遍历复谱表区间
+    for (let m = startM; m <= endM; m++) {
+        const multiple = multipleStavesArray[m];
+        const singleArray = multiple.singleStaffArray;
+
+        const singleStart = m === start.multipleStavesIndex ? start.singleStaffIndex : 0;
+        const singleEnd = m === end.multipleStavesIndex ? end.singleStaffIndex : singleArray.length - 1;
+
+        for (let s = singleStart; s <= singleEnd; s++) {
+            const single = singleArray[s];
+            const measureArray = single.measureArray;
+
+            const measureStart =
+                m === start.multipleStavesIndex && s === start.singleStaffIndex
+                    ? start.measureIndex
+                    : 0;
+
+            const measureEnd =
+                m === end.multipleStavesIndex && s === end.singleStaffIndex
+                    ? end.measureIndex
+                    : measureArray.length - 1;
+
+            for (let j = measureStart; j <= measureEnd; j++) {
+                const measure = measureArray[j];
+                const containerArray = measure.msSymbolContainerArray;
+
+                const containerStart =
+                    m === start.multipleStavesIndex &&
+                    s === start.singleStaffIndex &&
+                    j === start.measureIndex
+                        ? start.msSymbolContainerIndex
+                        : 0;
+
+                const containerEnd =
+                    m === end.multipleStavesIndex &&
+                    s === end.singleStaffIndex &&
+                    j === end.measureIndex
+                        ? end.msSymbolContainerIndex
+                        : containerArray.length - 1;
+
+                for (let k = containerStart; k <= containerEnd; k++) {
+                    const container = containerArray[k];
+                    callback(container);
+                }
+            }
+        }
+    }
+}
+
+// 辅助函数，比较索引顺序
+function compareIndexOrder(a: MusicScoreIndex, b: MusicScoreIndex): number {
+    if (a.multipleStavesIndex !== b.multipleStavesIndex)
+        return a.multipleStavesIndex - b.multipleStavesIndex;
+    if (a.singleStaffIndex !== b.singleStaffIndex)
+        return a.singleStaffIndex - b.singleStaffIndex;
+    if (a.measureIndex !== b.measureIndex)
+        return a.measureIndex - b.measureIndex;
+    return a.msSymbolContainerIndex - b.msSymbolContainerIndex;
 }

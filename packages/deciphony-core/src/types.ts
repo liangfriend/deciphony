@@ -24,6 +24,24 @@ export declare interface MusicScoreOptions {
     highlight: Boolean;
     highlightColor: string;
     color: string;
+    offset?: {
+        startPoint?: {
+            x: number,
+            y: number,
+        },
+        endPoint?: {
+            x: number,
+            y: number,
+        },
+        leftSlope?: {
+            x: number,
+            y: number,
+        },
+        rightSlope?: {
+            x: number,
+            y: number,
+        },
+    }
 }
 
 // 五线谱位置
@@ -158,16 +176,6 @@ export declare type Volta = (BaseSpanSymbol & {
     startTargetId: number,
     endTargetId: number,
     options: MusicScoreOptions,
-    style: {
-        startPoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-        endPoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-    }
 })
 export declare type Slur = (BaseSpanSymbol & {
     type: SpanSymbolTypeEnum.slur
@@ -175,24 +183,6 @@ export declare type Slur = (BaseSpanSymbol & {
     startTargetId: number,
     endTargetId: number,
     options: MusicScoreOptions,
-    style: {
-        startPoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-        endPoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-        leftSlopePoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-        rightSlopePoint: {
-            offsetX: number,
-            offsetY: number,
-        },
-    }
 })
 // 跨小节符号.  目前只有小节跟随型和符号（音符头）跟随型
 export declare type SpanSymbol = Volta | Slur

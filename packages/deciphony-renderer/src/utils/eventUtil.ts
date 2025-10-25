@@ -155,6 +155,8 @@ export function virtualSymbolMouseDown(
     },) {
     if (!params.msState.currentSelected.value) return
     if (params.msState.mode.value !== MsMode.edit || params.msState.currentSelected.value.msTypeName !== MsTypeNameEnum.Measure) return
+
+
     const currentReservedType = params.msState.currentResevedType.value
 
     if (currentReservedType === ReserveMsSymbolType.note) {
@@ -188,9 +190,9 @@ export function virtualSymbolMouseDown(
                 params.msData.msSymbolContainer, params.msData.musicScore, 'after')
         } else if (['self'].includes(params.virtualSymbolContainerType)) {
             if (!params.msData.msSymbolContainer) return console.error("没有作为对照的符号容器，符号添加失败")
-
+            // 如果点击位置已经有音符，改为选中此音符
             const sameRegionNoteHead = params.msData.msSymbolContainer.msSymbolArray.find(m => {
-                return m.type === MsSymbolTypeEnum.NoteHead && m.region === newNoteHead.region
+                return m.type === MsSymbolTypeEnum.NoteHead && staffRegionToIndex(m.region) === staffRegionToIndex(newNoteHead.region)
             })
             if (sameRegionNoteHead) {
                 msSymbolMouseDown(e, params.msState.mode, params.msState.currentSelected, sameRegionNoteHead)

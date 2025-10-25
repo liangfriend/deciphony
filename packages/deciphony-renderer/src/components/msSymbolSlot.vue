@@ -10,7 +10,7 @@ import {computed, CSSProperties, onMounted, PropType} from "vue";
 import msSymbolVue from "./msSymbol.vue";
 
 import {getMsSymbolHeight} from "../utils/heightUtil";
-import {getSlotBottomToMeasure} from "../utils/bottomUtil";
+import {getSlotTopToMeasure} from "../utils/topUtil";
 import {getMsSymbolSlotWidth} from "../utils/widthUtil";
 import {getSlotLeftToContainer} from "../utils/leftUtil";
 import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
@@ -86,7 +86,7 @@ const msSymbolSlotStyle = computed<CSSProperties>(() => {
     left: slotLeft.value + 'px',
     height: props.measureHeight + 'px',
     width: slotWidth.value + 'px',
-    bottom: slotBottom.value + 'px',
+    top: slotTop.value + 'px',
     pointEvents: ' none',
 
   }
@@ -105,8 +105,8 @@ const slotLeft = computed(() => {
   return getSlotLeftToContainer(props.msSymbol, props.msSymbolContainer, props.measure, props.singleStaff,
       props.musicScore, slotWidth.value, props.componentWidth)
 })
-const slotBottom = computed(() => {
-  return getSlotBottomToMeasure(props.msSymbol, props.musicScore)
+const slotTop = computed(() => {
+  return getSlotTopToMeasure(props.msSymbol, props.musicScore)
 })
 
 const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
@@ -122,7 +122,7 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
                  :preContainer="props.preContainer"
                  :nextContainer="props.nextContainer"
                  :slot-width="slotWidth"
-                 :slotBottom="slotBottom"
+                 :slotTop="slotTop"
                  :slot-left="slotLeft"
                  :containerWidth="containerWidth"
                  :measure-width="measureWidth"
@@ -143,7 +143,7 @@ const emits = defineEmits(['msSymbolMouseDown', 'msSymbolMouseUp']);
                    :containerWidth="containerWidth"
                    :measure-width="measureWidth"
                    :isMain="false"
-                   :slotBottom="slotBottom"
+                   :slot-top="slotTop"
                    :measure="measure"
                    :single-staff="singleStaff"
                    :slot-width="slotWidth"

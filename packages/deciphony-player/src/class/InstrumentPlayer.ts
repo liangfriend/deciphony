@@ -24,6 +24,12 @@ class InstrumentPlayer {
                     registerName: "sine-wind-processor"
                 }
             }
+            case WindInstrumentEnum.Desolate: {
+                return {
+                    path: "./processors/wind/DesolateWindProcessor.js",
+                    registerName: "desolate-wind-processor"
+                }
+            }
             default: {
                 return {
                     path: "./processors/wind/SineWindProcessor.js",

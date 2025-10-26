@@ -9,13 +9,13 @@ import {
     SingleStaff,
     StaffRegion,
     MultipleStaves,
-    getDataWithIndex, staffRegionToIndex, traverseMusicScore, getMainMsSymbol
+    getDataWithIndex, staffRegionToIndex, traverseMusicScore, getMainMsSymbol, ChronaxieEnum
 } from "deciphony-core";
 import {getMsSymbolHeight} from "./heightUtil";
 import {MsSymbolInformationMap} from "@/constant";
 import {MsSymbolInformation, VariableWidthSymbolInfo} from "@/types";
 import {getHeightMultiplier, getSpace} from "@/utils/geometryUtil";
-import {forEachMsSymbolContainer} from "../../../deciphony-core/src";
+import {ClefEnum, forEachMsSymbolContainer} from "../../../deciphony-core/src";
 
 export function staffRegionToTop(region: StaffRegion, measureHeight: number): number {
     return measureHeight * ((7 - staffRegionToIndex(region)) * 2) / 16
@@ -32,6 +32,40 @@ export function getMsSymbolTopToSlot(msSymbol: MsSymbol, musicScore: MusicScore)
                 return -height + measureHeight / 8
             } else {
                 return measureHeight / 8
+            }
+        }
+        case MsSymbolTypeEnum.Rest: {
+            switch (msSymbol.chronaxie) {
+                case ChronaxieEnum.whole: {
+                    return measureHeight / 4
+                }
+                case ChronaxieEnum.half: {
+                    return measureHeight * 3 / 8
+                }
+                case ChronaxieEnum.quarter: {
+                    return measureHeight * 1 / 8
+                }
+                case ChronaxieEnum.eighth: {
+                    return measureHeight * 2 / 8
+                }
+                case ChronaxieEnum.sixteenth: {
+                    return measureHeight * 2 / 8
+                }
+                case ChronaxieEnum.thirtySecond: {
+                    return 0
+                }
+                case ChronaxieEnum.sixtyFourth: {
+                    return 0
+                }
+                case ChronaxieEnum.oneTwentyEighth: {
+                    return 0
+                }
+                case ChronaxieEnum.twoFiftySixth: {
+                    return 0
+                }
+                default: {
+                    return 0
+                }
             }
         }
         case MsSymbolTypeEnum.NoteTail: { // 符尾的
@@ -88,6 +122,38 @@ export function getMsSymbolTopToSlot(msSymbol: MsSymbol, musicScore: MusicScore)
             const height = heightMultiplier * measureHeight
             // 居中写法
             return measureHeight - (-height - bSpace)
+        }
+        case MsSymbolTypeEnum.Clef: {
+            switch (msSymbol.clef) {
+                case ClefEnum.Treble: {
+                    return -measureHeight * 1 / 8
+                }
+                case ClefEnum.Alto: {
+                    return measureHeight * 1 / 8
+                }
+                case ClefEnum.Bass: {
+                    return measureHeight * 1 / 8
+                }
+                default: {
+                    return measureHeight * 1 / 8
+                }
+            }
+        }
+        case MsSymbolTypeEnum.Clef_f: {
+            switch (msSymbol.clef) {
+                case ClefEnum.Treble: {
+                    return -measureHeight * 2 / 8
+                }
+                case ClefEnum.Alto: {
+                    return 0
+                }
+                case ClefEnum.Bass: {
+                    return 0
+                }
+                default: {
+                    return 0
+                }
+            }
         }
         default: {
             return 0

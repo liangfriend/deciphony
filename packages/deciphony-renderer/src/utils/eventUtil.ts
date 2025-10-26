@@ -71,49 +71,49 @@ export function handleMouseMoveSelected(e: MouseEvent, measureHeight: number, cu
         case MsTypeNameEnum.MsSymbol: {
             const msSymbol = currentSelected.value
             if (msSymbol.type === MsSymbolTypeEnum.NoteHead) {
-                const dx = e.clientX - eventConstant.startX;
+                // const dx = e.clientX - eventConstant.startX;
                 const dy = e.clientY - eventConstant.startY;
-                if (Math.abs(dy) > measureHeight / 8 && msSymbol) {
-                    const index = Math.floor(dy / measureHeight * 8);
-                    const targetIndex = staffRegionToIndex(eventConstant.originRegion) - index;
-                    const originRegion = msSymbol.region
-                    msSymbol.region = indexToStaffRegion(targetIndex);
-                    // 符杠更新
-                    const noteStem = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null;
-                    const noteTail = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteTail) as NoteTail | null;
-                    const measure = getDataWithIndex(msSymbol.index, musicScore).measure
-                    if (!measure) {
-                        console.error("measure不存在，音符移动事件出错")
-                        return
-                    }
-                    const beamGroup = getBeamGroup(msSymbol.beamId, measure)
-                    // 更新符杠和符尾方向
-                    if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(msSymbol.chronaxie)
-                        || beamGroup.length < 2) { // 不成连音组
-                        const currentRegionIndex = staffRegionToIndex(msSymbol.region)
-                        if (noteStem && currentRegionIndex >= 4 && noteStem.direction !== 'down') {
-                            changeNoteStemDirection('down', noteStem)
-                        } else if (noteStem && currentRegionIndex < 4 && noteStem.direction !== 'up') {
-                            changeNoteStemDirection('up', noteStem)
-                        }
-                        if (noteTail && currentRegionIndex >= 4 && noteTail.direction !== 'down') {
-                            changeNoteTailDirection('down', noteTail)
-                        } else if (noteTail && currentRegionIndex < 4 && noteTail.direction !== 'up') {
-                            changeNoteTailDirection('up', noteTail)
-                        }
-                    } else { // 成连音组
-                        const measure = getDataWithIndex(msSymbol.index, musicScore).measure
-                        if (measure) {
-                            updateBeamGroupNote(msSymbol.beamId, measure, musicScore)
-                        }
-                    }
 
-                    // 跨小节符号位置更新
-                    const singleStaff = getDataWithIndex(currentSelected.value.index, musicScore).singleStaff
-                    if (!singleStaff) return console.error("找不到单谱表，跨小节符号更新失败")
-                    const spanSymbolIdSet = getSingleStaffRelatedSpanSymbolList(singleStaff, musicScore)
-                    updateSpanSymbolView(spanSymbolIdSet, musicScore)
+                const index = Math.floor(dy / measureHeight * 8);
+
+                const targetIndex = staffRegionToIndex(eventConstant.originRegion) - index;
+                msSymbol.region = indexToStaffRegion(targetIndex);
+
+                // 符杠更新
+                const noteStem = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteStem) as NoteStem | null;
+                const noteTail = msSymbol.msSymbolArray.find((item: MsSymbol) => item.type === MsSymbolTypeEnum.NoteTail) as NoteTail | null;
+                const measure = getDataWithIndex(msSymbol.index, musicScore).measure
+                if (!measure) {
+                    console.error("measure不存在，音符移动事件出错")
+                    return
                 }
+                const beamGroup = getBeamGroup(msSymbol.beamId, measure)
+                // 更新符杠和符尾方向
+                if ([ChronaxieEnum.whole, ChronaxieEnum.half, ChronaxieEnum.quarter].includes(msSymbol.chronaxie)
+                    || beamGroup.length < 2) { // 不成连音组
+                    const currentRegionIndex = staffRegionToIndex(msSymbol.region)
+                    if (noteStem && currentRegionIndex >= 4 && noteStem.direction !== 'down') {
+                        changeNoteStemDirection('down', noteStem)
+                    } else if (noteStem && currentRegionIndex < 4 && noteStem.direction !== 'up') {
+                        changeNoteStemDirection('up', noteStem)
+                    }
+                    if (noteTail && currentRegionIndex >= 4 && noteTail.direction !== 'down') {
+                        changeNoteTailDirection('down', noteTail)
+                    } else if (noteTail && currentRegionIndex < 4 && noteTail.direction !== 'up') {
+                        changeNoteTailDirection('up', noteTail)
+                    }
+                } else { // 成连音组
+                    const measure = getDataWithIndex(msSymbol.index, musicScore).measure
+                    if (measure) {
+                        updateBeamGroupNote(msSymbol.beamId, measure, musicScore)
+                    }
+                }
+
+                // 跨小节符号位置更新
+                const singleStaff = getDataWithIndex(currentSelected.value.index, musicScore).singleStaff
+                if (!singleStaff) return console.error("找不到单谱表，跨小节符号更新失败")
+                const spanSymbolIdSet = getSingleStaffRelatedSpanSymbolList(singleStaff, musicScore)
+                updateSpanSymbolView(spanSymbolIdSet, musicScore)
             }
             break
         }

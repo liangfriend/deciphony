@@ -50,7 +50,7 @@ export declare interface MsState {
 // constant
 export type FixedWidthSymbolInfo = { // 定宽符号没有宽度占比系数
     containerType: MsSymbolContainerTypeEnum.rearFixed | MsSymbolContainerTypeEnum.frontFixed
-    aspectRatio: number | Record<string, number>// 特殊的定宽容器，宽高比有多个，取决于具体情况
+    aspectRatio: number | Record<string, number>// 特殊的定宽容器，宽高比有多个，取决于具体情况 宽/高
     category: MsSymbolCategoryEnum.singleMeasure
     heightMultiplier: number | Record<string, number>    // 相对小节的高度倍数，用于计算高度
     space: {
@@ -64,7 +64,7 @@ export type FixedWidthSymbolInfo = { // 定宽符号没有宽度占比系数
 
 export type VariableWidthSymbolInfo = {
     containerType: MsSymbolContainerTypeEnum.variable
-    aspectRatio: number | Record<string, number>
+    aspectRatio: number | Record<string, number>// 宽/高
     widthRatioConstant: number // 可为任意正数
     category: MsSymbolCategoryEnum.singleMeasure
     heightMultiplier: number | Record<string, number>
@@ -76,7 +76,7 @@ export type VariableWidthSymbolInfo = {
     }
 }
 export type pureFollowSymbolInfo = { // 纯粹的符号跟随类型  没有容器类型属性
-    aspectRatio: number | Record<string, number>
+    aspectRatio: number | Record<string, number> // 宽/高
     category: MsSymbolCategoryEnum
     widthRatioConstant: number
     heightMultiplier: number | Record<string, number> // 相对小节的高度倍数，用于计算高度

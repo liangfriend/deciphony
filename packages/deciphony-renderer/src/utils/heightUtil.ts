@@ -20,8 +20,8 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
         const heightMultiplier = information.heightMultiplier as number
         minHeight = measureHeight * heightMultiplier
     }
-    const NoteStemBottomToSlotUp = measureHeight * 1 / 8
-    const NoteStemBottomToSlotBottom = -measureHeight * 5 / 8
+    const NoteStemBottomToSlotTopUp = measureHeight * 1 / 8 // 符干距离slot顶部的距离
+    const NoteStemBottomToSlotTopBottom = -measureHeight * 5 / 8  // 符干距离slot顶部的距离
     const measure = getDataWithIndex(noteHead.index, musicScore).measure
     if (!measure) {
         console.error("索引找不到measure,符杠height计算失败")
@@ -30,16 +30,14 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
     const beamGroup = getBeamGroup(noteHead.beamId, measure)
     if (noteHead.beamId === -1 || !beamGroup || beamGroup.length === 0) {
 
-        const slotBottom = measureHeight - getSlotTopToMeasure(noteStem, musicScore)
-
+        const slotTop = getSlotTopToMeasure(noteStem, musicScore)
         if (noteStem.direction === 'up') {
-            return Math.max(minHeight, Math.abs(slotBottom) + minHeight - NoteStemBottomToSlotUp)
+            return Math.max(minHeight, Math.abs(slotTop) - (measureHeight - minHeight) + NoteStemBottomToSlotTopUp)
         } else {
-            return Math.max(minHeight, Math.abs(slotBottom) - measureHeight + minHeight + NoteStemBottomToSlotUp)
+            return Math.max(minHeight, Math.abs(slotTop) + minHeight - NoteStemBottomToSlotTopUp)
         }
     } else { // 成组的情况
-
-        const slotBottom = measureHeight - getSlotTopToMeasure(noteStem, musicScore)
+        const slotTop = getSlotTopToMeasure(noteStem, musicScore)
 
         if (noteStem.direction === 'up') {
             // 找到最靠上的音符头
@@ -52,20 +50,21 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
                 }
                 return acc
             }, beamGroup[0].note) as NoteHead
-            const farthestSlotBottom = measureHeight - getSlotTopToMeasure(farthestNoteHead, musicScore)
+            // 得到最靠上音符所在slot距离小节的距离
+            const farthestSlotTop = getSlotTopToMeasure(farthestNoteHead, musicScore)
             let height = 0
             //至少一个音符在向上方向超出了连接符尾距离底部的最小距离
             if (staffRegionToIndex(farthestNoteHead.region) > 0) {
-                height = slotBottom + measureHeight / 8 - measureHeight + minHeight
+                // height = slotBottom + measureHeight / 8 - measureHeight + minHeight
                 // 如果超出的是当前音符
 
                 if (farthestNoteHead === noteHead) {
                     return minHeight
                 } else { // 如果超出的不是当前音符
-                    return -slotBottom + farthestSlotBottom + minHeight
+                    return Math.abs(slotTop) - measureHeight + Math.abs(farthestSlotTop - measureHeight) + minHeight
                 }
             } else { // 没有音符在向上方向超出了连接符尾距离底部的最小距离
-                return -slotBottom - NoteStemBottomToSlotUp + minHeight
+                return Math.abs(slotTop) - measureHeight + NoteStemBottomToSlotTopUp + minHeight
             }
 
         } else {
@@ -80,19 +79,19 @@ export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {
                 return acc
             }, beamGroup[0].note) as NoteHead
 
-            const farthestSlotBottom = measureHeight - getSlotTopToMeasure(farthestNoteHead, musicScore)
+            const farthestSlotTop = getSlotTopToMeasure(farthestNoteHead, musicScore)
             let height = 0
             //至少一个超出
             if (staffRegionToIndex(farthestNoteHead.region) < 8) {
-                height = slotBottom + measureHeight / 8 - measureHeight + minHeight
+                // height = slotBottom + measureHeight / 8 - measureHeight + minHeight
                 // 如果超出的是当前音符
                 if (farthestNoteHead === noteHead) {
                     return minHeight
                 } else { // 如果超出的不是当前音符
-                    return slotBottom - farthestSlotBottom + minHeight
+                    return Math.abs(slotTop) + farthestSlotTop + minHeight
                 }
             } else { // 全部不超出
-                return slotBottom - measureHeight + NoteStemBottomToSlotUp + minHeight
+                return Math.abs(slotTop) - NoteStemBottomToSlotTopUp + minHeight
             }
         }
     }

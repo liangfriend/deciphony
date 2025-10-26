@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="300" height="500">
+<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 130 400" width="130" height="400">
+    <g transform="scale(-1,1) translate(-130,0)">
+        <!-- 细线（左） -->
+        <line x1="60" x2="60" y1="0" y2="400" stroke="black" stroke-width="20"/>
 
-    <g>
-        <circle cx="240" cy="180" r="30" fill="black"/>
-        <circle cx="240" cy="320" r="30" fill="black"/>
-        <line x1="150" x2="150" y1="0" y2="500" stroke-width="50" class="line" stroke="black"/>
-        <line x1="50" x2="50" y1="0" y2="500" stroke-width="100" class="line" stroke="black"/>
+        <!-- 粗线（右） -->
+        <line x1="110" x2="110" y1="0" y2="400" stroke="black" stroke-width="40"/>
 
+        <!-- 左侧两个实心小圆点 -->
+        <!-- 五线谱高度200时的点位比例换算到400高度时翻倍 -->
+        <circle cx="25" cy="150" r="12.5" fill="black"/>
+        <circle cx="25" cy="250" r="12.5" fill="black"/>
     </g>
 </svg>

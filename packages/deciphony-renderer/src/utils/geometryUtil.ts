@@ -23,6 +23,8 @@ function getMultipleAspectRatio(msSymbol: MsSymbol): number {
             return information.aspectRatio[msSymbol.clef]
         } else if (msSymbol.type === MsSymbolTypeEnum.Accidental) {
             return information.aspectRatio[msSymbol.accidental]
+        } else if (msSymbol.type === MsSymbolTypeEnum.Rest) {
+            return information.aspectRatio[msSymbol.chronaxie]
         }
 
     }
@@ -55,6 +57,10 @@ function getMultipleHeightMultiplier(msSymbol: MsSymbol): number {
             return information.heightMultiplier[msSymbol.chronaxie]
         } else if (msSymbol.type === MsSymbolTypeEnum.NoteDot) {
             return information.heightMultiplier[msSymbol.octave]
+        } else if (msSymbol.type === MsSymbolTypeEnum.Rest) {
+            return information.heightMultiplier[msSymbol.chronaxie]
+        } else if (msSymbol.type === MsSymbolTypeEnum.Clef_f || msSymbol.type === MsSymbolTypeEnum.Clef) {
+            return information.heightMultiplier[msSymbol.clef]
         }
     }
     console.error('符号有误或符号不是复合heightMultiplier类型')

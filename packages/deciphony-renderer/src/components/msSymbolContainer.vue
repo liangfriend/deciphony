@@ -19,12 +19,10 @@ const props = defineProps({
     required: true,
   },
   preContainer: {
-    type: Object as PropType<MsSymbolContainer | undefined>,
-    required: true,
+    type: Object as PropType<MsSymbolContainer>,
   },
   nextContainer: {
-    type: Object as PropType<MsSymbolContainer | undefined>,
-    required: true,
+    type: Object as PropType<MsSymbolContainer>,
   },
   measureHeight: {
     type: Number,

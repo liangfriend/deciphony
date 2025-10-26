@@ -103,10 +103,10 @@ class WindInstrumentPlayer extends InstrumentPlayer {
     }
 
     // 更新气压
-    set airPressure(value: number) {
-        this._airPressure = value;
-        this.updateAirPressure(value);
-    }
+    // set airPressure(value: number) {
+    //     this._airPressure = value;
+    //     this.updateAirPressure(value);
+    // }
 
 
 }

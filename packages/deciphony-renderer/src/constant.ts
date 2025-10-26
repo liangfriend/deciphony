@@ -222,13 +222,51 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
         {// 休止符： 占位比例等于音符头
             containerType: MsSymbolContainerTypeEnum.variable,
             aspectRatio:
-                0.25,
+                {
+                    [ChronaxieEnum.whole]:
+                        2,
+                    [ChronaxieEnum.half]:
+                        2,
+                    [ChronaxieEnum.quarter]:
+                        4 / 10,
+                    [ChronaxieEnum.eighth]:
+                        1 / 2,
+                    [ChronaxieEnum.sixteenth]:
+                        1 / 2,
+                    [ChronaxieEnum.thirtySecond]:
+                        5 / 12,
+                    [ChronaxieEnum.sixtyFourth]:
+                        5 / 14,
+                    [ChronaxieEnum.oneTwentyEighth]:
+                        5 / 14,
+                    [ChronaxieEnum.twoFiftySixth]:
+                        5 / 14,
+                },
             widthRatioConstant:
                 1,
             category:
             MsSymbolCategoryEnum.singleMeasure,
             heightMultiplier:
-                1,
+                {
+                    [ChronaxieEnum.whole]:
+                        1 / 8,
+                    [ChronaxieEnum.half]:
+                        1 / 8,
+                    [ChronaxieEnum.quarter]:
+                        0.75,
+                    [ChronaxieEnum.eighth]:
+                        0.5,
+                    [ChronaxieEnum.sixteenth]:
+                        3 / 4,
+                    [ChronaxieEnum.thirtySecond]:
+                        1,
+                    [ChronaxieEnum.sixtyFourth]:
+                        5 / 4,
+                    [ChronaxieEnum.oneTwentyEighth]:
+                        6 / 4,
+                    [ChronaxieEnum.twoFiftySixth]:
+                        7 / 4,
+                },
             space: {
                 top: 0,
                 bottom: 0,
@@ -337,7 +375,24 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             category:
             MsSymbolCategoryEnum.singleMeasure,
             heightMultiplier:
-                0.6,
+                {
+                    [ClefEnum.Treble]:
+                        5 / 4,
+                    [ClefEnum.Alto]:
+                        3 / 4,
+                    [ClefEnum.Bass]:
+                        3 / 4,
+                    [ClefEnum.BaritoneC]:
+                        3 / 4,
+                    [ClefEnum.Tenor]:
+                        3 / 4,
+                    [ClefEnum.BaritoneF]:
+                        3 / 4,
+                    [ClefEnum.MezzoSoprano]:
+                        3 / 4,
+                    [ClefEnum.Subbass]:
+                        3 / 4,
+                },
             space: {
                 top: 0,
                 bottom: 0,
@@ -371,7 +426,24 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             category:
             MsSymbolCategoryEnum.singleMeasure,
             heightMultiplier:
-                1,
+                {
+                    [ClefEnum.Treble]:
+                        6 / 4,
+                    [ClefEnum.Alto]:
+                        1,
+                    [ClefEnum.Bass]:
+                        1,
+                    [ClefEnum.BaritoneC]:
+                        1,
+                    [ClefEnum.Tenor]:
+                        1,
+                    [ClefEnum.BaritoneF]:
+                        1,
+                    [ClefEnum.MezzoSoprano]:
+                        1,
+                    [ClefEnum.Subbass]:
+                        1,
+                },
             space: {
                 top: 0,
                 bottom: 0,
@@ -453,13 +525,13 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
                     [BarLineTypeEnum.single]:
                         1 / 50,   // 7 flats
                     [BarLineTypeEnum.final]:
-                        2 / 5,   // 7 flats
+                        13 / 40,  // 7 flats
                     [BarLineTypeEnum.reverseFinal]:
-                        2 / 5,   // 7 flats
+                        13 / 40,   // 7 flats
                     [BarLineTypeEnum.startRepeatSign]:
-                        3 / 5,   // 7 flats
+                        13 / 40,   // 7 flats
                     [BarLineTypeEnum.endRepeatSign]:
-                        3 / 5,   // 7 flats
+                        13 / 40,  // 7 flats
                 }
             ,
             category: MsSymbolCategoryEnum.singleMeasure,
@@ -479,15 +551,15 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             aspectRatio:
                 {
                     [BarLineTypeEnum.single]:
-                        1 / 400,   // 7 flats
+                        1 / 50,   // 7 flats
                     [BarLineTypeEnum.final]:
-                        2 / 5,   // 7 flats
+                        13 / 40,  // 7 flats
                     [BarLineTypeEnum.reverseFinal]:
-                        2 / 5,   // 7 flats
+                        13 / 40,   // 7 flats
                     [BarLineTypeEnum.startRepeatSign]:
-                        3 / 5,   // 7 flats
+                        13 / 40,   // 7 flats
                     [BarLineTypeEnum.endRepeatSign]:
-                        3 / 5,   // 7 flats
+                        13 / 40,  // 7 flats
                 }
             ,
             category: MsSymbolCategoryEnum.singleMeasure,

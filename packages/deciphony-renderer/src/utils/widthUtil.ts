@@ -37,6 +37,8 @@ export function getWidthFixedContainerWidth(msSymbolContainer: MsSymbolContainer
                 curW += information.aspectRatio[curMsSymbol.keySignature] * measureHeight
             } else if (curMsSymbol.type === MsSymbolTypeEnum.BarLine || curMsSymbol.type === MsSymbolTypeEnum.BarLine_f) {
                 curW += information.aspectRatio[curMsSymbol.barLineType] * measureHeight
+            } else if (curMsSymbol.type === MsSymbolTypeEnum.Clef || curMsSymbol.type === MsSymbolTypeEnum.Clef_f) {
+                curW += information.aspectRatio[curMsSymbol.clef] * measureHeight
             }
         } else {
             console.error('符号的svg宽高比不存在')
@@ -72,9 +74,10 @@ export function getMsSymbolContainerWidth(msSymbolContainer: MsSymbolContainer, 
 
 // 获取小节宽度
 export function getMeasureWidth(measure: Measure, singleStaff: SingleStaff, musicScoreData: MusicScore, componentWidth: number) {
+
     const totalSingleStaffWidthConstant = getWidthConstantInSingleStaff(singleStaff, musicScoreData.showMode); // 获取单谱表宽度系数和
     const totalMeasureWidthConstant = getWidthConstantInMeasure(measure); // 获取小节宽度系数和
-    const fixedContainerWidthInSngleStaff = getWidthFixedContainerWidthSumInSingleStaff(singleStaff, musicScoreData.measureHeight, musicScoreData.showMode) // 单谱表内定宽容器宽度
+    const fixedContainerWidthInSngleStaff = getWidthFixedContainerWidthSumInSingleStaff(singleStaff, musicScoreData.measureHeight) // 单谱表内定宽容器宽度
     const fixedContainerWidthInMeasure = getWidthFixedContainerWidthSumInMeasure(measure, musicScoreData.measureHeight) // 小节定宽容器宽度
     const measureLength = singleStaff.measureArray.length // 单谱表内小节数量
     const totalVariableContainerWidth = (componentWidth - fixedContainerWidthInSngleStaff) // 变宽容器总宽度
@@ -84,7 +87,7 @@ export function getMeasureWidth(measure: Measure, singleStaff: SingleStaff, musi
     return widthPerWidthConstant * totalMeasureWidthConstant + fixedContainerWidthInMeasure + fixedWidth;
 }
 
-// 获取当前小节内定宽符号容器宽度之和, 第二个参数判断是否只计算当前符号之前的
+// 获取当前小节内定宽符号容器宽度之和
 export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measureHeight: number, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
     let widthSum = 0
     for (let i = 0; i < measure.msSymbolContainerArray.length; i++) {
@@ -108,7 +111,7 @@ export function getWidthFixedContainerWidthSumInMeasure(measure: Measure, measur
 
 
 // 获取单谱表内定宽容器符号宽度之和，单位px
-export function getWidthFixedContainerWidthSumInSingleStaff(singleStaff: SingleStaff, measureHeight: number, showMode: MusicScoreShowModeEnum, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
+export function getWidthFixedContainerWidthSumInSingleStaff(singleStaff: SingleStaff, measureHeight: number, filter: 'front' | 'rear' | 'all' = 'all', msSymbolContainer?: MsSymbolContainer): number {
     let widthSum = 0
     singleStaff.measureArray.forEach((measure: Measure) => {
         widthSum += getWidthFixedContainerWidthSumInMeasure(measure, measureHeight, filter, msSymbolContainer)

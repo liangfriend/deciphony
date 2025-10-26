@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import {onMounted, onBeforeUnmount, ref} from "vue";
 import {WindInstrumentPlayer} from "deciphony-player";
-import {WindInstrumentEnum} from "deciphony-player/dist/types/enum";
+import {WindInstrumentEnum} from "deciphony-player";
 
 const player = ref<WindInstrumentPlayer | null>(null);
 
-const context = new AudioContext()
 onMounted(async () => {
-  player.value = new WindInstrumentPlayer({context});
-  await player.value.createAudioProcessor('SineWind'); // 等待 Processor 加载完成
+
+  player.value = new WindInstrumentPlayer();
+  await player.value.createAudioProcessor('Desolate'); // 等待 Processor 加载完成
 });
 
 const freq = ref(440);
@@ -29,7 +29,7 @@ function stop() {
 
 // 键盘映射表
 const keyToFreq: Record<string, number> = {
-  "1": 293.66, // D4
+  "1": 293.66, // D42134541211
   "2": 329.63, // E4
   "3": 349.23, // F4
   "4": 392.0,  // G4
@@ -52,6 +52,13 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleKeyDown);
 });
+
+// 更新参数
+function updateParams() {
+  player.value?.setFrequency(freq.value);
+}
+
+
 </script>
 
 <template>

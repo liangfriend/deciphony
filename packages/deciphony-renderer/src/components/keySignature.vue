@@ -73,15 +73,17 @@ const spacing = computed(() => props.measureHeight / 8);
 
 // 三种谱号对应的升降号垂直位置，单位是谱线间距 multiples，0为最低线（第一线）
 const sharpPositionsMap: Partial<Record<ClefEnum, Array<number>>> = {
-  [ClefEnum.Treble]: [6, 3.5, 5, 2.5, 4, 2, 3],
-  [ClefEnum.Bass]: [3, 0.5, 2, -0.5, 1, -1, 0],  // 低音谱号升号位置，模拟五线谱线和间的对应
-  [ClefEnum.Alto]: [4.5, 2, 3.5, 1, 2.5, 0, 1.5], // 中音谱号
+  [ClefEnum.Treble]: [8, 5, 9, 6, 3, 7, 4],
+  [ClefEnum.Alto]: [7, 4, 8, 5, 2, 6, 3], // 中音谱号
+  [ClefEnum.Bass]: [6, 3, 7, 4, 1, 5, 2],  // 低音谱号升号位置，模拟五线谱线和间的对应
+
 };
-// TODO 后续要补全所有clef,去掉下边的！断言
+// TODO 后续要补全所有clef
 const flatPositionsMap: Partial<Record<ClefEnum, Array<number>>> = {
   [ClefEnum.Treble]: [5, 8, 4, 7, 3, 6, 2],
-  [ClefEnum.Bass]: [6, 3.5, 5, 2.5, 4, 2, 3],
-  [ClefEnum.Alto]: [2, 4.5, 1, 3.5, 0, 2.5, -0.5],
+  [ClefEnum.Alto]: [4, 7, 3, 6, 2, 5, 1],
+  [ClefEnum.Bass]: [3, 6, 2, 5, 1, 4, 0],
+
 };
 
 const verticalOffsets = computed(() => {
@@ -102,7 +104,7 @@ const verticalOffsets = computed(() => {
 
 const getSymbolStyle = computed(() => {
   const symbolSize = props.measureHeight * 0.5;
-  const horizontalGap = props.measureHeight * 0.4;
+  const horizontalGap = props.measureHeight * 0.25;
   return (index: number, yOffset: number): CSSProperties => {
     return {
       width: symbolSize + 'px',

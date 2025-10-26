@@ -62,6 +62,7 @@ export function addChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, mu
     setChildMsSymbolArrayIndex(msSymbol)
     musicScoreMapAdd(childMsSymbol, musicScore)
 }
+
 // 移除子符号
 export function removeChildMsSymbol(childMsSymbol: MsSymbol, msSymbol: MsSymbol, musicScore: MusicScore) {
     const index = msSymbol.msSymbolArray.indexOf(childMsSymbol)
@@ -114,7 +115,7 @@ export function addSpanSymbol(newSpanSymbol: SpanSymbol, startMsData: Exclude<Ms
 // 添加符号
 export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsSymbol | MsSymbolContainer, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbol) {
-        if(typeof position === 'number') {
+        if (typeof position === 'number') {
             console.error('以符号为定位元素添加符号时，position只可以传after或before')
             return
         }
@@ -136,11 +137,11 @@ export function addMsSymbol(newMsSymbol: MsSymbol, currSelected: MsSymbol | MsSy
         const msSymbolContainer = currSelected
         if (!msSymbolContainer) return console.error("小节不存在，符号容器添加失败")
         const array = msSymbolContainer.msSymbolArray;
-        if(position === -1 || typeof position === 'string') {
+        if (position === -1 || typeof position === 'string') {
             array.push(newMsSymbol)
-        }else if(position >=0 && position <= array.length) {
+        } else if (position >= 0 && position <= array.length) {
             array.splice(position, 0, newMsSymbol)
-        }else {
+        } else {
             console.error('索引有误，符号添加失败')
             return
         }
@@ -181,7 +182,7 @@ export function removeMsSymbol(
 export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, currSelected: MsSymbolContainer | Measure, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.MsSymbolContainer) {
-        if(typeof position === 'number') {
+        if (typeof position === 'number') {
             console.error('以符号容器为定位元素添加符号容器时，position只可以传after或before')
             return
         }
@@ -202,11 +203,11 @@ export function addMsSymbolContainer(newMsSymbolContainer: MsSymbolContainer, cu
         const measure = currSelected
         if (!measure) return console.error("小节不存在，符号容器添加失败")
         const array = measure.msSymbolContainerArray;
-        if(position === -1 || typeof position === 'string') {
+        if (position === -1 || typeof position === 'string') {
             array.push(newMsSymbolContainer)
-        }else if(position >=0 && position <= array.length) {
+        } else if (position >= 0 && position <= array.length) {
             array.splice(position, 0, newMsSymbolContainer)
-        }else {
+        } else {
             console.error('索引有误，符号容器添加失败')
             return
         }
@@ -247,7 +248,7 @@ export function removeMsSymbolContainer(
 export function addMeasure(newMeasure: Measure, currSelected: Measure | SingleStaff, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.Measure) {
-        if(typeof position === 'number') {
+        if (typeof position === 'number') {
             console.error('以小节为定位元素添加小节时，position只可以传after或before')
             return
         }
@@ -267,11 +268,11 @@ export function addMeasure(newMeasure: Measure, currSelected: Measure | SingleSt
         updateSpanSymbolView(spanSymbolSet, musicScore)
     } else if (currSelected.msTypeName === MsTypeNameEnum.SingleStaff) {
         const array = currSelected.measureArray
-        if(position === -1 || typeof position === 'string') {
+        if (position === -1 || typeof position === 'string') {
             array.push(newMeasure)
-        }else if(position >=0 && position <= array.length) {
+        } else if (position >= 0 && position <= array.length) {
             array.splice(position, 0, newMeasure)
-        }else {
+        } else {
             console.error('索引有误，小节添加失败')
             return
         }
@@ -398,7 +399,7 @@ export function removeMultipleStavesRelatedSpanSymbol(multipleStaves: MultipleSt
 export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: SingleStaff | MultipleStaves, musicScore: MusicScore, position: 'after' | 'before' | number = 'after') {
 
     if (currSelected.msTypeName === MsTypeNameEnum.SingleStaff) {
-        if(typeof position === 'number') {
+        if (typeof position === 'number') {
             console.error('以单谱表为定位元素添加单谱表时，position只可以传after或before')
             return
         }
@@ -418,11 +419,11 @@ export function addSingleStaff(newSingleStaff: SingleStaff, currSelected: Single
         updateSpanSymbolView(spanSymbolSet, musicScore)
     } else if (currSelected.msTypeName === MsTypeNameEnum.MultipStaves) {
         const array = currSelected.singleStaffArray
-        if(position === -1 || typeof position === 'string') {
+        if (position === -1 || typeof position === 'string') {
             array.push(newSingleStaff)
-        }else if(position >=0 && position <= array.length) {
+        } else if (position >= 0 && position <= array.length) {
             array.splice(position, 0, newSingleStaff)
-        }else {
+        } else {
             console.error('索引有误，单谱表添加失败')
             return
         }
@@ -462,11 +463,11 @@ export function addMultipleStaves(newMultipleStaves: MultipleStaves, currSelecte
     if (currSelected.msTypeName === MsTypeNameEnum.MultipStaves) {
         const array = musicScore.multipleStavesArray;
         const targetIndex = array.findIndex(item => item === currSelected);
-        if(position === -1 ) {
+        if (position === -1) {
             array.push(newMultipleStaves)
-        }else if(position >=0 && position <= array.length) {
+        } else if (position >= 0 && position <= array.length) {
             array.splice(position, 0, newMultipleStaves)
-        }else {
+        } else {
             console.error('索引有误，复谱表添加失败')
             return
         }
@@ -848,7 +849,7 @@ export function changeTimeSignature(timeSignature: TimeSignature, measure: Measu
     })?.msSymbolArray[0] as (TimeSignatureMsSymbol | undefined)
     if (timeSignatureSymbol) {
         updateMsSymbol(timeSignatureSymbol, {timeSignature}, musicScore)
-    } else { // keySignature不存在则添加keySignature
+    } else { // timeSignature不存在则添加keySignature
         const newKeySignature = msSymbolTemplate({type: MsSymbolTypeEnum.TimeSignature, timeSignature})
         const newMsSymbolContainer = msSymbolContainerTemplate({type: MsSymbolContainerTypeEnum.frontFixed})
         newMsSymbolContainer.msSymbolArray.push(newKeySignature)

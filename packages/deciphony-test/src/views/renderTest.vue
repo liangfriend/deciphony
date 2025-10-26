@@ -128,8 +128,8 @@ const musicScoreData = ref(musicScoreTemplate({}))
 
 function addMsSymbolQuickly() {
   const msSymbol1 = add()
-  const msSymbol2 = add()
-  const measure = musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0]
+  // const msSymbol2 = add()
+  // const measure = musicScoreData.value.multipleStavesArray[0].singleStaffArray[0].measureArray[0]
 
   // 添加volta
   // const volta = spanSymbolTemplate({
@@ -139,17 +139,17 @@ function addMsSymbolQuickly() {
   // }) as Volta
   // addSpanSymbol(volta, measure, measure, musicScoreData.value)
 // 添加slur
-  const slur = spanSymbolTemplate({
-    type: SpanSymbolTypeEnum.slur,
-    startTargetId: msSymbol1.id,
-    endTargetId: msSymbol2.id
-  }) as Slur
-  addSpanSymbol(slur, msSymbol1, msSymbol2, musicScoreData.value)
-
-  const newMeasure = measureTemplate({})
-  addMeasure(newMeasure, measure, musicScoreData.value, 'before')
-  const newMeasure2 = measureTemplate({})
-  addMeasure(newMeasure2, measure, musicScoreData.value, 'after')
+//   const slur = spanSymbolTemplate({
+//     type: SpanSymbolTypeEnum.slur,
+//     startTargetId: msSymbol1.id,
+//     endTargetId: msSymbol2.id
+//   }) as Slur
+//   addSpanSymbol(slur, msSymbol1, msSymbol2, musicScoreData.value)
+//
+//   const newMeasure = measureTemplate({})
+//   addMeasure(newMeasure, measure, musicScoreData.value, 'before')
+//   const newMeasure2 = measureTemplate({})
+//   addMeasure(newMeasure2, measure, musicScoreData.value, 'after')
 }
 
 function add() {

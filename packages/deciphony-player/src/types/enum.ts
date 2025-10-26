@@ -1,3 +1,4 @@
 export enum WindInstrumentEnum {
-    SineWind = 'SineWind'
+    SineWind = 'SineWind',
+    Desolate = 'Desolate',
 }

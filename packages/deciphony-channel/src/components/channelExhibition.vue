@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick, computed, watchEffect} from "vue"
-import {PlayerManager,} from "@deciphony-player";
+import {PlayerManager, AudioPlayer} from "deciphony-player";
 import ChannelWindow from "./channelWindow.vue";
 import {ChannlWindowRef, HighlightItem} from "@core/types";
-import Player from "deciphony-player/dist/class/Player";
 
 const playerManager = ref<PlayerManager>();
 const channelWindowRef = ref<ChannlWindowRef>(null!)
@@ -43,7 +42,7 @@ async function addAudioBuffer(audioBuffer: AudioBuffer) {
 
 
 // ----------------------------------------播放逻辑start
-const player = ref<Player>(null)
+const player = ref<AudioPlayer>(null)
 
 
 // 播放/暂停

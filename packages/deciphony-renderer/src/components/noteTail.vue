@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, CSSProperties, PropType} from "vue";
+import {computed, CSSProperties, inject, PropType, Ref} from "vue";
 import {getBeamGroup,} from "deciphony-core";
 import {
   BeamGroup,
@@ -12,18 +12,14 @@ import {
   type SingleStaff
 } from "../../../deciphony-core/src/types";
 import {ChronaxieEnum, MsSymbolTypeEnum} from "../../../deciphony-core/src/musicScoreEnum";
-import noteTail8Svg from "../assets/msSymbols/noteTail8.svg";
-import noteTail16Svg from "../assets/msSymbols/noteTail16.svg";
-import noteTail32Svg from "../assets/msSymbols/noteTail32.svg";
-import noteTail64Svg from "../assets/msSymbols/noteTail64.svg";
-import noteTail128Svg from "../assets/msSymbols/noteTail128.svg";
-import noteTail256Svg from "../assets/msSymbols/noteTail256.svg";
+
 
 import {getMsSymbolHeight} from "../utils/heightUtil";
 import {getMsSymbolWidth, getNoteTailWidth} from "../utils/widthUtil";
 import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
 import {getMsSymbolTopToSlot} from "../utils/topUtil";
 import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
+
 
 const props = defineProps({
   noteTail: {
@@ -77,6 +73,11 @@ const props = defineProps({
   },
 
 })
+// 皮肤
+const {svgSkin, isOriginSkin} = inject("skin") as {
+  isOriginSkin: Ref<boolean>,
+  svgSkin: Ref<Record<string, { url: string; }>>
+}
 const beamGroup = computed((): BeamGroup => {
   return getBeamGroup(props.noteHead.beamId, props.measure)
 })
@@ -125,10 +126,10 @@ const msSymbolStyle = computed<CSSProperties>(() => {
   }
 
   if (mask.value && beamGroup.value.length < 2) {
-    style.mask = `url("${mask.value}") center center / cover no-repeat`
-    if (props.noteTail?.direction === 'down') {
-      style.transform = 'scaleY(-1)' // 垂直翻转
-    }
+    // style.mask = `url("${mask.value}") center center / cover no-repeat`
+    // if (props.noteTail?.direction === 'down') {
+    //   style.transform = 'scaleY(-1)' // 垂直翻转
+    // }
   } else {
     style.background = 'transparent'
   }
@@ -147,22 +148,22 @@ const msSymbolTop = computed(() => {
 const mask = computed(() => {
   switch (props.noteTail.chronaxie) {
     case ChronaxieEnum.eighth: {
-      return noteTail8Svg
+      return svgSkin.value.noteTail_8.url
     }
     case ChronaxieEnum.sixteenth: {
-      return noteTail16Svg
+      return svgSkin.value.noteTail_16.url
     }
     case ChronaxieEnum.thirtySecond: {
-      return noteTail32Svg
+      return svgSkin.value.noteTail_32.url
     }
     case ChronaxieEnum.sixtyFourth: {
-      return noteTail64Svg
+      return svgSkin.value.noteTail_64.url
     }
     case ChronaxieEnum.oneTwentyEighth: {
-      return noteTail128Svg
+      return svgSkin.value.noteTail_128.url
     }
     case ChronaxieEnum.twoFiftySixth: {
-      return noteTail256Svg
+      return svgSkin.value.noteTail_256.url
     }
     default: {
       return ''
@@ -176,12 +177,13 @@ const mask = computed(() => {
 
 <template>
   <div :style="msSymbolStyle">
-    <template v-if="beamGroup.length > 1">
-      <div v-for="(item,index) in tailCount*2-1"
-           :style="{backgroundColor:index%2===0?'black':'transparent',height:(height / 5)+'px',width:'100%',}">
-      </div>
-    </template>
+
   </div>
+  <template v-if="beamGroup.length > 1">
+    <div v-for="(item,index) in tailCount*2-1"
+         :style="{backgroundColor:index%2===0?'black':'transparent',height:(height / 5)+'px',width:'100%',}">
+    </div>
+  </template>
 </template>
 
 <style scoped>

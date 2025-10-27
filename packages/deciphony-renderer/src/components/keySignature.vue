@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, CSSProperties, PropType} from "vue";
+import {computed, CSSProperties, inject, PropType, Ref} from "vue";
 import {
   KeySignatureMsSymbol,
   MsSymbol,
@@ -10,9 +10,9 @@ import {
   KeySignatureEnum,
   MsSymbolTypeEnum
 } from "../../../deciphony-core/src/musicScoreEnum";
-import sharpSvg from '../assets/msSymbols/sharp.svg';
-import flatSvg from '../assets/msSymbols/flat.svg';
+
 import {getMsSymbolClef} from "deciphony-core";
+
 
 const props = defineProps({
   keySignature: {
@@ -33,6 +33,12 @@ const props = defineProps({
   },
 
 });
+// 皮肤
+// 皮肤
+const {svgSkin, isOriginSkin} = inject("skin") as {
+  isOriginSkin: Ref<boolean>,
+  svgSkin: Ref<Record<string, { url: string; }>>
+}
 const clef = computed((): ClefEnum => {
   if (!props.keySignature) return ClefEnum.Treble
   return getMsSymbolClef(props.keySignature, props.musicScore)
@@ -65,7 +71,7 @@ const keySignatureInfo = computed(() => {
 });
 
 const symbolSrc = computed(() =>
-    keySignatureInfo.value.type === 'sharp' ? sharpSvg : flatSvg
+    keySignatureInfo.value.type === 'sharp' ? svgSkin.value.accidental_sharp.url : svgSkin.value.accidental_flat.url
 );
 
 // 五线谱间距单位

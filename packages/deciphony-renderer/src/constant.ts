@@ -10,6 +10,7 @@ import {
     MsSymbolTypeEnum
 } from "deciphony-core";
 import {MsSymbolInformation} from "@/types";
+import {computed, ref} from "vue";
 
 
 export const KeySignatureTonicSemitones: Record<KeySignatureEnum, number> = {
@@ -30,7 +31,7 @@ export const KeySignatureTonicSemitones: Record<KeySignatureEnum, number> = {
     [KeySignatureEnum['C#']]: 1    // C#
 };
 
-
+// 后续如果需要这里也动态更改，需要改成ref
 export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformation> = {
     [MsSymbolTypeEnum.NoteHead]:
         {

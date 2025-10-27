@@ -44,6 +44,7 @@ import VirtualSymbolContainer
 import {msSymbolTemplate} from "deciphony-core";
 import {MusicScoreRef, ReserveMsSymbolMapType, StyleMapItem} from "./types";
 import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core";
+import {useSkin} from "@/composables/useSkin";
 
 
 const props = defineProps({
@@ -70,6 +71,14 @@ const props = defineProps({
   }
 
 });
+
+// 皮肤
+const {isOriginSkin, svgSkin, resetSkin} = useSkin()
+
+function setSkin(newSkin: Record<string, { url: string; }>) {
+  svgSkin.value = newSkin
+}
+
 // 是否与其它音连成组
 const isGroup = computed(() => {
   return (measure: Measure): boolean[] => {
@@ -257,6 +266,7 @@ provide('msState', {
   reserveMsSymbolMap,
   currentResevedType,
 })
+provide('skin', {svgSkin})
 // TODO 这个应该设置为已读，不知道能不能实现
 defineExpose<MusicScoreRef>({
   changeMode,
@@ -269,7 +279,9 @@ defineExpose<MusicScoreRef>({
   reserveMsSymbolMap,
   setCurrentResevedType,
   cancelSelect,
-  switchShowMode
+  switchShowMode,
+  setSkin,
+  resetSkin
 })
 </script>
 <template>

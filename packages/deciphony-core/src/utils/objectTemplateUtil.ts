@@ -50,7 +50,7 @@ export function spanSymbolTemplate(options: {
                 "options": {
                     "highlight": false,
                     "highlightColor": "red",
-                    "color": "black",
+                    "color": "transparent",
                     offset: {
                         startPoint: {
                             x: 0,
@@ -77,7 +77,7 @@ export function spanSymbolTemplate(options: {
                 "options": {
                     "highlight": false,
                     "highlightColor": "red",
-                    "color": "black",
+                    "color": "transparent",
                     offset: {
                         startPoint: {
                             x: 0,
@@ -112,7 +112,7 @@ export function spanSymbolTemplate(options: {
         "options": {
             "highlight": false,
             "highlightColor": "red",
-            "color": "black",
+            "color": "transparent",
             offset: {
                 startPoint: {
                     x: 0,
@@ -154,7 +154,7 @@ export function msSymbolTemplate(options: {
         options: {
             highlight: false,
             highlightColor: 'red',
-            color: 'black',
+            color: 'transparent',
         },
         bindingStartId: [],
         bindingEndId: [],
@@ -378,7 +378,7 @@ export function msSymbolContainerTemplate(options: { type?: MsSymbolContainerTyp
         options: {
             highlight: false,
             highlightColor: 'red',
-            color: 'black',
+            color: 'transparent',
         },
         vueKey: Math.random() * Date.now(),
         msTypeName: MsTypeNameEnum.MsSymbolContainer,
@@ -405,7 +405,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
         options: {
             highlight: false,
             highlightColor: 'red',
-            color: 'black',
+            color: 'transparent',
         },
         vueKey: Math.random() * Date.now(),
         msSymbolContainerArray: []

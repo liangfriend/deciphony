@@ -34,7 +34,8 @@ import TimeSignatureFunction from "./editor/components/rightTools/timeSignatureF
 import BarLineFunction from "./editor/components/rightTools/barLineFunction.vue";
 import RestFunction from "./editor/components/rightTools/restFunction.vue";
 
-import MusicScoreVue, {MusicScoreRef} from "deciphony-renderer";
+import MusicScoreVue, {MsSymbolInformationMap, MusicScoreRef,} from "deciphony-renderer";
+import {skin_bamboo} from "./editor/skins";
 
 type addedWb = {
   getMsRef: () => UnwrapRef<MusicScoreRef>
@@ -172,6 +173,7 @@ function add() {
 }
 
 onMounted(() => {
+
   addMsSymbolQuickly()
   // addMsSymbolQuickly()
   // addMsSymbolQuickly()
@@ -181,14 +183,20 @@ onMounted(() => {
   window.musicScore = musicScoreData.value
 
   // jianxianSwitch()
-
-
+  // 更换符号皮肤
+  // svgSkin.value = skin_bamboo.value
+  // console.log('chicken', svgSkin.value.bar_standardStaff.url)
 });
+
+function test() {
+}
+
 onBeforeMount(() => {
 })
 
 </script>
 <template>
+  <button @click="test">asd</button>
   <div class="stack">
     <div class="stackItem">
       <music-score-vue

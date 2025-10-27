@@ -28,6 +28,8 @@ export declare interface MusicScoreRef {
     cancelSelect: () => void,
     reserveMsSymbolMap: Ref<ReserveMsSymbolMapType>,
     switchShowMode: (musicScore: MusicScore) => void,
+    setSkin: (key: Record<string, { url: string; }>) => void,
+    resetSkin: () => void,
 }
 
 // 点击事件处理

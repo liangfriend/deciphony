@@ -7,11 +7,10 @@ import type {
   SingleStaff,
   VirtualSymbolContainerType
 } from "../../../deciphony-core/src/types";
-import {computed, CSSProperties, inject, onMounted, PropType, ref} from "vue";
+import {computed, CSSProperties, inject, onMounted, PropType, Ref, ref} from "vue";
 
 import {getMeasureWidth, getMsSymbolContainerWidth, getWidthFixedContainerWidthSumInMeasure} from "../utils/widthUtil";
 import {getWidthConstantInMeasure} from "../utils/widthConstantUtil";
-import noteHead1Svg from "../assets/msSymbols/noteHead1.svg"
 import {staffRegionToTop} from "../utils/topUtil";
 import {MsState} from "../types";
 import {virtualSymbolMouseDown} from "../utils/eventUtil";
@@ -61,10 +60,15 @@ const props = defineProps({
     default: {}
   }
 })
-
+// 皮肤
+// 皮肤
+const {svgSkin, isOriginSkin} = inject("skin") as {
+  isOriginSkin: Ref<boolean>,
+  svgSkin: Ref<Record<string, { url: string; }>>
+}
 const svgHref = computed(() => {
 
-  return noteHead1Svg
+  return svgSkin.value.noteHead_1.url
 
 })
 const vitrualSymbolContainerStyle = computed<CSSProperties>(() => {

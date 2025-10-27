@@ -1,13 +1,7 @@
-<template>
-  <div class="measure" :style="measureStyle" @mousedown.self="handleMouseDown">
-    <div :style="barLineStyle"></div>
-  </div>
-</template>
 <script setup lang="ts">
-import {computed, CSSProperties, PropType} from 'vue';
+import {computed, CSSProperties, inject, onBeforeMount, PropType, ref, Ref} from 'vue';
 
-import barStandardStaff from '../assets/msSymbols/bar-standardStaff.svg';
-import barNumberNotation from '../assets/msSymbols/bar-numberNotation.svg';
+
 import {Measure, type MusicScore,} from "../../../deciphony-core/src/types";
 import {MusicScoreShowModeEnum} from "../../../deciphony-core/src/musicScoreEnum";
 
@@ -50,6 +44,12 @@ const props = defineProps({
   },
 
 });
+// 皮肤
+const {svgSkin, isOriginSkin} = inject("skin") as {
+  isOriginSkin: Ref<boolean>,
+  svgSkin: Ref<Record<string, { url: string; }>>
+}
+
 const measureStyle = computed(() => {
   return {
     'width': '100%',
@@ -59,40 +59,48 @@ const measureStyle = computed(() => {
 
   };
 });
+const barHref = ref('')
 const barLineStyle = computed((): CSSProperties => {
+  console.log('chicken',)
   const style: CSSProperties = {
     width: (props.width) + 'px',
     height: props.height + 'px',
-    'background-color': 'black',
+    color: 'red',
+    'background-color': 'transparent',
     // mask:`url("${barLine}") no-repeat center`,
     // 'mask-size': '100% 100%',
-    background: props.measure.options.highlight ? props.measure.options.highlightColor : props.measure.options.color,
     pointerEvents: 'none',
   };
-
   switch (props.musicScore.showMode) {
     case MusicScoreShowModeEnum.standardStaff: {
-      style.mask = `url("${barStandardStaff}") no-repeat center`
-      style['mask-size'] = '100% 100%'
+
+      // style.mask = `url("${svgSkin.value.bar_standardStaff.url}") no-repeat center`
+      // style['mask-size'] = '100% 100%'
+      barHref.value = svgSkin.value.bar_standardStaff.url
       break
     }
     case MusicScoreShowModeEnum.numberNotation: {
-      style.mask = `url("${barNumberNotation}") no-repeat center` // 这里有个bug,mask-size写到mask之前，会不生效
-      style['mask-size'] = '100% 100%'
-
+      // style.mask = `url("${svgSkin.value.bar_numberNotation.url}") no-repeat center` // 这里有个bug,mask-size写到mask之前，会不生效
+      // style['mask-size'] = '100% 100%'
+      barHref.value = svgSkin.value.bar_numberNotation.url
       break
     }
   }
   return style
+
 });
 const emits = defineEmits(['measureMouseDown']);
 
 function handleMouseDown(e: MouseEvent) {
   emits('measureMouseDown', e, props.measure)
-
 }
 
 </script>
+<template>
+  <div class="measure" :style="measureStyle" @mousedown.self="handleMouseDown">
+    <img :style="barLineStyle" :src="barHref"/>
+  </div>
+</template>
 <style scoped lang="scss">
 img {
   display: block;

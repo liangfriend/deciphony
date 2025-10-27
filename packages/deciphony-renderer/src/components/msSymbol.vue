@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, CSSProperties, onMounted, PropType, ref, watch} from "vue";
+import {computed, CSSProperties, inject, onMounted, PropType, Ref, ref, watch} from "vue";
 import {
   AccidentalEnum,
   BarLineTypeEnum,
@@ -14,67 +14,13 @@ import {
   type SingleStaff,
   SolmizationEnum
 } from "deciphony-core";
-// 音符头
-import noteHeadWholeSvg from "../assets/msSymbols/noteHead1.svg"
-import noteHeadHalfSvg from "../assets/msSymbols/noteHead2.svg"
-import noteHeadQuarterSvg from "../assets/msSymbols/noteHead4.svg"
-import note1Svg from "../assets/msSymbols/1.svg"
-import note2Svg from "../assets/msSymbols/2.svg"
-import note3Svg from "../assets/msSymbols/3.svg"
-import note4Svg from "../assets/msSymbols/4.svg"
-import note5Svg from "../assets/msSymbols/5.svg"
-import note6Svg from "../assets/msSymbols/6.svg"
-import note7Svg from "../assets/msSymbols/7.svg"
-// 音符八度点
-import noteDot1Svg from "../assets/msSymbols/noteDot1.svg"
-import noteDot2Svg from "../assets/msSymbols/noteDot2.svg"
-import noteDot3Svg from "../assets/msSymbols/noteDot3.svg"
-import noteDot4Svg from "../assets/msSymbols/noteDot4.svg"
-
-
-// 休止符
-import rest1Svg from "../assets/msSymbols/rest1.svg"
-import rest2Svg from "../assets/msSymbols/rest2.svg"
-import rest4Svg from "../assets/msSymbols/rest4.svg"
-import rest8Svg from "../assets/msSymbols/rest8.svg"
-import rest16Svg from "../assets/msSymbols/rest16.svg"
-import rest32Svg from "../assets/msSymbols/rest32.svg"
-import rest64Svg from "../assets/msSymbols/rest64.svg"
-import rest128Svg from "../assets/msSymbols/rest128.svg"
-import rest256Svg from "../assets/msSymbols/rest256.svg"
-
-// 符杠
-import noteStemSvg from '../assets/msSymbols/noteStem.svg'
-
-// 变音符号
-import sharpSvg from '../assets/msSymbols/sharp.svg'
-import doubleSharpSvg from '../assets/msSymbols/doubleSharp.svg'
-import flatSvg from '../assets/msSymbols/flat.svg'
-import doubleFlatpSvg from '../assets/msSymbols/doubleFlat.svg'
-import natureSvg from '../assets/msSymbols/nature.svg'
-// 小节线
-import barLineSingleSvg from '../assets/msSymbols/barlineSingle.svg'
-import barLineFinalSvg from '../assets/msSymbols/barlineFinal.svg'
-import barLineReverseFinalSvg from '../assets/msSymbols/barlineReverseFinal.svg'
-import barLineStartRepeatSignSvg from '../assets/msSymbols/barlineStartRepeatSign.svg'
-import barLineEndRepeatSignSvg from '../assets/msSymbols/barlineEndRepeatSign.svg'
-import Clef from "./clef.vue";
-import KeySignature from "./keySignature.vue";
-import TimeSignature from "./timeSignature.vue";
-
-import {getMsSymbolHeight} from "../utils/heightUtil";
-import {getMsSymbolTopToSlot} from "../utils/topUtil";
-import {getMsSymbolLeftToSlot} from "../utils/leftUtil";
-import {getMsSymbolWidth} from "../utils/widthUtil";
-import NoteTail from "./noteTail.vue";
-import {getMsSymbolAspectRatio} from "../utils/geometryUtil";
-
-// 增时线&减时线
-import chronaxieIncreasingLineSvg from '../assets/msSymbols/chronaxieIncreasingLine.svg'
-import chronaxieReducingLine1Svg from '../assets/msSymbols/chronaxieReducingLine1.svg'
-import chronaxieReducingLine2Svg from '../assets/msSymbols/chronaxieReducingLine2.svg'
-import chronaxieReducingLine3Svg from '../assets/msSymbols/chronaxieReducingLine3.svg'
-import chronaxieReducingLine4Svg from '../assets/msSymbols/chronaxieReducingLine4.svg'
+import {svgSkin} from "@/constant";
+import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
+import {getMsSymbolHeight} from "@/utils/heightUtil";
+import {getMsSymbolWidth} from "@/utils/widthUtil";
+import {getMsSymbolLeftToSlot} from "@/utils/leftUtil";
+import {getMsSymbolTopToSlot} from "@/utils/topUtil";
+import {MsState} from "@/types";
 
 
 const props = defineProps({
@@ -149,6 +95,12 @@ const props = defineProps({
   },
 
 })
+// 皮肤
+// 皮肤
+const {svgSkin, isOriginSkin} = inject("skin") as {
+  isOriginSkin: Ref<boolean>,
+  svgSkin: Ref<Record<string, { url: string; }>>
+}
 watch(() => props.msSymbol?.vueKey, () => {
   getSvgHref()
 })
@@ -158,57 +110,56 @@ function getSvgHref() {
     case MsSymbolTypeEnum.NoteHead: {
       switch (props.msSymbol?.chronaxie) {
         case ChronaxieEnum.whole: {
-          return noteHeadWholeSvg
+          return svgSkin.value.noteHead_1.url
         }
         case ChronaxieEnum.half: {
-          return noteHeadHalfSvg
+          return svgSkin.value.noteHead_2.url
         }
         case ChronaxieEnum.quarter: {
-          return noteHeadQuarterSvg
+          return svgSkin.value.noteHead_4.url
         }
         default: {
-          return noteHeadQuarterSvg
+          return svgSkin.value.noteHead_4.url
         }
       }
     }
     case MsSymbolTypeEnum.Rest: {
       switch (props.msSymbol?.chronaxie) {
         case ChronaxieEnum.whole: {
-          return rest1Svg
+          return svgSkin.value.rest_1.url
         }
         case ChronaxieEnum.half: {
-          ``
-          return rest2Svg
+          return svgSkin.value.rest_2.url
         }
         case ChronaxieEnum.quarter: {
-          return rest4Svg
+          return svgSkin.value.rest_4.url
         }
         case ChronaxieEnum.eighth: {
-          return rest8Svg
+          return svgSkin.value.rest_8.url
         }
         case ChronaxieEnum.sixteenth: {
-          return rest16Svg
+          return svgSkin.value.rest_16.url
         }
         case ChronaxieEnum.thirtySecond: {
-          return rest32Svg
+          return svgSkin.value.rest_32.url
         }
         case ChronaxieEnum.sixtyFourth: {
-          return rest64Svg
+          return svgSkin.value.rest_64.url
         }
         case ChronaxieEnum.oneTwentyEighth: {
-          return rest128Svg
+          return svgSkin.value.rest_128.url
         }
         case ChronaxieEnum.twoFiftySixth: {
-          return rest256Svg
+          return svgSkin.value.rest_256.url
         }
         default: {
-          return rest4Svg
+          return svgSkin.value.rest_4
         }
 
       }
     }
     case MsSymbolTypeEnum.NoteStem: {
-      return noteStemSvg
+      return svgSkin.value.noteStem.url
     }
     case MsSymbolTypeEnum.NoteTail: {
       return ''
@@ -222,19 +173,19 @@ function getSvgHref() {
     case MsSymbolTypeEnum.BarLine: {
       switch (props.msSymbol?.barLineType) {
         case BarLineTypeEnum.single: {
-          return barLineSingleSvg
+          return svgSkin.value.barline_single.url
         }
         case BarLineTypeEnum.final: {
-          return barLineFinalSvg
+          return svgSkin.value.barLine_final.url
         }
         case BarLineTypeEnum.reverseFinal: {
-          return barLineReverseFinalSvg
+          return svgSkin.value.barline_reverseFinal.url
         }
         case BarLineTypeEnum.startRepeatSign: {
-          return barLineStartRepeatSignSvg
+          return svgSkin.value.barline_startRepeatSign.url
         }
         case BarLineTypeEnum.endRepeatSign: {
-          return barLineEndRepeatSignSvg
+          return svgSkin.value.barLine_endRepeatSign.url
         }
 
       }
@@ -244,19 +195,19 @@ function getSvgHref() {
     case MsSymbolTypeEnum.BarLine_f: {
       switch (props.msSymbol?.barLineType) {
         case BarLineTypeEnum.single: {
-          return barLineSingleSvg
+          return svgSkin.value.barline_single.url
         }
         case BarLineTypeEnum.final: {
-          return barLineFinalSvg
+          return svgSkin.value.barLine_final.url
         }
         case BarLineTypeEnum.reverseFinal: {
-          return barLineReverseFinalSvg
+          return svgSkin.value.barline_reverseFinal.url
         }
         case BarLineTypeEnum.startRepeatSign: {
-          return barLineStartRepeatSignSvg
+          return svgSkin.value.barline_startRepeatSign.url
         }
         case BarLineTypeEnum.endRepeatSign: {
-          return barLineEndRepeatSignSvg
+          return svgSkin.value.barLine_endRepeatSign.url
         }
       }
       console.error("未知的小节线类型", props.msSymbol)
@@ -271,19 +222,19 @@ function getSvgHref() {
     case MsSymbolTypeEnum.Accidental: {
       switch (props.msSymbol?.accidental) {
         case AccidentalEnum.Sharp: {
-          return sharpSvg
+          return svgSkin.value.accidental_sharp.url
         }
         case AccidentalEnum.Flat: {
-          return flatSvg
+          return svgSkin.value.accidental_flat.url
         }
         case AccidentalEnum.Natural: {
-          return natureSvg
+          return svgSkin.value.accidental_nature.url
         }
         case AccidentalEnum.DoubleSharp: {
-          return doubleSharpSvg
+          return svgSkin.value.accidental_doubleSharp.url
         }
         case AccidentalEnum.DoubleFlat: {
-          return doubleFlatpSvg
+          return svgSkin.value.accidental_doubleFlat.url
         }
 
       }
@@ -293,54 +244,57 @@ function getSvgHref() {
     case MsSymbolTypeEnum.NoteNumber: {
       switch (props.msSymbol?.solmization) {
         case SolmizationEnum.DO: {
-          return note1Svg
+          return svgSkin.value.number_1.url
         }
         case SolmizationEnum.RE: {
-          return note2Svg
+          return svgSkin.value.number_2.url
         }
         case SolmizationEnum.MI: {
-          return note3Svg
+          return svgSkin.value.number_3.url
         }
         case SolmizationEnum.FA: {
-          return note4Svg
+          return svgSkin.value.number_4.url
         }
         case SolmizationEnum.SOL: {
-          return note5Svg
+          return svgSkin.value.number_5.url
         }
         case SolmizationEnum.LA: {
-          return note6Svg
+          return svgSkin.value.number_6.url
         }
         case SolmizationEnum.TI: {
-          return note7Svg
+          return svgSkin.value.number_7.url
         }
         default: {
-          return note1Svg
+          return svgSkin.value.number_1.url
         }
 
       }
     }
     case MsSymbolTypeEnum.NoteDot: {
       switch (props.msSymbol.octave) {
+        case 0: {
+          return svgSkin.value.noteDot_4.url
+        }
         case 1: {
-          return noteDot4Svg
+          return svgSkin.value.noteDot_3.url
         }
         case 2: {
-          return noteDot2Svg
+          return svgSkin.value.noteDot_2.url
         }
         case 3: {
-          return noteDot1Svg
+          return svgSkin.value.noteDot_1.url
         }
         case 5: {
-          return noteDot1Svg
+          return svgSkin.value.noteDot_1.url
         }
         case 6: {
-          return noteDot2Svg
+          return svgSkin.value.noteDot_2.url
         }
         case 7: {
-          return noteDot3Svg
+          return svgSkin.value.noteDot_3.url
         }
         case 8: {
-          return noteDot4Svg
+          return svgSkin.value.noteDot_4.url
         }
         default: {
           return ''
@@ -350,16 +304,16 @@ function getSvgHref() {
     case MsSymbolTypeEnum.ChronaxieReducingLine: {
       switch (props.msSymbol.chronaxie) {
         case ChronaxieEnum.eighth: {
-          return chronaxieReducingLine1Svg
+          return svgSkin.value.chronaxieReducingLine_1.url
         }
         case ChronaxieEnum.sixteenth: {
-          return chronaxieReducingLine2Svg
+          return svgSkin.value.chronaxieReducingLine_2.url
         }
         case ChronaxieEnum.thirtySecond: {
-          return chronaxieReducingLine3Svg
+          return svgSkin.value.chronaxieReducingLine_3.url
         }
         case ChronaxieEnum.sixtyFourth: {
-          return chronaxieReducingLine4Svg
+          return svgSkin.value.chronaxieReducingLine_4.url
         }
 
         default: {
@@ -368,7 +322,7 @@ function getSvgHref() {
       }
     }
     case MsSymbolTypeEnum.ChronaxieIncreasingLine: {
-      return chronaxieIncreasingLineSvg
+      return svgSkin.value.chronaxieIncreasingLine.url
     }
 
     default: {
@@ -486,14 +440,14 @@ defineExpose({aspectRatio})
       :noteHead="parentMsSymbol as NoteHead"
       :noteTail="msSymbol" :pre-container="preContainer" :single-staff="singleStaff"
       :slot-left="slotLeft"></note-tail>
-  <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteStem"
+  <img v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteStem"
        v-show="musicScore.showMode === MusicScoreShowModeEnum.standardStaff"
        ref="msSymbolRef" :style="msSymbolStyle" class="msSymbol" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
-  ></div>
-  <div v-else ref="msSymbolRef" :style="msSymbolStyle" class="msSymbol" @mouseup.self="handleMouseUp"
+  ></img>
+  <img v-else ref="msSymbolRef" :style="msSymbolStyle" :src="svgHref" class="msSymbol" @mouseup.self="handleMouseUp"
        @mousedown.self="handleMouseDown"
-  ></div>
+  ></img>
 </template>
 <style scoped>
 .msSymbol {

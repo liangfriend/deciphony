@@ -195,7 +195,6 @@ onBeforeMount(() => {
 
 </script>
 <template>
-    <button @click="test">asd</button>
     <div class="stack">
         <div class="stackItem">
             <music-score-vue

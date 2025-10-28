@@ -1,7 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="500" height="80">
-    <line x1="0" y1="0" x2="500" y2="000" stroke="black" stroke-width="1"></line>
-    <line x1="0" y1="20" x2="500" y2="20" stroke="black" stroke-width="1"></line>
-    <line x1="0" y1="40" x2="500" y2="40" stroke="black" stroke-width="1"></line>
-    <line x1="0" y1="60" x2="500" y2="60" stroke="black" stroke-width="1"></line>
-    <line x1="0" y1="80" x2="500" y2="80" stroke="black" stroke-width="1"></line>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="80" aria-hidden="true">
+    <defs>
+        <!-- 叶子形状 -->
+        <path id="leaf" d="M0 0 C6 -4 14 -4 20 0 C14 6 6 6 0 0 Z"/>
+        <!-- 叶子渐变 -->
+        <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#79c267"/>
+            <stop offset="1" stop-color="#2f7f39"/>
+        </linearGradient>
+        <!-- 细微阴影 -->
+        <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.2" result="b"/>
+            <feOffset dx="0.6" dy="0.8" result="c"/>
+            <feMerge>
+                <feMergeNode in="c"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- 背景保持透明（不绘制背景矩形） -->
+
+    <!-- 有机化处理的五条“主线” —— 坐标未改，仅样式改变 -->
+    <g stroke-linecap="round" stroke-linejoin="round" filter="url(#softShadow)">
+        <!-- y = 0 -->
+        <line x1="0" y1="0" x2="500" y2="0" stroke="#5a3b1a" stroke-width="2.4" opacity="0.28"/>
+        <!-- y = 20 -->
+        <line x1="0" y1="20" x2="500" y2="20" stroke="#5a3b1a" stroke-width="2.8" opacity="0.38"/>
+        <!-- y = 40 -->
+        <line x1="0" y1="40" x2="500" y2="40" stroke="#5a3b1a" stroke-width="3.2" opacity="0.48"/>
+        <!-- y = 60 -->
+        <line x1="0" y1="60" x2="500" y2="60" stroke="#5a3b1a" stroke-width="2.8" opacity="0.38"/>
+        <!-- y = 80 -->
+        <line x1="0" y1="80" x2="500" y2="80" stroke="#5a3b1a" stroke-width="2.4" opacity="0.28"/>
+    </g>
+
+    <!-- 额外的有机枝干 (曲线) —— 不改变横线位置 -->
+    <g fill="none" stroke="#6b4220" stroke-width="1.6" stroke-linecap="round" opacity="0.95">
+        <!-- 左侧主枝 -->
+        <path d="M12 0 C40 6, 38 22, 16 40"/>
+        <path d="M16 40 C36 52, 24 66, 10 72"/>
+        <!-- 右侧延伸枝 -->
+        <path d="M488 20 C460 24, 444 38, 420 50"/>
+        <path d="M420 50 C400 60, 380 68, 360 72"/>
+        <!-- 中央的细枝穿插 -->
+        <path d="M120 0 C150 8, 170 22, 200 20"/>
+        <path d="M260 40 C290 46, 315 56, 350 60"/>
+    </g>
+
+    <!-- 叶子（复用 leaf path） -->
+    <g transform="translate(0,0)">
+        <!-- 左侧叶群 -->
+        <use href="#leaf" transform="translate(8,6) rotate(-25) scale(1.4)" fill="url(#leafGrad)" opacity="0.98"/>
+        <use href="#leaf" transform="translate(22,28) rotate(10) scale(1.1)" fill="url(#leafGrad)" opacity="0.95"/>
+        <use href="#leaf" transform="translate(6,44) rotate(-50) scale(0.95)" fill="url(#leafGrad)" opacity="0.9"/>
+
+        <!-- 中央和上方叶子 -->
+        <use href="#leaf" transform="translate(140,4) rotate(-10) scale(0.9)" fill="url(#leafGrad)" opacity="0.95"/>
+        <use href="#leaf" transform="translate(188,18) rotate(18) scale(0.85)" fill="url(#leafGrad)" opacity="0.9"/>
+        <use href="#leaf" transform="translate(230,34) rotate(-35) scale(1.0)" fill="url(#leafGrad)" opacity="0.92"/>
+
+        <!-- 右侧叶群 -->
+        <use href="#leaf" transform="translate(420,6) rotate(25) scale(1.2)" fill="url(#leafGrad)" opacity="0.96"/>
+        <use href="#leaf" transform="translate(456,30) rotate(-5) scale(1.05)" fill="url(#leafGrad)" opacity="0.94"/>
+        <use href="#leaf" transform="translate(374,58) rotate(-60) scale(0.9)" fill="url(#leafGrad)" opacity="0.9"/>
+    </g>
+
+    <!-- 小颗落叶点缀（椭圆） -->
+    <g opacity="0.9">
+        <ellipse cx="60" cy="10" rx="3.2" ry="1.6" transform="rotate(-18 60 10)" fill="#6fbf5a"/>
+        <ellipse cx="320" cy="45" rx="3" ry="1.4" transform="rotate(8 320 45)" fill="#4ea044"/>
+        <ellipse cx="480" cy="72" rx="2.6" ry="1.2" transform="rotate(-35 480 72)" fill="#88d06b"/>
+    </g>
+
+    <!-- 些微纹理（细线作为树皮纹路），透明并且短，避免干扰主线 -->
+    <g stroke="#4b2f18" stroke-width="0.6" stroke-linecap="round" opacity="0.25">
+        <path d="M30 0 L36 0.8"/>
+        <path d="M78 20 L84 20.6"/>
+        <path d="M220 40 L226 40.9"/>
+        <path d="M312 60 L318 60.7"/>
+        <path d="M428 80 L434 80.8"/>
+    </g>
 </svg>

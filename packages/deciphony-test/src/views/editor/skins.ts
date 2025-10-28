@@ -115,6 +115,7 @@ import active_rest_256 from '../../assets/skins/bamboo/rest256_active.svg'
 
 
 export const skin_bamboo = ref<Record<string, { url: string }>>({
+    skinKey: {url: 'bamboo'},
     // 数字
     number_1: {url: number_1},
     number_2: {url: number_2},

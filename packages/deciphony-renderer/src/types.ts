@@ -30,6 +30,7 @@ export declare interface MusicScoreRef {
     switchShowMode: (musicScore: MusicScore) => void,
     setSkin: (key: Record<string, { url: string; }>) => void,
     resetSkin: () => void,
+    skinKey: Ref<string>
 }
 
 // 点击事件处理

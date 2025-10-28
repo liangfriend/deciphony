@@ -154,7 +154,7 @@ export function msSymbolTemplate(options: {
         options: {
             highlight: false,
             highlightColor: 'red',
-            color: 'transparent',
+            color: 'black',
         },
         bindingStartId: [],
         bindingEndId: [],
@@ -405,7 +405,7 @@ export function measureTemplate(options: { barLineType?: BarLineTypeEnum } = {})
         options: {
             highlight: false,
             highlightColor: 'red',
-            color: 'transparent',
+            color: 'black',
         },
         vueKey: Math.random() * Date.now(),
         msSymbolContainerArray: []

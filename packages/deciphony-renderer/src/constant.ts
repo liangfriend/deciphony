@@ -476,35 +476,35 @@ export const MsSymbolInformationMap: Record<MsSymbolTypeEnum, MsSymbolInformatio
             aspectRatio:
                 {
                     [KeySignatureEnum.Cb]:
-                        0.4 * 7,   // 7 flats
+                        0.3 * 7,   // 7 flats
                     [KeySignatureEnum.Gb]:
-                        0.4 * 6,   // 6 flats
+                        0.3 * 6,   // 6 flats
                     [KeySignatureEnum.Db]:
-                        0.4 * 5,   // 5 flats
+                        0.3 * 5,   // 5 flats
                     [KeySignatureEnum.Ab]:
-                        0.4 * 4,   // 4 flats
+                        0.3 * 4,   // 4 flats
                     [KeySignatureEnum.Eb]:
-                        0.4 * 3,   // 3 flats
+                        0.3 * 3,   // 3 flats
                     [KeySignatureEnum.Bb]:
-                        0.4 * 2,   // 2 flats
+                        0.3 * 2,   // 2 flats
                     [KeySignatureEnum.F]:
-                        0.4,    // 1 flat
+                        0.3,    // 1 flat
                     [KeySignatureEnum.C]:
                         0.0,    // 0
                     [KeySignatureEnum.G]:
-                        0.4,    // 1 sharp
+                        0.3,    // 1 sharp
                     [KeySignatureEnum.D]:
-                        0.4 * 2,    // 2 sharps
+                        0.3 * 2,    // 2 sharps
                     [KeySignatureEnum.A]:
-                        0.4 * 3,    // 3 sharps
+                        0.3 * 3,    // 3 sharps
                     [KeySignatureEnum.E]:
-                        0.4 * 4,    // 4 sharps
+                        0.3 * 4,    // 4 sharps
                     [KeySignatureEnum.B]:
-                        0.4 * 5,    // 5 sharps
+                        0.3 * 5,    // 5 sharps
                     [KeySignatureEnum['F#']]:
-                        0.4 * 6,// 6 sharps
+                        0.3 * 6,// 6 sharps
                     [KeySignatureEnum['C#']]:
-                        0.4 * 7 // 7 sharps
+                        0.3 * 7 // 7 sharps
                 }
             ,
             category: MsSymbolCategoryEnum.singleMeasure,

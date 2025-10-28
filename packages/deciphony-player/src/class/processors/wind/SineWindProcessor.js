@@ -1,3 +1,5 @@
+"use strict";
+
 class SineWindProcessor extends AudioWorkletProcessor {
     static get parameterDescriptors() {
         return [
@@ -19,13 +21,11 @@ class SineWindProcessor extends AudioWorkletProcessor {
         const output = outputs[0];
         const freqValues = parameters.frequency;
         // 气压转化为力度
-        const volValues = parameters.airPressure;
+        const volValues = [0]//parameters.airPressure;
         const sampleRate = globalThis.sampleRate;
         const twoPi = 2 * Math.PI;
-
         for (let channel = 0; channel < output.length; ++channel) {
             const outputChannel = output[channel];
-
             for (let i = 0; i < outputChannel.length; ++i) {
                 const f = freqValues[0];
                 const v = volValues[0];

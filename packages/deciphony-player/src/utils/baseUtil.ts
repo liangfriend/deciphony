@@ -1,5 +1,4 @@
 import {ToneDuration} from "../types/types";
-import {TimeSignature} from "deciphony-core";
 import {ChronaxieEnum} from "deciphony-core";
 
 export function base64ToArrayBuffer(base64: string) {

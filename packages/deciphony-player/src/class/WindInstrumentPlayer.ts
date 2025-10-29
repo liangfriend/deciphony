@@ -18,9 +18,9 @@ class WindInstrumentPlayer extends InstrumentPlayer {
     async createAudioProcessor(instrument: WindInstrumentEnum) {
         this.context = new AudioContext();
         const instrumentInfo = this.getInstrumentInfo(instrument)
-        console.log(instrumentInfo.path, new URL(instrumentInfo.path, import.meta.url));
+        console.log(instrumentInfo.path);
         await this.context.audioWorklet.addModule(
-            new URL(instrumentInfo.path, import.meta.url).href
+            instrumentInfo.path
         );
 
         this.audioWorklet = new AudioWorkletNode(this.context, instrumentInfo.registerName, {});

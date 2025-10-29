@@ -1,5 +1,7 @@
 import {Envelope} from "../types/types";
 import {WindInstrumentEnum} from "../types/enum";
+import DesolateWindProcessor from '../processors/wind/DesolateWindProcessor?url'
+import SineWindProcessor from '../processors/wind/SineWindProcessor?url'
 
 class InstrumentPlayer {
     context: AudioContext = null!
@@ -20,19 +22,19 @@ class InstrumentPlayer {
         switch (instrument) {
             case WindInstrumentEnum.SineWind: {
                 return {
-                    path: "./processors/wind/SineWindProcessor.js",
+                    path: SineWindProcessor,
                     registerName: "sine-wind-processor"
                 }
             }
             case WindInstrumentEnum.Desolate: {
                 return {
-                    path: "./processors/wind/DesolateWindProcessor.js",
+                    path: DesolateWindProcessor,
                     registerName: "desolate-wind-processor"
                 }
             }
             default: {
                 return {
-                    path: "./processors/wind/SineWindProcessor.js",
+                    path: SineWindProcessor,
                     registerName: "sine-wind-processor"
                 }
             }

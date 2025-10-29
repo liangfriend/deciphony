@@ -14,7 +14,6 @@ import {
     type SingleStaff,
     SolmizationEnum
 } from "deciphony-core";
-import {svgSkin} from "@/constant";
 import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 import {getMsSymbolHeight} from "@/utils/heightUtil";
 import {getMsSymbolWidth} from "@/utils/widthUtil";
@@ -37,12 +36,10 @@ const props = defineProps({
         required: true,
     },
     preContainer: {
-        type: Object as PropType<MsSymbolContainer | undefined>,
-        required: true
+        type: Object as PropType<MsSymbolContainer | null>,
     },
     nextContainer: {
-        type: Object as PropType<MsSymbolContainer | undefined>,
-        required: true
+        type: Object as PropType<MsSymbolContainer | null>,
     },
     measure: {
         type: Object as PropType<Measure>,
@@ -110,7 +107,7 @@ watch(() => props.msSymbol?.vueKey, () => {
     getSvgHref()
 })
 
-function getSvgHref() {
+function getSvgHref(): string {
     switch (props.msSymbol?.type) {
         case MsSymbolTypeEnum.NoteHead: {
             switch (props.msSymbol?.chronaxie) {
@@ -158,7 +155,7 @@ function getSvgHref() {
                     return props.msSymbol.options.highlight ? svgSkin.value.active_rest_256.url : svgSkin.value.rest_256.url
                 }
                 default: {
-                    return props.msSymbol.options.highlight ? svgSkin.value.active_rest_4.url : svgSkin.value.rest_4
+                    return props.msSymbol.options.highlight ? svgSkin.value.active_rest_4.url : svgSkin.value.rest_4.url
                 }
 
             }
@@ -438,9 +435,9 @@ defineExpose({aspectRatio})
         :measure-width="measureWidth"
         :ms-symbol-container="msSymbolContainer"
         :musicScore="musicScore"
-        :next-container="nextContainer"
+        :next-container="nextContainer?nextContainer:null"
         :noteHead="parentMsSymbol as NoteHead"
-        :noteTail="msSymbol" :pre-container="preContainer" :single-staff="singleStaff"
+        :noteTail="msSymbol" :pre-container="preContainer?preContainer:null" :single-staff="singleStaff"
         :slot-left="slotLeft"></note-tail>
 
     <div v-else-if="msSymbol?.type === MsSymbolTypeEnum.NoteStem && isOriginSkin"

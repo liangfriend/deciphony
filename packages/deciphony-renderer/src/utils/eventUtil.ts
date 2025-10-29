@@ -6,7 +6,7 @@ import {
     ReserveMsSymbolType,
     StaffPositionTypeEnum,
     StaffRegionEnum
-} from "../../../deciphony-core/src/musicScoreEnum";
+} from "deciphony-core";
 import {
     Measure,
     MsSymbol,
@@ -22,7 +22,7 @@ import {
     SpanSymbol,
     StaffRegion,
     VirtualSymbolContainerType
-} from "../../../deciphony-core/src/types";
+} from "deciphony-core";
 
 import {Ref} from 'vue';
 import {msSymbolContainerTemplate, msSymbolTemplate} from "deciphony-core";

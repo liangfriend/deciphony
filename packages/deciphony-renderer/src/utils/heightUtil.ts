@@ -1,8 +1,8 @@
 import {
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum
-} from "../../../deciphony-core/src/musicScoreEnum";
-import {MsSymbol, MusicScore, NoteDot, NoteHead, NoteStem} from "../../../deciphony-core/src/types";
+} from "deciphony-core";
+import {MsSymbol, MusicScore, NoteDot, NoteHead, NoteStem} from "deciphony-core";
 import {MsSymbolInformationMap} from "../constant";
 import {getSlotTopToMeasure} from "./topUtil";
 import {

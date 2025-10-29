@@ -10,7 +10,7 @@ import type {
     SingleStaff,
 
     SpanSymbol
-} from "../../deciphony-core/src/types";
+} from "deciphony-core";
 import MeasureContainer from "./components/measureContainer.vue";
 
 import MsSymbolContainer
@@ -27,7 +27,7 @@ import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum, MusicScoreShowModeEnum,
     ReserveMsSymbolType,
-} from "../../deciphony-core/src/musicScoreEnum";
+} from "deciphony-core";
 import {
     eventConstant,
     handleMouseMoveSelected,
@@ -332,8 +332,8 @@ defineExpose<MusicScoreRef>({
                            class="stackItem symbolLayer"
                            comment="符号层2">
             <template #default="{ measure, measureIndex, singleStaff, multipleStaves, measureWidth }">
-                <ms-symbol-container v-for="(msSymbolContainer,symbolIndex) in measure.msSymbolContainerArray"
-                                     :key="'note-symbol'+symbolIndex"
+                <ms-symbol-container v-for="(msSymbolContainer,symbolContainerIndex) in measure.msSymbolContainerArray"
+                                     :key="'ms-symbol-container'+symbolContainerIndex"
                                      :componentHeight="height"
                                      :componentWidth="width"
                                      :measure="measure"
@@ -342,10 +342,10 @@ defineExpose<MusicScoreRef>({
                                      :msSymbolContainer="msSymbolContainer"
                                      :multipleStaves="multipleStaves"
                                      :musicScore="musicScore"
-                                     :nextContainer="measure.msSymbolContainerArray.length!==(symbolIndex+1)?
-                             measure.msSymbolContainerArray[symbolIndex+1]:undefined"
+                                     :nextContainer="measure.msSymbolContainerArray.length!==(symbolContainerIndex+1)?
+                             measure.msSymbolContainerArray[symbolContainerIndex+1]:null"
                                      :preContainer="measure.msSymbolContainerArray.length!==0?
-                             measure.msSymbolContainerArray[symbolIndex-1]:undefined"
+                             measure.msSymbolContainerArray[symbolContainerIndex-1]:null"
                                      :singleStaff="singleStaff"
                                      @msSymbolMousUp="handleMsSymbolMouseUp"
                                      @msSymbolMouseDown="handleMsSymbolMouseDown"

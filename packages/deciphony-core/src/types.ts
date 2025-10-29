@@ -175,14 +175,24 @@ export declare type Volta = (BaseSpanSymbol & {
     spanSymbolFollowingCategoryEnum: SpanSymbolFollowingCategoryEnum.measure,
     startTargetId: number,
     endTargetId: number,
-    options: MusicScoreOptions,
+    options: {
+        highlight: Boolean;
+        highlightColor: string;
+        color: string;
+        offset: VoltaPosition
+    },
 })
 export declare type Slur = (BaseSpanSymbol & {
     type: SpanSymbolTypeEnum.slur
     spanSymbolFollowingCategoryEnum: SpanSymbolFollowingCategoryEnum.msSymbol,
     startTargetId: number,
     endTargetId: number,
-    options: MusicScoreOptions,
+    options: {
+        highlight: Boolean;
+        highlightColor: string;
+        color: string;
+        offset: SlurPosition
+    },
 })
 // 跨小节符号.  目前只有小节跟随型和符号（音符头）跟随型
 export declare type SpanSymbol = Volta | Slur
@@ -281,3 +291,32 @@ export declare type BeamGroupItem = {
     chronaxie: ChronaxieEnum
 }
 export declare type BeamGroup = Array<BeamGroupItem>
+
+export type VoltaPosition = {
+    startPoint: {
+        x: number,
+        y: number,
+    },
+    endPoint: {
+        x: number,
+        y: number,
+    },
+}
+export type SlurPosition = {
+    startPoint: {
+        x: number,
+        y: number,
+    },
+    endPoint: {
+        x: number,
+        y: number,
+    },
+    leftSlope: {
+        x: number,
+        y: number,
+    },
+    rightSlope: {
+        x: number,
+        y: number,
+    },
+}

@@ -3,8 +3,8 @@ import {
     MsSymbolContainerTypeEnum,
     OrderTypeEnum,
     ReserveMsSymbolType
-} from "../../deciphony-core/src/musicScoreEnum";
-import {MsType, MusicScore} from "../../deciphony-core/src/types";
+} from "deciphony-core";
+import {MsType, MusicScore} from "deciphony-core";
 import {Ref} from "vue";
 import {MsTypeNameEnum} from "deciphony-core";
 import {DragType} from "@/enum";

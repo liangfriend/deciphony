@@ -1,5 +1,4 @@
-import type {MusicScore} from 'packages/deciphony-core/src/types.ts'
-import {MsSymbolTypeEnum} from 'packages/deciphony-core/src/musicScoreEnum.ts'
+import type {MusicScore} from 'deciphony-core'
 
 const data: MusicScore = {
     "showMode": 1,

@@ -1,4 +1,4 @@
-import {MsTypeNameEnum, MusicScore, type Slur, Volta} from "../../../deciphony-core/src";
+import {MsTypeNameEnum, MusicScore, type Slur, Volta} from "deciphony-core";
 import {getMeasureLeftToMusicScore, getSlotLeftToMeasure} from "@/utils/leftUtil";
 import {getMeasureWidth, getMsSymbolSlotWidth} from "@/utils/widthUtil";
 import {
@@ -7,8 +7,10 @@ import {
     getMinMsSymbolTopInMeasure
 } from "@/utils/topUtil";
 import {getDataWithIndex, getTarget, traverseMeasure} from "deciphony-core";
+import {SlurPosition} from "deciphony-core";
+import {VoltaPosition} from "../../../deciphony-core/src";
 
-export function voltaRect(volta: Volta, musicScore: MusicScore, voltaPosition, componentWidth: number, componentHeight: number) {
+export function voltaRect(volta: Volta, musicScore: MusicScore, voltaPosition: VoltaPosition, componentWidth: number, componentHeight: number) {
 
     const startMeasure = getTarget(volta.startTargetId, musicScore.map)
     const endMeasure = getTarget(volta.endTargetId, musicScore.map)
@@ -31,7 +33,7 @@ export function voltaRect(volta: Volta, musicScore: MusicScore, voltaPosition, c
     voltaPosition.endPoint.y = voltaPosition.startPoint.y + musicScore.measureHeight
 }
 
-export function slurRect(slur: Slur, musicScore: MusicScore, slurPosition, componentWidth: number, componentHeight: number) {
+export function slurRect(slur: Slur, musicScore: MusicScore, slurPosition: SlurPosition, componentWidth: number, componentHeight: number) {
 
     const startNoteHead = getTarget(slur.startTargetId, musicScore.map)
     const endNoteHead = getTarget(slur.endTargetId, musicScore.map)

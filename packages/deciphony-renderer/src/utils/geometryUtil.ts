@@ -1,8 +1,8 @@
 // 复合性aspectRatiao获取
 
 
-import {MsSymbol} from "../../../deciphony-core/src/types";
-import {MsSymbolTypeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+import {MsSymbol} from "deciphony-core";
+import {MsSymbolTypeEnum} from "deciphony-core";
 import {MsSymbolInformationMap} from "@/constant";
 import {MusicScore} from "deciphony-core";
 

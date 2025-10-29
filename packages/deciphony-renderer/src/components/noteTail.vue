@@ -10,8 +10,8 @@ import {
     NoteHead,
     NoteTail,
     type SingleStaff
-} from "../../../deciphony-core/src/types";
-import {ChronaxieEnum, MsSymbolTypeEnum} from "../../../deciphony-core/src/musicScoreEnum";
+} from "deciphony-core";
+import {ChronaxieEnum, MsSymbolTypeEnum} from "deciphony-core";
 
 
 import {getMsSymbolHeight} from "../utils/heightUtil";
@@ -32,12 +32,10 @@ const props = defineProps({
         required: true
     },
     preContainer: {
-        type: Object as PropType<MsSymbolContainer | undefined>,
-        required: true
+        type: Object as PropType<MsSymbolContainer | null>,
     },
     nextContainer: {
-        type: Object as PropType<MsSymbolContainer | undefined>,
-        required: true
+        type: Object as PropType<MsSymbolContainer | null>,
     },
     msSymbolContainer: {
         type: Object as PropType<MsSymbolContainer>,

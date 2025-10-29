@@ -1,6 +1,6 @@
 {
   "name": "deciphony-player",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "",
   "type": "module",
   "files": [
@@ -20,7 +20,7 @@
     "prepublishOnly": "npm version patch"
   },
   "peerDependencies": {
-    "deciphony-core": "^0.0.15"
+    "deciphony-core": "latest"
   },
   "keywords": [],
   "author": "",

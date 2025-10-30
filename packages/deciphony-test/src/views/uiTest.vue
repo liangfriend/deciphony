@@ -226,7 +226,8 @@ function downloadJson(json, filename) {
     <div style="margin-top:300px">
         <ds-keyboard v-show="false" :config="[{code:KeyCodeEnum.F6,showText:'FF'}]" height="216.66px"
                      width="781.666px"></ds-keyboard>
-        <ds-piano></ds-piano>
+        <ds-piano v-show="false"></ds-piano>
+        <ds-piano-waterfall>as</ds-piano-waterfall>
     </div>
 
 </template>

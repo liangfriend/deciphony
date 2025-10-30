@@ -1,6 +1,7 @@
 import {ToneColor, ToneDuration, ToneSequence} from "../types/types";
 import {ChronaxieEnum, TimeSignature} from "deciphony-core";
 import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
+import {PauseModeEnum} from "../types/enum";
 
 /*
 * 传入音色（一系列不同音高的音频文件）播放
@@ -8,16 +9,16 @@ import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
 class TonePlayer {
     context: AudioContext; // 音频上下文
     gainNode: GainNode; // 增益节点
-    private _state: 'stopped' | 'playing' | 'paused' = 'stopped';
-    private _curPlayingSource: AudioBufferSourceNode | undefined // 当前正在播放序列的的音频源，只用于序列播放
     pauseIndex: number = 0;
-    private _toneColor: ToneColor = {};
     bpm: number = 120;
-    private timer: number | NodeJS.Timeout = 0;
     timeSignature: TimeSignature = {
         beat: 4,
         chronaxie: ChronaxieEnum.quarter
     }
+    private _state: 'stopped' | 'playing' | 'paused' = 'stopped';
+    private _curPlayingSource: AudioBufferSourceNode | undefined // 当前正在播放序列的的音频源，只用于序列播放
+    private _toneColor: ToneColor = {};
+    private timer: number | NodeJS.Timeout = 0;
 
     constructor() {
         this.context = new AudioContext()
@@ -84,10 +85,11 @@ class TonePlayer {
 
     }
 
-    pauseSequence(sequence: ToneSequence[]) {
+    // 暂停模式 目前暂停，只支持从下一个音符恢复播放
+    pauseSequence(pausemode: PauseModeEnum = PauseModeEnum.NextBeginning) {
         this._state = 'paused';
         clearTimeout(this.timer);
-        // 不可以直接release,要等当前声音播放完成
+        // 目前只支持NextBeginning模式，暂停后当前音符声音会播放完
     }
 
     stopSequence(options?: {
@@ -123,10 +125,15 @@ class TonePlayer {
             return
         }
 
-        const item = sequence[index]
-        const time = toneDurationToTimestamp(item.duration, this.bpm)
+        const item: ToneSequence = sequence[index]
+        let time = 0
+        if ('second' in item) {
+            time = item.second
+        } else if ('duration' in item) {
+            time = toneDurationToTimestamp(item.duration, this.bpm)
+        }
         if (item.type === 'note') {
-            this._curPlayingSource = await this.tap(item.tone, item.duration)
+            this._curPlayingSource = await this.tap(item.tone, time)
             this.timer = setTimeout(() => {
                 // 结束事件
                 this.step(sequence, index + 1);
@@ -146,13 +153,13 @@ class TonePlayer {
         }
     }
 
-    async tap(tone: string | number, duration: ToneDuration) {
+    async tap(tone: string | number, delay: ToneDuration | number) {
         const source = await this.trigger(tone, true)
         if (!source) {
             console.error("source不存在，tap失败，请检查是否正确传入toneColor")
             return
         }
-        const timeStamp = toneDurationToTimestamp(duration, this.bpm)
+        const timeStamp = typeof delay === 'number' ? delay : toneDurationToTimestamp(delay, this.bpm)
         setTimeout(() => {
             this.release(source)
         }, timeStamp)

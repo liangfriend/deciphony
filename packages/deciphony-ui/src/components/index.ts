@@ -7,10 +7,12 @@ import DsBgAudioPlayer from './ds-bg-audio-player';
 import DsWhiteboard from './ds-whiteboard';
 import DsKeyboard from './ds-keyboard';
 import DsPiano from './ds-piano';
+import DsPerformEvaluation from "./ds-perform-evaluation/index.vue";
+import DsPianoWaterfall from "./ds-piano-waterfall/index";
 
 // 所有组件列表
 const components = [DsVideo, DsIcon, DsProgressBar, DsModelBox, DsFloatingWindow, DsBgAudioPlayer, DsWhiteboard, DsKeyboard,
-    DsPiano];
+    DsPiano, DsPianoWaterfall, DsPerformEvaluation];
 
 export {
     DsVideo,
@@ -21,7 +23,9 @@ export {
     DsBgAudioPlayer,
     DsWhiteboard,
     DsKeyboard,
-    DsPiano
+    DsPiano,
+    DsPianoWaterfall,
+    DsPerformEvaluation
 };
 
 export default components;

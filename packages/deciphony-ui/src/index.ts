@@ -9,7 +9,9 @@ import components, {
     DsVideo,
     DsWhiteboard,
     DsKeyboard,
-    DsPiano
+    DsPiano,
+    DsPianoWaterfall,
+    DsPerformEvaluation
 } from './components';
 
 export default {
@@ -29,7 +31,9 @@ export {
     DsBgAudioPlayer,
     DsWhiteboard,
     DsKeyboard,
-    DsPiano
+    DsPiano,
+    DsPianoWaterfall,
+    DsPerformEvaluation
 };
 
 export {KeyCodeEnum} from './types/enum'

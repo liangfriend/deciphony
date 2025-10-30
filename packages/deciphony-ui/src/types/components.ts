@@ -10,6 +10,8 @@ declare module 'vue' {
         DsWhiteboard: (typeof import('deciphony-ui'))['DsWhiteboard'];
         DsKeyboard: (typeof import('deciphony-ui'))['DsKeyboard'];
         DsPiano: (typeof import('deciphony-ui'))['DsPiano'];
+        DsPianoWaterfall: (typeof import('deciphony-ui'))['DsPianoWaterfall'];
+        DsPerformEvaluation: (typeof import('deciphony-ui'))['DsPerformEvaluation'];
     }
 
     // interface ComponentCustomProperties {

@@ -6,6 +6,7 @@ export type Base64 = string
 export type ToneColor = Record<string, Base64>;
 
 export type ToneDuration = `${ChronaxieEnum}${DotEnum}`
+// second和duration不能同时存在
 export type ToneSequence = {
     type: 'note'
     tone: string | number,
@@ -14,6 +15,14 @@ export type ToneSequence = {
 } | {
     type: 'rest',
     duration: ToneDuration,
+} | {
+    type: 'note'
+    tone: string | number,
+    volume: number,// 0~1
+    second: number, // 秒
+} | {
+    type: 'rest',
+    second: number, // 秒
 };
 export type Envelope = {}
 

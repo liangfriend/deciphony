@@ -22,7 +22,6 @@ class DesolateWindProcessor extends AudioWorkletProcessor {
         const freqValues = parameters.frequency;
         // 气压转化为力度
         const volValues = parameters.airPressure;
-        console.log('chicken', volValues)
         const sampleRate = globalThis.sampleRate;
         const twoPi = 2 * Math.PI;
         for (let channel = 0; channel < output.length; ++channel) {

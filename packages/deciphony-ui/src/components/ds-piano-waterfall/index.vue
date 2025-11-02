@@ -5,6 +5,7 @@ import {AccidentalEnum, midiToNoteName, noteNameToHelmholtz, noteNameToNoteStrin
 import vDrag from '../../directivces/drag';
 import {KeyCodeEnum} from "../../types/enum";
 import {defaultCodeConfig} from "../../utils/constant";
+import {HighlightPolicy} from "@/types/types";
 
 defineOptions({
   name: 'DsPianoWaterfall'
@@ -347,18 +348,7 @@ const midiEventContainerStyle = computed((): CSSProperties => {
 /*
 * 事件
 * */
-// 高亮策略
-interface HighlightPolicy {
-  /** 是否允许重复触发同一音符高亮 */
-  allowRepeat: boolean
 
-  /** 若提前多少毫秒按下，不触发高亮（例如为了防止提前触键） */
-  startTriggerThreshold: number
-
-  /** 若超过音符区间多少毫秒秒还没按下，是否仍允许触发 */
-  postTriggerThreshold: number
-
-}
 
 const defaultHighlightPolicy: HighlightPolicy = {
   allowRepeat: false, // 有了后两个触发时间的限制，这个暂时可以不要，现在无实际功能
@@ -507,6 +497,11 @@ function stop() {
   currentTime.value = 0
 }
 
+/* 清空已激活数据 */
+function clearActiveParts() {
+  activeParts.value = new Map<number, Array<Array<number>>>()
+}
+
 /** 动画循环 */
 function requestFrame() {
   rafId = requestAnimationFrame((timestamp) => {
@@ -529,7 +524,8 @@ function requestFrame() {
 defineExpose({
   play,
   pause,
-  stop
+  stop,
+  clearActiveParts
 })
 </script>
 

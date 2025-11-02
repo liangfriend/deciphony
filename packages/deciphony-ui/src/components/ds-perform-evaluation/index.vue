@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import {computed, CSSProperties, onBeforeUnmount, onMounted, PropType, ref} from 'vue'
 import {parseAndFormatDimension} from '../../utils/commonUtil'
-import {AccidentalEnum, midiToNoteName, noteNameToHelmholtz, noteNameToNoteString} from "deciphony-core";
-import vDrag from '../../directivces/drag';
 import {KeyCodeEnum} from "../../types/enum";
 import {defaultCodeConfig} from "../../utils/constant";
-import {min} from "three/src/nodes/math/MathNode";
-import {string} from "three/src/nodes/shadernode/ShaderNode";
+import {HighlightPolicy} from "@/types/types";
 
 defineOptions({
   name: 'DsPerformEvaluation'
@@ -219,18 +216,7 @@ const midiEventContainerStyle = computed((): CSSProperties => {
 /*
 * 事件
 * */
-// 高亮策略
-interface HighlightPolicy {
-  /** 是否允许重复触发同一音符高亮 */
-  allowRepeat: boolean
 
-  /** 若提前多少毫秒按下，不触发高亮（例如为了防止提前触键） */
-  startTriggerThreshold: number
-
-  /** 若超过音符区间多少毫秒秒还没按下，是否仍允许触发 */
-  postTriggerThreshold: number
-
-}
 
 const defaultHighlightPolicy: HighlightPolicy = {
   allowRepeat: false, // 有了后两个触发时间的限制，这个暂时可以不要，现在无实际功能
@@ -389,7 +375,7 @@ defineExpose({
 </script>
 
 <template>
- 
+
   <div :style="pianoWaterfallContainerStyle" class="hide-scrollbar stack" comment="滚动容器">
     <div :style="waterfallStyle" class="stackItem" comment="瀑布流容器">
       <div

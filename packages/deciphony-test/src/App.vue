@@ -8,9 +8,9 @@ import PlayerTest from "./views/playerTest.vue";
 
 <template>
 
-  <!--  <ui-test></ui-test>-->
-  <render-test></render-test>
-  <!--    <electron-message></electron-message>-->
+  <ui-test></ui-test>
+  <!--  <render-test></render-test>-->
+  <!--    <electron-message></ele/ctron-message>-->
   <!--    <test></test>-->
   <!--    <player-test></player-test>-->
 

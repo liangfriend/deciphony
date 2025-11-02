@@ -133,3 +133,12 @@ export enum KeyCodeEnum {
     MediaTrackPrevious = 'MediaTrackPrevious',
     MediaPlayPause = 'MediaPlayPause'
 }
+
+export enum BoxType {
+    Instrument = 'Instrument',
+    Normal = 'Normal'
+}
+
+export enum ModelEnum {
+    Xiao = 'Xiao',
+}

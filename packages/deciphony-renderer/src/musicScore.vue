@@ -54,7 +54,7 @@ const props = defineProps({
   },
   width: {
     type: Number,
-    default: 1000,
+    default: 100,
   },
   height: {
     type: Number,
@@ -406,7 +406,6 @@ defineExpose<MusicScoreRef>({
           ></virtual-symbol-container>
           <virtual-symbol-container
               v-for="(msSymbolContainer,symbolIndex) in variableContainerArray(measure)"
-
               :key="'virtual-symbol'+symbolIndex"
               :componentHeight="height"
               :componentWidth="width"

@@ -1,12 +1,11 @@
 import {App} from 'vue';
-import './types/components';
 import components, {
-    DsBgAudioPlayer,
-    DsFloatingWindow,
-    DsIcon,
-    DsModelBox,
-    DsProgressBar,
     DsVideo,
+    DsIcon,
+    DsProgressBar,
+    DsModelBox,
+    DsFloatingWindow,
+    DsBgAudioPlayer,
     DsWhiteboard,
     DsKeyboard,
     DsPiano,
@@ -16,12 +15,13 @@ import components, {
 
 export default {
     install(app: App) {
-        components.forEach((c) => {
-            app.component(c.name!, c);
-        });
-    }
-};
-
+        Object.entries(components).forEach(([name, component]) => {
+            // 允许组件定义了自定义 name 时用它，否则用导入名
+            const compName = (component as any).name || name
+            app.component(compName, component as any)
+        })
+    },
+}
 export {
     DsVideo,
     DsIcon,
@@ -35,5 +35,5 @@ export {
     DsPianoWaterfall,
     DsPerformEvaluation
 };
-
-export {KeyCodeEnum} from './types/enum'
+export * from './types/enum';
+export * from './types/types'

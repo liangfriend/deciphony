@@ -18,6 +18,7 @@ import {AddElementOptions} from "./types";
 import {whiteBoardState} from "./enum";
 import TransformShell from "./transformShell.vue";
 import {getRotationAngleFromMatrix, parseAndFormatDimension} from "../../utils/commonUtil";
+import {ElementSerializedData, WhiteboardSerializedData} from "@/types/types";
 
 defineOptions({
   name: 'DsWhiteboard' // 给组件一个全局 name
@@ -53,33 +54,6 @@ const props = defineProps({
   }
 });
 
-interface ElementSerializedData {
-  id: string;
-  type: string;
-  transform: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    angle: number;
-  };
-  data: any;
-  version?: string;
-}
-
-interface WhiteboardSerializedData {
-  version: string;
-  elements: ElementSerializedData[];
-  floatBoard: {
-    width: number;
-    height: number;
-    position: string;
-  };
-  metadata: {
-    createdAt: number;
-    updatedAt: number;
-  };
-}
 
 // 存储元素序列化数据的Map
 const elementDataMap = new Map<string, ElementSerializedData>();

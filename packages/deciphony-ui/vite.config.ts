@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import dts from 'vite-plugin-dts';
 import {viteStaticCopy} from 'vite-plugin-static-copy';
-// https://vitejs.dev/config/
+
 export default defineConfig({
     plugins: [
         // 启用 Vue 支持（支持 .vue 文件编译）
@@ -23,7 +23,8 @@ export default defineConfig({
                     dest: '' // 复制到 dist/assets（默认拷贝到 dist 根目录下）
                 }
             ]
-        })
+        }),
+        
     ],
     // 本地开发服务器配置
     server: {

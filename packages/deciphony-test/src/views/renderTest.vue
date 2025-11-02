@@ -36,6 +36,7 @@ import RestFunction from "./editor/components/rightTools/restFunction.vue";
 
 import MusicScoreVue, {MsSymbolInformationMap, MusicScoreRef,} from "deciphony-renderer";
 import {skin_bamboo} from "./editor/skins";
+import happyBirthdayToYou from "../musicScoreData/happyBirthdayToYou";
 
 type addedWb = {
   getMsRef: () => UnwrapRef<MusicScoreRef>
@@ -173,8 +174,8 @@ function add() {
 }
 
 onMounted(() => {
-
-  addMsSymbolQuickly()
+  musicScoreData.value = happyBirthdayToYou
+  // addMsSymbolQuickly()
   // addMsSymbolQuickly()
   // addMsSymbolQuickly()
   // addMsSymbolQuickly()
@@ -184,7 +185,7 @@ onMounted(() => {
 
   // jianxianSwitch()
   // 更换符号皮肤
-  msRef.value.setSkin(skin_bamboo.value)
+  // msRef.value.setSkin(skin_bamboo.value)
 });
 
 function test() {

@@ -21,7 +21,8 @@ export default defineConfig({
             'deciphony-core': path.resolve(__dirname, './node_modules/deciphony-core/src/index.ts'),
             'deciphony-core/utils/*': path.resolve(__dirname, './node_modules/deciphony-core/src/utils/*'),
             '@assets': path.resolve(__dirname, './node_modules/deciphony-ui/src/assets'),
-            '@': path.resolve(__dirname, './node_modules/deciphony-renderer/src'),
+            // '@': path.resolve(__dirname, './node_modules/deciphony-renderer/src'),
+            '@': path.resolve(__dirname, './node_modules/deciphony-ui/src'),
         }
     },
 

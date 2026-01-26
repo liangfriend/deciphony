@@ -1,7 +1,7 @@
 // main.ts
 import {createApp} from 'vue'
 import App from './App.vue'
-import DsUI from 'deciphony-ui'
+// import DsUI from 'deciphony-ui'
 // import 'deciphony-ui/css'
 import './style.css'
 import ElementPlus from 'element-plus'
@@ -9,7 +9,7 @@ import 'element-plus/dist/index.css'
 
 const app = createApp(App)
 app.use(ElementPlus)
-app.use(DsUI)
+// app.use(DsUI)
 
 // // 显示更详细的警告堆栈
 // app.config.warnHandler = (msg, instance, trace) => {

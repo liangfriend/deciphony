@@ -1,7 +1,21 @@
-// 曲谱展示模式
-export enum MusicScoreShowModeEnum {
-    standardStaff = 1,        // 五线谱
-    numberNotation,      // 简谱（数字谱）
-    rhythmNotation,      // 节奏谱（主要显示节奏）
-    percussion,          //  打击乐谱（可选）
+export enum NoteSymbolTypeEnum {
+    Note = 1, // 音符
+    Rest // 休止符
+}
+
+// 跨小节符号类型
+export enum SpanSymbolTypeEnum {
+    DoubleNote = 1, // 双音符型 如连音线、通过起始，结束音符定位   符杠beam不属于跨小节符号，beam属于一种特殊逻辑
+    DoubleMeasure// 双小节型 如volta(反复房子符号) 通过起始，结束小节定位
+}
+
+// 跨小节符号名称
+export enum SpanSymbolNameEnum {
+    Volta = 1,
+    slur,
+}
+
+// 附属型符号名称
+export enum AffiliatedSymbolNameEnum {
+
 }

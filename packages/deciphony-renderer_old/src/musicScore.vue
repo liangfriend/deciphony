@@ -79,8 +79,8 @@ function setSkin(newSkin: Record<string, { url: string; }>) {
   svgSkin.value = newSkin
 }
 
-const skinKey = computed(() => {
-  return svgSkin.value?.skinKey?.url
+const tag = computed(() => {
+  return svgSkin.value?.tag?.url
 })
 
 // 是否与其它音连成组
@@ -286,7 +286,7 @@ defineExpose<MusicScoreRef>({
   switchShowMode,
   setSkin,
   resetSkin,
-  skinKey,
+  tag,
 })
 </script>
 <template>

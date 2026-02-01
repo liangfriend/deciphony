@@ -31,7 +31,7 @@
     "useUnknownInCatchVariables": true,
     "paths": {
       "deciphony-renderer": [
-        "node_modules/deciphony-renderer/src/index.ts"
+        "../deciphony-renderer/src/index.ts"
       ],
       "deciphony-player": [
         "node_modules/deciphony-player/src/index.ts"

@@ -137,7 +137,7 @@ import {computed, ref} from "vue";
 
 export function useSkin() {
     const originSvgSkin = ref<Record<string, { url: string }>>({
-        skinKey: {url: 'origin'},
+        tag: {url: 'origin'},
         // 数字
         number_1: {url: number_1},
         number_2: {url: number_2},
@@ -267,7 +267,7 @@ export function useSkin() {
 
     // 是否为初始皮肤
     const isOriginSkin = computed(() => {
-        return svgSkin.value.skinKey?.url === 'origin'
+        return svgSkin.value.tag?.url === 'origin'
     })
     const svgSkin = ref<Record<string, { url: string }>>(originSvgSkin.value)
     return {

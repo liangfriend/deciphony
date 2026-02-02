@@ -5,24 +5,25 @@
 
       <Group v-if="node.tag !== 'slot' || !node.slotName" :node="node" :skin="skin"/>
       <g
-        v-else
-        :data-comment="node.dataComment"
-        :data-slot-name="node.slotName"
-        :transform="`translate(${node.x}, ${node.y})`"
+          v-else
+          :data-comment="node.dataComment"
+          :data-slot-name="node.slotName"
+          :transform="`translate(${node.x}, ${node.y})`"
 
       >
         <slot :name="node.slotName" v-bind="{ node }">
           <rect
-            :height="node.h"
-            :width="node.w"
-            data-comment="插槽占位虚线"
-            data-test
-            fill="none"
-            stroke="#ddd"
-            stroke-dasharray="4"
-            stroke-width="1"
-            x="0"
-            y="0"
+              v-if="false"
+              :height="node.h"
+              :width="node.w"
+              data-comment="插槽占位虚线"
+              data-test
+              fill="none"
+              stroke="#ddd"
+              stroke-dasharray="4"
+              stroke-width="1"
+              x="0"
+              y="0"
           />
         </slot>
       </g>
@@ -50,10 +51,10 @@ const skin = defaultSkin
 
 // data 或 slotConfig 变化时重新计算 vDom
 watch(
-  [data, () => props.slotConfig],
-  ([d, slotConfig]) => {
-    vDom.value = d ? musicScoreToVDom(d, slotConfig) : []
-  },
-  {immediate: true}
+    [data, () => props.slotConfig],
+    ([d, slotConfig]) => {
+      vDom.value = d ? musicScoreToVDom(d, slotConfig) : []
+    },
+    {immediate: true}
 )
 </script>

@@ -26,16 +26,25 @@ const comment = computed(() => {
       return ''
   }
 })
+
+const handleSkin = computed(() => {
+  return (skin: string, node: VDom) => {
+    if (!skin) return ''
+    let temp = skin
+    temp = temp.replaceAll('node.w', '' + node.w).replaceAll('node.h', '' + node.h)
+    return temp
+  }
+})
 </script>
 
 <template>
   <g
-    :data-comment="comment"
-    :data-slot-name="node.slotName"
+      :data-comment="comment"
+      :data-slot-name="node.slotName"
 
-    :data-tag="node.tag"
-    :transform="`translate(${node.x}, ${node.y})`"
-    v-html="node.tag ? skin[node.tag]: ''"
+      :data-tag="node.tag"
+      :transform="`translate(${node.x}, ${node.y})`"
+      v-html="node.tag ? handleSkin(skin[node.tag],node): ''"
   >
 
   </g>

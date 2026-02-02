@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue'
 import {VDom, Skin} from "@/types/common";
 
@@ -30,20 +30,19 @@ const comment = computed(() => {
 
 <template>
   <g
-      :data-comment="comment"
-      :transform="`translate(${node.x}, ${node.y})`"
+    :data-comment="comment"
+    :data-slot-name="node.slotName"
 
-      :data-tag="node.tag"
-      :data-slot-name="node.slotName"
+    :data-tag="node.tag"
+    :transform="`translate(${node.x}, ${node.y})`"
   >
     <rect
-        v-if="node.tag === 'grandStaff' || node.tag === 'singleStaff'"
-        x="0"
-        y="0"
-        :width="node.w"
-        :height="node.h"
-        fill="none"
-        stroke="transparent"
+      :height="node.h"
+      :width="node.w"
+      fill="none"
+      stroke="transparent"
+      x="0"
+      y="0"
     />
   </g>
 </template>

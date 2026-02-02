@@ -22,10 +22,10 @@ export type GrandStaff = {
 
 export type SingleStaff = {
   measures: Measure[], // 小节
-  uSpaceU: number,  // 单谱表上间距-外
+  uSpaceO: number,  // 单谱表上间距-外
   uSpaceI: number,  // 单谱表上间距-内
   dSpaceI: number,  // 单谱表下间距-内
-  dSpaceU: number,  // 单谱表下间距-外
+  dSpaceO: number,  // 单谱表下间距-外
 } & Frame
 
 export type Measure = {

@@ -4,8 +4,8 @@
  * 小节及更细部分由调用方处理（m 插槽处预留空间）
  */
 
-import {VDom, SlotName, SlotConfig} from "@/types/common";
-import {MusicScore} from "@/types/MusicScoreType";
+import {VDom, SlotName, SlotConfig, Frame} from "@/types/common";
+import {MusicScore, SingleStaff} from "@/types/MusicScoreType";
 import {MEASURE_HEIGHT} from "@/standardStaff/constant";
 
 function getSlotH(config: SlotConfig | undefined, name: SlotName): number {
@@ -26,10 +26,12 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
   const config = slotConfig ?? {};
   const vDoms: VDom[] = [];
 
-  const fLeftW = getSlotW(config, 'f-left');
-  const fRightW = getSlotW(config, 'f-right');
-  const grandStaffX = fLeftW;
-  const grandStaffW = width - fLeftW - fRightW;
+  const gLW = getSlotW(config, 'g-l');
+  const gRW = getSlotW(config, 'g-r');
+  const sLW = getSlotW(config, 's-l');
+  const sRW = getSlotW(config, 's-r');
+  const grandStaffX = gLW + sLW;
+  const grandStaffW = width - gLW - gRW - sLW - sRW;
 
   const gUH = getSlotH(config, 'g-u');
   const gDH = getSlotH(config, 'g-d');
@@ -37,54 +39,56 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
   const sDH = getSlotH(config, 's-d');
   const mUH = getSlotH(config, 'm-u');
   const mDH = getSlotH(config, 'm-d');
-
+  // 当前累加的y值总值
   let scoreCurrentY = 0;
-
+  // 遍历复谱表
   for (const grandStaff of grandStaffs) {
+    //复谱表内y值开始值
     const grandStaffStartY = scoreCurrentY;
 
-    // f-left 插槽（先占位，高度稍后补全）
-    if (fLeftW > 0) {
-      vDoms.push({
+    // g-l 插槽（先占位，高度稍后补全）
+    let glSlot: VDom = {} as VDom
+    if (gLW > 0) {
+      glSlot = {
         x: 0,
         y: grandStaffStartY,
-        w: fLeftW,
-        h: 0, // 临时，下方补全
+        w: gLW,
+        h: 0, // 高度下方补全
         zIndex: 1000,
         tag: 'slot',
-        slotName: 'f-left',
-        dataComment: 'f-left插槽',
-      });
+        slotName: 'g-l',
+        dataComment: 'g-l插槽',
+      }
+      vDoms.push(glSlot);
     }
-
-    // f-right 插槽
-    if (fRightW > 0) {
-      vDoms.push({
-        x: width - fRightW,
+    let grSlot: VDom = {} as VDom
+    // g-r 插槽
+    if (gRW > 0) {
+      grSlot = {
+        x: width - gRW,
         y: grandStaffStartY,
-        w: fRightW,
-        h: 0,
+        w: gRW,
+        h: 0, // 高度下方补全
         zIndex: 1000,
         tag: 'slot',
-        slotName: 'f-right',
-        dataComment: 'f-right插槽',
-      });
+        slotName: 'g-r',
+        dataComment: 'g-r插槽',
+      }
+      vDoms.push(grSlot);
     }
-
+    // 复谱表y值当前累加到的值
     let grandStaffCurrentY = grandStaffStartY;
-
-    // 复谱表容器 vDom（先占位，高度稍后补全）
-    const grandStaffVDom: VDom = {
+    // 复谱表上边距
+    vDoms.push({
       x: grandStaffX,
-      y: grandStaffStartY,
+      y: grandStaffCurrentY,
       w: grandStaffW,
-      h: 0,
+      h: grandStaff.uSpace,
       zIndex: 1000,
-      tag: 'grandStaff',
-      dataComment: '复谱表',
-    };
-    vDoms.push(grandStaffVDom);
-
+      tag: 'space',
+      dataComment: '复谱表上边距',
+    });
+    grandStaffCurrentY += grandStaff.uSpace
     // g-u 插槽
     vDoms.push({
       x: grandStaffX,
@@ -97,146 +101,208 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
       dataComment: 'g-u插槽',
     });
     grandStaffCurrentY += gUH;
-
-    // 间距插槽高度由复谱表/单谱表的 uSpace、dSpace 决定
-    const sUSpaceH = grandStaff.uSpace  // s-u-space 宽高=复谱表u-space
-    const sDSpaceH = grandStaff.dSpace  // s-d-space 宽高=复谱表d-space
-
+    // 遍历单谱表
     for (let i = 0; i < grandStaff.staves.length; i++) {
+      //单谱表内y值开始值
+      const singleStaffStartY = grandStaffStartY + grandStaffCurrentY;
       const staff = grandStaff.staves[i];
-      const staffUSpace = staff.uSpace
-      const staffDSpace = staff.dSpace
-      const mUSpaceH = staff.uSpace  // m-u-space 宽高=单谱表u-space
-      const mDSpaceH = staff.dSpace  // m-d-space 宽高=单谱表d-space
-
-      // 单谱表容器 vDom（高度=各插槽之和，顺序：s-u-space, s-u, m-u-space, m-u, m, m-d, m-d-space, s-d, s-d-space）
-      const singleStaffH = sUH + mUSpaceH + mUH + MEASURE_HEIGHT + mDH + mDSpaceH + sDH
-      vDoms.push({
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: grandStaffW,
-        h: singleStaffH,
+      // 单谱表上下内边距高度
+      const staffUSpaceI = staff.uSpaceI
+      const staffDSpaceI = staff.dSpaceI
+      // 单谱表上下外边距高度
+      const staffUSpaceO = staff.uSpaceO
+      const staffDSpaceO = staff.dSpaceO
+      const slSlot: VDom = {
+        x: gLW,
+        y: singleStaffStartY,
+        w: sLW,
+        h: 0, // 高度稍后补全
         zIndex: 1000,
-        tag: 'singleStaff',
-        dataComment: '单谱表',
-      });
-
-      // s-u-space（尺寸=复谱表u-space）
-      vDoms.push({
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: grandStaffW,
-        h: sUSpaceH,
+        tag: 'space',
+        dataComment: 's-l插槽'
+      }
+      // s-l插槽
+      vDoms.push(slSlot);
+      const srSlot: VDom = {
+        x: width - gLW - gRW,
+        y: singleStaffStartY,
+        w: sLW,
+        h: 0, // 高度稍后补全
         zIndex: 1000,
-        tag: 'slot',
-        slotName: 's-u-space',
-        dataComment: 's-u-space插槽',
-      });
-      grandStaffCurrentY += sUSpaceH;
-
-      // s-u
+        tag: 'space',
+        dataComment: 's-r插槽'
+      }
+      // s-r插槽
+      vDoms.push(srSlot);
+      // 单谱表上外边距
       vDoms.push({
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
-        h: staffUSpace,
+        h: staffUSpaceO,
+        zIndex: 1000,
+        tag: 'space',
+        dataComment: '单谱表上外边距'
+      });
+      grandStaffCurrentY += staffUSpaceO;
+
+      // s-u插槽
+      vDoms.push({
+        x: grandStaffX,
+        y: grandStaffCurrentY,
+        w: grandStaffW,
+        h: sUH,
         zIndex: 1000,
         tag: 'slot',
         slotName: 's-u',
         dataComment: 's-u插槽',
       });
-      grandStaffCurrentY += staffUSpace;
+      grandStaffCurrentY += sUH;
 
-      // m-u-space（尺寸=单谱表u-space）
+
+      // 当前积累的横向宽度
+      let measureCurrentX = grandStaffX
+      for (let i = 0; i < staff.measures.length; i++) {
+        const measure = staff.measures[i];
+        // 获取小节宽度
+        const measureWdith = getMeasureWidth({staff, grandStaffWidth: grandStaffW})
+        // m-u小节上插槽
+        vDoms.push({
+          x: measureCurrentX,
+          y: grandStaffCurrentY,
+          w: measureWdith,
+          h: mUH,
+          zIndex: 1000,
+          tag: 'slot',
+          slotName: 'm-u',
+          dataComment: 'm-u插槽',
+        });
+        measureCurrentX += measureWdith
+      }
+      grandStaffCurrentY += mUH
+
+      // 下面小节要复用，所以重置为grandStaffX
+      measureCurrentX = grandStaffX
+
+      // 单谱表上内边距
       vDoms.push({
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
-        h: mUSpaceH,
+        h: staffUSpaceI,
         zIndex: 1000,
-        tag: 'slot',
-        slotName: 'm-u-space',
-        dataComment: 'm-u-space插槽',
+        tag: 'space',
+        dataComment: '单谱表上内边距'
       });
-      grandStaffCurrentY += mUSpaceH;
+      grandStaffCurrentY += staffUSpaceI;
 
-      // m-u
-      vDoms.push({
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: grandStaffW,
-        h: mUH,
-        zIndex: 1000,
-        tag: 'slot',
-        slotName: 'm-u',
-        dataComment: 'm-u插槽',
-      });
-      grandStaffCurrentY += mUH;
+      // 小节
+      for (let i = 0; i < staff.measures.length; i++) {
+        const measure = staff.measures[i];
+        // 获取小节宽度
+        const measureWdith = getMeasureWidth({staff, grandStaffWidth: grandStaffW})
+        // m-u小节上插槽
+        vDoms.push({
+          x: measureCurrentX,
+          y: grandStaffCurrentY,
+          w: measureWdith,
+          h: MEASURE_HEIGHT,
+          zIndex: 1000,
+          tag: 'measure',
+          dataComment: '小节',
+        });
+        measureCurrentX += measureWdith
+      }
+      // 小节插槽是覆盖上去的，所以不会增加grandStaffCurrentY
 
-      // m 小节区域：预留 MEASURE_HEIGHT，由调用方填充内容
-      vDoms.push({
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: grandStaffW,
-        h: MEASURE_HEIGHT,
-        zIndex: 1000,
-        tag: 'slot',
-        slotName: 'm',
-        dataComment: '小节',
-      });
+
+      // 下面小节要复用，所以重置为grandStaffX
+      measureCurrentX = grandStaffX
+
+      // 小节插槽
+      for (let i = 0; i < staff.measures.length; i++) {
+        const measure = staff.measures[i];
+        // 获取小节宽度
+        const measureWdith = getMeasureWidth({staff, grandStaffWidth: grandStaffW})
+        // m小节插槽
+        vDoms.push({
+          x: measureCurrentX,
+          y: grandStaffCurrentY,
+          w: measureWdith,
+          h: MEASURE_HEIGHT,
+          zIndex: 1000,
+          tag: 'slot',
+          slotName: 'm',
+          dataComment: '小节插槽',
+        });
+        measureCurrentX += measureWdith
+      }
       grandStaffCurrentY += MEASURE_HEIGHT;
 
-      // m-d
-      vDoms.push({
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: grandStaffW,
-        h: mDH,
-        zIndex: 1000,
-        tag: 'slot',
-        slotName: 'm-d',
-        dataComment: 'm-d插槽',
-      });
-      grandStaffCurrentY += mDH;
+      // 下面小节要复用，所以重置为grandStaffX
+      measureCurrentX = grandStaffX
 
-      // m-d-space（尺寸=单谱表d-space，在 m 下方）
+      // 单谱表下内边距
       vDoms.push({
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
-        h: mDSpaceH,
+        h: staffDSpaceI,
         zIndex: 1000,
-        tag: 'slot',
-        slotName: 'm-d-space',
-        dataComment: 'm-d-space插槽',
+        tag: 'space',
+        dataComment: '单谱表下内边距'
       });
-      grandStaffCurrentY += mDSpaceH;
+      grandStaffCurrentY += staffDSpaceI;
 
-      // s-d
+      // 小节下插槽
+      for (let i = 0; i < staff.measures.length; i++) {
+        const measure = staff.measures[i];
+        // 获取小节宽度
+        const measureWdith = getMeasureWidth({staff, grandStaffWidth: grandStaffW})
+        // m-d小节下插槽
+        vDoms.push({
+          x: measureCurrentX,
+          y: grandStaffCurrentY,
+          w: measureWdith,
+          h: mDH,
+          zIndex: 1000,
+          tag: 'slot',
+          slotName: 'm-d',
+          dataComment: 'm-d插槽',
+        });
+        measureCurrentX += measureWdith
+      }
+      grandStaffCurrentY += mDH
+
+      // 没有用到的地方了，但还是重置一下，保持规范
+      measureCurrentX = grandStaffX
+
+      // s-d插槽
       vDoms.push({
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
-        h: staffDSpace,
+        h: sDH,
         zIndex: 1000,
         tag: 'slot',
         slotName: 's-d',
         dataComment: 's-d插槽',
       });
-      grandStaffCurrentY += staffDSpace;
+      grandStaffCurrentY += sDH;
 
-      // s-d-space（尺寸=复谱表d-space）
+      // 单谱表下外边距
       vDoms.push({
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
-        h: sDSpaceH,
+        h: staffDSpaceO,
         zIndex: 1000,
-        tag: 'slot',
-        slotName: 's-d-space',
-        dataComment: 's-d-space插槽',
+        tag: 'space',
+        dataComment: '单谱表下外边距'
       });
-      grandStaffCurrentY += sDSpaceH;
+      grandStaffCurrentY += staffDSpaceO;
+      slSlot.h = grandStaffCurrentY - singleStaffStartY
+      srSlot.h = grandStaffCurrentY - singleStaffStartY
     }
 
     // g-d 插槽
@@ -252,21 +318,37 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
     });
     grandStaffCurrentY += gDH;
 
+    // 复谱表下边距
+    vDoms.push({
+      x: grandStaffX,
+      y: grandStaffCurrentY,
+      w: grandStaffW,
+      h: grandStaff.dSpace,
+      zIndex: 1000,
+      tag: 'space',
+      dataComment: '复谱表下边距',
+    });
+    grandStaffCurrentY += grandStaff.dSpace
+
     const grandStaffH = grandStaffCurrentY - grandStaffStartY;
+    // 将当前复谱表y值更新到当前总值
+    // 这个总值目前还没有用到
     scoreCurrentY = grandStaffCurrentY;
 
-    grandStaffVDom.h = grandStaffH;
 
-    // 补全 f-left、f-right 的高度
-    if (fLeftW > 0) {
-      const fLeft = vDoms.find(v => v.slotName === 'f-left' && v.y === grandStaffStartY);
-      if (fLeft) fLeft.h = grandStaffH;
+    // 补全 g-l、g-r 的高度
+    if (gLW > 0) {
+      glSlot.h = grandStaffH
     }
-    if (fRightW > 0) {
-      const fRight = vDoms.find(v => v.slotName === 'f-right' && v.y === grandStaffStartY);
-      if (fRight) fRight.h = grandStaffH;
+    if (gRW > 0) {
+      grSlot.h = grandStaffH
     }
   }
 
   return vDoms;
+}
+
+function getMeasureWidth({staff, grandStaffWidth}: { staff: SingleStaff, grandStaffWidth: number }) {
+  // 暂时做成均分
+  return grandStaffWidth / staff.measures.length
 }

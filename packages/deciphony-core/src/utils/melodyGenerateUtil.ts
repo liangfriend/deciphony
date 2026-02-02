@@ -77,6 +77,14 @@ export function melodyGenerate(
     return result;
 }
 
+// 填充未完成的歌词
+export function melodyFix(lyrics: string,
+                          curMelody: Melody,
+                          timeSignature: TimeSignature,
+                          measureCount: number,) {
+
+}
+
 /**
  * 根据路径生成旋律
  *
@@ -86,20 +94,20 @@ export function melodyGenerate(
  * @param linePath 路径点数组 like [[1,1],[10,10]]
  * @param options {minMidi,maxMidi}
  */
-export function melodyGenerateByLine(
-    lyrics: string,
-    timeSignature: TimeSignature,
-    measureCount: number,
-    linePath: number[][],
-    options: {
-        minMidi: number,
-        maxMidi: number
-    }
-): Melody[][] {
-
-
-    return result;
-}
+// export function melodyGenerateByLine(
+//     lyrics: string,
+//     timeSignature: TimeSignature,
+//     measureCount: number,
+//     linePath: number[][],
+//     options: {
+//         minMidi: number,
+//         maxMidi: number
+//     }
+// ): Melody[][] {
+//
+//
+//     return result;
+// }
 
 // const ts: TimeSignature = {
 //     beat: 4,                    // 4/4 拍
@@ -109,19 +117,21 @@ export function melodyGenerateByLine(
 // const melody = melodyGenerate('我们后来的一起爱上对方爱上', ts, 2);
 // console.log(melody)
 
-const ts: TimeSignature = {
-    beat: 4,
-    chronaxie: ChronaxieEnum.quarter
-};
+// const ts: TimeSignature = {
+//     beat: 4,
+//     chronaxie: ChronaxieEnum.quarter
+// };
+//
+// const path = [[1, 1], [2, 5], [10, 4]];
+//
+// const melody = melodyGenerateByLine(
+//     "床前明月光",
+//     ts,
+//     2,
+//     path,
+//     {minMidi: 60, maxMidi: 72}
+// );
+//
+// console.log(JSON.stringify(melody, null, 2));
 
-const path = [[1, 1], [2, 5], [10, 4]];
 
-const melody = melodyGenerateByLine(
-    "床前明月光",
-    ts,
-    2,
-    path,
-    {minMidi: 60, maxMidi: 72}
-);
-
-console.log(JSON.stringify(melody, null, 2));

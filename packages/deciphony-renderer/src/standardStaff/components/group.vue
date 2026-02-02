@@ -35,14 +35,8 @@ const comment = computed(() => {
 
     :data-tag="node.tag"
     :transform="`translate(${node.x}, ${node.y})`"
+    v-html="node.tag ? skin[node.tag]: ''"
   >
-    <rect
-      :height="node.h"
-      :width="node.w"
-      fill="none"
-      stroke="transparent"
-      x="0"
-      y="0"
-    />
+
   </g>
 </template>

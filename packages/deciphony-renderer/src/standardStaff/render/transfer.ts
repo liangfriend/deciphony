@@ -6,7 +6,6 @@
 
 import {VDom, SlotName, SlotConfig, Frame} from "@/types/common";
 import {MusicScore, SingleStaff} from "@/types/MusicScoreType";
-import {MEASURE_HEIGHT} from "@/standardStaff/constant";
 
 function getSlotH(config: SlotConfig | undefined, name: SlotName): number {
     return config?.[name]?.h ?? 0;
@@ -20,10 +19,16 @@ function getSlotW(config: SlotConfig | undefined, name: SlotName): number {
  * 将 musicScore 转换为平铺的 vDom 列表
  * @param musicScore 曲谱数据（纯展示数据，不含插槽配置）
  * @param slotConfig 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关
+ * @param options 额外配置，目前只支持 measureHeight，用于控制小节高度
  */
-export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig): VDom[] {
+export function musicScoreToVDom(
+    musicScore: MusicScore,
+    slotConfig?: SlotConfig,
+    options?: { measureHeight?: number },
+): VDom[] {
     const {width, grandStaffs} = musicScore;
     const config = slotConfig ?? {};
+    const measureHeight = options?.measureHeight ?? 45; // 默认小节高度 45，对应默认皮肤
     const vDoms: VDom[] = [];
 
     const gLW = getSlotW(config, 'g-l');
@@ -206,7 +211,7 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
                     x: measureCurrentX,
                     y: grandStaffCurrentY,
                     w: measureWdith,
-                    h: MEASURE_HEIGHT,
+                    h: measureHeight,
                     zIndex: 1000,
                     tag: 'measure',
                     dataComment: '小节',
@@ -229,7 +234,7 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
                     x: measureCurrentX,
                     y: grandStaffCurrentY,
                     w: measureWdith,
-                    h: MEASURE_HEIGHT,
+                    h: measureHeight,
                     zIndex: 1000,
                     tag: 'slot',
                     slotName: 'm',
@@ -237,7 +242,7 @@ export function musicScoreToVDom(musicScore: MusicScore, slotConfig?: SlotConfig
                 });
                 measureCurrentX += measureWdith
             }
-            grandStaffCurrentY += MEASURE_HEIGHT;
+            grandStaffCurrentY += measureHeight;
 
             // 下面小节要复用，所以重置为grandStaffX
             measureCurrentX = grandStaffX

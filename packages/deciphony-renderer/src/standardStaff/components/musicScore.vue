@@ -38,22 +38,28 @@ import {musicScoreToVDom} from "@/standardStaff/render/transfer";
 import {defaultSkin} from "@/skins/defaultSkin";
 import Group from './group.vue'
 import type {MusicScore} from "@/types/MusicScoreType";
+import type {Skin, SlotConfig} from "@/types/common";
 
 const props = defineProps<{
   data?: MusicScore
   /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
-  slotConfig?: import('@/types/common').SlotConfig
+  slotConfig?: SlotConfig
+  /** 皮肤包，未传则使用内置 defaultSkin */
+  skin?: Skin
 }>()
 const data = computed(() => props.data ?? mock)
+// 因为要做多例，所以skin不可以绑定到全局，所有使用处从musicScore这个根组件向外发散
+const skin = computed(() => props.skin ?? defaultSkin)
 
 const vDom = ref<ReturnType<typeof musicScoreToVDom>>([])
-const skin = defaultSkin
 
-// data 或 slotConfig 变化时重新计算 vDom
+// data、slotConfig 或 skin 变化时重新计算 vDom
 watch(
-    [data, () => props.slotConfig],
-    ([d, slotConfig]) => {
-      vDom.value = d ? musicScoreToVDom(d, slotConfig) : []
+    [data, () => props.slotConfig, skin],
+    ([d, slotConfig, s]) => {
+      vDom.value = d
+          ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h})
+          : []
     },
     {immediate: true}
 )

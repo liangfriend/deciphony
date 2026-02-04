@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 130 400" width="130" height="400">
+    <g transform="scale(-1,1) translate(-130,0)">
+        <!-- 细线（左） -->
+        <line x1="60" x2="60" y1="0" y2="400" stroke="black" stroke-width="20"/>
+
+        <!-- 粗线（右） -->
+        <line x1="110" x2="110" y1="0" y2="400" stroke="black" stroke-width="40"/>
+
+    </g>
+</svg>

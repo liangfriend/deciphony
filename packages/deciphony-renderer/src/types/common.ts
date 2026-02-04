@@ -1,5 +1,8 @@
 // 虚拟DOM节点类型：根、复谱表、单谱表、小节、插槽
-export type VDomTagType = 'root' | 'grandStaff' | 'singleStaff' | 'measure' | 'slot' | 'space'
+import {SkinKeyEnum} from "@/enums/musicScoreEnum";
+
+export type VDomTagType = 'root' | 'grandStaff' | 'singleStaff' | 'measure' | 'slot' | 'space' | 'note'
+
 
 export type VDom = {
     x: number;
@@ -25,12 +28,13 @@ export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
 // 插槽作用域 props：用户在使用具名插槽时可接收
 export type SlotProps = { node: VDom }
 
-export type Skin = Record<string, {
+export type Skin = Record<SkinKeyEnum, {
     content: string; // v-html的内容
     w: number; // 符号宽度，有些不固定宽度的符号，比如小节，w可以随便写，不会生效，建议写0
     h: number; // 符号高度
     widthRatio: number; // 宽度系数
     widthRatioForMeasure: number; // 决定小节宽度的宽度系数
+    skinKey: SkinKeyEnum; // 皮肤
 }>;
 export type Frame = {
     relativeX: number,

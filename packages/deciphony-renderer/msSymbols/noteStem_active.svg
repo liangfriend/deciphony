@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="100">
+    <!-- 音符杆 -->
+    <line x1="5" y1="0" x2="5" y2="100" stroke="red" stroke-width="10"></line>
+
+</svg>

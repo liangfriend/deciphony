@@ -27,10 +27,12 @@ const comment = computed(() => {
   }
 })
 
+type SkinItem = Skin[keyof Skin]
+
 const handleSkin = computed(() => {
-  return (skin: string, node: VDom) => {
-    if (!skin) return ''
-    let temp = skin
+  return (skinItem: SkinItem | undefined, node: VDom) => {
+    if (!skinItem) return ''
+    let temp = skinItem.content
     temp = temp.replaceAll('node.w', '' + node.w).replaceAll('node.h', '' + node.h)
     return temp
   }

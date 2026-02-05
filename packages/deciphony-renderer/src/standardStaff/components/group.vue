@@ -22,6 +22,30 @@ const comment = computed(() => {
       return '单谱表'
     case 'measure':
       return '小节'
+    case 'note':
+      return '音符'
+    case 'rest':
+      return '休止符'
+    case 'clef_f':
+      return '前置谱号'
+    case 'clef_b':
+      return '后置谱号'
+    case 'keySignature_f':
+      return '前置调号'
+    case 'keySignature_b':
+      return '后置调号'
+    case 'timeSignature_f':
+      return '前置拍号'
+    case 'timeSignature_b':
+      return '后置拍号'
+    case 'barline':
+      return '小节线'
+    case 'noteStem':
+      return '符干'
+    case 'noteTail':
+      return '符尾'
+    case 'space':
+      return '空白'
     default:
       return ''
   }
@@ -41,12 +65,12 @@ const handleSkin = computed(() => {
 
 <template>
   <g
-      :data-comment="comment"
-      :data-slot-name="node.slotName"
+    :data-comment="comment"
+    :data-slot-name="node.slotName"
 
-      :data-tag="node.tag"
-      :transform="`translate(${node.x}, ${node.y})`"
-      v-html="node.tag ? handleSkin(skin[node.tag],node): ''"
+    :data-tag="node.tag"
+    :transform="`translate(${node.x}, ${node.y})`"
+    v-html="(node.skinKey ? handleSkin(skin[node.skinKey], node) :'')"
   >
 
   </g>

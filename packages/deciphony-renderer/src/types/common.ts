@@ -1,26 +1,46 @@
-// 虚拟DOM节点类型：根、复谱表、单谱表、小节、插槽
+// 虚拟DOM节点类型：供开发者用 tag 区分点击目标，不参与 skin 查找
 import {SkinKeyEnum} from "@/enums/musicScoreEnum";
 
-export type VDomTagType = 'root' | 'grandStaff' | 'singleStaff' | 'measure' | 'slot' | 'space' | 'note'
-
+/** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
+export type VDomTagType =
+  | 'root'           // 根
+  | 'grandStaff'     // 复谱表
+  | 'singleStaff'    // 单谱表
+  | 'measure'        // 小节
+  | 'note'           // 音符
+  | 'rest'           // 休止符
+  | 'clef_f'         // 前置谱号
+  | 'clef_b'         // 后置谱号
+  | 'keySignature_f' // 前置调号
+  | 'keySignature_b' // 后置调号
+  | 'timeSignature_f' // 前置拍号
+  | 'timeSignature_b' // 后置拍号
+  | 'barline'        // 小节线
+  | 'noteStem'       // 符干
+  | 'noteTail'       // 符尾
+  | 'slot'           // 插槽
+  | 'space'          // 空白（边距等）
+export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 // 时值， 1 = 一分  2 = 二分
 
 export type VDom = {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    zIndex: number;
-    tag?: VDomTagType;
-    slotName?: SlotName;  // 插槽名称，tag='slot'时使用
-    dataComment?: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  zIndex: number;
+  tag: VDomTagType;
+  /** 指定 skin 中唯一对应的 SVG 图形，用于符号等需要皮肤渲染的节点 */
+  skinKey?: SkinKeyEnum;
+  slotName?: SlotName;  // 插槽名称，tag='slot'时使用
+  dataComment?: string;
 }
 
 // 曲谱层面13个插槽名称（不含符号层面 symbol-*）
 export type SlotName =
-    | 'g-l' | 'g-r'
-    | 's-l' | 's-r'
-    | 'm' | 'm-u' | 'm-d' | 's-u'
-    | 's-d' | 'g-u' | 'g-d'
+  | 'g-l' | 'g-r'
+  | 's-l' | 's-r'
+  | 'm' | 'm-u' | 'm-d' | 's-u'
+  | 's-d' | 'g-u' | 'g-d'
 
 // 插槽配置：影响 transfer 布局计算的宽高
 export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
@@ -29,16 +49,12 @@ export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
 export type SlotProps = { node: VDom }
 
 export type Skin = Record<SkinKeyEnum, {
-    content: string; // v-html的内容
-    w: number; // 符号宽度，有些不固定宽度的符号，比如小节，w可以随便写，不会生效，建议写0
-    h: number; // 符号高度
-    widthRatio: number; // 宽度系数
-    widthRatioForMeasure: number; // 决定小节宽度的宽度系数
-    skinKey: SkinKeyEnum; // 皮肤
+  content: string; // v-html的内容
+  w: number; // 符号宽度，有些不固定宽度的符号，比如小节，w可以随便写，不会生效，建议写0
+  h: number; // 符号高度
+  skinKey: SkinKeyEnum; // 皮肤
 }>;
 export type Frame = {
-    relativeX: number,
-    relativeY: number,
-    relativeW: number,
-    relativeH: number,
+  relativeX: number,
+  relativeY: number,
 }

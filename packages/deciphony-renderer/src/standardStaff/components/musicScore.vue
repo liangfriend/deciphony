@@ -1,7 +1,7 @@
 <template>
   <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
        preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <template v-for="(node, i) in vDom" :key="i">
+    <template v-for="(node, i) in vDom" :key="`${i}-${node.skinName ?? 'default'}-${node.skinKey ?? ''}`">
 
       <Group v-if="node.tag !== 'slot' || !node.slotName" :node="node" :skin="skin"/>
       <g
@@ -35,33 +35,44 @@
 import {ref, watch, computed} from 'vue'
 import mock from '../mock/happyBirthday'
 import {musicScoreToVDom} from "@/standardStaff/render/transfer";
+import {applyVDomUpdate} from "@/standardStaff/render/update";
 import {defaultSkin} from "@/skins/defaultSkin";
-// import {redSkin} from "@/skins/redSkin";
 import Group from './group.vue'
 import type {MusicScore} from "@/types/MusicScoreType";
-import type {Skin, SlotConfig} from "@/types/common";
+import type {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 
 const props = defineProps<{
   data?: MusicScore
   /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
   slotConfig?: SlotConfig
-  /** 皮肤包，未传则使用内置 defaultSkin */
+  /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
   skin?: Skin
 }>()
 const data = computed(() => props.data ?? mock)
-// 因为要做多例，所以skin不可以绑定到全局，所有使用处从musicScore这个根组件向外发散
-const skin = computed(() => props.skin ?? defaultSkin)
+const skin = computed(() => props.skin ?? {default: defaultSkin})
 
-const vDom = ref<ReturnType<typeof musicScoreToVDom>>([])
+const skinPackForLayout = computed<SkinPack>(() => skin.value?.default ?? defaultSkin)
+
+const vDom = ref<VDom[]>([])
 
 // data、slotConfig 或 skin 变化时重新计算 vDom
 watch(
-  [data, () => props.slotConfig, skin],
+  [data, () => props.slotConfig, skinPackForLayout],
   ([d, slotConfig, s]) => {
     vDom.value = d
-      ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h})
+      ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h, skin: skin.value})
       : []
   },
   {immediate: true}
 )
+
+/**
+ * 更新 VDom：传入 updater 对深拷贝后的 vDom 做修改（如替换某符号 skinName），仅替换有变化的节点，实现部分重渲染
+ * @param updater (vDom: VDom[]) => VDom[] 用户修改后 return
+ */
+function updateVDomHandler(updater: (vDom: VDom[]) => VDom[]) {
+  applyVDomUpdate(vDom.value, updater)
+}
+
+defineExpose({updateVDom: updateVDomHandler})
 </script>

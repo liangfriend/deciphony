@@ -31,6 +31,7 @@ export type VDom = {
   tag: VDomTagType;
   /** 指定 skin 中唯一对应的 SVG 图形，用于符号等需要皮肤渲染的节点 */
   skinKey?: SkinKeyEnum;
+  skinName: string; // 皮肤名
   slotName?: SlotName;  // 插槽名称，tag='slot'时使用
   dataComment?: string;
 }
@@ -48,12 +49,16 @@ export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
 // 插槽作用域 props：用户在使用具名插槽时可接收
 export type SlotProps = { node: VDom }
 
-export type Skin = Record<SkinKeyEnum, {
-  content: string; // v-html的内容
-  w: number; // 符号宽度，有些不固定宽度的符号，比如小节，w可以随便写，不会生效，建议写0
-  h: number; // 符号高度
-  skinKey: SkinKeyEnum; // 皮肤
+/** 单套皮肤包：skinKey -> 符号内容与尺寸 */
+export type SkinPack = Record<SkinKeyEnum, {
+  content: string;
+  w: number;
+  h: number;
+  skinKey: SkinKeyEnum;
 }>;
+
+/** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
+export type Skin = Record<string, SkinPack>;
 export type Frame = {
   relativeX: number,
   relativeY: number,

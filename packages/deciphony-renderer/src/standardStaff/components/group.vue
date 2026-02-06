@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {VDom, Skin} from "@/types/common";
+import {VDom, Skin, SkinPack} from "@/types/common";
+import {defaultSkin} from "@/skins/defaultSkin";
 
 defineOptions({
   name: 'Group',
@@ -8,7 +9,8 @@ defineOptions({
 
 const props = defineProps<{
   node: VDom
-  skin: Skin
+  /** 多套皮肤包：skinName -> SkinPack；skinName=default 或未找到时使用内置 defaultSkin */
+  skin?: Skin
 }>()
 
 const comment = computed(() => {
@@ -51,7 +53,12 @@ const comment = computed(() => {
   }
 })
 
-type SkinItem = Skin[keyof Skin]
+const skinPack = computed<SkinPack>(() => {
+  const name = props.node.skinName ?? 'default'
+  return props.skin?.[name] ?? defaultSkin
+})
+
+type SkinItem = SkinPack[keyof SkinPack]
 
 const handleSkin = computed(() => {
   return (skinItem: SkinItem | undefined, node: VDom) => {
@@ -70,7 +77,7 @@ const handleSkin = computed(() => {
 
     :data-tag="node.tag"
     :transform="`translate(${node.x}, ${node.y})`"
-    v-html="(node.skinKey ? handleSkin(skin[node.skinKey], node) :'')"
+    v-html="(node.skinKey ? handleSkin(skinPack[node.skinKey], node) :'')"
   >
 
   </g>

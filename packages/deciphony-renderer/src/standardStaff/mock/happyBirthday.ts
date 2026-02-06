@@ -4,11 +4,25 @@ import {
   NoteSymbolTypeEnum,
 } from "@/enums/musicScoreEnum";
 import type {MusicScore, Measure, NoteSymbol, Clef, TimeSignature} from "@/types/MusicScoreType";
+import {Frame} from "@/types/common";
 
-const frame = {relativeX: 0, relativeY: 0};
+const frame:Frame = {relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0};
 
-const clef: Clef = {barlineType: undefined!, widthRatioForMeasure: 18};
-const time34: TimeSignature = {barlineType: undefined!, widthRatioForMeasure: 14};
+const clef: Clef = {
+  ...frame,
+  barlineType: undefined!,
+  widthRatioForMeasure: 18,
+  id: crypto.randomUUID(),
+};
+const time34: TimeSignature = {
+  ...frame,
+  barlineType: undefined!,
+  widthRatioForMeasure: 14,
+  id: crypto.randomUUID(),
+};
 
 function note(
   region: number,
@@ -19,12 +33,12 @@ function note(
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Note,
-    affiliatedSymbols: [],
     chronaxie,
     direction,
     region,
     widthRatio,
     widthRatioForMeasure: widthRatio,
+    id: crypto.randomUUID(),
   };
 }
 
@@ -32,12 +46,12 @@ function rest(chronaxie: 4 | 8 = 4, widthRatio = 6): NoteSymbol {
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Rest,
-    affiliatedSymbols: [],
     chronaxie,
-    direction: 'up', // 休止符不使用
+    direction: 'up',
     region: 0,
     widthRatio,
     widthRatioForMeasure: widthRatio,
+    id: crypto.randomUUID(),
   };
 }
 
@@ -56,14 +70,38 @@ const phrase1Measure1: Measure = {
   ],
   clef_f: clef,
   timeSignature_f: time34,
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 const phrase1Measure2: Measure = {
   ...frame,
   notes: [],
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 
 // 第二句：祝你生日快乐
@@ -79,14 +117,32 @@ const phrase2Measure1: Measure = {
   ],
   clef_f: clef,
   timeSignature_f: time34,
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 const phrase2Measure2: Measure = {
   ...frame,
   notes: [],
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    ...frame,
+    barlineType: BarlineTypeEnum.Single_barline,
+    widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
 };
 
 // 第三句：祝你生日（亲爱的）快乐
@@ -103,14 +159,38 @@ const phrase3Measure1: Measure = {
   ],
   clef_f: clef,
   timeSignature_f: time34,
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 const phrase3Measure2: Measure = {
   ...frame,
   notes: [],
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 
 // 第四句：祝你生日快乐
@@ -126,23 +206,50 @@ const phrase4Measure1: Measure = {
   ],
   clef_f: clef,
   timeSignature_f: time34,
-  barline: {barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4},
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 const phrase4Measure2: Measure = {
   ...frame,
   notes: [],
-  barline: {barlineType: BarlineTypeEnum.Final_barline, widthRatioForMeasure: 6},
+  barline: {
+    barlineType: BarlineTypeEnum.Final_barline, widthRatioForMeasure: 6,
+    id: crypto.randomUUID(),
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0
+  },
   widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 
 const data: MusicScore = {
+  id: crypto.randomUUID(),
   type: MusicScoreTypeEnum.StandardStaff,
   grandStaffs: [
     {
+      id: crypto.randomUUID(),
       ...frame,
       staves: [
         {
+          id: crypto.randomUUID(),
           ...frame,
           measures: [phrase1Measure1, phrase1Measure2],
           uSpaceI: 20,
@@ -155,9 +262,11 @@ const data: MusicScore = {
       dSpace: 40,
     },
     {
+      id: crypto.randomUUID(),
       ...frame,
       staves: [
         {
+          id: crypto.randomUUID(),
           ...frame,
           measures: [phrase2Measure1, phrase2Measure2],
           uSpaceI: 20,
@@ -170,9 +279,11 @@ const data: MusicScore = {
       dSpace: 40,
     },
     {
+      id: crypto.randomUUID(),
       ...frame,
       staves: [
         {
+          id: crypto.randomUUID(),
           ...frame,
           measures: [phrase3Measure1, phrase3Measure2],
           uSpaceI: 20,
@@ -185,9 +296,11 @@ const data: MusicScore = {
       dSpace: 40,
     },
     {
+      id: crypto.randomUUID(),
       ...frame,
       staves: [
         {
+          id: crypto.randomUUID(),
           ...frame,
           measures: [phrase4Measure1, phrase4Measure2],
           uSpaceI: 20,
@@ -200,7 +313,7 @@ const data: MusicScore = {
       dSpace: 40,
     },
   ],
-  spanSymbols: [],
+  affiliatedSymbols: [],
   width: 800,
   height: 1400,
 };

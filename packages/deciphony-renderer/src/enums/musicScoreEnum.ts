@@ -115,7 +115,8 @@ export enum NoteSymbolTypeEnum {
 
 // 附属型符号名称
 export enum AffiliatedSymbolNameEnum {
-
+  slur, // 连音线
+  volta // 反复小房子
 }
 
 // 变音符号类型

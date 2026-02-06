@@ -27,7 +27,9 @@ export type VDom = {
   y: number;
   w: number;
   h: number;
-  zIndex: number;
+  targetId: string,
+  //
+  zIndex: number; // 渲染顺序
   tag: VDomTagType;
   /** 指定 skin 中唯一对应的 SVG 图形，用于符号等需要皮肤渲染的节点 */
   skinKey?: SkinKeyEnum;
@@ -59,7 +61,10 @@ export type SkinPack = Record<SkinKeyEnum, {
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
 export type Skin = Record<string, SkinPack>;
+// 相对位置偏移。是否起效取决于元素类型，具体请查看对照表
 export type Frame = {
   relativeX: number,
   relativeY: number,
+  relativeW: number,
+  relativeH: number,
 }

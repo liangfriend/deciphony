@@ -8,6 +8,7 @@
         v-else
         :data-comment="node.dataComment"
         :data-slot-name="node.slotName"
+        :data-target-id="node.targetId"
         :transform="`translate(${node.x}, ${node.y})`"
 
       >
@@ -17,6 +18,7 @@
             :height="node.h"
             :width="node.w"
             data-comment="插槽占位虚线"
+
             data-test
             fill="none"
             stroke="#ddd"

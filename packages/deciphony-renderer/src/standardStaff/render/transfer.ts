@@ -65,6 +65,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 'g-l',
         dataComment: '复谱表左侧插槽',
       }
@@ -80,6 +81,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 'g-r',
         dataComment: '复谱表右侧插槽',
       }
@@ -94,6 +96,7 @@ export function musicScoreToVDom(
       zIndex: 1000,
       tag: 'space',
       skinName: 'default',
+      targetId: '',
       dataComment: '复谱表上边距',
     });
     grandStaffCurrentY += grandStaff.uSpace
@@ -105,6 +108,7 @@ export function musicScoreToVDom(
       zIndex: 1000,
       tag: 'slot',
       skinName: 'default',
+      targetId: '',
       slotName: 'g-u',
       dataComment: '复谱表上方插槽',
     });
@@ -137,6 +141,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 's-l',
         dataComment: '单谱表左侧插槽',
       }
@@ -149,6 +154,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 's-r',
         dataComment: '单谱表右侧插槽',
       }
@@ -161,6 +167,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'space',
         skinName: 'default',
+        targetId: '',
         dataComment: '单谱表上外边距',
       });
       grandStaffCurrentY += staffUSpaceO;
@@ -173,6 +180,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 's-u',
         dataComment: '单谱表上方插槽',
       });
@@ -193,6 +201,7 @@ export function musicScoreToVDom(
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
+          targetId: measure.id ?? '',
           slotName: 'm-u',
           dataComment: '小节上方插槽',
         });
@@ -211,6 +220,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'space',
         skinName: 'default',
+        targetId: '',
         dataComment: '单谱表上内边距',
       });
       grandStaffCurrentY += staffUSpaceI;
@@ -226,6 +236,7 @@ export function musicScoreToVDom(
           zIndex: 1000,
           tag: 'measure',
           skinName: 'default',
+          targetId: measure.id ?? '',
           dataComment: '小节',
           skinKey: SkinKeyEnum.Measure,
         });
@@ -260,6 +271,7 @@ export function musicScoreToVDom(
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
+          targetId: measure.id ?? '',
           slotName: 'm',
           dataComment: '小节插槽',
         });
@@ -279,6 +291,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'space',
         skinName: 'default',
+        targetId: '',
         dataComment: '单谱表下内边距',
       });
       grandStaffCurrentY += staffDSpaceI;
@@ -296,6 +309,7 @@ export function musicScoreToVDom(
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
+          targetId: measure.id ?? '',
           slotName: 'm-d',
           dataComment: '小节下方插槽',
         });
@@ -314,6 +328,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'slot',
         skinName: 'default',
+        targetId: '',
         slotName: 's-d',
         dataComment: '单谱表下方插槽',
       });
@@ -327,6 +342,7 @@ export function musicScoreToVDom(
         zIndex: 1000,
         tag: 'space',
         skinName: 'default',
+        targetId: '',
         dataComment: '单谱表下外边距',
       });
       grandStaffCurrentY += staffDSpaceO;
@@ -342,6 +358,7 @@ export function musicScoreToVDom(
       zIndex: 1000,
       tag: 'slot',
       skinName: 'default',
+      targetId: '',
       slotName: 'g-d',
       dataComment: '复谱表下方插槽',
     });
@@ -356,6 +373,7 @@ export function musicScoreToVDom(
       zIndex: 1000,
       tag: 'space',
       skinName: 'default',
+      targetId: '',
       dataComment: '复谱表下边距',
     });
     grandStaffCurrentY += grandStaff.dSpace
@@ -529,6 +547,7 @@ function renderStemAndTail(params: {
   const stemLength = getStemLength({direction, headCenterY, measureY, measureHeight});
   const stemW = stemSkin.w;
 
+  const targetId = note.id ?? '';
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
@@ -540,6 +559,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
+      targetId,
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -554,6 +574,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
+          targetId,
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -570,6 +591,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
+      targetId,
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -584,6 +606,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
+          targetId,
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -611,7 +634,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   const out: VDom[] = [];
   const z = 1001;
 
-  type RightPart = { skinKey: SkinKeyEnum; tag: VDom['tag']; dataComment: string };
+  type RightPart = { skinKey: SkinKeyEnum; tag: VDom['tag']; dataComment: string; targetId: string };
 
   // 1. 前置符号宽度（无宽度域，固定皮肤宽）
   let prefixW = 0;
@@ -630,21 +653,24 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   // 2. 后置符号宽度（无宽度域，固定皮肤宽）
   const rightParts: RightPart[] = [];
-  if (measure.clef_b) rightParts.push({skinKey: SkinKeyEnum.Treble, tag: 'clef_b', dataComment: '后置谱号'});
+  if (measure.clef_b) rightParts.push({skinKey: SkinKeyEnum.Treble, tag: 'clef_b', dataComment: '后置谱号', targetId: measure.clef_b.id ?? ''});
   if (measure.barline) rightParts.push({
     skinKey: getBarlineSkinKey(measure.barline.barlineType),
     tag: 'barline',
-    dataComment: '小节线'
+    dataComment: '小节线',
+    targetId: measure.barline.id ?? '',
   });
   if (measure.keySignature_b) rightParts.push({
     skinKey: SkinKeyEnum.Sharp,
     tag: 'keySignature_b',
-    dataComment: '后置调号'
+    dataComment: '后置调号',
+    targetId: measure.keySignature_b.id ?? '',
   });
   if (measure.timeSignature_b) rightParts.push({
     skinKey: SkinKeyEnum['4_4'],
     tag: 'timeSignature_b',
-    dataComment: '后置拍号'
+    dataComment: '后置拍号',
+    targetId: measure.timeSignature_b.id ?? '',
   });
   let suffixW = 0;
   for (const p of rightParts) {
@@ -655,27 +681,27 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 3. 音符宽度域 = 小节宽度 - 前置 - 后置
   const noteDomainW = Math.max(0, measureWidth - prefixW - suffixW);
 
-  const pushSymbol = (x: number, skinKey: SkinKeyEnum, tag: VDom['tag'], dataComment: string) => {
+  const pushSymbol = (x: number, skinKey: SkinKeyEnum, tag: VDom['tag'], dataComment: string, targetId: string) => {
     const item = skin[skinKey];
     if (!item) return;
     const y = measureY + (measureHeight - item.h) / 2;
-    out.push({x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', skinKey, dataComment});
+    out.push({x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment});
   };
 
   // 4. 输出前置符号（从左向右）
   let x = measureX;
   if (measure.clef_f) {
-    pushSymbol(x, SkinKeyEnum.Treble, 'clef_f', '前置谱号');
+    pushSymbol(x, SkinKeyEnum.Treble, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
     const item = skin[SkinKeyEnum.Treble];
     if (item) x += item.w;
   }
   if (measure.keySignature_f) {
-    pushSymbol(x, SkinKeyEnum.Sharp, 'keySignature_f', '前置调号');
+    pushSymbol(x, SkinKeyEnum.Sharp, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '');
     const item = skin[SkinKeyEnum.Sharp];
     if (item) x += item.w;
   }
   if (measure.timeSignature_f) {
-    pushSymbol(x, SkinKeyEnum['4_4'], 'timeSignature_f', '前置拍号');
+    pushSymbol(x, SkinKeyEnum['4_4'], 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
     const item = skin[SkinKeyEnum['4_4']];
     if (item) x += item.w;
   }
@@ -716,6 +742,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
         zIndex: z,
         tag,
         skinName: 'default',
+        targetId: note.id ?? '',
         skinKey: headKey,
         dataComment,
       });
@@ -739,7 +766,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 6. 输出后置符号（从右向左紧贴小节右端）
   x = measureX + measureWidth - suffixW;
   for (const p of rightParts) {
-    pushSymbol(x, p.skinKey, p.tag, p.dataComment);
+    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId);
     const item = skin[p.skinKey];
     if (item) x += item.w;
   }

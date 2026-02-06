@@ -74,8 +74,8 @@ const handleSkin = computed(() => {
   <g
     :data-comment="comment"
     :data-slot-name="node.slotName"
-
     :data-tag="node.tag"
+    :data-target-id="node.targetId"
     :transform="`translate(${node.x}, ${node.y})`"
     v-html="(node.skinKey ? handleSkin(skinPack[node.skinKey], node) :'')"
   >

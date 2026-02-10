@@ -113,8 +113,14 @@ export enum NoteSymbolTypeEnum {
 }
 
 
-// 附属型符号名称
-export enum AffiliatedSymbolNameEnum {
+// 双音符，双小节附属型符号名称
+export enum DoubleAffiliatedSymbolNameEnum {
+  slur, // 连音线
+  volta // 反复小房子
+}
+
+// 单音符，单小节附属型符号名称
+export enum SingleAffiliatedSymbolNameEnum {
   slur, // 连音线
   volta // 反复小房子
 }

@@ -1,31 +1,37 @@
 <template>
   <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
        preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <template v-for="(node, i) in vDom" :key="`${i}-${node.skinName ?? 'default'}-${node.skinKey ?? ''}`">
-
-      <Group v-if="node.tag !== 'slot' || !node.slotName" :node="node" :skin="skin"/>
+    <template v-for="(node, i) in vDom"
+              :key="`${i}-${node.skinName ?? 'default'}-${node.skinKey ?? ''}-${node.tag}-${node.targetId}`">
+      <Group v-if="node.tag !== 'slot' && node.tag !== 'affiliation'" :node="node" :skin="skin"/>
       <g
-        v-else
-        :data-comment="node.dataComment"
-        :data-slot-name="node.slotName"
-        :data-target-id="node.targetId"
-        :transform="`translate(${node.x}, ${node.y})`"
-
+          v-else-if="node.tag === 'affiliation'"
+          :data-comment="node.dataComment"
+          :data-target-id="node.targetId"
+          :transform="`translate(${node.x}, ${node.y})`"
+      >
+        <Slur v-if="node.special?.slur" :v-dom="node"/>
+        <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
+      </g>
+      <g
+          v-else-if="node.tag === 'slot' && node.slotName"
+          :data-comment="node.dataComment"
+          :data-slot-name="node.slotName"
+          :data-target-id="node.targetId"
+          :transform="`translate(${node.x}, ${node.y})`"
       >
         <slot :name="node.slotName" v-bind="{ node }">
           <rect
-            v-if="false"
-            :height="node.h"
-            :width="node.w"
-            data-comment="插槽占位虚线"
-
-            data-test
-            fill="none"
-            stroke="#ddd"
-            stroke-dasharray="4"
-            stroke-width="1"
-            x="0"
-            y="0"
+              v-if="false"
+              :height="node.h"
+              :width="node.w"
+              data-comment="插槽占位虚线"
+              fill="none"
+              stroke="#ddd"
+              stroke-dasharray="4"
+              stroke-width="1"
+              x="0"
+              y="0"
           />
         </slot>
       </g>
@@ -34,12 +40,14 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, watch, computed} from 'vue'
+import {computed, ref, watch} from 'vue'
 import mock from '../mock/happyBirthday'
 import {musicScoreToVDom} from "@/standardStaff/render/transfer";
 import {applyVDomUpdate} from "@/standardStaff/render/update";
 import {defaultSkin} from "@/skins/defaultSkin";
 import Group from './group.vue'
+import Slur from './slur.vue'
+import Volta from './volta.vue'
 import type {MusicScore} from "@/types/MusicScoreType";
 import type {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 
@@ -59,13 +67,13 @@ const vDom = ref<VDom[]>([])
 
 // data、slotConfig 或 skin 变化时重新计算 vDom
 watch(
-  [data, () => props.slotConfig, skinPackForLayout],
-  ([d, slotConfig, s]) => {
-    vDom.value = d
-      ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h, skin: skin.value})
-      : []
-  },
-  {immediate: true}
+    [data, () => props.slotConfig, skinPackForLayout],
+    ([d, slotConfig, s]) => {
+      vDom.value = d
+          ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h, skin: skin.value})
+          : []
+    },
+    {immediate: true}
 )
 
 /**

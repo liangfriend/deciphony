@@ -1,35 +1,7 @@
-```
-// 曲谱展示模式
-export enum MusicScoreShowModeEnum {
-    StandardStaff = 1,        // 五线谱
-    NumberNotation,      // 简谱（数字谱）
-}
-```
+## 附属型符号
 
-五线谱
+附属型符号在musicScore根节点，measure节点和noteSymbol节点都存在
+musicScore根节点上包含双小节和双音符附属型。
+measure和noteSymbol包含单小节和单音符附属型
 
-```
-type MusicScore {
-	multipleStaves:MultipleStaves[] // 复谱表
-}
-```
-
-```
-type MultipleStaves {
-	singleStaff: SingleStaff[] // 单谱表
-}
-```
-
-```
-type SingleStaff {
-	measure: Measure[], // 小节
-	
-}
-```
-
-```
-type Measure {
-	msSymbol: [] // 符号
-}
-```
-
+这样做是因为，附属型符号是在小节，音符渲染完成再渲染的，而单小节或单音符附属符号往往会影响小节和音符的布局这会导致渲染附属型符号需要重新渲染小节和音符。所以不能统一将所有符号放在musicScore根属性上。

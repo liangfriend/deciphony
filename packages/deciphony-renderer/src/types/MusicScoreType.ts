@@ -1,19 +1,19 @@
 import {
   AccidentalTypeEnum,
-  AffiliatedSymbolNameEnum,
-  BarlineTypeEnum, ClefTypeEnum, KeySignatureTypeEnum,
+  BarlineTypeEnum,
+  ClefTypeEnum,
+  KeySignatureTypeEnum,
   MusicScoreTypeEnum,
   NoteSymbolTypeEnum,
-  SpanSymbolNameEnum, TimeSignatureTypeEnum
+  TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
-import {SpanSymbolTypeEnum} from "deciphony-core";
 // ==========================================通用================================================
 export type MusicScore = {
   id: string
   type: MusicScoreTypeEnum,
   grandStaffs: GrandStaff[],
-  affiliatedSymbols: AffiliatedSymbol[]
+  affiliatedSymbols: DoubleAffiliatedSymbol[] // 包含双音符附属型，双小节附属型
   width: number,
   height: number,
 }
@@ -43,7 +43,8 @@ export type Measure = {
   keySignature_b?: KeySignature,
   timeSignature_f?: TimeSignature,
   timeSignature_b?: TimeSignature,
-  widthRatioForMeasure: number
+  widthRatioForMeasure: number,
+  affiliatedSymbols: SingleAffiliatedSymbol[] // 包含单小节附属型
 } & Frame
 // 音乐符号
 export type NoteSymbol = {
@@ -54,17 +55,37 @@ export type NoteSymbol = {
   region: number, // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
   accidental?: Accidental
   widthRatio: number
-  widthRatioForMeasure: number
+  widthRatioForMeasure: number,
+  affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
 } & Frame
 /*
 * 附属型符号 accent above, accidental等等， 符干符尾不属于附属型符号，它是根据音符时值信息固定逻辑判断是否存在的符号
 *
 * */
-export type AffiliatedSymbol = {
+export type DoubleAffiliatedSymbol = { // 双音符，双小节附属符号
   id: string
-  name: AffiliatedSymbolNameEnum,
+  name: DoubleAffiliatedSymbolNameEnum,
   startId: string,
   endId: string, // 在双音符附属或双小节附属符号里，这个是没有意义的
+  data: { // 有一些附属型符号很特殊，需要额外的变量来计算UI
+    slur?: {
+      relativeStartPoint: { x: number, y: number }, // slur 起点相对坐标
+      relativeEndPoint: { x: number, y: number }, // slur 终点相对坐标
+      relativeControlPoint: { x: number, y: number }, // slur 控制点相对坐标
+      thickness: number, // 厚度，两个贝塞尔曲线控制点的y值差
+    },
+    volta?: {
+      text: string // 文本内容
+    }
+
+  }
+} & Frame
+
+export type SingleAffiliatedSymbol = { // 单音符，单小节附属符号
+  id: string
+  name: SingleAffiliatedSymbolNameEnum,
+  data: { // 有一些附属型符号很特殊，需要额外的变量来计算UI
+  }
 } & Frame
 
 

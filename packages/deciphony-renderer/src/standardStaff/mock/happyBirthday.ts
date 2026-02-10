@@ -1,15 +1,18 @@
 import {
   BarlineTypeEnum,
+  DoubleAffiliatedSymbolNameEnum,
   MusicScoreTypeEnum,
   NoteSymbolTypeEnum,
 } from "@/enums/musicScoreEnum";
-import type {MusicScore, Measure, NoteSymbol, Clef, TimeSignature} from "@/types/MusicScoreType";
+import type {Clef, Measure, MusicScore, NoteSymbol, TimeSignature} from "@/types/MusicScoreType";
 import {Frame} from "@/types/common";
 
-const frame:Frame = {relativeH: 0,
+const frame: Frame = {
+  relativeH: 0,
   relativeY: 0,
   relativeW: 0,
-  relativeX: 0};
+  relativeX: 0
+};
 
 const clef: Clef = {
   ...frame,
@@ -25,10 +28,10 @@ const time34: TimeSignature = {
 };
 
 function note(
-  region: number,
-  chronaxie: 4 | 8 = 8,
-  widthRatio = 6,
-  direction: 'up' | 'down' = 'up',
+    region: number,
+    chronaxie: 4 | 8 = 8,
+    widthRatio = 6,
+    direction: 'up' | 'down' = 'up',
 ): NoteSymbol {
   return {
     ...frame,
@@ -39,6 +42,7 @@ function note(
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
+    affiliatedSymbols: [],
   };
 }
 
@@ -52,6 +56,7 @@ function rest(chronaxie: 4 | 8 = 4, widthRatio = 6): NoteSymbol {
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
+    affiliatedSymbols: [],
   };
 }
 
@@ -80,6 +85,7 @@ const phrase1Measure1: Measure = {
   },
   widthRatioForMeasure: 100,
   id: crypto.randomUUID(),
+  affiliatedSymbols: [],
   relativeH: 0,
   relativeY: 0,
   relativeW: 0,
@@ -88,6 +94,7 @@ const phrase1Measure1: Measure = {
 const phrase1Measure2: Measure = {
   ...frame,
   notes: [],
+  affiliatedSymbols: [],
   barline: {
     barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
     id: crypto.randomUUID(),
@@ -127,6 +134,7 @@ const phrase2Measure1: Measure = {
   },
   widthRatioForMeasure: 100,
   id: crypto.randomUUID(),
+  affiliatedSymbols: [],
   relativeH: 0,
   relativeY: 0,
   relativeW: 0,
@@ -135,6 +143,7 @@ const phrase2Measure1: Measure = {
 const phrase2Measure2: Measure = {
   ...frame,
   notes: [],
+  affiliatedSymbols: [],
   barline: {
     ...frame,
     barlineType: BarlineTypeEnum.Single_barline,
@@ -143,6 +152,10 @@ const phrase2Measure2: Measure = {
   },
   widthRatioForMeasure: 100,
   id: crypto.randomUUID(),
+  relativeH: 0,
+  relativeY: 0,
+  relativeW: 0,
+  relativeX: 0
 };
 
 // 第三句：祝你生日（亲爱的）快乐
@@ -169,6 +182,7 @@ const phrase3Measure1: Measure = {
   },
   widthRatioForMeasure: 100,
   id: crypto.randomUUID(),
+  affiliatedSymbols: [],
   relativeH: 0,
   relativeY: 0,
   relativeW: 0,
@@ -177,6 +191,7 @@ const phrase3Measure1: Measure = {
 const phrase3Measure2: Measure = {
   ...frame,
   notes: [],
+  affiliatedSymbols: [],
   barline: {
     barlineType: BarlineTypeEnum.Single_barline, widthRatioForMeasure: 4,
     id: crypto.randomUUID(),
@@ -216,6 +231,7 @@ const phrase4Measure1: Measure = {
   },
   widthRatioForMeasure: 100,
   id: crypto.randomUUID(),
+  affiliatedSymbols: [],
   relativeH: 0,
   relativeY: 0,
   relativeW: 0,
@@ -224,6 +240,7 @@ const phrase4Measure1: Measure = {
 const phrase4Measure2: Measure = {
   ...frame,
   notes: [],
+  affiliatedSymbols: [],
   barline: {
     barlineType: BarlineTypeEnum.Final_barline, widthRatioForMeasure: 6,
     id: crypto.randomUUID(),
@@ -313,7 +330,34 @@ const data: MusicScore = {
       dSpace: 40,
     },
   ],
-  affiliatedSymbols: [],
+  affiliatedSymbols: [{
+    id: crypto.randomUUID(),
+    name: DoubleAffiliatedSymbolNameEnum.slur,
+    startId: phrase1Measure1.notes[0].id,
+    endId: phrase1Measure1.notes[1].id,
+    relativeH: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0,
+    data: {
+      slur: {
+        thickness: 5,
+        relativeStartPoint: {x: 0, y: 0},
+        relativeEndPoint: {x: 0, y: 0},
+        relativeControlPoint: {x: 0, y: 0}
+      }
+    }
+  }, {
+    id: crypto.randomUUID(),
+    name: DoubleAffiliatedSymbolNameEnum.volta,
+    startId: phrase1Measure1.id,
+    endId: phrase1Measure1.id,
+    relativeH: 10,
+    relativeY: 0,
+    relativeW: 0,
+    relativeX: 0,
+    data: {}
+  }],
   width: 800,
   height: 1400,
 };

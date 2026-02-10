@@ -6,7 +6,7 @@
 
 import {Skin, SkinPack, SlotConfig, SlotName, VDom} from "@/types/common";
 import {Measure, MusicScore, NoteSymbol} from "@/types/MusicScoreType";
-import {BarlineTypeEnum, SkinKeyEnum, NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
+import {BarlineTypeEnum, DoubleAffiliatedSymbolNameEnum, NoteSymbolTypeEnum, SkinKeyEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 
 function getSlotH(config: SlotConfig | undefined, name: SlotName): number {
@@ -24,10 +24,14 @@ function getSlotW(config: SlotConfig | undefined, name: SlotName): number {
  * @param options 额外配置：measureHeight 控制小节高度，skin 用于符号宽高
  */
 export function musicScoreToVDom(
-  musicScore: MusicScore,
-  slotConfig?: SlotConfig,
-  options?: { measureHeight?: number; skin?: Skin },
+    musicScore: MusicScore,
+    slotConfig?: SlotConfig,
+    options?: { measureHeight?: number; skin?: Skin },
 ): VDom[] {
+  // 用于通过id快速查找
+  const nodeIdMap = new Map<string, VDom>();
+
+
   const {width, grandStaffs} = musicScore;
   const config = slotConfig ?? {};
   const measureHeight = options?.measureHeight ?? 45;
@@ -58,6 +62,9 @@ export function musicScoreToVDom(
     let glSlot: VDom = {} as VDom
     if (gLW > 0) {
       glSlot = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: 0,
         y: grandStaffStartY,
         w: gLW,
@@ -74,6 +81,9 @@ export function musicScoreToVDom(
     let grSlot: VDom = {} as VDom
     if (gRW > 0) {
       grSlot = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: width - gRW,
         y: grandStaffStartY,
         w: gRW,
@@ -89,6 +99,9 @@ export function musicScoreToVDom(
     }
     let grandStaffCurrentY = grandStaffStartY;
     vDoms.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: grandStaffX,
       y: grandStaffCurrentY,
       w: grandStaffW,
@@ -101,6 +114,9 @@ export function musicScoreToVDom(
     });
     grandStaffCurrentY += grandStaff.uSpace
     vDoms.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: grandStaffX,
       y: grandStaffCurrentY,
       w: grandStaffW,
@@ -134,6 +150,9 @@ export function musicScoreToVDom(
       }
 
       const slSlot: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: gLW,
         y: singleStaffStartY,
         w: sLW,
@@ -147,6 +166,9 @@ export function musicScoreToVDom(
       }
       vDoms.push(slSlot);
       const srSlot: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: width - gLW - gRW,
         y: singleStaffStartY,
         w: sRW,
@@ -160,6 +182,9 @@ export function musicScoreToVDom(
       }
       vDoms.push(srSlot);
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -173,6 +198,9 @@ export function musicScoreToVDom(
       grandStaffCurrentY += staffUSpaceO;
 
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -193,18 +221,22 @@ export function musicScoreToVDom(
         const measure = staff.measures[i];
         // 获取小节宽度
         const measureWdith = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW
-        vDoms.push({
-          x: measureCurrentX,
+        const vdom: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
+        x: measureCurrentX,
           y: grandStaffCurrentY,
           w: measureWdith,
           h: mUH,
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
-          targetId: measure.id ?? '',
+          targetId: '',
           slotName: 'm-u',
           dataComment: '小节上方插槽',
-        });
+        };
+        vDoms.push(vdom);
         measureCurrentX += measureWdith
       }
       grandStaffCurrentY += mUH
@@ -213,6 +245,9 @@ export function musicScoreToVDom(
       measureCurrentX = grandStaffX
 
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -228,18 +263,23 @@ export function musicScoreToVDom(
       for (let i = 0; i < staff.measures.length; i++) {
         const measure = staff.measures[i];
         const measureWdith = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW
-        vDoms.push({
-          x: measureCurrentX,
+        const vdom: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
+        x: measureCurrentX,
           y: grandStaffCurrentY,
           w: measureWdith,
           h: measureHeight,
           zIndex: 1000,
           tag: 'measure',
           skinName: 'default',
-          targetId: measure.id ?? '',
+          targetId: measure.id,
           dataComment: '小节',
           skinKey: SkinKeyEnum.Measure,
-        });
+        };
+        vDoms.push(vdom);
+        nodeIdMap.set(measure.id, vdom)
         measureCurrentX += measureWdith
       }
       // 小节插槽是覆盖上去的，所以不会增加grandStaffCurrentY
@@ -261,17 +301,21 @@ export function musicScoreToVDom(
           measureWidth: measureWdith,
           measureHeight,
           skin: skinPack,
+          idMap: nodeIdMap
         });
         vDoms.push(...symbolVDoms);
         vDoms.push({
-          x: measureCurrentX,
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
+        x: measureCurrentX,
           y: grandStaffCurrentY,
           w: measureWdith,
           h: measureHeight,
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
-          targetId: measure.id ?? '',
+          targetId: '',
           slotName: 'm',
           dataComment: '小节插槽',
         });
@@ -284,6 +328,9 @@ export function musicScoreToVDom(
 
       // 单谱表下内边距
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -302,14 +349,17 @@ export function musicScoreToVDom(
         // 获取小节宽度
         const measureWdith = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW
         vDoms.push({
-          x: measureCurrentX,
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
+        x: measureCurrentX,
           y: grandStaffCurrentY,
           w: measureWdith,
           h: mDH,
           zIndex: 1000,
           tag: 'slot',
           skinName: 'default',
-          targetId: measure.id ?? '',
+          targetId: '',
           slotName: 'm-d',
           dataComment: '小节下方插槽',
         });
@@ -321,6 +371,9 @@ export function musicScoreToVDom(
       measureCurrentX = grandStaffX
 
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -335,6 +388,9 @@ export function musicScoreToVDom(
       grandStaffCurrentY += sDH;
 
       vDoms.push({
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: grandStaffX,
         y: grandStaffCurrentY,
         w: grandStaffW,
@@ -351,6 +407,9 @@ export function musicScoreToVDom(
     }
 
     vDoms.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: grandStaffX,
       y: grandStaffCurrentY,
       w: grandStaffW,
@@ -366,6 +425,9 @@ export function musicScoreToVDom(
 
     // 复谱表下边距
     vDoms.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: grandStaffX,
       y: grandStaffCurrentY,
       w: grandStaffW,
@@ -392,6 +454,8 @@ export function musicScoreToVDom(
       grSlot.h = grandStaffH
     }
   }
+  // double 附属型符号渲染（slur 等：起始/结束在对应音符中心点）
+  renderDoubleAffiliatedSymbol({ idMap: nodeIdMap, musicScore, VDoms: vDoms });
   return vDoms;
 }
 
@@ -534,6 +598,7 @@ function renderStemAndTail(params: {
   measureHeight: number;
   skin: SkinPack;
   zIndex: number;
+  idMap: Map<string, VDom>;
 }): VDom[] {
   const {note, headX, headY, headW, headH, measureY, measureHeight, skin, zIndex} = params;
   const out: VDom[] = [];
@@ -547,11 +612,14 @@ function renderStemAndTail(params: {
   const stemLength = getStemLength({direction, headCenterY, measureY, measureHeight});
   const stemW = stemSkin.w;
 
-  const targetId = note.id ?? '';
+  // const targetId = note.id ?? ''; 放置slur选中错误音符头位置，先注释掉
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
     out.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: stemX,
       y: stemY,
       w: stemW,
@@ -559,7 +627,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
-      targetId,
+      targetId: '',
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -567,6 +635,9 @@ function renderStemAndTail(params: {
       const tailSkin = skin[getNoteTailSkinKey(note.chronaxie)];
       if (tailSkin) {
         out.push({
+          startPoint: { x: 0, y: 0 },
+          endPoint: { x: 0, y: 0 },
+          special: {},
           x: stemX,
           y: stemY,
           w: tailSkin.w,
@@ -574,7 +645,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
-          targetId,
+          targetId: '',
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -584,6 +655,9 @@ function renderStemAndTail(params: {
     const stemX = headX;
     const stemY = headCenterY;
     out.push({
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
       x: stemX,
       y: stemY,
       w: stemW,
@@ -591,7 +665,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
-      targetId,
+      targetId: '',
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -599,6 +673,9 @@ function renderStemAndTail(params: {
       const tailSkin = skin[getNoteTailSkinKey(note.chronaxie)];
       if (tailSkin) {
         out.push({
+          startPoint: { x: 0, y: 0 },
+          endPoint: { x: 0, y: 0 },
+          special: {},
           x: stemX,
           y: stemY + stemLength - tailSkin.h,
           w: tailSkin.w,
@@ -606,7 +683,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
-          targetId,
+          targetId: '',
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -623,6 +700,7 @@ type RenderSymbolParams = {
   measureWidth: number;
   measureHeight: number;
   skin: SkinPack;
+  idMap: Map<string, VDom>;
 };
 
 /**
@@ -630,7 +708,7 @@ type RenderSymbolParams = {
  * 前置/后置符号无宽度域，按皮肤宽从左/右依次排布；音符有宽度域，按 widthRatio 比例在域内均匀分布，音符头在各自子域内居中。
  */
 function renderSymbol(params: RenderSymbolParams): VDom[] {
-  const {measure, measureX, measureY, measureWidth, measureHeight, skin} = params;
+  const {measure, measureX, measureY, measureWidth, measureHeight, skin, idMap} = params;
   const out: VDom[] = [];
   const z = 1001;
 
@@ -653,25 +731,22 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   // 2. 后置符号宽度（无宽度域，固定皮肤宽）
   const rightParts: RightPart[] = [];
-  if (measure.clef_b) rightParts.push({skinKey: SkinKeyEnum.Treble, tag: 'clef_b', dataComment: '后置谱号', targetId: measure.clef_b.id ?? ''});
-  if (measure.barline) rightParts.push({
-    skinKey: getBarlineSkinKey(measure.barline.barlineType),
-    tag: 'barline',
-    dataComment: '小节线',
-    targetId: measure.barline.id ?? '',
-  });
-  if (measure.keySignature_b) rightParts.push({
-    skinKey: SkinKeyEnum.Sharp,
-    tag: 'keySignature_b',
-    dataComment: '后置调号',
-    targetId: measure.keySignature_b.id ?? '',
-  });
-  if (measure.timeSignature_b) rightParts.push({
-    skinKey: SkinKeyEnum['4_4'],
-    tag: 'timeSignature_b',
-    dataComment: '后置拍号',
-    targetId: measure.timeSignature_b.id ?? '',
-  });
+  if (measure.clef_b) {
+    const vdom: RightPart = { skinKey: SkinKeyEnum.Treble, tag: 'clef_b', dataComment: '后置谱号', targetId: measure.clef_b.id ?? '' };
+    rightParts.push(vdom);
+  }
+  if (measure.barline) {
+    const vdom: RightPart = { skinKey: getBarlineSkinKey(measure.barline.barlineType), tag: 'barline', dataComment: '小节线', targetId: measure.barline.id ?? '' };
+    rightParts.push(vdom);
+  }
+  if (measure.keySignature_b) {
+    const vdom: RightPart = { skinKey: SkinKeyEnum.Sharp, tag: 'keySignature_b', dataComment: '后置调号', targetId: measure.keySignature_b.id ?? '' };
+    rightParts.push(vdom);
+  }
+  if (measure.timeSignature_b) {
+    const vdom: RightPart = { skinKey: SkinKeyEnum['4_4'], tag: 'timeSignature_b', dataComment: '后置拍号', targetId: measure.timeSignature_b.id ?? '' };
+    rightParts.push(vdom);
+  }
   let suffixW = 0;
   for (const p of rightParts) {
     const item = skin[p.skinKey];
@@ -685,7 +760,16 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     const item = skin[skinKey];
     if (!item) return;
     const y = measureY + (measureHeight - item.h) / 2;
-    out.push({x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment});
+    const vdom: VDom = {
+      startPoint: { x: 0, y: 0 },
+      endPoint: { x: 0, y: 0 },
+      special: {},
+      x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment
+    };
+    out.push(vdom);
+    if (targetId) {
+      idMap.set(targetId, vdom);
+    }
   };
 
   // 4. 输出前置符号（从左向右）
@@ -712,7 +796,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   const domainStartX = measureX + prefixW;
   // region：0 第一线、1 第一间… 越大越高（y 越小），与 NoteSymbol.region 注释一致
   const noteCenterY = (region: number) =>
-    measureY + measureHeight - region * (measureHeight / 8);
+      measureY + measureHeight - region * (measureHeight / 8);
   const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
 
   if (notes.length > 0) {
@@ -728,13 +812,16 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
       const headKey = isRest ? getRestSkinKey(note.chronaxie) : getNoteHeadSkinKey(note.chronaxie);
       const item = skin[headKey];
       if (!item) continue;
-      const tag = isRest ? 'rest' : 'note';
+      const tag: VDom['tag'] = isRest ? 'rest' : 'note';
       const dataComment = isRest ? '休止符' : '音符';
       const ny = isRest
-        ? measureY + (measureHeight - item.h) / 2
-        : noteCenterY(note.region) - item.h / 2;
+          ? measureY + (measureHeight - item.h) / 2
+          : noteCenterY(note.region) - item.h / 2;
       const headX = slotStartX + (slotW - item.w) / 2;
-      out.push({
+      const vdom: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: {},
         x: headX,
         y: ny,
         w: item.w,
@@ -742,10 +829,12 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
         zIndex: z,
         tag,
         skinName: 'default',
-        targetId: note.id ?? '',
+        targetId: note.id,
         skinKey: headKey,
         dataComment,
-      });
+      }
+      out.push(vdom);
+      idMap.set(note.id, vdom);
       if (!isRest) {
         const stemTailVDoms = renderStemAndTail({
           note,
@@ -757,8 +846,15 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
           measureHeight,
           skin,
           zIndex: z,
+          idMap,
         });
-        out.push(...stemTailVDoms);
+        for (let i = 0; i < stemTailVDoms.length; i++) {
+          const vdom = stemTailVDoms[i];
+          out.push(vdom);
+          if (vdom.targetId) {
+            idMap.set(vdom.targetId, vdom);
+          }
+        }
       }
     }
   }
@@ -772,4 +868,83 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
 
   return out;
+}
+
+type RenderDoubleAffiliatedSymbolParams = {
+  musicScore: MusicScore,
+  VDoms: VDom[]
+  idMap: Map<string, VDom>,
+};
+
+function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbolParams) {
+  const { musicScore, idMap, VDoms } = params;
+  const symbols = musicScore.affiliatedSymbols ?? [];
+  for (let i = 0; i < symbols.length; i++) {
+    const affiliatedSymbol = symbols[i];
+    if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.slur) {
+      const startNote = idMap.get(affiliatedSymbol.startId);
+      const endNote = idMap.get(affiliatedSymbol.endId);
+      if (!startNote || !endNote) continue;
+      const slurData = affiliatedSymbol.data?.slur;
+      const relStart = slurData?.relativeStartPoint ?? { x: 0, y: 0 };
+      const relEnd = slurData?.relativeEndPoint ?? { x: 0, y: 0 };
+      // 起始点和结束点 = 音符中心 + data.slur 相对偏移（附属型符号ui规则）
+      const startPoint = {
+        x: startNote.x + startNote.w / 2 + relStart.x,
+        y: startNote.y + startNote.h / 2 + relStart.y,
+      };
+      const endPoint = {
+        x: endNote.x + endNote.w / 2 + relEnd.x,
+        y: endNote.y + endNote.h / 2 + relEnd.y,
+      };
+      const defaultSlur = {
+        relativeStartPoint: { x: 0, y: 0 },
+        relativeEndPoint: { x: 0, y: 0 },
+        relativeControlPoint: { x: 0, y: 0 },
+        thickness: 2,
+      };
+      const slurVDom: VDom = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        startPoint,
+        endPoint,
+        targetId: affiliatedSymbol.id,
+        zIndex: 1001,
+        tag: 'affiliation',
+        skinName: 'default',
+        dataComment: '连音线',
+        special: {
+          slur: slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur,
+        },
+      };
+      VDoms.push(slurVDom);
+    }
+    if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.volta) {
+      // volta：小节上方紧贴，宽度=小节宽，高度=measureHeight；relativeW/relativeH 生效（附属型符号ui规则）
+      const measureVDom = idMap.get(affiliatedSymbol.startId);
+      if (!measureVDom || measureVDom.tag !== 'measure') continue;
+      const measureH = measureVDom.h;
+      const voltaW = measureVDom.w + (affiliatedSymbol.relativeW ?? 0);
+      const voltaH = measureH + (affiliatedSymbol.relativeH ?? 0);
+      const voltaX = measureVDom.x + (affiliatedSymbol.relativeX ?? 0);
+      const voltaY = measureVDom.y - voltaH;
+      const voltaVDom: VDom = {
+        startPoint: { x: 0, y: 0 },
+        endPoint: { x: 0, y: 0 },
+        special: { volta: affiliatedSymbol.data?.volta ?? {} },
+        x: voltaX,
+        y: voltaY,
+        w: voltaW,
+        h: voltaH,
+        zIndex: 1001,
+        tag: 'affiliation',
+        skinName: 'default',
+        targetId: affiliatedSymbol.id,
+        dataComment: '反复房子',
+      };
+      VDoms.push(voltaVDom);
+    }
+  }
 }

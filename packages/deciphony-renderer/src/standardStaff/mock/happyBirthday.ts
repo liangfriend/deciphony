@@ -4,6 +4,7 @@ import {
   MusicScoreTypeEnum,
   NoteSymbolTypeEnum,
 } from "@/enums/musicScoreEnum";
+import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 import type {Clef, Measure, MusicScore, NoteSymbol, TimeSignature} from "@/types/MusicScoreType";
 import {Frame} from "@/types/common";
 
@@ -29,9 +30,10 @@ const time34: TimeSignature = {
 
 function note(
     region: number,
-    chronaxie: 4 | 8 = 8,
+    chronaxie: 64 | 32 = 32,
     widthRatio = 6,
     direction: 'up' | 'down' = 'up',
+    beamType: BeamTypeEnum = BeamTypeEnum.None,
 ): NoteSymbol {
   return {
     ...frame,
@@ -43,10 +45,11 @@ function note(
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
     affiliatedSymbols: [],
+    beamType,
   };
 }
 
-function rest(chronaxie: 4 | 8 = 4, widthRatio = 6): NoteSymbol {
+function rest(chronaxie: 64 | 32 = 64, widthRatio = 6): NoteSymbol {
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Rest,
@@ -57,19 +60,20 @@ function rest(chronaxie: 4 | 8 = 4, widthRatio = 6): NoteSymbol {
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
     affiliatedSymbols: [],
+    beamType: BeamTypeEnum.None,
   };
 }
 
 // 高音谱表位置（与 NoteSymbol.region 一致：0 第一线，1 第一间，region 越大越高）：0 第一线(E)，1 第一间(F)，2 第二线(G)，3 第二间(A)，4 第三线(B)，5 第三间(C5)，6 第四线(D5)，7 第四间(E5)
 // 祝你生日快乐 旋律 C 大调 3/4
-// 第一句：祝你生日快乐
+// 第一句：祝你生日快乐（前四个八分音符连成符杠便于查看效果）
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(6), // G4 祝
-    note(1), // G4 你
-    note(2), // A4 生
-    note(1), // G4 日
+    note(6, 32, 6, 'up', BeamTypeEnum.Combined), // G4 祝
+    note(1, 32, 6, 'up', BeamTypeEnum.Combined), // G4 你
+    note(2, 32, 6, 'up', BeamTypeEnum.Combined), // A4 生
+    note(1, 32, 6, 'up', BeamTypeEnum.Combined), // G4 日
     note(4), // C5 快
     note(3), // B4 乐
   ],

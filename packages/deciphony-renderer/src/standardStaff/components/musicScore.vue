@@ -12,6 +12,7 @@
       >
         <Slur v-if="node.special?.slur" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
+        <Beam v-else-if="node.special?.beam" :v-dom="node"/>
       </g>
       <g
           v-else-if="node.tag === 'slot' && node.slotName"
@@ -48,6 +49,7 @@ import {defaultSkin} from "@/skins/defaultSkin";
 import Group from './group.vue'
 import Slur from './slur.vue'
 import Volta from './volta.vue'
+import Beam from './beam.vue'
 import type {MusicScore} from "@/types/MusicScoreType";
 import type {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 

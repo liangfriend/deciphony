@@ -21,7 +21,8 @@ export type VDomTagType =
     | 'slot'           // 插槽
     | 'space'          // 空白（边距等）
     | 'affiliation'    // 附属符号
-export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 // 时值， 1 = 一分  2 = 二分
+/** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
+export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
 
 export type VDom = {
   x: number;

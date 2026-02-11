@@ -8,6 +8,7 @@ import {
   TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
+import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 // ==========================================通用================================================
 export type MusicScore = {
   id: string
@@ -57,6 +58,7 @@ export type NoteSymbol = {
   widthRatio: number
   widthRatioForMeasure: number,
   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
+  beamType: BeamTypeEnum
 } & Frame
 /*
 * 附属型符号 accent above, accidental等等， 符干符尾不属于附属型符号，它是根据音符时值信息固定逻辑判断是否存在的符号

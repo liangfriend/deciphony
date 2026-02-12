@@ -49,9 +49,8 @@ export type VDom = {
     };
     volta?: Record<string, unknown>;
     beam?: {
-      left: { x: number; y: number };
-      right: { x: number; y: number };
-      lineCount: number;
+      /** 每条符杠对应一个对象，便于扩展（如断开、样式等） */
+      lines: Array<Record<string, unknown>>;
       spacing: number;
       thickness: number;
       direction: 'up' | 'down';

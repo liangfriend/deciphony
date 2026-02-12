@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// 符杠：根据 vDom.special.beam 在绝对坐标下绘制多条连接线（8 分一条，16 分两条…）
+// 符杠：四边形，侧边垂直（平行于小节），上下边沿斜率；根据 vDom.startPoint/endPoint 与 special.beam.lines 绘制
 import {computed} from 'vue';
 import type {VDom} from '@/types/common';
 
@@ -8,39 +8,36 @@ const props = defineProps<{
 }>();
 
 const beam = computed(() => props.vDom.special?.beam);
-const lines = computed(() => {
+
+/** 每条符杠为四边形：左/右边垂直，上/下边沿起止点斜率 */
+const quads = computed(() => {
   const b = beam.value;
-  if (!b) return [];
-  const {left, right, lineCount, spacing, direction} = b;
-  const out: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
-  const sign = direction === 'up' ? 1 : -1;
-  for (let i = 0; i < lineCount; i++) {
-    const dy = i * spacing * sign;
-    out.push({
-      x1: left.x,
-      y1: left.y + dy,
-      x2: right.x,
-      y2: right.y + dy,
-    });
-  }
-  return out;
+  const {startPoint, endPoint} = props.vDom;
+  if (!b || !startPoint || !endPoint) return [];
+  const {lines, spacing, direction, thickness = 1.5} = b;
+  const left = startPoint;
+  const right = endPoint;
+  // 第一条符杠 = 符杠位置(i=0)，第二条第三条往下排；视觉往下 = y 增加
+  return lines.map((_, i) => {
+    const dy = i * (thickness + thickness);
+    if (direction === 'up') {
+      // 上边在上：左上一右上一右下—左下
+      return `M ${left.x} ${left.y + dy} L ${right.x} ${right.y + dy} L ${right.x} ${right.y + dy + thickness} L ${left.x} ${left.y + dy + thickness} Z`;
+    } else {
+      // 下边在下：左上—右上—右下—左下
+      return `M ${left.x} ${left.y - dy} L ${right.x} ${right.y - dy} L ${right.x} ${right.y - dy - thickness} L ${left.x} ${left.y - dy - thickness} Z`;
+    }
+  });
 });
 </script>
 
 <template>
-  <g v-if="beam" class="beam">
-    <line
-        v-for="(l, i) in lines"
-        :key="i"
-        :stroke-width="vDom.special.beam.thickness"
-        :x1="l.x1"
-        :x2="l.x2"
-        :y1="l.y1"
-        :y2="l.y2"
-        stroke="currentColor"
-        vector-effect="non-scaling-stroke"
-    />
-  </g>
+  <path
+      v-for="(d, i) in quads"
+      :key="i"
+      :d="d"
+      fill="currentColor"
+  />
 </template>
 
 <style scoped>

@@ -380,9 +380,9 @@ export function musicScoreToVDom(
             }
           }
 
-          // 4. 符杠条数（取组内最小时值）；5. 按左/中/右渲染每音符的符杠线段
-          // 符杠 stroke 以路径为中心向两侧扩展，视觉左缘在 left.x - thickness/2；右移半线宽使与符干左缘对齐
-          const beamStrokeHalf = (BEAM_THICKNESS * measureHeight) / 2;
+          // 4. 符杠条数（取组内最小时值）；5. 按左/中/右渲染每音符的符杠线段；起止点按当前皮肤符干半宽偏移
+          const stemSkin = skinPack[SkinKeyEnum.NoteStem];
+          const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
           const lineCount = Math.min(...group.map(n => chronaxieToBeamLineCount(n.chronaxie)));
           const nStems = stemEnds.length;
           for (let j = 0; j < nStems; j++) {
@@ -390,14 +390,15 @@ export function musicScoreToVDom(
             const rightX = j === nStems - 1 ? stemEnds[nStems - 1].x : (stemEnds[j].x + stemEnds[j + 1].x) / 2;
             const leftY = anchor.y + inclination * (leftX - anchor.x);
             const rightY = anchor.y + inclination * (rightX - anchor.x);
+            // 让符杠在符干中间位置
+            const dx = stemHalfW;
+            const dy = direction === 'up' ? -stemHalfW : stemHalfW;
             const beamVDom: VDom = {
-              startPoint: {x: 0, y: 0},
-              endPoint: {x: 0, y: 0},
+              startPoint: {x: leftX + dx, y: leftY + dy},
+              endPoint: {x: rightX + dx, y: rightY + dy},
               special: {
                 beam: {
-                  left: {x: leftX + beamStrokeHalf, y: leftY + beamStrokeHalf},
-                  right: {x: rightX + beamStrokeHalf, y: rightY + beamStrokeHalf},
-                  lineCount,
+                  lines: Array.from({length: lineCount}, () => ({})),
                   spacing: BEAM_LINE_SPACING * measureHeight,
                   thickness: BEAM_THICKNESS * measureHeight,
                   direction,
@@ -683,15 +684,15 @@ function getNoteTailSkinKey(chronaxie: number): SkinKeyEnum {
 const LINE_SPACING_RATIO = 1 / 8;
 
 /** 符杠最大倾斜角度（度） */
-const BEAM_MAX_SLOPE_DEG = 30;
+const BEAM_MAX_SLOPE_DEG = 15;
 
 /** 最小符干高度相对小节高度的比例（如 3/4 表示最小符干 = 3/4 * measureHeight） */
 const MIN_STEM_HEIGHT_RATIO = 7 / 8;
 
 /** 符杠单线粗细（stroke-width） */
-const BEAM_THICKNESS = 1 / 16;
+const BEAM_THICKNESS = 2 / 16;
 /** 符杠多条线之间的空隙 */
-const BEAM_LINE_SPACING = 3 / 32;
+const BEAM_LINE_SPACING = 2 / 32;
 
 /** 时值 → 符杠线数（32→1, 16→2, 8→3, 4→4, 2→5, 1→6） */
 function chronaxieToBeamLineCount(chronaxie: number): number {
@@ -772,7 +773,11 @@ function computeBeamSlope(stemEnds: Array<{ x: number; y: number }>, direction: 
     }
 
   }
-  return {inclination: curInclination, anchor: curAnchor};
+  // 限制在 ±maxSlope 内：正斜率不超过 maxSlope，负斜率不低于 -maxSlope
+  const clampedInclination = curInclination >= 0
+      ? Math.min(curInclination, maxSlope)
+      : Math.max(curInclination, -maxSlope);
+  return {inclination: clampedInclination, anchor: curAnchor};
 }
 
 /**

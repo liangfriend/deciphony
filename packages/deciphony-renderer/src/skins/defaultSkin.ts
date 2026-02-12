@@ -248,11 +248,11 @@ function makeTimeSignature(content: string, key: SkinKeyEnum) {
 // 音符头
 function makeNoteHead(key: SkinKeyEnum) {
   return {
-    content: `<svg width="node.w" height="node.h" viewBox="0 0 20 12">
-  <ellipse cx="10" cy="6" rx="8" ry="5" fill="black" />
-</svg>`,
-    w: 10,
-    h: 10,
+    content: `
+  <ellipse cx="8" cy="4" rx="8" ry="5" fill="black" />
+`,
+    w: 16,
+    h: 8,
     widthRatio: 0,
     widthRatioForMeasure: 0,
     skinKey: key,
@@ -261,10 +261,10 @@ function makeNoteHead(key: SkinKeyEnum) {
 
 // 符干（高度由 transfer 动态传入 node.h，需拉伸填满故用 preserveAspectRatio="none"）
 const noteStem = {
-  content: `<svg width="node.w" height="node.h" viewBox="0 0 4 40" preserveAspectRatio="none">
-  <line x1="2" y1="0" x2="2" y2="40" stroke="black" stroke-width="1.2" />
+  content: `<svg width="node.w" height="node.h" viewBox="0 0 1 40" preserveAspectRatio="none">
+  <line x1="0.5" y1="0" x2="0.5" y2="40" stroke="black" stroke-width="1" />
 </svg>`,
-  w: 3,
+  w: 1,
   h: 0, // 符干的高度是动态的，最小为3/4的小节高。这里h没有意义
 
   skinKey: SkinKeyEnum.NoteStem,

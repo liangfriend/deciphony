@@ -385,17 +385,21 @@ export function musicScoreToVDom(
           const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
           const lineCount = Math.min(...group.map(n => chronaxieToBeamLineCount(n.chronaxie)));
           const nStems = stemEnds.length;
+          const overlap = 1; // 交界处 ±1 消除缝隙：首音左侧、尾音右侧不延伸
           for (let j = 0; j < nStems; j++) {
             const leftX = j === 0 ? stemEnds[0].x : (stemEnds[j - 1].x + stemEnds[j].x) / 2;
             const rightX = j === nStems - 1 ? stemEnds[nStems - 1].x : (stemEnds[j].x + stemEnds[j + 1].x) / 2;
-            const leftY = anchor.y + inclination * (leftX - anchor.x);
-            const rightY = anchor.y + inclination * (rightX - anchor.x);
+            // 音符组内首音符右侧+1，中间音符左减1右加1，尾音符左-1，让符杠有轻微重叠保证视觉上连续
+            const leftXAdj = j > 0 ? leftX - overlap : leftX;
+            const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
+            const leftY = anchor.y + inclination * (leftXAdj - anchor.x);
+            const rightY = anchor.y + inclination * (rightXAdj - anchor.x);
             // 让符杠在符干中间位置
             const dx = stemHalfW;
             const dy = direction === 'up' ? -stemHalfW : stemHalfW;
             const beamVDom: VDom = {
-              startPoint: {x: leftX + dx, y: leftY + dy},
-              endPoint: {x: rightX + dx, y: rightY + dy},
+              startPoint: {x: leftXAdj + dx, y: leftY + dy},
+              endPoint: {x: rightXAdj + dx, y: rightY + dy},
               special: {
                 beam: {
                   lines: Array.from({length: lineCount}, () => ({})),

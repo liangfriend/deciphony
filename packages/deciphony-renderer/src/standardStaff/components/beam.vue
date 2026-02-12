@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // 符杠：根据 vDom.special.beam 在绝对坐标下绘制多条连接线（8 分一条，16 分两条…）
-import { computed } from 'vue';
-import type { VDom } from '@/types/common';
+import {computed} from 'vue';
+import type {VDom} from '@/types/common';
 
 const props = defineProps<{
   vDom: VDom;
@@ -11,7 +11,7 @@ const beam = computed(() => props.vDom.special?.beam);
 const lines = computed(() => {
   const b = beam.value;
   if (!b) return [];
-  const { left, right, lineCount, spacing, direction } = b;
+  const {left, right, lineCount, spacing, direction} = b;
   const out: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
   const sign = direction === 'up' ? 1 : -1;
   for (let i = 0; i < lineCount; i++) {
@@ -28,17 +28,17 @@ const lines = computed(() => {
 </script>
 
 <template>
-  <g class="beam" v-if="beam">
+  <g v-if="beam" class="beam">
     <line
-      v-for="(l, i) in lines"
-      :key="i"
-      :x1="l.x1"
-      :y1="l.y1"
-      :x2="l.x2"
-      :y2="l.y2"
-      stroke="currentColor"
-      stroke-width="1.5"
-      vector-effect="non-scaling-stroke"
+        v-for="(l, i) in lines"
+        :key="i"
+        :stroke-width="vDom.special.beam.thickness"
+        :x1="l.x1"
+        :x2="l.x2"
+        :y1="l.y1"
+        :y2="l.y2"
+        stroke="currentColor"
+        vector-effect="non-scaling-stroke"
     />
   </g>
 </template>

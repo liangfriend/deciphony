@@ -379,6 +379,42 @@ export function musicScoreToVDom(
               stem.y = headCenterY;
             }
           }
+
+          // 4. 符杠条数（取组内最小时值）；5. 按左/中/右渲染每音符的符杠线段
+          // 符杠 stroke 以路径为中心向两侧扩展，视觉左缘在 left.x - thickness/2；右移半线宽使与符干左缘对齐
+          const beamStrokeHalf = (BEAM_THICKNESS * measureHeight) / 2;
+          const lineCount = Math.min(...group.map(n => chronaxieToBeamLineCount(n.chronaxie)));
+          const nStems = stemEnds.length;
+          for (let j = 0; j < nStems; j++) {
+            const leftX = j === 0 ? stemEnds[0].x : (stemEnds[j - 1].x + stemEnds[j].x) / 2;
+            const rightX = j === nStems - 1 ? stemEnds[nStems - 1].x : (stemEnds[j].x + stemEnds[j + 1].x) / 2;
+            const leftY = anchor.y + inclination * (leftX - anchor.x);
+            const rightY = anchor.y + inclination * (rightX - anchor.x);
+            const beamVDom: VDom = {
+              startPoint: {x: 0, y: 0},
+              endPoint: {x: 0, y: 0},
+              special: {
+                beam: {
+                  left: {x: leftX + beamStrokeHalf, y: leftY + beamStrokeHalf},
+                  right: {x: rightX + beamStrokeHalf, y: rightY + beamStrokeHalf},
+                  lineCount,
+                  spacing: BEAM_LINE_SPACING * measureHeight,
+                  thickness: BEAM_THICKNESS * measureHeight,
+                  direction,
+                },
+              },
+              x: 0,
+              y: 0,
+              w: 0,
+              h: 0,
+              zIndex: 1001,
+              tag: 'affiliation',
+              skinName: 'default',
+              targetId: '',
+              dataComment: '符杠',
+            };
+            vDoms.push(beamVDom);
+          }
         }
 
         // 使用符杠时去掉组内音符的单独符尾（符杠替代符尾）
@@ -390,10 +426,6 @@ export function musicScoreToVDom(
             vDoms.splice(i, 1);
           }
         }
-
-        // 4. 计算音符要渲染的符杠条数，每条的模式
-
-        // 5. 渲染符干
 
         vDoms.push({
           startPoint: {x: 0, y: 0},
@@ -655,6 +687,17 @@ const BEAM_MAX_SLOPE_DEG = 30;
 
 /** 最小符干高度相对小节高度的比例（如 3/4 表示最小符干 = 3/4 * measureHeight） */
 const MIN_STEM_HEIGHT_RATIO = 7 / 8;
+
+/** 符杠单线粗细（stroke-width） */
+const BEAM_THICKNESS = 1 / 16;
+/** 符杠多条线之间的空隙 */
+const BEAM_LINE_SPACING = 3 / 32;
+
+/** 时值 → 符杠线数（32→1, 16→2, 8→3, 4→4, 2→5, 1→6） */
+function chronaxieToBeamLineCount(chronaxie: number): number {
+  const map: Record<number, number> = {32: 1, 16: 2, 8: 3, 4: 4, 2: 5, 1: 6};
+  return map[chronaxie] ?? 1;
+}
 
 /**
  * 符杠斜率：同一组音符依次「与尾部音符」连线，按三种情况取斜率（stemEnds 与符杠相接处：up=stem.y，down=stem.y+stem.h）。

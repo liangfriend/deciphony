@@ -48,6 +48,14 @@ export type VDom = {
       thickness: number, // 厚度，两个贝塞尔曲线控制点的y值差
     };
     volta?: Record<string, unknown>;
+    beam?: {
+      left: { x: number; y: number };
+      right: { x: number; y: number };
+      lineCount: number;
+      spacing: number;
+      thickness: number;
+      direction: 'up' | 'down';
+    };
   }
 }
 

@@ -70,10 +70,10 @@ function rest(chronaxie: 64 | 32 = 64, widthRatio = 6): NoteSymbol {
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(-2, 32, 6, 'up', BeamTypeEnum.Combined), // G4 祝
-    note(2, 32, 6, 'up', BeamTypeEnum.Combined), // G4 你
-    note(-2, 32, 6, 'up', BeamTypeEnum.Combined), // A4 生
-    note(-6, 32, 6, 'up', BeamTypeEnum.Combined), // G4 日
+    note(8, 8, 6, 'up', BeamTypeEnum.Combined), // G4 祝
+    note(4, 16, 6, 'up', BeamTypeEnum.Combined), // G4 你
+    note(-2, 16, 6, 'up', BeamTypeEnum.Combined), // A4 生
+    note(-6, 16, 6, 'up', BeamTypeEnum.Combined), // G4 日
     note(4), // C5 快
     note(3), // B4 乐
   ],

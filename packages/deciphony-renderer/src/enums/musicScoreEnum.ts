@@ -127,5 +127,9 @@ export enum SingleAffiliatedSymbolNameEnum {
 
 // 变音符号类型
 export enum AccidentalTypeEnum {
-
+  Sharp = 'Sharp',
+  Flat = 'Flat',
+  Double_sharp = 'double_sharp',
+  Double_flat = 'double_flat',
+  Natural = 'natural',
 }

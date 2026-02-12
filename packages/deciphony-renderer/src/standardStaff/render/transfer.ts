@@ -6,7 +6,13 @@
 
 import {Skin, SkinPack, SlotConfig, SlotName, VDom, VDomTagType} from "@/types/common";
 import {Measure, MusicScore, NoteSymbol} from "@/types/MusicScoreType";
-import {BarlineTypeEnum, DoubleAffiliatedSymbolNameEnum, NoteSymbolTypeEnum, SkinKeyEnum} from "@/enums/musicScoreEnum";
+import {
+  AccidentalTypeEnum,
+  BarlineTypeEnum,
+  DoubleAffiliatedSymbolNameEnum,
+  NoteSymbolTypeEnum,
+  SkinKeyEnum
+} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 
@@ -592,11 +598,14 @@ function getMeasureWidthRatio(meausre: Measure) {
   let acc = 0
   // 小节本身的宽度系数
   acc += meausre.widthRatioForMeasure
-  // 音符宽度系数
+  // 音符宽度系数（含变音符号的 widthRatioForMeasure，仅影响小节宽度分配，符号宽高由皮肤包指定）
   for (let i = 0; i < meausre.notes.length; i++) {
     const item = meausre.notes[i];
     if (item.widthRatioForMeasure) {
-      acc += item.widthRatioForMeasure
+      acc += item.widthRatioForMeasure;
+    }
+    if (item.accidental?.widthRatioForMeasure) {
+      acc += item.accidental.widthRatioForMeasure;
     }
   }
   // 小节线宽度系数
@@ -703,6 +712,21 @@ function chronaxieToBeamLineCount(chronaxie: number): number {
   const map: Record<number, number> = {32: 1, 16: 2, 8: 3, 4: 4, 2: 5, 1: 6};
   return map[chronaxie] ?? 1;
 }
+
+/** 变音符号类型 → 皮肤 key */
+function getAccidentalSkinKey(type: AccidentalTypeEnum): SkinKeyEnum {
+  const map: Record<AccidentalTypeEnum, SkinKeyEnum> = {
+    [AccidentalTypeEnum.Sharp]: SkinKeyEnum.Sharp,
+    [AccidentalTypeEnum.Flat]: SkinKeyEnum.Flat,
+    [AccidentalTypeEnum.Double_sharp]: SkinKeyEnum.Double_sharp,
+    [AccidentalTypeEnum.Double_flat]: SkinKeyEnum.Double_flat,
+    [AccidentalTypeEnum.Natural]: SkinKeyEnum.Natural,
+  };
+  return map[type] ?? SkinKeyEnum.Natural;
+}
+
+/** 变音符号与音符头之间的默认间距（像素） */
+const ACCIDENTAL_NOTE_GAP = 1 / 8;
 
 /**
  * 符杠斜率：同一组音符依次「与尾部音符」连线，按三种情况取斜率（stemEnds 与符杠相接处：up=stem.y，down=stem.y+stem.h）。
@@ -1073,6 +1097,33 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
           ? measureY + (measureHeight - item.h) / 2
           : noteCenterY(note.region) - item.h / 2;
       const headX = slotStartX + (slotW - item.w) / 2;
+      const headCenterY = ny + item.h / 2;
+      // 变音符号：中心与音符头中心纵坐标相同，横坐标在音符左侧留默认间距；宽高由皮肤包指定，widthRatioForMeasure 仅影响小节宽度系数；relativeX/relativeY 生效
+      if (!isRest && note.accidental) {
+        const acc = note.accidental;
+        const accSkinKey = getAccidentalSkinKey(acc.type);
+        const accSkin = skin[accSkinKey];
+        if (accSkin) {
+          const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w / 2 + (acc.relativeX ?? 0);
+          const accY = headCenterY - accSkin.h / 2 + (acc.relativeY ?? 0);
+          const accVDom: VDom = {
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: accX,
+            y: accY,
+            w: accSkin.w,
+            h: accSkin.h,
+            zIndex: z,
+            tag: 'accidental',
+            skinName: 'default',
+            targetId: acc.id ?? note.id,
+            skinKey: accSkinKey,
+            dataComment: '变音符号',
+          };
+          out.push(accVDom);
+        }
+      }
       const vdom: VDom = {
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},

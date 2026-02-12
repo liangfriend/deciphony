@@ -18,6 +18,7 @@ export type VDomTagType =
     | 'barline'        // 小节线
     | 'noteStem'       // 符干
     | 'noteTail'       // 符尾
+    | 'accidental'     // 变音符号
     | 'slot'           // 插槽
     | 'space'          // 空白（边距等）
     | 'affiliation'    // 附属符号

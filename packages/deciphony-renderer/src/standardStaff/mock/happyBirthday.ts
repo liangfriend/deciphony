@@ -1,4 +1,5 @@
 import {
+  AccidentalTypeEnum,
   BarlineTypeEnum,
   DoubleAffiliatedSymbolNameEnum,
   MusicScoreTypeEnum,
@@ -44,6 +45,12 @@ function note(
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
+    accidental: {
+      ...frame,
+      id: crypto.randomUUID(),
+      type: AccidentalTypeEnum.Double_flat,
+      widthRatioForMeasure: 10
+    },
     affiliatedSymbols: [],
     beamType,
   };

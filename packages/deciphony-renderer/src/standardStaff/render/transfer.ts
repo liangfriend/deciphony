@@ -4,11 +4,23 @@
  * 小节及更细部分由调用方处理（m 插槽处预留空间）
  */
 
-import {Skin, SkinPack, SlotConfig, SlotName, VDom} from "@/types/common";
+import {Skin, SkinPack, SlotConfig, SlotName, VDom, VDomTagType} from "@/types/common";
 import {Measure, MusicScore, NoteSymbol} from "@/types/MusicScoreType";
 import {BarlineTypeEnum, DoubleAffiliatedSymbolNameEnum, NoteSymbolTypeEnum, SkinKeyEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
+
+/** id -> 以 vDom.tag 为键的 VDom 对象，便于按 tag 查找同一 id 下的音符头/符干/符尾等 */
+export type NodeIdMap = Map<string, Partial<Record<VDomTagType, VDom>>>;
+
+function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
+  let obj = map.get(id);
+  if (!obj) {
+    obj = {};
+    map.set(id, obj);
+  }
+  obj[vdom.tag] = vdom;
+}
 
 function getSlotH(config: SlotConfig | undefined, name: SlotName): number {
   return config?.[name]?.h ?? 0;
@@ -29,8 +41,8 @@ export function musicScoreToVDom(
     slotConfig?: SlotConfig,
     options?: { measureHeight?: number; skin?: Skin },
 ): VDom[] {
-  // 用于通过id快速查找
-  const nodeIdMap = new Map<string, VDom>();
+  // 用于通过 id 快速查找，值为以 vDom.tag 为键的对象（如 note、noteStem、noteTail、affiliation）
+  const nodeIdMap: NodeIdMap = new Map();
 
 
   const {width, grandStaffs} = musicScore;
@@ -280,7 +292,7 @@ export function musicScoreToVDom(
           skinKey: SkinKeyEnum.Measure,
         };
         vDoms.push(vdom);
-        nodeIdMap.set(measure.id, vdom)
+        setNodeIdMap(nodeIdMap, measure.id, vdom);
         measureCurrentX += measureWdith
       }
       // 小节插槽是覆盖上去的，所以不会增加grandStaffCurrentY
@@ -305,6 +317,84 @@ export function musicScoreToVDom(
           idMap: nodeIdMap
         });
         vDoms.push(...symbolVDoms);
+        // ================================================== beam =======================================================
+        // 1. 获取音符组：符杠方向相同 & 有符尾(chronaxie<=32) & beamType 正确
+        const beamGroups: NoteSymbol[][] = [];
+        for (let i = 0; i < measure.notes.length; i++) {
+          const note = measure.notes[i];
+          const preNote = measure.notes[i - 1];
+          const nextNote = measure.notes[i + 1];
+          const hasTail = note.chronaxie <= 32;
+          const preHasTail = preNote?.chronaxie <= 32;
+          const nextHasTail = nextNote?.chronaxie <= 32;
+          const canBeamWithNext = nextNote && note.type === NoteSymbolTypeEnum.Note && nextNote.type === NoteSymbolTypeEnum.Note
+              && hasTail && nextHasTail && note.direction === nextNote.direction
+              && note.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextNote.beamType);
+          const canBeamWithPre = preNote && preNote.direction === note.direction && preHasTail && hasTail
+              && preNote.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(note.beamType);
+
+          if (canBeamWithPre && beamGroups.length > 0) {
+            beamGroups[beamGroups.length - 1].push(note);
+            continue;
+          }
+          if (canBeamWithNext) {
+            beamGroups.push([note]);
+          }
+        }
+        const beamGroupsFiltered = beamGroups.filter(g => g.length >= 2);
+        // 2. 计算符杠斜率（逐个「第 k 与最后」取倾斜度最小，再限制 ±30°）
+        const minStemLength = MIN_STEM_HEIGHT_RATIO * measureHeight;
+        for (const group of beamGroupsFiltered) {
+          const direction = group[0].direction;
+          const stemEnds: Array<{ x: number; y: number }> = [];
+          for (const note of group) {
+            const stem = nodeIdMap.get(note.id)?.noteStem;
+            if (!stem) continue;
+            const x = stem.x;
+            const y = direction === 'up' ? stem.y : stem.y + stem.h;
+            stemEnds.push({x, y});
+          }
+          if (stemEnds.length < 2) continue;
+          const {inclination, anchor} = computeBeamSlope(stemEnds, direction);
+          const firstX = stemEnds[0].x;
+          const firstY = stemEnds[0].y;
+
+          // 3. 按 x 计算符杠上的 y，更新符干 vdom：符干从音符头接到符杠，h = 头心到符杠的距离，y = 符杠端（上）或头心（下）
+          for (const note of group) {
+            const stem = nodeIdMap.get(note.id)?.noteStem as VDom | undefined;
+            const noteVDom = nodeIdMap.get(note.id)?.note;
+            if (!stem || !noteVDom) continue;
+            const headCenterY = noteVDom.y + noteVDom.h / 2;
+            const stemX = stem.x;
+            const beamY = anchor.y + inclination * (stemX - anchor.x);
+            if (direction === 'up') {
+              const desiredH = headCenterY - beamY;
+
+              stem.h = Math.max(desiredH, minStemLength);
+              stem.y = headCenterY - stem.h;
+
+            } else {
+              const desiredH = beamY - headCenterY;
+              stem.h = Math.max(desiredH, minStemLength);
+              stem.y = headCenterY;
+            }
+          }
+        }
+
+        // 使用符杠时去掉组内音符的单独符尾（符杠替代符尾）
+        const beamedNoteIds = new Set(beamGroupsFiltered.flat().map(n => n.id));
+        const startIdx = vDoms.length - symbolVDoms.length;
+        for (let i = vDoms.length - 1; i >= startIdx; i--) {
+          const node = vDoms[i];
+          if (node.tag === 'noteTail' && beamedNoteIds.has(node.targetId)) {
+            vDoms.splice(i, 1);
+          }
+        }
+
+        // 4. 计算音符要渲染的符杠条数，每条的模式
+
+        // 5. 渲染符干
+
         vDoms.push({
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
@@ -560,6 +650,88 @@ function getNoteTailSkinKey(chronaxie: number): SkinKeyEnum {
 /** 一节高度（一线或一间的距离） */
 const LINE_SPACING_RATIO = 1 / 8;
 
+/** 符杠最大倾斜角度（度） */
+const BEAM_MAX_SLOPE_DEG = 30;
+
+/** 最小符干高度相对小节高度的比例（如 3/4 表示最小符干 = 3/4 * measureHeight） */
+const MIN_STEM_HEIGHT_RATIO = 7 / 8;
+
+/**
+ * 符杠斜率：同一组音符依次「与尾部音符」连线，按三种情况取斜率（stemEnds 与符杠相接处：up=stem.y，down=stem.y+stem.h）。
+ * 符干朝上时 y 越小表示符干离小节越远（越往上）。
+ * 情况1：所有中间音符连线斜率均小于等于两侧连线，且小于最大斜率 → 斜率为两侧音符连线（首尾）。
+ * 情况2：存在中间音符连线斜率大于两侧连线 → 斜率为 0（符杠平行于小节）。
+ * 情况3：存在中间音符连线斜率大于两侧其一且该斜率小于最大斜率 → 斜率为该中间音符连线（当前与情况2 统一为：大于两侧则取 0）。
+ */
+function computeBeamSlope(stemEnds: Array<{ x: number; y: number }>, direction: 'up' | 'down'): {
+  inclination: number,
+  anchor: { x: number, y: number }
+} {
+  const n = stemEnds.length;
+  const last = stemEnds[n - 1];
+  const first = stemEnds[0];
+  let curAnchor = null;
+  // 判断如果中间有音符比两侧大，直接=0
+  if (direction === 'up') {
+    const minY = Math.min(first.y, last.y)
+
+    for (let i = 1; i < (n - 1); i++) {
+      const curStemPosition = stemEnds[i];
+      if (curStemPosition.y <= minY) {
+        if (!curAnchor) {
+          curAnchor = {x: stemEnds[0].x, y: curStemPosition.y};
+        } else if (curAnchor.y > curStemPosition.y) {
+          curAnchor.y = curStemPosition.y;
+        }
+      }
+    }
+  } else { // 向下的情况
+    const maxY = Math.min(first.y, last.y)
+    for (let i = 1; i < (n - 1); i++) {
+      const curStemPosition = stemEnds[i];
+      if (curStemPosition.y >= maxY) {
+        if (!curAnchor) {
+          curAnchor = {x: stemEnds[0].x, y: curStemPosition.y};
+        } else if (curAnchor.y > curStemPosition.y) {
+          curAnchor.y = curStemPosition.y;
+        }
+      }
+    }
+  }
+  // 存在中间音符远离度大于两侧音符的情况，直接返回0斜率
+  if (curAnchor) {
+    return {inclination: 0, anchor: curAnchor};
+  }
+  // 有音符大于两侧其一的情况
+  let curInclination = (last.y - first.y) / (last.x - first.x)
+  curAnchor = first
+  // 最大斜率
+  const maxSlope = Math.tan((BEAM_MAX_SLOPE_DEG * Math.PI) / 180); // tan30 = 0.57
+
+
+  // 判断两端音符连线是上坡还是下坡
+  let isNegative = curInclination < 0
+  curAnchor = isNegative ? last : first
+  for (let i = 1; i < (n - 1); i++) {
+
+    const curStemPosition = stemEnds[i];
+    // 下坡的情况
+    if (!isNegative) {
+      // 出现了上坡就直接continue
+      if ((curStemPosition.y - first.y) < 0) continue
+      // 斜率是正的，找出最小的那个
+      curInclination = Math.min(curInclination, (curStemPosition.y - first.y) / (curStemPosition.x - first.x))
+    } else { // 上坡的情况
+      // 出现了下坡就直接continue
+      if ((last.y - curStemPosition.y) > 0) continue
+      // 斜率是负的，找出最小的那个
+      curInclination = Math.max(curInclination, (last.y - curStemPosition.y) / (last.x - curStemPosition.x))
+    }
+
+  }
+  return {inclination: curInclination, anchor: curAnchor};
+}
+
 /**
  * 符干高度：动态计算，最小为 3/4 小节高。
  * 仅当音符头明显超出中线（超过 3 个线间距）时才拉长：向上仅当在中线以上超 3 间距，向下仅当在中线以下超 3 间距。
@@ -572,15 +744,24 @@ function getStemLength(params: {
   measureHeight: number;
 }): number {
   const {direction, headCenterY, measureY, measureHeight} = params;
-  const minStem = (3 / 4) * measureHeight;
+  const minStem = MIN_STEM_HEIGHT_RATIO * measureHeight;
   const staffCenterY = measureY + measureHeight / 2;
   const lineSpacing = measureHeight * LINE_SPACING_RATIO;
-  const elongationThreshold = 3 * lineSpacing;
-  if (direction === 'up' && headCenterY < staffCenterY - elongationThreshold) {
-    return minStem + (staffCenterY - headCenterY);
+  // 现在是超过中线开始拉长，改动这个可以改变这个值
+  const elongationThreshold = lineSpacing * 2
+  if (direction === 'up') {
+    if ((headCenterY - staffCenterY + elongationThreshold) < minStem) {
+      return minStem
+    } else {
+      return (headCenterY - staffCenterY + elongationThreshold);
+    }
   }
-  if (direction === 'down' && headCenterY > staffCenterY + elongationThreshold) {
-    return minStem + (headCenterY - staffCenterY);
+  if (direction === 'down') {
+    if ((staffCenterY - headCenterY + elongationThreshold) < minStem) {
+      return minStem
+    } else {
+      return (staffCenterY - headCenterY + elongationThreshold);
+    }
   }
   return minStem;
 }
@@ -599,7 +780,7 @@ function renderStemAndTail(params: {
   measureHeight: number;
   skin: SkinPack;
   zIndex: number;
-  idMap: Map<string, VDom>;
+  idMap: NodeIdMap;
 }): VDom[] {
   const {note, headX, headY, headW, headH, measureY, measureHeight, skin, zIndex} = params;
   const out: VDom[] = [];
@@ -613,7 +794,7 @@ function renderStemAndTail(params: {
   const stemLength = getStemLength({direction, headCenterY, measureY, measureHeight});
   const stemW = stemSkin.w;
 
-  // const targetId = note.id ?? ''; 放置slur选中错误音符头位置，先注释掉
+  const targetId = note.id ?? '';
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
@@ -628,7 +809,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
-      targetId: '',
+      targetId: targetId,
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -646,7 +827,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
-          targetId: '',
+          targetId: targetId,
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -666,7 +847,7 @@ function renderStemAndTail(params: {
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
-      targetId: '',
+      targetId: targetId,
       skinKey: SkinKeyEnum.NoteStem,
       dataComment: '符干',
     });
@@ -684,7 +865,7 @@ function renderStemAndTail(params: {
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
-          targetId: '',
+          targetId: targetId,
           skinKey: getNoteTailSkinKey(note.chronaxie),
           dataComment: '符尾',
         });
@@ -701,7 +882,7 @@ type RenderSymbolParams = {
   measureWidth: number;
   measureHeight: number;
   skin: SkinPack;
-  idMap: Map<string, VDom>;
+  idMap: NodeIdMap;
 };
 
 /**
@@ -789,7 +970,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     };
     out.push(vdom);
     if (targetId) {
-      idMap.set(targetId, vdom);
+      setNodeIdMap(idMap, targetId, vdom);
     }
   };
 
@@ -823,20 +1004,6 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   if (notes.length > 0) {
     let accRatio = 0;
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
-    // 收集音符组信息
-    const beamGroup = [[]]
-    for (let i = 0; i < notes.length; i++) {
-      const note = notes[i];
-      const nextNote = note[i + 1]
-      // 满足符杠存在的条件
-      if (nextNote && (nextNote.direction === note.direction) && note.chronaxie <= 32 && nextNote <= 32
-          && note.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextNote.beamType)) {
-        beamGroup.at(-1).push({id: note.id, region: note.region, direction: note.direction, beamType: note.beamType});
-      } else { // 断开
-        beamGroup.push([])
-      }
-    }
-    beamGroup.filter(e => e.length !== 0) // 过滤空元素
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i];
       const nextNote = notes[i + 1];
@@ -870,14 +1037,8 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
         dataComment,
       }
       out.push(vdom);
-      idMap.set(note.id, vdom);
+      setNodeIdMap(idMap, note.id, vdom);
       if (!isRest) {
-        /*
-        * 符干连接规则，存在符尾 & 符干方向相同 & beamType正确 则连接
-        * 至于其它规则，那是编辑扩展需要考虑的事情
-        * */
-        // 通过beamGroup信息计算符干高度，位置，渲染符杠，符杠应该是一段一段的，宽度为note和nextNote之间的距离，最后一个note不用渲染符杠
-        // 通过region计算一个音符组的符杠角度
         const stemTailVDoms = renderStemAndTail({
           note,
           headX,
@@ -889,14 +1050,12 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
           skin,
           zIndex: z,
           idMap,
-          hasBeam
         });
         for (let i = 0; i < stemTailVDoms.length; i++) {
-          const vdom = stemTailVDoms[i];
-          out.push(vdom);
-          if (vdom.targetId) {
-            idMap.set(vdom.targetId, vdom);
-          }
+          const v = stemTailVDoms[i];
+          out.push(v);
+          // 符干、符尾按 tag 存入 nodeIdMap（同一 note.id 下 noteStem / noteTail）
+          if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
         }
       }
     }
@@ -916,7 +1075,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
 type RenderDoubleAffiliatedSymbolParams = {
   musicScore: MusicScore,
   VDoms: VDom[]
-  idMap: Map<string, VDom>,
+  idMap: NodeIdMap,
 };
 
 function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbolParams) {
@@ -925,8 +1084,8 @@ function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbolParams
   for (let i = 0; i < symbols.length; i++) {
     const affiliatedSymbol = symbols[i];
     if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.slur) {
-      const startNote = idMap.get(affiliatedSymbol.startId);
-      const endNote = idMap.get(affiliatedSymbol.endId);
+      const startNote = idMap.get(affiliatedSymbol.startId)?.note;
+      const endNote = idMap.get(affiliatedSymbol.endId)?.note;
       if (!startNote || !endNote) continue;
       const slurData = affiliatedSymbol.data?.slur;
       const relStart = slurData?.relativeStartPoint ?? {x: 0, y: 0};
@@ -966,11 +1125,12 @@ function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbolParams
     }
     if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.volta) {
       // volta：小节上方紧贴，宽度=小节宽，高度=measureHeight；relativeW/relativeH 生效（附属型符号ui规则）
-      const measureVDom = idMap.get(affiliatedSymbol.startId);
-      if (!measureVDom || measureVDom.tag !== 'measure') continue;
+      const measureVDom = idMap.get(affiliatedSymbol.startId)?.measure;
+      if (!measureVDom) continue;
       const measureH = measureVDom.h;
       const voltaW = measureVDom.w + (affiliatedSymbol.relativeW ?? 0);
-      const voltaH = measureH + (affiliatedSymbol.relativeH ?? 0);
+      // 默认高度1/2小节高度
+      const voltaH = measureH / 2 + (affiliatedSymbol.relativeH ?? 0);
       const voltaX = measureVDom.x + (affiliatedSymbol.relativeX ?? 0);
       const voltaY = measureVDom.y - voltaH;
       const voltaVDom: VDom = {

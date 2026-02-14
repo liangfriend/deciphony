@@ -58,8 +58,8 @@ const bass = {
   skinKey: SkinKeyEnum.Bass,
 };
 
-const trebleBig = {...treble, w: 22, skinKey: SkinKeyEnum.Treble_big};
-const bassBig = {...bass, w: 22, skinKey: SkinKeyEnum.Bass_big};
+const trebleF = {...treble, w: 22, skinKey: SkinKeyEnum.Treble_f};
+const bassF = {...bass, w: 22, skinKey: SkinKeyEnum.Bass_f};
 
 // 变音记号
 const sharp = {
@@ -304,8 +304,8 @@ export const redSkin: Skin = {
   // 谱号
   [SkinKeyEnum.Treble]: treble,
   [SkinKeyEnum.Bass]: bass,
-  [SkinKeyEnum.Treble_big]: trebleBig,
-  [SkinKeyEnum.Bass_big]: bassBig,
+  [SkinKeyEnum.Treble_f]: trebleF,
+  [SkinKeyEnum.Bass_f]: bassF,
 
   // 变音符
   [SkinKeyEnum.Sharp]: sharp,
@@ -333,6 +333,7 @@ export const redSkin: Skin = {
   [SkinKeyEnum["2_4"]]: makeTimeSignature("2/4", SkinKeyEnum["2_4"]),
   [SkinKeyEnum["3_4"]]: makeTimeSignature("3/4", SkinKeyEnum["3_4"]),
   [SkinKeyEnum["4_4"]]: makeTimeSignature("4/4", SkinKeyEnum["4_4"]),
+  [SkinKeyEnum["3_8"]]: makeTimeSignature("3/8", SkinKeyEnum["3_8"]),
   [SkinKeyEnum["6_8"]]: makeTimeSignature("6/8", SkinKeyEnum["6_8"]),
 
   // 音符头
@@ -352,13 +353,13 @@ export const redSkin: Skin = {
   [SkinKeyEnum.NoteTail_6]: makeNoteTail(1.5, SkinKeyEnum.NoteTail_6),
 
   // 休止符
-  [SkinKeyEnum.rest_1]: makeRest(SkinKeyEnum.rest_1),
-  [SkinKeyEnum.rest_2]: makeRest(SkinKeyEnum.rest_2),
-  [SkinKeyEnum.rest_3]: makeRest(SkinKeyEnum.rest_3),
-  [SkinKeyEnum.rest_4]: makeRest(SkinKeyEnum.rest_4),
-  [SkinKeyEnum.rest_5]: makeRest(SkinKeyEnum.rest_5),
-  [SkinKeyEnum.rest_6]: makeRest(SkinKeyEnum.rest_6),
-  [SkinKeyEnum.rest_7]: makeRest(SkinKeyEnum.rest_7),
-  [SkinKeyEnum.rest_8]: makeRest(SkinKeyEnum.rest_8),
-  [SkinKeyEnum.rest_9]: makeRest(SkinKeyEnum.rest_9),
+  [SkinKeyEnum.Rest_1]: makeRest(SkinKeyEnum.Rest_1),
+  [SkinKeyEnum.Rest_2]: makeRest(SkinKeyEnum.Rest_2),
+  [SkinKeyEnum.Rest_3]: makeRest(SkinKeyEnum.Rest_3),
+  [SkinKeyEnum.Rest_4]: makeRest(SkinKeyEnum.Rest_4),
+  [SkinKeyEnum.Rest_5]: makeRest(SkinKeyEnum.Rest_5),
+  [SkinKeyEnum.Rest_6]: makeRest(SkinKeyEnum.Rest_6),
+  [SkinKeyEnum.Rest_7]: makeRest(SkinKeyEnum.Rest_7),
+  [SkinKeyEnum.Rest_8]: makeRest(SkinKeyEnum.Rest_8),
+  [SkinKeyEnum.Rest_9]: makeRest(SkinKeyEnum.Rest_9),
 };

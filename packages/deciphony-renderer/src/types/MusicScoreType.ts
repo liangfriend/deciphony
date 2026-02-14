@@ -100,7 +100,7 @@ export type Barline = {
 // 谱号 谱号出现在小节和音符上 后置谱号在小节线之前
 export type Clef = {
   id: string
-  barlineType: ClefTypeEnum
+  clefType: ClefTypeEnum
   widthRatioForMeasure: number
 } & Frame
 // 调号 后置调号在小节线之后

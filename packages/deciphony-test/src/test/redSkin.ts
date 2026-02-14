@@ -352,13 +352,13 @@ export const redSkin: Skin = {
   [SkinKeyEnum.NoteTail_6]: makeNoteTail(1.5, SkinKeyEnum.NoteTail_6),
 
   // 休止符
-  [SkinKeyEnum.rest_1]: makeRest(SkinKeyEnum.rest_1),
-  [SkinKeyEnum.rest_2]: makeRest(SkinKeyEnum.rest_2),
-  [SkinKeyEnum.rest_3]: makeRest(SkinKeyEnum.rest_3),
-  [SkinKeyEnum.rest_4]: makeRest(SkinKeyEnum.rest_4),
-  [SkinKeyEnum.rest_5]: makeRest(SkinKeyEnum.rest_5),
-  [SkinKeyEnum.rest_6]: makeRest(SkinKeyEnum.rest_6),
-  [SkinKeyEnum.rest_7]: makeRest(SkinKeyEnum.rest_7),
-  [SkinKeyEnum.rest_8]: makeRest(SkinKeyEnum.rest_8),
-  [SkinKeyEnum.rest_9]: makeRest(SkinKeyEnum.rest_9),
+  [SkinKeyEnum.Rest_1]: makeRest(SkinKeyEnum.Rest_1),
+  [SkinKeyEnum.Rest_2]: makeRest(SkinKeyEnum.Rest_2),
+  [SkinKeyEnum.Rest_3]: makeRest(SkinKeyEnum.Rest_3),
+  [SkinKeyEnum.Rest_4]: makeRest(SkinKeyEnum.Rest_4),
+  [SkinKeyEnum.Rest_5]: makeRest(SkinKeyEnum.Rest_5),
+  [SkinKeyEnum.Rest_6]: makeRest(SkinKeyEnum.Rest_6),
+  [SkinKeyEnum.Rest_7]: makeRest(SkinKeyEnum.Rest_7),
+  [SkinKeyEnum.Rest_8]: makeRest(SkinKeyEnum.Rest_8),
+  [SkinKeyEnum.Rest_9]: makeRest(SkinKeyEnum.Rest_9),
 };

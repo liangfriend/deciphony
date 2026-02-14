@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {VDom, Skin, SkinPack} from "@/types/common";
+import {Skin, SkinPack, VDom} from "@/types/common";
 import {defaultSkin} from "@/skins/defaultSkin";
 
 defineOptions({
@@ -65,6 +65,8 @@ const handleSkin = computed(() => {
     if (!skinItem) return ''
     let temp = skinItem.content
     temp = temp.replaceAll('node.w', '' + node.w).replaceAll('node.h', '' + node.h)
+    // 为根 <svg> 注入 style 强制宽高，避免嵌套 SVG 无内容时被折叠为 0（期望尺寸由 width/height 决定）
+    temp = temp.replace(/<svg([^>]*)>/i, (_, attrs) => `<svg${attrs} style="width:${node.w}px;height:${node.h}px;display:block">`)
     return temp
   }
 })
@@ -72,12 +74,12 @@ const handleSkin = computed(() => {
 
 <template>
   <g
-    :data-comment="comment"
-    :data-slot-name="node.slotName"
-    :data-tag="node.tag"
-    :data-target-id="node.targetId"
-    :transform="`translate(${node.x}, ${node.y})`"
-    v-html="(node.skinKey ? handleSkin(skinPack[node.skinKey], node) :'')"
+      :data-comment="comment"
+      :data-slot-name="node.slotName"
+      :data-tag="node.tag"
+      :data-target-id="node.targetId"
+      :transform="`translate(${node.x}, ${node.y})`"
+      v-html="(node.skinKey ? handleSkin(skinPack[node.skinKey], node) :'')"
   >
 
   </g>

@@ -9,12 +9,11 @@ export enum MusicScoreTypeEnum {
 export enum SkinKeyEnum {
   // 小节
   Measure = 'measure',
-  // 谱号
+  // 谱号（Treble_f/Bass_f 为单谱表第一小节前置谱号，通常略大）
   Treble = 'treble',
   Bass = 'bass',
-  // 单谱表第一小节的谱号稍微大一些
-  Treble_big = 'treble_big',
-  Bass_big = 'bass_big',
+  Treble_f = 'treble_f',
+  Bass_f = 'bass_f',
   // 变音符
   Sharp = 'sharp',
   Flat = 'flat',
@@ -39,8 +38,8 @@ export enum SkinKeyEnum {
   '2_4' = '2_4',
   '3_4' = '3_4',
   '4_4' = '4_4',
+  '3_8' = '3_8',
   '6_8' = '6_8',
-  // TODO 补全拍号
   // 音符头
   NoteHead_1 = 'noteHead_1', // 一分音符头
   NoteHead_2 = 'noteHead_2', // 二分音符头
@@ -54,16 +53,23 @@ export enum SkinKeyEnum {
   NoteTail_4 = 'noteTail_4', // 64分符尾
   NoteTail_5 = 'noteTail_5', // 128分符尾
   NoteTail_6 = 'noteTail_6', // 256分符尾
+  // 符尾倒（符干方向朝下时使用）
+  NoteTail_1_r = 'noteTail_1_r', // 8分符尾
+  NoteTail_2_r = 'noteTail_2_r', // 16分符尾
+  NoteTail_3_r = 'noteTail_3_r', // 32分符尾
+  NoteTail_4_r = 'noteTail_4_r', // 64分符尾
+  NoteTail_5_r = 'noteTail_5_r', // 128分符尾
+  NoteTail_6_r = 'noteTail_6_r', // 256分符尾
   // 休止符
-  rest_1 = 'rest_1', // 全休止符
-  rest_2 = 'rest_2', // 2分休止符
-  rest_3 = 'rest_3', // 4分休止符
-  rest_4 = 'rest_4', // 8分休止符
-  rest_5 = 'rest_5', // 16分休止符
-  rest_6 = 'rest_6', // 32分休止符
-  rest_7 = 'rest_7', // 64分休止符
-  rest_8 = 'rest_8', // 128分休止符
-  rest_9 = 'rest_9', // 256分休止符
+  Rest_1 = 'rest_1', // 全休止符
+  Rest_2 = 'rest_2', // 2分休止符
+  Rest_3 = 'rest_3', // 4分休止符
+  Rest_4 = 'rest_4', // 8分休止符
+  Rest_5 = 'rest_5', // 16分休止符
+  Rest_6 = 'rest_6', // 32分休止符
+  Rest_7 = 'rest_7', // 64分休止符
+  Rest_8 = 'rest_8', // 128分休止符
+  Rest_9 = 'rest_9', // 256分休止符
 
 }
 
@@ -82,16 +88,41 @@ export enum BarlineTypeEnum {
   Heavy_double_barline = 'heavy_double_barline',
 }
 
+// 谱号
 export enum ClefTypeEnum {
-
+  Treble = 'treble',
+  Bass = 'bass',
+  Alto = 'alto',
+  Tenor = 'tenor',
 }
 
+// 调号（升号调 / 降号调，与皮肤 Sharp / Flat 对应）
 export enum KeySignatureTypeEnum {
-
+  C = 'C',
+  G = 'G',
+  D = 'D',
+  A = 'A',
+  E = 'E',
+  B = 'B',
+  F_sharp = 'F_sharp',
+  F = 'F',
+  B_flat = 'B_flat',
+  E_flat = 'E_flat',
+  A_flat = 'A_flat',
+  D_flat = 'D_flat',
+  G_flat = 'G_flat',
+  C_flat = 'C_flat',
 }
 
+// 拍号
 export enum TimeSignatureTypeEnum {
-
+  '1_1' = '1_1',
+  '1_4' = '1_4',
+  '2_4' = '2_4',
+  '3_4' = '3_4',
+  '4_4' = '4_4',
+  '3_8' = '3_8',
+  '6_8' = '6_8',
 }
 
 // 跨小节符号类型

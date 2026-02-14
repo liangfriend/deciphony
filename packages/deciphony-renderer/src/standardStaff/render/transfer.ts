@@ -9,9 +9,12 @@ import {Measure, MusicScore, NoteSymbol} from "@/types/MusicScoreType";
 import {
   AccidentalTypeEnum,
   BarlineTypeEnum,
+  ClefTypeEnum,
   DoubleAffiliatedSymbolNameEnum,
+  KeySignatureTypeEnum,
   NoteSymbolTypeEnum,
-  SkinKeyEnum
+  SkinKeyEnum,
+  TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
@@ -657,6 +660,51 @@ function getBarlineSkinKey(barlineType: BarlineTypeEnum): SkinKeyEnum {
   return map[barlineType] ?? SkinKeyEnum.Single_barline;
 }
 
+/** 谱号类型 + 是否前置（前置用 Treble_f/Bass_f，后置用 Treble/Bass）；Alto/Tenor 暂用 Treble/Bass） */
+function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): SkinKeyEnum {
+  switch (clefType) {
+    case ClefTypeEnum.Treble:
+      return isFront ? SkinKeyEnum.Treble_f : SkinKeyEnum.Treble;
+    case ClefTypeEnum.Bass:
+      return isFront ? SkinKeyEnum.Bass_f : SkinKeyEnum.Bass;
+    case ClefTypeEnum.Alto:
+    case ClefTypeEnum.Tenor:
+      return isFront ? SkinKeyEnum.Treble_f : SkinKeyEnum.Treble;
+    default:
+      return isFront ? SkinKeyEnum.Treble_f : SkinKeyEnum.Treble;
+  }
+}
+
+/** 调号类型 → 皮肤键（升号调用 Sharp，降号调用 Flat） */
+function getKeySignatureSkinKey(type?: KeySignatureTypeEnum): SkinKeyEnum {
+  if (type == null) return SkinKeyEnum.Sharp;
+  const flatKeys: KeySignatureTypeEnum[] = [
+    KeySignatureTypeEnum.F,
+    KeySignatureTypeEnum.B_flat,
+    KeySignatureTypeEnum.E_flat,
+    KeySignatureTypeEnum.A_flat,
+    KeySignatureTypeEnum.D_flat,
+    KeySignatureTypeEnum.G_flat,
+    KeySignatureTypeEnum.C_flat,
+  ];
+  return flatKeys.includes(type) ? SkinKeyEnum.Flat : SkinKeyEnum.Sharp;
+}
+
+/** 拍号类型 → 皮肤键 */
+function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): SkinKeyEnum {
+  if (type == null) return SkinKeyEnum['4_4'];
+  const map: Record<TimeSignatureTypeEnum, SkinKeyEnum> = {
+    [TimeSignatureTypeEnum['1_1']]: SkinKeyEnum['1_1'],
+    [TimeSignatureTypeEnum['1_4']]: SkinKeyEnum['1_4'],
+    [TimeSignatureTypeEnum['2_4']]: SkinKeyEnum['2_4'],
+    [TimeSignatureTypeEnum['3_4']]: SkinKeyEnum['3_4'],
+    [TimeSignatureTypeEnum['4_4']]: SkinKeyEnum['4_4'],
+    [TimeSignatureTypeEnum['3_8']]: SkinKeyEnum['3_8'],
+    [TimeSignatureTypeEnum['6_8']]: SkinKeyEnum['6_8'],
+  };
+  return map[type] ?? SkinKeyEnum['4_4'];
+}
+
 /** 时值 chronaxie → 音符头皮肤（256=全 128=二分 64=四分，更短用四分头） */
 function getNoteHeadSkinKey(chronaxie: number): SkinKeyEnum {
   if (chronaxie >= 256) return SkinKeyEnum.NoteHead_1;
@@ -667,21 +715,21 @@ function getNoteHeadSkinKey(chronaxie: number): SkinKeyEnum {
 /** 时值 chronaxie → 休止符皮肤（256→rest_1 全 … 1→rest_9） */
 function getRestSkinKey(chronaxie: number): SkinKeyEnum {
   const map: Record<number, SkinKeyEnum> = {
-    256: SkinKeyEnum.rest_1,
-    128: SkinKeyEnum.rest_2,
-    64: SkinKeyEnum.rest_3,
-    32: SkinKeyEnum.rest_4,
-    16: SkinKeyEnum.rest_5,
-    8: SkinKeyEnum.rest_6,
-    4: SkinKeyEnum.rest_7,
-    2: SkinKeyEnum.rest_8,
-    1: SkinKeyEnum.rest_9,
+    256: SkinKeyEnum.Rest_1,
+    128: SkinKeyEnum.Rest_2,
+    64: SkinKeyEnum.Rest_3,
+    32: SkinKeyEnum.Rest_4,
+    16: SkinKeyEnum.Rest_5,
+    8: SkinKeyEnum.Rest_6,
+    4: SkinKeyEnum.Rest_7,
+    2: SkinKeyEnum.Rest_8,
+    1: SkinKeyEnum.Rest_9,
   };
-  return map[chronaxie] ?? SkinKeyEnum.rest_4;
+  return map[chronaxie] ?? SkinKeyEnum.Rest_4;
 }
 
-/** 时值 chronaxie ≤32（八分及更短）→ 符尾皮肤（32→NoteTail_1, 16→2, …, 1→6） */
-function getNoteTailSkinKey(chronaxie: number): SkinKeyEnum {
+/** 时值 chronaxie ≤32（八分及更短）→ 符尾皮肤；direction 为 down 时用符尾倒（_r） */
+function getNoteTailSkinKey(chronaxie: number, direction?: 'up' | 'down'): SkinKeyEnum {
   const map: Record<number, SkinKeyEnum> = {
     32: SkinKeyEnum.NoteTail_1,
     16: SkinKeyEnum.NoteTail_2,
@@ -690,8 +738,20 @@ function getNoteTailSkinKey(chronaxie: number): SkinKeyEnum {
     2: SkinKeyEnum.NoteTail_5,
     1: SkinKeyEnum.NoteTail_6,
   };
+  const rMap: Record<number, SkinKeyEnum> = {
+    32: SkinKeyEnum.NoteTail_1_r,
+    16: SkinKeyEnum.NoteTail_2_r,
+    8: SkinKeyEnum.NoteTail_3_r,
+    4: SkinKeyEnum.NoteTail_4_r,
+    2: SkinKeyEnum.NoteTail_5_r,
+    1: SkinKeyEnum.NoteTail_6_r,
+  };
+  if (direction === 'down') {
+    return rMap[chronaxie] ?? SkinKeyEnum.NoteTail_1_r;
+  }
   return map[chronaxie] ?? SkinKeyEnum.NoteTail_1;
 }
+
 
 /** 一节高度（一线或一间的距离） */
 const LINE_SPACING_RATIO = 1 / 8;
@@ -854,11 +914,12 @@ function renderStemAndTail(params: {
   headH: number;
   measureY: number;
   measureHeight: number;
+  measureWidth: number;
   skin: SkinPack;
   zIndex: number;
   idMap: NodeIdMap;
 }): VDom[] {
-  const {note, headX, headY, headW, headH, measureY, measureHeight, skin, zIndex} = params;
+  const {note, headX, headY, headW, headH, measureY, measureHeight, measureWidth, skin, zIndex} = params;
   const out: VDom[] = [];
   if (note.type === NoteSymbolTypeEnum.Rest || note.chronaxie >= 256) return out;
 
@@ -871,6 +932,9 @@ function renderStemAndTail(params: {
   const stemW = stemSkin.w;
 
   const targetId = note.id ?? '';
+
+  // y值偏移量，这个是因为音符头是倾斜的，需要优化
+  const stemYOffset = 0.1 * measureHeight / 4
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
@@ -881,7 +945,7 @@ function renderStemAndTail(params: {
       x: stemX,
       y: stemY,
       w: stemW,
-      h: stemLength,
+      h: stemLength - stemYOffset,
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
@@ -890,21 +954,32 @@ function renderStemAndTail(params: {
       dataComment: '符干',
     });
     if (note.chronaxie <= 32) {
-      const tailSkin = skin[getNoteTailSkinKey(note.chronaxie)];
+      const tailKey = getNoteTailSkinKey(note.chronaxie, note.direction);
+      const tailSkin = skin[tailKey];
+      // 因为符尾太长了会碰到音符头，所以这里做了y值偏移
+      let noteTailYOffset = 0
+
+
+      if (note.chronaxie === 2) {
+        noteTailYOffset = measureHeight / 8
+      }
+      if (note.chronaxie === 1) {
+        noteTailYOffset = measureHeight * 2 / 8
+      }
       if (tailSkin) {
         out.push({
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
           special: {},
           x: stemX,
-          y: stemY,
+          y: stemY - noteTailYOffset,
           w: tailSkin.w,
           h: tailSkin.h,
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
           targetId: targetId,
-          skinKey: getNoteTailSkinKey(note.chronaxie),
+          skinKey: tailKey,
           dataComment: '符尾',
         });
       }
@@ -917,9 +992,9 @@ function renderStemAndTail(params: {
       endPoint: {x: 0, y: 0},
       special: {},
       x: stemX,
-      y: stemY,
+      y: stemY + stemYOffset,
       w: stemW,
-      h: stemLength,
+      h: stemLength - stemYOffset,
       zIndex,
       tag: 'noteStem',
       skinName: 'default',
@@ -928,21 +1003,36 @@ function renderStemAndTail(params: {
       dataComment: '符干',
     });
     if (note.chronaxie <= 32) {
-      const tailSkin = skin[getNoteTailSkinKey(note.chronaxie)];
+      const tailKey = getNoteTailSkinKey(note.chronaxie, note.direction);
+      const tailSkin = skin[tailKey];
+      // 因为符尾太长了会碰到音符头，所以这里做了y值偏移
+      let noteTailYOffset = 0
+      if (note.chronaxie === 8) {
+        noteTailYOffset = measureHeight / 8
+      }
+      if (note.chronaxie === 4) {
+        noteTailYOffset = measureHeight * 2 / 8
+      }
+      if (note.chronaxie === 2) {
+        noteTailYOffset = measureHeight * 3 / 8
+      }
+      if (note.chronaxie === 1) {
+        noteTailYOffset = measureHeight * 4 / 8
+      }
       if (tailSkin) {
         out.push({
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
           special: {},
           x: stemX,
-          y: stemY + stemLength - tailSkin.h,
+          y: stemY + stemLength - tailSkin.h + noteTailYOffset,
           w: tailSkin.w,
           h: tailSkin.h,
           zIndex,
           tag: 'noteTail',
           skinName: 'default',
           targetId: targetId,
-          skinKey: getNoteTailSkinKey(note.chronaxie),
+          skinKey: tailKey,
           dataComment: '符尾',
         });
       }
@@ -975,55 +1065,54 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 1. 前置符号宽度（无宽度域，固定皮肤宽）
   let prefixW = 0;
   if (measure.clef_f) {
-    const item = skin[SkinKeyEnum.Treble];
+    const key = getClefSkinKey(measure.clef_f.clefType, true);
+    const item = skin[key];
     if (item) prefixW += item.w;
   }
   if (measure.keySignature_f) {
-    const item = skin[SkinKeyEnum.Sharp];
+    const key = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
+    const item = skin[key];
     if (item) prefixW += item.w;
   }
   if (measure.timeSignature_f) {
-    const item = skin[SkinKeyEnum['4_4']];
+    const key = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
+    const item = skin[key];
     if (item) prefixW += item.w;
   }
 
   // 2. 后置符号宽度（无宽度域，固定皮肤宽）
   const rightParts: RightPart[] = [];
   if (measure.clef_b) {
-    const vdom: RightPart = {
-      skinKey: SkinKeyEnum.Treble,
+    rightParts.push({
+      skinKey: getClefSkinKey(measure.clef_b.clefType, false),
       tag: 'clef_b',
       dataComment: '后置谱号',
       targetId: measure.clef_b.id ?? ''
-    };
-    rightParts.push(vdom);
+    });
   }
   if (measure.barline) {
-    const vdom: RightPart = {
+    rightParts.push({
       skinKey: getBarlineSkinKey(measure.barline.barlineType),
       tag: 'barline',
       dataComment: '小节线',
       targetId: measure.barline.id ?? ''
-    };
-    rightParts.push(vdom);
+    });
   }
   if (measure.keySignature_b) {
-    const vdom: RightPart = {
-      skinKey: SkinKeyEnum.Sharp,
+    rightParts.push({
+      skinKey: getKeySignatureSkinKey(measure.keySignature_b.barlineType),
       tag: 'keySignature_b',
       dataComment: '后置调号',
       targetId: measure.keySignature_b.id ?? ''
-    };
-    rightParts.push(vdom);
+    });
   }
   if (measure.timeSignature_b) {
-    const vdom: RightPart = {
-      skinKey: SkinKeyEnum['4_4'],
+    rightParts.push({
+      skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.barlineType),
       tag: 'timeSignature_b',
       dataComment: '后置拍号',
       targetId: measure.timeSignature_b.id ?? ''
-    };
-    rightParts.push(vdom);
+    });
   }
   let suffixW = 0;
   for (const p of rightParts) {
@@ -1053,18 +1142,22 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 4. 输出前置符号（从左向右）
   let x = measureX;
   if (measure.clef_f) {
-    pushSymbol(x, SkinKeyEnum.Treble, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
-    const item = skin[SkinKeyEnum.Treble];
+    const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
+    console.log('chicken', measureY, (measureHeight) / 2)
+    pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
+    const item = skin[clefKey];
     if (item) x += item.w;
   }
   if (measure.keySignature_f) {
-    pushSymbol(x, SkinKeyEnum.Sharp, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '');
-    const item = skin[SkinKeyEnum.Sharp];
+    const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
+    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '');
+    const item = skin[keySigKey];
     if (item) x += item.w;
   }
   if (measure.timeSignature_f) {
-    pushSymbol(x, SkinKeyEnum['4_4'], 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
-    const item = skin[SkinKeyEnum['4_4']];
+    const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
+    pushSymbol(x, timeSigKey, 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
+    const item = skin[timeSigKey];
     if (item) x += item.w;
   }
 
@@ -1073,8 +1166,8 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   const totalNoteRatio = notes.reduce((sum, n) => sum + (n.widthRatioForMeasure || n.widthRatio || 0), 0);
   const domainStartX = measureX + prefixW;
   // region：0 第一线、1 第一间… 越大越高（y 越小），与 NoteSymbol.region 注释一致
-  const noteCenterY = (region: number) =>
-      measureY + measureHeight - region * (measureHeight / 8);
+  const noteCenterY = (region: number) => // 这0.5是让音符头完全居中用的
+      measureY + measureHeight - region * (measureHeight / 8) - 0.5;
   const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
 
   if (notes.length > 0) {
@@ -1093,19 +1186,32 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
       if (!item) continue;
       const tag: VDom['tag'] = isRest ? 'rest' : 'note';
       const dataComment = isRest ? '休止符' : '音符';
-      const ny = isRest
-          ? measureY + (measureHeight - item.h) / 2
-          : noteCenterY(note.region) - item.h / 2;
+      let ny: number;
+      if (isRest) {
+        // 全休止顶与第二线对齐，二分休止底与第三线对齐，其余居中
+        if (note.chronaxie === 256) {
+          ny = measureY + measureHeight / 4;
+        } else if (note.chronaxie === 128) {
+          ny = measureY + measureHeight / 2 - item.h;
+        } else {
+          ny = measureY + (measureHeight - item.h) / 2;
+        }
+      } else {
+        ny = noteCenterY(note.region) - item.h / 2;
+      }
       const headX = slotStartX + (slotW - item.w) / 2;
       const headCenterY = ny + item.h / 2;
-      // 变音符号：中心与音符头中心纵坐标相同，横坐标在音符左侧留默认间距；宽高由皮肤包指定，widthRatioForMeasure 仅影响小节宽度系数；relativeX/relativeY 生效
+      // 变音符号：大部分垂直居中；降号(Flat)、重降(Double_flat) 底部与 音符头中心y+measureHeight/8 对齐；relativeX/relativeY 生效
       if (!isRest && note.accidental) {
         const acc = note.accidental;
         const accSkinKey = getAccidentalSkinKey(acc.type);
         const accSkin = skin[accSkinKey];
         if (accSkin) {
-          const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w / 2 + (acc.relativeX ?? 0);
-          const accY = headCenterY - accSkin.h / 2 + (acc.relativeY ?? 0);
+          const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w + (acc.relativeX ?? 0);
+          const isFlatOrDoubleFlat = acc.type === AccidentalTypeEnum.Flat || acc.type === AccidentalTypeEnum.Double_flat;
+          const accY = isFlatOrDoubleFlat
+              ? (headCenterY + measureHeight / 8) - accSkin.h + (acc.relativeY ?? 0)
+              : headCenterY - accSkin.h / 2 + (acc.relativeY ?? 0);
           const accVDom: VDom = {
             startPoint: {x: 0, y: 0},
             endPoint: {x: 0, y: 0},
@@ -1150,6 +1256,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
           headH: item.h,
           measureY,
           measureHeight,
+          measureWidth,
           skin,
           zIndex: z,
           idMap,

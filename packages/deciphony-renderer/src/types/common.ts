@@ -1,8 +1,13 @@
 // 虚拟DOM节点类型：供开发者用 tag 区分点击目标，不参与 skin 查找
-import {SkinKeyEnum} from "@/enums/musicScoreEnum";
+import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
+import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+
+/** 按曲谱模式区分的 skinKey 联合类型 */
+export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum;
 
 /** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
 export type VDomTagType =
+    | 'title'          // 标题
     | 'root'           // 根
     | 'grandStaff'     // 复谱表
     | 'singleStaff'    // 单谱表
@@ -19,6 +24,7 @@ export type VDomTagType =
     | 'noteStem'       // 符干
     | 'noteTail'       // 符尾
     | 'accidental'     // 变音符号
+    | 'addLine'        // 加线（上下加线）
     | 'slot'           // 插槽
     | 'space'          // 空白（边距等）
     | 'affiliation'    // 附属符号
@@ -36,8 +42,8 @@ export type VDom = {
   //
   zIndex: number; // 渲染顺序
   tag: VDomTagType;
-  /** 指定 skin 中唯一对应的 SVG 图形，用于符号等需要皮肤渲染的节点 */
-  skinKey?: SkinKeyEnum;
+  /** 指定 skin 中唯一对应的 SVG 图形；五线谱为 StandardStaffSkinKeyEnum，简谱为 NumberNotationSkinKeyEnum */
+  skinKey?: SkinKey;
   skinName: string; // 皮肤名
   slotName?: SlotName;  // 插槽名称，tag='slot'时使用
   dataComment?: string;
@@ -64,7 +70,7 @@ export type SlotName =
     | 'g-l' | 'g-r'
     | 's-l' | 's-r'
     | 'm' | 'm-u' | 'm-d' | 's-u'
-    | 's-d' | 'g-u' | 'g-d'
+    | 's-d' | 'g-u' | 'g-d' | 't'
 
 // 插槽配置：影响 transfer 布局计算的宽高
 export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
@@ -72,13 +78,25 @@ export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
 // 插槽作用域 props：用户在使用具名插槽时可接收
 export type SlotProps = { node: VDom }
 
-/** 单套皮肤包：skinKey -> 符号内容与尺寸 */
-export type SkinPack = Record<SkinKeyEnum, {
+/** 皮肤项：content + 尺寸 + skinKey（每谱的 key 枚举不同） */
+export type SkinItem<K extends string = string> = {
   content: string;
   w: number;
   h: number;
-  skinKey: SkinKeyEnum;
-}>;
+  skinKey: K;
+};
+
+/** 五线谱单套皮肤包 */
+export type StandardStaffSkinPack = Record<StandardStaffSkinKeyEnum, SkinItem<StandardStaffSkinKeyEnum>>;
+
+/** 简谱单套皮肤包 */
+export type NumberNotationSkinPack = Record<NumberNotationSkinKeyEnum, SkinItem<NumberNotationSkinKeyEnum>>;
+
+/** 单套皮肤包：按曲谱模式嵌套，一谱一套 skinKey */
+export type SkinPack = {
+  standardStaff?: StandardStaffSkinPack;
+  numberNotation?: NumberNotationSkinPack;
+};
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
 export type Skin = Record<string, SkinPack>;

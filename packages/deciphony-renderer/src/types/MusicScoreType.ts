@@ -2,9 +2,11 @@ import {
   AccidentalTypeEnum,
   BarlineTypeEnum,
   ClefTypeEnum,
+  DoubleAffiliatedSymbolNameEnum,
   KeySignatureTypeEnum,
   MusicScoreTypeEnum,
   NoteSymbolTypeEnum,
+  SingleAffiliatedSymbolNameEnum,
   TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
@@ -17,6 +19,8 @@ export type MusicScore = {
   affiliatedSymbols: DoubleAffiliatedSymbol[] // 包含双音符附属型，双小节附属型
   width: number,
   height: number,
+  topSpaceHeight: number, // 顶部高度
+  title: string // 标题
 }
 export type GrandStaff = {
   id: string
@@ -55,10 +59,20 @@ export type NoteSymbol = {
   direction: 'up' | 'down' // 控制符干方向，休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
   region: number, // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
   accidental?: Accidental
+  augmentationDot?: AugmentationDot
   widthRatio: number
   widthRatioForMeasure: number,
   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
   beamType: BeamTypeEnum
+} & Frame
+/*
+* 附点
+* */
+export type AugmentationDot = {
+  id: string
+  count: 1 | 2 | 3,
+  widthRatio: number
+  widthRatioForMeasure: number,
 } & Frame
 /*
 * 附属型符号 accent above, accidental等等， 符干符尾不属于附属型符号，它是根据音符时值信息固定逻辑判断是否存在的符号

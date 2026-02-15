@@ -3,7 +3,8 @@
        preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <template v-for="(node, i) in vDom"
               :key="`${i}-${node.skinName ?? 'default'}-${node.skinKey ?? ''}-${node.tag}-${node.targetId}`">
-      <Group v-if="node.tag !== 'slot' && node.tag !== 'affiliation'" :node="node" :skin="skin"/>
+      <Group v-if="node.tag !== 'slot' && node.tag !== 'affiliation'" :node="node" :notation-type="data.type"
+             :skin="skin"/>
       <g
           v-else-if="node.tag === 'affiliation'"
           :data-comment="node.dataComment"
@@ -72,7 +73,7 @@ watch(
     [data, () => props.slotConfig, skinPackForLayout],
     ([d, slotConfig, s]) => {
       vDom.value = d
-          ? musicScoreToVDom(d, slotConfig, {measureHeight: s.measure.h, skin: skin.value})
+          ? musicScoreToVDom(d, slotConfig, {skin: skin.value})
           : []
     },
     {immediate: true}

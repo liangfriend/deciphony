@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {Skin, SkinPack, VDom} from "@/types/common";
+import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, StandardStaffSkinPack, VDom} from "@/types/common";
+import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 
 defineOptions({
@@ -9,6 +10,8 @@ defineOptions({
 
 const props = defineProps<{
   node: VDom
+  /** 曲谱模式：五线谱用 standardStaff，简谱用 numberNotation */
+  notationType?: MusicScoreTypeEnum
   /** 多套皮肤包：skinName -> SkinPack；skinName=default 或未找到时使用内置 defaultSkin */
   skin?: Skin
 }>()
@@ -58,7 +61,10 @@ const skinPack = computed<SkinPack>(() => {
   return props.skin?.[name] ?? defaultSkin
 })
 
-type SkinItem = SkinPack[keyof SkinPack]
+const notationPack = computed<StandardStaffSkinPack | NumberNotationSkinPack | undefined>(() => {
+  const pack = skinPack.value
+  return props.notationType === MusicScoreTypeEnum.NumberNotation ? pack.numberNotation : pack.standardStaff
+})
 
 const handleSkin = computed(() => {
   return (skinItem: SkinItem | undefined, node: VDom) => {
@@ -79,7 +85,7 @@ const handleSkin = computed(() => {
       :data-tag="node.tag"
       :data-target-id="node.targetId"
       :transform="`translate(${node.x}, ${node.y})`"
-      v-html="(node.skinKey ? handleSkin(skinPack[node.skinKey], node) :'')"
+      v-html="(node.skinKey && notationPack ? handleSkin((notationPack as Record<string, SkinItem>)[node.skinKey], node) : '')"
   >
 
   </g>

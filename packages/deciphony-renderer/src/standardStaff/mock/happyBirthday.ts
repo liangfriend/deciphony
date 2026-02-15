@@ -201,13 +201,24 @@ function barlineMeasure(barlineType: BarlineTypeEnum, isFirst: boolean): Measure
 
 const phrase3Measures: Measure[] = BARLINE_TYPES.map((t, i) => barlineMeasure(t, i === 0));
 
-// 第四句：祝你生日快乐
+// 附点辅助：count 1/2/3 对应 1/2/3 个附点
+function augmentationDot(count: 1 | 2 | 3) {
+  return {
+    ...frame,
+    id: crypto.randomUUID(),
+    count,
+    widthRatio: count === 1 ? 4 : count === 2 ? 6.5 : 9,
+    widthRatioForMeasure: count === 1 ? 4 : count === 2 ? 6.5 : 9,
+  };
+}
+
+// 第四句：祝你生日快乐（前三个音分别带 1、2、3 个附点用于看效果）
 const phrase4Measure1: Measure = {
   ...frame,
   notes: [
-    note(6), // F5 祝
-    note(6), // F5 你
-    note(6), // E5 生
+    {...note(20), augmentationDot: augmentationDot(1)}, // F5 祝，1 附点
+    {...note(5), augmentationDot: augmentationDot(2)}, // F5 你，2 附点
+    {...note(6), augmentationDot: augmentationDot(3)}, // E5 生，3 附点
     note(4), // C5 日
     note(5), // D5 快
     note(4), // C5 乐
@@ -253,6 +264,8 @@ const phrase4Measure2: Measure = {
 const data: MusicScore = {
   id: crypto.randomUUID(),
   type: MusicScoreTypeEnum.StandardStaff,
+  topSpaceHeight: 0,
+  title: '哈哈哈',
   grandStaffs: [
     {
       id: crypto.randomUUID(),

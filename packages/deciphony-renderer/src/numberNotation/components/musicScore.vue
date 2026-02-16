@@ -55,7 +55,7 @@ import type {MusicScore} from "@/types/MusicScoreType";
 import type {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 
 const props = defineProps<{
-  data: MusicScore
+  data?: MusicScore
   /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
   slotConfig?: SlotConfig
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */

@@ -1,4 +1,4 @@
-import MusicScore from './standardStaff/components/musicScore.vue'
+import MusicScore from './index.vue'
 
 export default MusicScore
 

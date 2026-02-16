@@ -26,24 +26,25 @@ export enum ClefTypeEnum {
   Treble = 'treble',
   Bass = 'bass',
   Alto = 'alto',
-  Tenor = 'tenor',
+  Tenor = 'tenor', // tenor比Treble还高
 }
 
 // 调号（升号调 / 降号调，与皮肤 Sharp / Flat 对应）
 export enum KeySignatureTypeEnum {
   C = 'C',
-  G = 'G',
-  D = 'D',
-  A = 'A',
-  E = 'E',
-  B = 'B',
-  F_sharp = 'F_sharp',
-  F = 'F',
-  B_flat = 'B_flat',
-  E_flat = 'E_flat',
-  A_flat = 'A_flat',
+  C_sharp = 'C_sharp',
   D_flat = 'D_flat',
+  D = 'D',
+  E_flat = 'E_flat',
+  E = 'E',
+  F = 'F',
+  F_sharp = 'F_sharp',
   G_flat = 'G_flat',
+  G = 'G',
+  A_flat = 'A_flat',
+  A = 'A',
+  B_flat = 'B_flat',
+  B = 'B',
   C_flat = 'C_flat',
 }
 

@@ -1,5 +1,6 @@
-import {SkinPack, StandardStaffSkinPack} from "@/types/common";
+import {NumberNotationSkinPack, SkinPack, StandardStaffSkinPack} from "@/types/common";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 /*
 * w和h不会影响图形的宽高，图形的宽高是图形本身决定的，w和h是皮肤开发者要计算出图形的宽高显示写到属性中，让坐标系统识别
 * 因为svg嵌套的行为我没有掌握，所以舍弃了svg嵌套这一做法
@@ -8,9 +9,6 @@ import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinK
 // 统一的五线谱高度
 const STAFF_HEIGHT = 45;
 
-// 五线谱小节线：五条横线，使用 0-1 归一化坐标便于缩放
-// 五线从上到下：y=0, 0.25, 0.5, 0.75, 1
-// 因为小节是变宽的，所以用 svg 包裹了一下，不同符号不需要
 const measure = {
   content: `
       <line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1" />
@@ -34,11 +32,41 @@ const treble = {
                 fill="black"/>
       </g>
 `,
-  w: 95 * 0.18, // 宽高一定要等于图形的宽高，否则会导致布局错误
+  w: 95 * 0.18 + 5, // 宽高一定要等于图形的宽高，否则会导致布局错误
   h: 248 * 0.18,
   skinKey: StandardStaffSkinKeyEnum.Treble,
 };
 
+const alto = {
+  content: `
+       <g transform="translate(0.0000, -1.2500)">
+        <g transform=" scale(1,1.8) scale(0.09259259) scale(0.6,0.6)">
+                <rect id="XMLID_517_" y="7.5" width="60" height="270"></rect>
+                <rect id="XMLID_518_" x="90" y="7.5" width="30" height="270"></rect>
+                <path id="XMLID_519_" d="M225,157.428v-29.855c33.084,0,60-26.916,60-60c0-33.084-26.916-60-60-60   c-31.424,0-57.18,23.901-59.779,54.892c-0.02,0.158-0.173,1.825-0.173,2.515c0,0.031,0.005,0.06,0.005,0.091   c-0.001,0.024-0.004,0.047-0.005,0.071l0.009,0.001c0.088,10.97,9,19.837,19.991,19.837c11.046,0,20-8.954,20-20   c0-5.252-2.041-10.017-5.353-13.586c5.326-8.344,14.666-13.821,25.305-13.821c16.542,0,30,13.458,30,30c0,16.542-13.458,30-30,30   V82.5l-75,60l75,60v-15.072c16.542,0,30,13.458,30,29.999c0,16.542-13.458,30.001-30,30.001c-10.639,0-19.979-5.477-25.305-13.821   c3.312-3.569,5.353-8.333,5.353-13.586c0-11.046-8.954-20-20-20c-10.991,0-19.903,8.868-19.991,19.837l-0.009,0.001   c0.001,0.024,0.004,0.047,0.005,0.071c0,0.031-0.005,0.06-0.005,0.091c0,0.69,0.153,2.357,0.173,2.515   c2.6,30.991,28.355,54.892,59.779,54.892c33.084,0,60-26.916,60-60.001C285,184.343,258.084,157.428,225,157.428z"></path>
+            </g>
+</g>
+`,
+  w: 15.83 + 5,
+  h: 45 * 0.6,
+
+  skinKey: StandardStaffSkinKeyEnum.Bass,
+};
+const tenor = {
+  content: `
+       <g transform="translate(0.0000, -1.2500) translate(0.0000, -11)">
+        <g transform=" scale(1,1.8) scale(0.09259259) scale(0.6,0.6)">
+                <rect id="XMLID_517_" y="7.5" width="60" height="270"></rect>
+                <rect id="XMLID_518_" x="90" y="7.5" width="30" height="270"></rect>
+                <path id="XMLID_519_" d="M225,157.428v-29.855c33.084,0,60-26.916,60-60c0-33.084-26.916-60-60-60   c-31.424,0-57.18,23.901-59.779,54.892c-0.02,0.158-0.173,1.825-0.173,2.515c0,0.031,0.005,0.06,0.005,0.091   c-0.001,0.024-0.004,0.047-0.005,0.071l0.009,0.001c0.088,10.97,9,19.837,19.991,19.837c11.046,0,20-8.954,20-20   c0-5.252-2.041-10.017-5.353-13.586c5.326-8.344,14.666-13.821,25.305-13.821c16.542,0,30,13.458,30,30c0,16.542-13.458,30-30,30   V82.5l-75,60l75,60v-15.072c16.542,0,30,13.458,30,29.999c0,16.542-13.458,30.001-30,30.001c-10.639,0-19.979-5.477-25.305-13.821   c3.312-3.569,5.353-8.333,5.353-13.586c0-11.046-8.954-20-20-20c-10.991,0-19.903,8.868-19.991,19.837l-0.009,0.001   c0.001,0.024,0.004,0.047,0.005,0.071c0,0.031-0.005,0.06-0.005,0.091c0,0.69,0.153,2.357,0.173,2.515   c2.6,30.991,28.355,54.892,59.779,54.892c33.084,0,60-26.916,60-60.001C285,184.343,258.084,157.428,225,157.428z"></path>
+            </g>
+</g>
+`,
+  w: 15.83 + 5,
+  h: 45 * 0.6,
+
+  skinKey: StandardStaffSkinKeyEnum.Bass,
+};
 const bass = {
   content: `
     <g transform="
@@ -49,7 +77,7 @@ const bass = {
       />
     </g>
 `,
-  w: 104.88 * 0.3,
+  w: 104.88 * 0.3 + 5,
   h: 106.78 * 0.3,
 
   skinKey: StandardStaffSkinKeyEnum.Bass,
@@ -63,19 +91,50 @@ const trebleF = {
                 d="M58.2521 128.588L52.5358 100.789C71.9986 84.2187 80.9814 66.5533 80.9814 47.2446C80.9814 32.3181 75.1289 16.5699 63.1519 0C49.6777 10.9553 41.9198 32.7289 41.9198 56.1458C41.9198 64.4992 43.0086 72.4417 44.7779 80.1104C14.9713 105.308 0 128.451 0 149.676C0 174.6 25.5874 195.278 53.2163 195.278C59.341 195.278 63.9685 194.319 68.1877 192.265L73.2235 216.641C76.0308 232.176 60.9865 244.44 46.4112 244.44C42.0559 244.44 37.8367 243.344 34.0258 241.427C44.0974 240.331 51.7192 234.169 51.7192 225.131C51.7192 217.051 45.1862 208.698 36.7479 208.698C27.2206 208.698 20.6877 216.093 20.6877 225.679C20.6877 239.099 31.5759 248 44.6418 248C62.1991 248 77.0344 236.497 77.0344 220.064C77.0344 216.504 71.5903 191.991 71.4542 191.17C85.4728 184.322 95 172.272 95 159.399C94.8431 138.883 77.0476 126.943 58.2521 128.588ZM65.4656 18.7609C71.9195 18.7609 74.3123 29.9375 74.3123 34.9199C74.3123 47.6554 65.3295 62.0342 47.6361 77.7824C44.0453 63.3306 46.2924 18.7609 65.4656 18.7609ZM12.1132 156.66C12.1132 139.132 25.043 121.056 49.5415 102.706L54.9857 128.998C41.3754 131.874 29.8066 143.514 29.8066 156.523C29.8066 167.616 37.7006 175.284 49.4054 177.202C42.192 172.683 38.6533 167.068 38.6533 160.358C38.6533 151.32 47.0917 144.61 57.8438 143.103L67.235 188.431C45.0494 200.606 12.1132 182.493 12.1132 156.66ZM70.5014 186.65L61.2464 142.692C73.7567 141.724 83.5673 151.091 83.5673 164.055C83.5673 172.683 79.0759 180.214 70.5014 186.65Z"
                 fill="black"/>
       </g>
-`, w: 95 * 0.32, h: 248 * 0.32, skinKey: StandardStaffSkinKeyEnum.Treble_f
+`, w: 95 * 0.32 + 5, h: 45, skinKey: StandardStaffSkinKeyEnum.Treble_f
 };
 const bassF = {
   content: `
-    <g transform="
+    <g transform=" translate(-2.0814, 0.0000)
                scale(0.42)">
       <path
         d="M102.654 23.3828C106.677 23.3828 109.838 20.5407 109.838 16.9234C109.838 13.3062 106.677 10.4641 102.654 10.4641C98.6315 10.4641 95.4707 13.3062 95.4707 16.9234C95.4707 20.5407 98.4878 23.3828 102.654 23.3828ZM102.654 42.7608C98.6315 42.7608 95.4707 45.6029 95.4707 49.2201C95.4707 52.8373 98.6315 55.6794 102.654 55.6794C106.677 55.6794 109.838 52.8373 109.838 49.2201C109.838 45.6029 106.677 42.7608 102.654 42.7608ZM40.2996 0C21.7656 0 4.9557 11.756 4.9557 27.1292C4.9557 37.2057 10.8854 44.9704 20.0415 45.732C40.8212 47.4606 46.2348 21.2964 24.0644 20.0239C18.1738 20.0239 13.5762 24.1579 14.0072 24.1579C13.2888 24.1579 13.0015 23.512 13.0015 22.0909C13.0015 12.9187 25.7885 4.13397 37.5698 4.13397C54.0924 4.13397 64.5806 16.5359 64.5806 33.0718C64.5806 53.6124 51.2189 76.4785 29.9551 93.6603C25.7782 97.0308 17.2127 101.693 8.71847 105.08C7.61003 105.522 7.94765 107.002 9.11336 106.747C39.4552 100.11 83.2583 69.2189 83.2583 38.3684C83.1147 21.0574 74.3505 0 40.2996 0Z"
         fill="black"
       />
     </g>
-`, w: 104.88 * 0.42,
-  h: 106.78 * 0.42, skinKey: StandardStaffSkinKeyEnum.Bass_f
+`, w: 104.88 * 0.42 + 5,
+  h: 45, skinKey: StandardStaffSkinKeyEnum.Bass_f
+};
+
+const altoF = {
+  content: `
+       <g transform="translate(0.0000, -1.2500)">
+        <g transform=" scale(1,1.8) scale(0.09259259)">
+                <rect id="XMLID_517_" y="7.5" width="60" height="270"></rect>
+                <rect id="XMLID_518_" x="90" y="7.5" width="30" height="270"></rect>
+                <path id="XMLID_519_" d="M225,157.428v-29.855c33.084,0,60-26.916,60-60c0-33.084-26.916-60-60-60   c-31.424,0-57.18,23.901-59.779,54.892c-0.02,0.158-0.173,1.825-0.173,2.515c0,0.031,0.005,0.06,0.005,0.091   c-0.001,0.024-0.004,0.047-0.005,0.071l0.009,0.001c0.088,10.97,9,19.837,19.991,19.837c11.046,0,20-8.954,20-20   c0-5.252-2.041-10.017-5.353-13.586c5.326-8.344,14.666-13.821,25.305-13.821c16.542,0,30,13.458,30,30c0,16.542-13.458,30-30,30   V82.5l-75,60l75,60v-15.072c16.542,0,30,13.458,30,29.999c0,16.542-13.458,30.001-30,30.001c-10.639,0-19.979-5.477-25.305-13.821   c3.312-3.569,5.353-8.333,5.353-13.586c0-11.046-8.954-20-20-20c-10.991,0-19.903,8.868-19.991,19.837l-0.009,0.001   c0.001,0.024,0.004,0.047,0.005,0.071c0,0.031-0.005,0.06-0.005,0.091c0,0.69,0.153,2.357,0.173,2.515   c2.6,30.991,28.355,54.892,59.779,54.892c33.084,0,60-26.916,60-60.001C285,184.343,258.084,157.428,225,157.428z"></path>
+            </g>
+</g>
+`,
+  w: 26.39 + 5,
+  h: 45,
+
+  skinKey: StandardStaffSkinKeyEnum.Alto_f,
+};
+const tenorF = {
+  content: `
+       <g transform="translate(0.0000, -1.2500) translate(0, -11)">
+        <g transform=" scale(1,1.8) scale(0.09259259) ">
+                <rect id="XMLID_517_" y="7.5" width="60" height="270"></rect>
+                <rect id="XMLID_518_" x="90" y="7.5" width="30" height="270"></rect>
+                <path id="XMLID_519_" d="M225,157.428v-29.855c33.084,0,60-26.916,60-60c0-33.084-26.916-60-60-60   c-31.424,0-57.18,23.901-59.779,54.892c-0.02,0.158-0.173,1.825-0.173,2.515c0,0.031,0.005,0.06,0.005,0.091   c-0.001,0.024-0.004,0.047-0.005,0.071l0.009,0.001c0.088,10.97,9,19.837,19.991,19.837c11.046,0,20-8.954,20-20   c0-5.252-2.041-10.017-5.353-13.586c5.326-8.344,14.666-13.821,25.305-13.821c16.542,0,30,13.458,30,30c0,16.542-13.458,30-30,30   V82.5l-75,60l75,60v-15.072c16.542,0,30,13.458,30,29.999c0,16.542-13.458,30.001-30,30.001c-10.639,0-19.979-5.477-25.305-13.821   c3.312-3.569,5.353-8.333,5.353-13.586c0-11.046-8.954-20-20-20c-10.991,0-19.903,8.868-19.991,19.837l-0.009,0.001   c0.001,0.024,0.004,0.047,0.005,0.071c0,0.031-0.005,0.06-0.005,0.091c0,0.69,0.153,2.357,0.173,2.515   c2.6,30.991,28.355,54.892,59.779,54.892c33.084,0,60-26.916,60-60.001C285,184.343,258.084,157.428,225,157.428z"></path>
+            </g>
+</g>
+`,
+  w: 26.39 + 5,
+  h: 45,
+
+  skinKey: StandardStaffSkinKeyEnum.Alto_f,
 };
 
 // 变音记号
@@ -107,7 +166,7 @@ const flat = {
     />
   </g>
 `,
-  w: 18.63,
+  w: 8.63,
   h: 29.42,
 
   skinKey: StandardStaffSkinKeyEnum.Flat,
@@ -135,7 +194,7 @@ const doubleSharp = {
 };
 
 const doubleFlat = {
-  content: `<g transform="translate(-39.6836, -20.7969)">
+  content: `<g transform="translate(-39.6836, -21.7969)">
         <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
         <g transform="translate(11,0)">
             <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
@@ -157,6 +216,75 @@ const natural = {
 
   skinKey: StandardStaffSkinKeyEnum.Natural,
 };
+
+// 调号：C 为空；其余由 sharp/flat 按五线位置堆叠。keySignature 小节居中，上方留 3 格，h = STAFF_HEIGHT + 3*LINE_SPACING
+const LINE_SPACING = STAFF_HEIGHT / 8;
+const KEY_SIG_EXTRA_TOP = 3 * LINE_SPACING;
+const KEY_SIG_H = STAFF_HEIGHT + KEY_SIG_EXTRA_TOP;
+const SHARP_HALF_H = sharp.h / 2;
+const FLAT_HALF_H = flat.h / 2;
+const SHARP_INNER = sharp.content.trim().replace(/\s+/g, ' ');
+const FLAT_INNER = flat.content.trim().replace(/\s+/g, ' ');
+const KEY_SIG_SHARP_OFFSET_X = sharp.w * 0.45;
+const KEY_SIG_FLAT_OFFSET_X = flat.w * 0.4;
+
+function makeKeySignature(key: StandardStaffSkinKeyEnum): {
+  content: string;
+  w: number;
+  h: number;
+  skinKey: StandardStaffSkinKeyEnum
+} {
+  if (key === StandardStaffSkinKeyEnum.C) {
+    return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+  }
+  const sharpKeys = [
+    StandardStaffSkinKeyEnum.G,
+    StandardStaffSkinKeyEnum.D,
+    StandardStaffSkinKeyEnum.A,
+    StandardStaffSkinKeyEnum.E,
+    StandardStaffSkinKeyEnum.B,
+    StandardStaffSkinKeyEnum.F_sharp,
+    StandardStaffSkinKeyEnum.C_sharp,
+  ];
+  const flatKeys = [
+    StandardStaffSkinKeyEnum.F,
+    StandardStaffSkinKeyEnum.B_flat,
+    StandardStaffSkinKeyEnum.E_flat,
+    StandardStaffSkinKeyEnum.A_flat,
+    StandardStaffSkinKeyEnum.D_flat,
+    StandardStaffSkinKeyEnum.G_flat,
+    StandardStaffSkinKeyEnum.C_flat,
+  ];
+  const sharpCount = sharpKeys.indexOf(key) + 1;
+  const flatCount = flatKeys.indexOf(key) + 1;
+  if (sharpCount > 0) {
+    const items: { x: number; y: number }[] = [];
+    for (let i = 0; i < sharpCount; i++) {
+      const centerY = KEY_SIG_EXTRA_TOP + i * (LINE_SPACING / 2);
+      items.push({x: i * KEY_SIG_SHARP_OFFSET_X, y: centerY - SHARP_HALF_H});
+    }
+    const content = items.map(({
+                                 x,
+                                 y
+                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${SHARP_INNER}</g>`).join('');
+    const w = sharp.w + (sharpCount - 1) * KEY_SIG_SHARP_OFFSET_X;
+    return {content, w, h: KEY_SIG_H, skinKey: key};
+  }
+  if (flatCount > 0) {
+    const items: { x: number; y: number }[] = [];
+    for (let i = 0; i < flatCount; i++) {
+      const centerY = KEY_SIG_EXTRA_TOP + i * (LINE_SPACING / 2);
+      items.push({x: i * KEY_SIG_FLAT_OFFSET_X, y: centerY - FLAT_HALF_H});
+    }
+    const content = items.map(({
+                                 x,
+                                 y
+                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${FLAT_INNER}</g>`).join('');
+    const w = flat.w + (flatCount - 1) * KEY_SIG_FLAT_OFFSET_X;
+    return {content, w, h: KEY_SIG_H, skinKey: key};
+  }
+  return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+}
 
 // 小节线
 const singleBarline = {
@@ -293,7 +421,7 @@ function makeTimeSignature(content: string, key: StandardStaffSkinKeyEnum) {
   <text x="15" y="24" text-anchor="middle"  font-size="22" font-weight="600">${top}</text>
   <text x="15" y="46" text-anchor="middle" font-size="22"  font-weight="600">${bottom}</text>
 </g>`,
-    w: 13,
+    w: 30,
     h: 56,
     widthRatio: 0,
     widthRatioForMeasure: 0,
@@ -604,8 +732,12 @@ const standardStaffSkin: StandardStaffSkinPack = {
   // 谱号
   [StandardStaffSkinKeyEnum.Treble]: treble,
   [StandardStaffSkinKeyEnum.Bass]: bass,
+  [StandardStaffSkinKeyEnum.Alto]: alto,
+  [StandardStaffSkinKeyEnum.Tenor]: tenor,
   [StandardStaffSkinKeyEnum.Treble_f]: trebleF,
   [StandardStaffSkinKeyEnum.Bass_f]: bassF,
+  [StandardStaffSkinKeyEnum.Alto_f]: altoF,
+  [StandardStaffSkinKeyEnum.Tenor_f]: tenorF,
 
   // 变音符
   [StandardStaffSkinKeyEnum.Sharp]: sharp,
@@ -613,6 +745,577 @@ const standardStaffSkin: StandardStaffSkinPack = {
   [StandardStaffSkinKeyEnum.Double_sharp]: doubleSharp,
   [StandardStaffSkinKeyEnum.Double_flat]: doubleFlat,
   [StandardStaffSkinKeyEnum.Natural]: natural,
+
+  // 调号
+  [StandardStaffSkinKeyEnum.C]: {
+    content: '',
+    w: 0,
+    h: 45,
+    skinKey: StandardStaffSkinKeyEnum.C,
+  },
+  [StandardStaffSkinKeyEnum.C_sharp]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-9.88,-12.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(4.12,4.3238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(18.12,20.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(32.12,-1.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(46.12,15.3238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+`,
+    w: 96.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.C_sharp,
+  },
+  [StandardStaffSkinKeyEnum.D_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-15.6836, 4.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-3.6836, -12.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(8.3164,9.9081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+`,
+    w: 49.0496 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.D_flat,
+  },
+  [StandardStaffSkinKeyEnum.D]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    
+`,
+    w: 26.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.D,
+  },
+  [StandardStaffSkinKeyEnum.E_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-15.6836, 4.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  
+`,
+    w: 32.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.E_flat,
+  },
+  [StandardStaffSkinKeyEnum.E]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-9.88,-12.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(4.12,4.3238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    
+`,
+    w: 54.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.E,
+  },
+  [StandardStaffSkinKeyEnum.F]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+`,
+    w: 8.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.F,
+  },
+  [StandardStaffSkinKeyEnum.F_sharp]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-9.88,-12.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(4.12,4.3238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(18.12,20.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(32.12,-1.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+   
+`,
+    w: 82.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.F_sharp,
+  },
+  [StandardStaffSkinKeyEnum.G_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-15.6836, 4.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-3.6836, -12.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(8.3164,9.9081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(20.3164,-6.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+`,
+    w: 68.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.G_flat,
+  },
+  [StandardStaffSkinKeyEnum.G]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    
+`,
+    w: 12.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.G,
+  },
+  [StandardStaffSkinKeyEnum.A_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-15.6836, 4.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-3.6836, -12.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  
+`,
+    w: 44.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.A_flat,
+  },
+  [StandardStaffSkinKeyEnum.A]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-9.88,-12.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    
+`,
+    w: 40.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.A,
+  },
+  [StandardStaffSkinKeyEnum.B_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  
+`,
+    w: 20.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.B_flat,
+  },
+  [StandardStaffSkinKeyEnum.B]: {
+    content: `
+    <g transform="
+    translate(-37.88,-6.6762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-23.88,9.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(-9.88,-12.1762),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(4.12,4.3238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    <g transform="
+    translate(18.12,20.8238),
+               scale(1)">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+    
+`,
+    w: 68.24 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.B,
+  },
+  [StandardStaffSkinKeyEnum.C_flat]: {
+    content: `
+     <g transform="translate(-39.6836, -1.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g><g transform="translate(-27.6836, -17.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-15.6836, 4.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(-3.6836, -12.0919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(8.3164,9.9081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(20.3164,-6.5919)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+  <g transform="translate(32.3164,15.4081)">
+    <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+    />
+  </g>
+`,
+    w: 80.63 + 5,
+    h: 87,
+
+    skinKey: StandardStaffSkinKeyEnum.C_flat,
+  },
 
   // 小节线
   [StandardStaffSkinKeyEnum.Single_barline]: singleBarline,
@@ -702,8 +1405,18 @@ const standardStaffSkin: StandardStaffSkinPack = {
     skinKey: StandardStaffSkinKeyEnum.AddLine_d,
   },
 } as StandardStaffSkinPack;
-
+const numberNotationSkin: NumberNotationSkinPack = {
+  [NumberNotationSkinKeyEnum.Measure]: {
+    content: `
+      <rect x="0" y="0" width="node.w" height="45" stroke="transparent" fill="transparent"></rect>
+`,
+    w: 1, // 这个写成线宽
+    h: STAFF_HEIGHT,
+    skinKey: NumberNotationSkinKeyEnum.Measure,
+  }
+}
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,
-  // numberNotation: 简谱皮肤包，后续按需补充
+  // 简谱皮肤包，
+  numberNotation: numberNotationSkin
 };

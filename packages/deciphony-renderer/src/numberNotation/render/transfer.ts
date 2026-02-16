@@ -338,8 +338,6 @@ export function musicScoreToVDom(
         // 小节符号渲染（前置谱号→前置调号→前置拍号→音符→后置谱号→小节线→后置调号→后置拍号）
         const symbolVDoms = renderSymbol({
           measure,
-          measures: staff.measures,
-          measureIndex: i,
           measureX: measureCurrentX,
           measureY: grandStaffCurrentY,
           measureWidth: measureWdith,
@@ -353,9 +351,9 @@ export function musicScoreToVDom(
         // 1. 获取音符组：符杠方向相同 & 有符尾(chronaxie<=32) & beamType 正确
         const beamGroups: NoteSymbol[][] = [];
         for (let i = 0; i < measure.notes.length; i++) {
-          const note = measure.notes[i] as NoteSymbol;
-          const preNote = measure.notes[i - 1] as NoteSymbol;
-          const nextNote = measure.notes[i + 1] as NoteSymbol;
+          const note = measure.notes[i];
+          const preNote = measure.notes[i - 1];
+          const nextNote = measure.notes[i + 1];
           const hasTail = note.chronaxie <= 32;
           const preHasTail = preNote?.chronaxie <= 32;
           const nextHasTail = nextNote?.chronaxie <= 32;
@@ -691,46 +689,26 @@ function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): StandardStaff
     case ClefTypeEnum.Bass:
       return isFront ? StandardStaffSkinKeyEnum.Bass_f : StandardStaffSkinKeyEnum.Bass;
     case ClefTypeEnum.Alto:
-      return isFront ? StandardStaffSkinKeyEnum.Alto_f : StandardStaffSkinKeyEnum.Alto;
     case ClefTypeEnum.Tenor:
-      return isFront ? StandardStaffSkinKeyEnum.Tenor_f : StandardStaffSkinKeyEnum.Tenor;
+      return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
     default:
       return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
   }
 }
 
-/** 小节生效谱号：本小节前置优先；否则沿用前一小节的后置 → 前一小节的前置，再往前递归；无则默认 Treble */
-function getClefForMeasure(measures: Measure[], measureIndex: number): ClefTypeEnum {
-  if (measureIndex < 0) return ClefTypeEnum.Treble;
-  const m = measures[measureIndex];
-  if (m.clef_f) return m.clef_f.clefType;
-  const prev = measureIndex - 1;
-  if (prev < 0) return ClefTypeEnum.Treble;
-  const pm = measures[prev];
-  if (pm.clef_b) return pm.clef_b.clefType;
-  if (pm.clef_f) return pm.clef_f.clefType;
-  return getClefForMeasure(measures, prev);
-}
-
-/** 调号 y 偏移：皮肤按 treble 布局，中音/次中音 +5.5，低音 +11 */
-function getKeySignatureYOffset(clefType: ClefTypeEnum, measureHeight: number, measureLineWidth: number): number {
-  const unit = (measureHeight - 5 * measureLineWidth) / 8 + measureLineWidth / 2
-  switch (clefType) {
-    case ClefTypeEnum.Alto:
-      return unit;
-    case ClefTypeEnum.Tenor:
-      return -unit;
-    case ClefTypeEnum.Bass:
-      return unit * 2;
-    default:
-      return 0;
-  }
-}
-
 /** 调号类型 → 皮肤键（升号调用 Sharp，降号调用 Flat） */
-function getKeySignatureSkinKey(type: KeySignatureTypeEnum): StandardStaffSkinKeyEnum {
-  // TODO 后续加上Soprano baritone等等调号需要补全逻辑
-  return StandardStaffSkinKeyEnum[type];
+function getKeySignatureSkinKey(type?: KeySignatureTypeEnum): StandardStaffSkinKeyEnum {
+  if (type == null) return StandardStaffSkinKeyEnum.Sharp;
+  const flatKeys: KeySignatureTypeEnum[] = [
+    KeySignatureTypeEnum.F,
+    KeySignatureTypeEnum.B_flat,
+    KeySignatureTypeEnum.E_flat,
+    KeySignatureTypeEnum.A_flat,
+    KeySignatureTypeEnum.D_flat,
+    KeySignatureTypeEnum.G_flat,
+    KeySignatureTypeEnum.C_flat,
+  ];
+  return flatKeys.includes(type) ? StandardStaffSkinKeyEnum.Flat : StandardStaffSkinKeyEnum.Sharp;
 }
 
 /** 拍号类型 → 皮肤键 */
@@ -1098,8 +1076,6 @@ function renderStemAndTail(params: {
 
 type RenderSymbolParams = {
   measure: Measure;
-  measures: Measure[];
-  measureIndex: number;
   measureX: number;
   measureY: number;
   measureWidth: number;
@@ -1114,22 +1090,9 @@ type RenderSymbolParams = {
  * 前置/后置符号无宽度域，按皮肤宽从左/右依次排布；音符有宽度域，按 widthRatio 比例在域内均匀分布，音符头在各自子域内居中。
  */
 function renderSymbol(params: RenderSymbolParams): VDom[] {
-  const {
-    measure,
-    measures,
-    measureIndex,
-    measureX,
-    measureY,
-    measureWidth,
-    measureHeight,
-    measureLineWidth,
-    skin,
-    idMap
-  } = params;
+  const {measure, measureX, measureY, measureWidth, measureHeight, measureLineWidth, skin, idMap} = params;
   const out: VDom[] = [];
   const z = 1001;
-  const clefType = getClefForMeasure(measures, measureIndex);
-  const keySignatureYOffset = getKeySignatureYOffset(clefType, measureHeight, measureLineWidth);
 
   type RightPart = { skinKey: StandardStaffSkinKeyEnum; tag: VDom['tag']; dataComment: string; targetId: string };
 
@@ -1141,12 +1104,12 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) prefixW += item.w;
   }
   if (measure.keySignature_f) {
-    const key = getKeySignatureSkinKey(measure.keySignature_f.type);
+    const key = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
   if (measure.timeSignature_f) {
-    const key = getTimeSignatureSkinKey(measure.timeSignature_f.type);
+    const key = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
@@ -1171,7 +1134,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
   if (measure.keySignature_b) {
     rightParts.push({
-      skinKey: getKeySignatureSkinKey(measure.keySignature_b.type),
+      skinKey: getKeySignatureSkinKey(measure.keySignature_b.barlineType),
       tag: 'keySignature_b',
       dataComment: '后置调号',
       targetId: measure.keySignature_b.id ?? ''
@@ -1179,7 +1142,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
   if (measure.timeSignature_b) {
     rightParts.push({
-      skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type),
+      skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.barlineType),
       tag: 'timeSignature_b',
       dataComment: '后置拍号',
       targetId: measure.timeSignature_b.id ?? ''
@@ -1194,11 +1157,10 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 3. 音符宽度域 = 小节宽度 - 前置 - 后置
   const noteDomainW = Math.max(0, measureWidth - prefixW - suffixW);
 
-  const pushSymbol = (x: number, skinKey: StandardStaffSkinKeyEnum, tag: VDom['tag'], dataComment: string, targetId: string, yOffset?: number) => {
+  const pushSymbol = (x: number, skinKey: StandardStaffSkinKeyEnum, tag: VDom['tag'], dataComment: string, targetId: string) => {
     const item = skin[skinKey];
     if (!item) return;
-    let y = measureY + (measureHeight - item.h) / 2;
-    if (yOffset != null) y += yOffset;
+    const y = measureY + (measureHeight - item.h) / 2;
     const vdom: VDom = {
       startPoint: {x: 0, y: 0},
       endPoint: {x: 0, y: 0},
@@ -1215,18 +1177,19 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   let x = measureX;
   if (measure.clef_f) {
     const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
+    console.log('chicken', measureY, (measureHeight) / 2)
     pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
     const item = skin[clefKey];
     if (item) x += item.w;
   }
   if (measure.keySignature_f) {
-    const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.type);
-    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '', keySignatureYOffset);
+    const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
+    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '');
     const item = skin[keySigKey];
     if (item) x += item.w;
   }
   if (measure.timeSignature_f) {
-    const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.type);
+    const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
     pushSymbol(x, timeSigKey, 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
     const item = skin[timeSigKey];
     if (item) x += item.w;
@@ -1250,7 +1213,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     let accRatio = 0;
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
-      const note = notes[i] as NoteSymbol;
+      const note = notes[i];
       const nextNote = notes[i + 1];
       const ratio = useEqualSlots ? 1 : (note.widthRatioForMeasure || note.widthRatio || 0);
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
@@ -1429,8 +1392,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 6. 输出后置符号（从右向左紧贴小节右端）
   x = measureX + measureWidth - suffixW;
   for (const p of rightParts) {
-    const yOff = p.tag === 'keySignature_b' ? keySignatureYOffset : undefined;
-    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, yOff);
+    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId);
     const item = skin[p.skinKey];
     if (item) x += item.w;
   }

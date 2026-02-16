@@ -3,7 +3,6 @@ import {
   BarlineTypeEnum,
   ClefTypeEnum,
   DoubleAffiliatedSymbolNameEnum,
-  KeySignatureTypeEnum,
   MusicScoreTypeEnum,
   NoteSymbolTypeEnum,
   TimeSignatureTypeEnum,
@@ -27,7 +26,7 @@ const clef: Clef = {
 };
 const time34: TimeSignature = {
   ...frame,
-  type: TimeSignatureTypeEnum['3_4'],
+  barlineType: TimeSignatureTypeEnum['3_4'],
   widthRatioForMeasure: 14,
   id: crypto.randomUUID(),
 };
@@ -51,7 +50,7 @@ function note(
     accidental: {
       ...frame,
       id: crypto.randomUUID(),
-      type: AccidentalTypeEnum.Sharp,
+      type: AccidentalTypeEnum.Natural,
       widthRatioForMeasure: 10
     },
     affiliatedSymbols: [],
@@ -83,24 +82,14 @@ const REST_CHRONAXIES: Chronaxie[] = [256, 128, 64, 32, 16, 8, 4, 2, 1];
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(7, 32, 6, 'up', BeamTypeEnum.Combined), // G4 祝
+    note(8, 32, 6, 'up', BeamTypeEnum.Combined), // G4 祝
     note(0, 16, 6, 'down', BeamTypeEnum.None), // G4 你
     note(-2, 8, 6, 'down', BeamTypeEnum.OnlyRight), // A4 生
     note(6, 4, 6, 'up', BeamTypeEnum.None), // G4 日
     note(4, 2, 6, 'up', BeamTypeEnum.None), // C5 快
     note(0, 1, 6, 'up', BeamTypeEnum.None), // B4 乐
   ],
-  keySignature_f: {
-    id: crypto.randomUUID(),
-    type: KeySignatureTypeEnum.D,
-    widthRatioForMeasure: 10,
-    relativeH: 0,
-    relativeY: 0,
-    relativeW: 0,
-    relativeX: 0
-  },
   clef_f: clef,
-  clef_b: clef,
   timeSignature_f: time34,
   barline: {
     barlineType: BarlineTypeEnum.Start_end_repeat_barline, widthRatioForMeasure: 4,
@@ -276,7 +265,6 @@ const data: MusicScore = {
   id: crypto.randomUUID(),
   type: MusicScoreTypeEnum.StandardStaff,
   topSpaceHeight: 0,
-  bpm: 120,
   title: '哈哈哈',
   grandStaffs: [
     {

@@ -8,4 +8,5 @@
 这个东西, 双跟随和单跟随型，都是多谱共用，属性取并集
 
 加时线怎么实现
-加时线也为一种独立的note，简谱的noteNumber类型为 1 2 3 4 5 6 7 x 0 -
+加时线像符干符尾一样由chronaxie控制生成，noteNumber的widthRatio为标准四分音符的，
+实际情况需要乘算chronaxie，简谱的noteNumber类型为 1 2 3 4 5 6 7 0

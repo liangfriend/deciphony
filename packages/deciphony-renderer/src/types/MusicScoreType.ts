@@ -133,8 +133,8 @@ export type NoteSymbol = {
   region: number, // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
   accidental?: Accidental
   augmentationDot?: AugmentationDot
-  widthRatio: number
-  widthRatioForMeasure: number,
+  widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
+  widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
   beamType: BeamTypeEnum
 } & Frame

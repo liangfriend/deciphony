@@ -431,22 +431,28 @@ function makeTimeSignature(content: string, key: StandardStaffSkinKeyEnum) {
 
 // 音符头：1=全音符空心椭圆(h=10)，2=倾斜空心，3=倾斜实心
 function makeNoteHead(key: StandardStaffSkinKeyEnum) {
+  // 全音符：不倾斜的圆环 path，稍大（外圈 8×5，内圈 5×2.5）
+  const uprightRingPath = "M 16 4 A 8 5 0 0 1 0 4 A 8 5 0 0 1 16 4 L 13 4 A 5 2.5 0 0 0 3 4 A 5 2.5 0 0 0 13 4 Z";
   if (key === StandardStaffSkinKeyEnum.NoteHead_1) {
     return {
-      content: `<ellipse cx="5" cy="5" rx="7" ry="4.5" fill="none" stroke="black" stroke-width="2" />`,
-      w: 14,
-      h: 8,
+      content: `<g transform="translate(0, 1)">
+        <path d="${uprightRingPath}" fill="black"></path>
+</g>`,
+      w: 16,
+      h: 10,
       skinKey: key,
     };
   }
+  // 空心倾斜：外圈闭合后向内约 3px 再绕内圈一周形成圆环（加厚）
+  const ringPath = "M 15 4 A 7 4.5 -20 0 1 1 4 A 7 4.5 -20 0 1 15 4 L 11.76 5.37 A 4 2 -20 0 0 4.24 2.63 A 4 2 -20 0 0 11.76 5.37 Z";
   const tiltedEllipse = `
 <g transform="translate(-0.7051, 1.2474)">
-<g transform="rotate(-25 8 4)"><ellipse cx="6" cy="3" rx="6" ry="3" fill="none" stroke="black" stroke-width="2" /></g>
+        <path d="${ringPath}" fill="black"></path>
 </g>
 `;
   const tiltedEllipseFilled = `
 <g transform="translate(-0.7051, 1.2474)">
-        <path d="M 15 4 A 7 4.5 -20 0 1 1 4 A 7 4.5 -20 0 1 15 4"></path>
+        <path d="M 15 4 A 7 4.5 -20 0 1 1 4 A 7 4.5 -20 0 1 15 4" fill="black"></path>
 </g>
 `;
   if (key === StandardStaffSkinKeyEnum.NoteHead_2) {
@@ -455,7 +461,8 @@ function makeNoteHead(key: StandardStaffSkinKeyEnum) {
   if (key === StandardStaffSkinKeyEnum.NoteHead_3) {
     return {content: tiltedEllipseFilled, w: 14.59, h: 10.49, skinKey: key};
   }
-  return {content: tiltedEllipseFilled, w: 14.59, h: 10.49, skinKey: key};
+
+  return {content: tiltedEllipseFilled, w: 14, h: 90, skinKey: key};
 }
 
 // 符干（高度由 transfer 动态传入 node.h，需拉伸填满故用 preserveAspectRatio="none"）
@@ -463,7 +470,7 @@ const noteStem = {
   content: `<g >
   <rect width="node.w" height="node.h" />
 </g>`,
-  w: 2,
+  w: 1,
   h: 0, // 符干的高度是动态的，最小为3/4的小节高。这里h没有意义
 
   skinKey: StandardStaffSkinKeyEnum.NoteStem,

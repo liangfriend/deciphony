@@ -624,11 +624,13 @@ function getMeasureWidthRatio(meausre: Measure) {
   let acc = 0
   // 小节本身的宽度系数
   acc += meausre.widthRatioForMeasure
-  // 音符宽度系数（含变音符号的 widthRatioForMeasure，仅影响小节宽度分配，符号宽高由皮肤包指定）
+  // 音符宽度系数（widthRatioForMeasure 以四分音符为 1，需乘 chronaxie 系数；变音符号单独加）
   for (let i = 0; i < meausre.notes.length; i++) {
     const item = meausre.notes[i];
-    if (item.widthRatioForMeasure) {
-      acc += item.widthRatioForMeasure;
+    const baseRatio = item.widthRatioForMeasure ?? item.widthRatio ?? 0;
+    if (baseRatio) {
+      const coef = getChronaxieWidthCoefficient(item.chronaxie);
+      acc += baseRatio * coef;
     }
     if (item.accidental?.widthRatioForMeasure) {
       acc += item.accidental.widthRatioForMeasure;
@@ -663,6 +665,30 @@ function getMeasureWidthRatio(meausre: Measure) {
     acc += meausre.timeSignature_b.widthRatioForMeasure
   }
   return acc
+}
+
+/** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数：256→3，128→2，64→1，32→1/2，16→1/4，8→1/8… */
+function getChronaxieWidthCoefficient(chronaxie: number): number {
+  if (chronaxie === 256) {
+    return 1.5
+  } else if (chronaxie === 128) {
+    return 1.3
+  } else if (chronaxie === 64) {
+    return 1
+  } else if (chronaxie === 32) {
+    return 0.8
+  } else if (chronaxie === 16) {
+    return 0.7
+  } else if (chronaxie === 8) {
+    return 0.6
+  } else if (chronaxie === 4) {
+    return 0.55
+  } else if (chronaxie === 2) {
+    return 0.5
+  } else if (chronaxie === 1) {
+    return 0.45
+  } else
+    1;
 }
 
 /** 小节线类型 -> skin 键 */
@@ -809,6 +835,8 @@ const MIN_STEM_HEIGHT_RATIO = 7 / 8;
 const BEAM_THICKNESS = 2 / 16;
 /** 符杠多条线之间的空隙 */
 const BEAM_LINE_SPACING = 2 / 32;
+/* 符干y值偏移量*/
+const STEM_Y_OFFSET = 0.15
 
 /** 时值 → 符杠线数（32→1, 16→2, 8→3, 4→4, 2→5, 1→6） */
 function chronaxieToBeamLineCount(chronaxie: number): number {
@@ -989,7 +1017,7 @@ function renderStemAndTail(params: {
   const targetId = note.id ?? '';
 
   // y值偏移量，这个是因为音符头是倾斜的，需要优化
-  const stemYOffset = 0.1 * measureHeight / 4
+  const stemYOffset = STEM_Y_OFFSET * measureHeight / 4
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
@@ -1232,9 +1260,12 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) x += item.w;
   }
 
-  // 5. 音符：在宽度域内按 widthRatio 比例均匀分布，音符头在各自子域内居中
+  // 5. 音符：在宽度域内按 widthRatio×chronaxie 系数 比例均匀分布，音符头在各自子域内居中
   const notes = measure.notes;
-  const totalNoteRatio = notes.reduce((sum, n) => sum + (n.widthRatioForMeasure || n.widthRatio || 0), 0);
+  const totalNoteRatio = notes.reduce((sum, n) => {
+    const base = n.widthRatioForMeasure ?? n.widthRatio ?? 0;
+    return sum + base * getChronaxieWidthCoefficient(n.chronaxie);
+  }, 0);
   const domainStartX = measureX + prefixW;
   // region：0 第一线、1 第一间… 越大越高（y 越小），与 NoteSymbol.region 注释一致
   /*
@@ -1252,7 +1283,8 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i] as NoteSymbol;
       const nextNote = notes[i + 1];
-      const ratio = useEqualSlots ? 1 : (note.widthRatioForMeasure || note.widthRatio || 0);
+      const baseRatio = note.widthRatioForMeasure ?? note.widthRatio ?? 0;
+      const ratio = useEqualSlots ? 1 : baseRatio * getChronaxieWidthCoefficient(note.chronaxie);
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
       const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
       if (!useEqualSlots) accRatio += ratio;

@@ -83,7 +83,7 @@ const REST_CHRONAXIES: Chronaxie[] = [256, 128, 64, 32, 16, 8, 4, 2, 1];
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(7, 32, 6, 'up', BeamTypeEnum.Combined), // G4 祝
+    note(7, 128, 6, 'down', BeamTypeEnum.Combined), // G4 祝
     note(0, 16, 6, 'down', BeamTypeEnum.None), // G4 你
     note(-2, 8, 6, 'down', BeamTypeEnum.OnlyRight), // A4 生
     note(6, 4, 6, 'up', BeamTypeEnum.None), // G4 日

@@ -338,6 +338,8 @@ export function musicScoreToVDom(
         // 小节符号渲染（前置谱号→前置调号→前置拍号→音符→后置谱号→小节线→后置调号→后置拍号）
         const symbolVDoms = renderSymbol({
           measure,
+          measures: staff.measures,
+          measureIndex: i,
           measureX: measureCurrentX,
           measureY: grandStaffCurrentY,
           measureWidth: measureWdith,
@@ -351,9 +353,9 @@ export function musicScoreToVDom(
         // 1. 获取音符组：符杠方向相同 & 有符尾(chronaxie<=32) & beamType 正确
         const beamGroups: NoteSymbol[][] = [];
         for (let i = 0; i < measure.notes.length; i++) {
-          const note = measure.notes[i];
-          const preNote = measure.notes[i - 1];
-          const nextNote = measure.notes[i + 1];
+          const note = measure.notes[i] as NoteSymbol;
+          const preNote = measure.notes[i - 1] as NoteSymbol;
+          const nextNote = measure.notes[i + 1] as NoteSymbol;
           const hasTail = note.chronaxie <= 32;
           const preHasTail = preNote?.chronaxie <= 32;
           const nextHasTail = nextNote?.chronaxie <= 32;
@@ -622,11 +624,13 @@ function getMeasureWidthRatio(meausre: Measure) {
   let acc = 0
   // 小节本身的宽度系数
   acc += meausre.widthRatioForMeasure
-  // 音符宽度系数（含变音符号的 widthRatioForMeasure，仅影响小节宽度分配，符号宽高由皮肤包指定）
+  // 音符宽度系数（widthRatioForMeasure 以四分音符为 1，需乘 chronaxie 系数；变音符号单独加）
   for (let i = 0; i < meausre.notes.length; i++) {
     const item = meausre.notes[i];
-    if (item.widthRatioForMeasure) {
-      acc += item.widthRatioForMeasure;
+    const baseRatio = item.widthRatioForMeasure ?? item.widthRatio ?? 0;
+    if (baseRatio) {
+      const coef = getChronaxieWidthCoefficient(item.chronaxie);
+      acc += baseRatio * coef;
     }
     if (item.accidental?.widthRatioForMeasure) {
       acc += item.accidental.widthRatioForMeasure;
@@ -663,6 +667,30 @@ function getMeasureWidthRatio(meausre: Measure) {
   return acc
 }
 
+/** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数：256→3，128→2，64→1，32→1/2，16→1/4，8→1/8… */
+function getChronaxieWidthCoefficient(chronaxie: number): number {
+  if (chronaxie === 256) {
+    return 1.5
+  } else if (chronaxie === 128) {
+    return 1.3
+  } else if (chronaxie === 64) {
+    return 1
+  } else if (chronaxie === 32) {
+    return 0.8
+  } else if (chronaxie === 16) {
+    return 0.7
+  } else if (chronaxie === 8) {
+    return 0.6
+  } else if (chronaxie === 4) {
+    return 0.55
+  } else if (chronaxie === 2) {
+    return 0.5
+  } else if (chronaxie === 1) {
+    return 0.45
+  } else
+    1;
+}
+
 /** 小节线类型 -> skin 键 */
 function getBarlineSkinKey(barlineType: BarlineTypeEnum): StandardStaffSkinKeyEnum {
   const map: Record<BarlineTypeEnum, StandardStaffSkinKeyEnum> = {
@@ -689,26 +717,46 @@ function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): StandardStaff
     case ClefTypeEnum.Bass:
       return isFront ? StandardStaffSkinKeyEnum.Bass_f : StandardStaffSkinKeyEnum.Bass;
     case ClefTypeEnum.Alto:
+      return isFront ? StandardStaffSkinKeyEnum.Alto_f : StandardStaffSkinKeyEnum.Alto;
     case ClefTypeEnum.Tenor:
-      return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
+      return isFront ? StandardStaffSkinKeyEnum.Tenor_f : StandardStaffSkinKeyEnum.Tenor;
     default:
       return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
   }
 }
 
+/** 小节生效谱号：本小节前置优先；否则沿用前一小节的后置 → 前一小节的前置，再往前递归；无则默认 Treble */
+function getClefForMeasure(measures: Measure[], measureIndex: number): ClefTypeEnum {
+  if (measureIndex < 0) return ClefTypeEnum.Treble;
+  const m = measures[measureIndex];
+  if (m.clef_f) return m.clef_f.clefType;
+  const prev = measureIndex - 1;
+  if (prev < 0) return ClefTypeEnum.Treble;
+  const pm = measures[prev];
+  if (pm.clef_b) return pm.clef_b.clefType;
+  if (pm.clef_f) return pm.clef_f.clefType;
+  return getClefForMeasure(measures, prev);
+}
+
+/** 调号 y 偏移：皮肤按 treble 布局，中音/次中音 +5.5，低音 +11 */
+function getKeySignatureYOffset(clefType: ClefTypeEnum, measureHeight: number, measureLineWidth: number): number {
+  const unit = (measureHeight - 5 * measureLineWidth) / 8 + measureLineWidth / 2
+  switch (clefType) {
+    case ClefTypeEnum.Alto:
+      return unit;
+    case ClefTypeEnum.Tenor:
+      return -unit;
+    case ClefTypeEnum.Bass:
+      return unit * 2;
+    default:
+      return 0;
+  }
+}
+
 /** 调号类型 → 皮肤键（升号调用 Sharp，降号调用 Flat） */
-function getKeySignatureSkinKey(type?: KeySignatureTypeEnum): StandardStaffSkinKeyEnum {
-  if (type == null) return StandardStaffSkinKeyEnum.Sharp;
-  const flatKeys: KeySignatureTypeEnum[] = [
-    KeySignatureTypeEnum.F,
-    KeySignatureTypeEnum.B_flat,
-    KeySignatureTypeEnum.E_flat,
-    KeySignatureTypeEnum.A_flat,
-    KeySignatureTypeEnum.D_flat,
-    KeySignatureTypeEnum.G_flat,
-    KeySignatureTypeEnum.C_flat,
-  ];
-  return flatKeys.includes(type) ? StandardStaffSkinKeyEnum.Flat : StandardStaffSkinKeyEnum.Sharp;
+function getKeySignatureSkinKey(type: KeySignatureTypeEnum): StandardStaffSkinKeyEnum {
+  // TODO 后续加上Soprano baritone等等调号需要补全逻辑
+  return StandardStaffSkinKeyEnum[type];
 }
 
 /** 拍号类型 → 皮肤键 */
@@ -787,6 +835,8 @@ const MIN_STEM_HEIGHT_RATIO = 7 / 8;
 const BEAM_THICKNESS = 2 / 16;
 /** 符杠多条线之间的空隙 */
 const BEAM_LINE_SPACING = 2 / 32;
+/* 符干y值偏移量*/
+const STEM_Y_OFFSET = 0.15
 
 /** 时值 → 符杠线数（32→1, 16→2, 8→3, 4→4, 2→5, 1→6） */
 function chronaxieToBeamLineCount(chronaxie: number): number {
@@ -967,7 +1017,7 @@ function renderStemAndTail(params: {
   const targetId = note.id ?? '';
 
   // y值偏移量，这个是因为音符头是倾斜的，需要优化
-  const stemYOffset = 0.1 * measureHeight / 4
+  const stemYOffset = STEM_Y_OFFSET * measureHeight / 4
   if (direction === 'up') {
     const stemX = headX + headW - stemW;
     const stemY = headCenterY - stemLength;
@@ -1076,6 +1126,8 @@ function renderStemAndTail(params: {
 
 type RenderSymbolParams = {
   measure: Measure;
+  measures: Measure[];
+  measureIndex: number;
   measureX: number;
   measureY: number;
   measureWidth: number;
@@ -1090,9 +1142,22 @@ type RenderSymbolParams = {
  * 前置/后置符号无宽度域，按皮肤宽从左/右依次排布；音符有宽度域，按 widthRatio 比例在域内均匀分布，音符头在各自子域内居中。
  */
 function renderSymbol(params: RenderSymbolParams): VDom[] {
-  const {measure, measureX, measureY, measureWidth, measureHeight, measureLineWidth, skin, idMap} = params;
+  const {
+    measure,
+    measures,
+    measureIndex,
+    measureX,
+    measureY,
+    measureWidth,
+    measureHeight,
+    measureLineWidth,
+    skin,
+    idMap
+  } = params;
   const out: VDom[] = [];
   const z = 1001;
+  const clefType = getClefForMeasure(measures, measureIndex);
+  const keySignatureYOffset = getKeySignatureYOffset(clefType, measureHeight, measureLineWidth);
 
   type RightPart = { skinKey: StandardStaffSkinKeyEnum; tag: VDom['tag']; dataComment: string; targetId: string };
 
@@ -1104,12 +1169,12 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) prefixW += item.w;
   }
   if (measure.keySignature_f) {
-    const key = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
+    const key = getKeySignatureSkinKey(measure.keySignature_f.type);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
   if (measure.timeSignature_f) {
-    const key = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
+    const key = getTimeSignatureSkinKey(measure.timeSignature_f.type);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
@@ -1134,7 +1199,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
   if (measure.keySignature_b) {
     rightParts.push({
-      skinKey: getKeySignatureSkinKey(measure.keySignature_b.barlineType),
+      skinKey: getKeySignatureSkinKey(measure.keySignature_b.type),
       tag: 'keySignature_b',
       dataComment: '后置调号',
       targetId: measure.keySignature_b.id ?? ''
@@ -1142,7 +1207,7 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
   if (measure.timeSignature_b) {
     rightParts.push({
-      skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.barlineType),
+      skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type),
       tag: 'timeSignature_b',
       dataComment: '后置拍号',
       targetId: measure.timeSignature_b.id ?? ''
@@ -1157,10 +1222,11 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 3. 音符宽度域 = 小节宽度 - 前置 - 后置
   const noteDomainW = Math.max(0, measureWidth - prefixW - suffixW);
 
-  const pushSymbol = (x: number, skinKey: StandardStaffSkinKeyEnum, tag: VDom['tag'], dataComment: string, targetId: string) => {
+  const pushSymbol = (x: number, skinKey: StandardStaffSkinKeyEnum, tag: VDom['tag'], dataComment: string, targetId: string, yOffset?: number) => {
     const item = skin[skinKey];
     if (!item) return;
-    const y = measureY + (measureHeight - item.h) / 2;
+    let y = measureY + (measureHeight - item.h) / 2;
+    if (yOffset != null) y += yOffset;
     const vdom: VDom = {
       startPoint: {x: 0, y: 0},
       endPoint: {x: 0, y: 0},
@@ -1177,27 +1243,29 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   let x = measureX;
   if (measure.clef_f) {
     const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
-    console.log('chicken', measureY, (measureHeight) / 2)
     pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
     const item = skin[clefKey];
     if (item) x += item.w;
   }
   if (measure.keySignature_f) {
-    const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.barlineType);
-    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '');
+    const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.type);
+    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '', keySignatureYOffset);
     const item = skin[keySigKey];
     if (item) x += item.w;
   }
   if (measure.timeSignature_f) {
-    const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.barlineType);
+    const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.type);
     pushSymbol(x, timeSigKey, 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
     const item = skin[timeSigKey];
     if (item) x += item.w;
   }
 
-  // 5. 音符：在宽度域内按 widthRatio 比例均匀分布，音符头在各自子域内居中
+  // 5. 音符：在宽度域内按 widthRatio×chronaxie 系数 比例均匀分布，音符头在各自子域内居中
   const notes = measure.notes;
-  const totalNoteRatio = notes.reduce((sum, n) => sum + (n.widthRatioForMeasure || n.widthRatio || 0), 0);
+  const totalNoteRatio = notes.reduce((sum, n) => {
+    const base = n.widthRatioForMeasure ?? n.widthRatio ?? 0;
+    return sum + base * getChronaxieWidthCoefficient(n.chronaxie);
+  }, 0);
   const domainStartX = measureX + prefixW;
   // region：0 第一线、1 第一间… 越大越高（y 越小），与 NoteSymbol.region 注释一致
   /*
@@ -1213,9 +1281,10 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
     let accRatio = 0;
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
-      const note = notes[i];
+      const note = notes[i] as NoteSymbol;
       const nextNote = notes[i + 1];
-      const ratio = useEqualSlots ? 1 : (note.widthRatioForMeasure || note.widthRatio || 0);
+      const baseRatio = note.widthRatioForMeasure ?? note.widthRatio ?? 0;
+      const ratio = useEqualSlots ? 1 : baseRatio * getChronaxieWidthCoefficient(note.chronaxie);
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
       const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
       if (!useEqualSlots) accRatio += ratio;
@@ -1392,7 +1461,8 @@ function renderSymbol(params: RenderSymbolParams): VDom[] {
   // 6. 输出后置符号（从右向左紧贴小节右端）
   x = measureX + measureWidth - suffixW;
   for (const p of rightParts) {
-    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId);
+    const yOff = p.tag === 'keySignature_b' ? keySignatureYOffset : undefined;
+    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, yOff);
     const item = skin[p.skinKey];
     if (item) x += item.w;
   }

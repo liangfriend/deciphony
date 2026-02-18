@@ -98,45 +98,79 @@ export type SingleAffiliatedSymbol = { // 单音符，单小节附属符号
 export type Barline = {
   id: string
   barlineType: BarlineTypeEnum
+  widthRatio: number // 目前完全无用
   widthRatioForMeasure: number
 } & Frame
 // 谱号 谱号出现在小节和音符上 后置谱号在小节线之前
 export type Clef = {
   id: string
   clefType: ClefTypeEnum
+  widthRatio: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
   widthRatioForMeasure: number
 } & Frame
 // 调号 后置调号在小节线之后
 export type KeySignature = {
   id: string
   type: KeySignatureTypeEnum
+  widthRatio: number // 目前完全无用
   widthRatioForMeasure: number
 } & Frame
 // 拍号 后置拍号在小节线之后
 export type TimeSignature = {
   id: string
   type: TimeSignatureTypeEnum
+  widthRatio: number // 目前完全无用
   widthRatioForMeasure: number
 } & Frame
 export type Accidental = {
   id: string
   type: AccidentalTypeEnum
+  widthRatio: number // 目前完全无用
   widthRatioForMeasure: number
 } & Frame
 // ==========================================线谱================================================
 // 音乐符号
+// export type NoteSymbol = {
+//   id: string
+//   type: NoteSymbolTypeEnum
+//
+//   chronaxie: Chronaxie // 时值0
+//   direction: 'up' | 'down' // 控制符干方向，休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
+//   region: number[], // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
+//   accidental?: Accidental
+//   augmentationDot?: AugmentationDot
+//   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
+//   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
+//   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
+//   beamType: BeamTypeEnum
+// } & Frame
 export type NoteSymbol = {
   id: string
   type: NoteSymbolTypeEnum
-  chronaxie: Chronaxie // 时值0
-  direction: 'up' | 'down' // 控制符干方向，休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
-  region: number, // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
-  accidental?: Accidental
-  augmentationDot?: AugmentationDot
+  direction: 'up' | 'down' // 控制声部1符干方向（声部2反向），休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
+  voicePart1: {
+    chronaxie: Chronaxie // 时值
+    notesInfo: NotesInfo[]
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
+    beamType: BeamTypeEnum
+  }[]
+  voicePart2: {
+    chronaxie: Chronaxie // 时值
+    notesInfo: NotesInfo[]
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
+    beamType: BeamTypeEnum
+  }[]
+  clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
-  affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
-  beamType: BeamTypeEnum
+
+} & Frame
+export type NotesInfo = {
+  id: string
+  region: number
+  accidental?: Accidental
 } & Frame
 // ==========================================简谱================================================
 // 简谱音乐符号

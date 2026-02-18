@@ -27,8 +27,8 @@ const comment = computed(() => {
       return '单谱表'
     case 'measure':
       return '小节'
-    case 'note':
-      return '音符'
+    case 'noteHead':
+      return '音符头'
     case 'rest':
       return '休止符'
     case 'clef_f':

@@ -12,7 +12,7 @@ export type VDomTagType =
     | 'grandStaff'     // 复谱表
     | 'singleStaff'    // 单谱表
     | 'measure'        // 小节
-    | 'note'           // 音符
+    | 'noteHead'           // 音符头
     | 'rest'           // 休止符
     | 'clef_f'         // 前置谱号
     | 'clef_b'         // 后置谱号

@@ -91,7 +91,7 @@ const trebleF = {
                 d="M58.2521 128.588L52.5358 100.789C71.9986 84.2187 80.9814 66.5533 80.9814 47.2446C80.9814 32.3181 75.1289 16.5699 63.1519 0C49.6777 10.9553 41.9198 32.7289 41.9198 56.1458C41.9198 64.4992 43.0086 72.4417 44.7779 80.1104C14.9713 105.308 0 128.451 0 149.676C0 174.6 25.5874 195.278 53.2163 195.278C59.341 195.278 63.9685 194.319 68.1877 192.265L73.2235 216.641C76.0308 232.176 60.9865 244.44 46.4112 244.44C42.0559 244.44 37.8367 243.344 34.0258 241.427C44.0974 240.331 51.7192 234.169 51.7192 225.131C51.7192 217.051 45.1862 208.698 36.7479 208.698C27.2206 208.698 20.6877 216.093 20.6877 225.679C20.6877 239.099 31.5759 248 44.6418 248C62.1991 248 77.0344 236.497 77.0344 220.064C77.0344 216.504 71.5903 191.991 71.4542 191.17C85.4728 184.322 95 172.272 95 159.399C94.8431 138.883 77.0476 126.943 58.2521 128.588ZM65.4656 18.7609C71.9195 18.7609 74.3123 29.9375 74.3123 34.9199C74.3123 47.6554 65.3295 62.0342 47.6361 77.7824C44.0453 63.3306 46.2924 18.7609 65.4656 18.7609ZM12.1132 156.66C12.1132 139.132 25.043 121.056 49.5415 102.706L54.9857 128.998C41.3754 131.874 29.8066 143.514 29.8066 156.523C29.8066 167.616 37.7006 175.284 49.4054 177.202C42.192 172.683 38.6533 167.068 38.6533 160.358C38.6533 151.32 47.0917 144.61 57.8438 143.103L67.235 188.431C45.0494 200.606 12.1132 182.493 12.1132 156.66ZM70.5014 186.65L61.2464 142.692C73.7567 141.724 83.5673 151.091 83.5673 164.055C83.5673 172.683 79.0759 180.214 70.5014 186.65Z"
                 fill="black"/>
       </g>
-`, w: 95 * 0.32 + 5, h: 45, skinKey: StandardStaffSkinKeyEnum.Treble_f
+`, w: 95 * 0.32 + 5, h: 79.36, skinKey: StandardStaffSkinKeyEnum.Treble_f
 };
 const bassF = {
   content: `
@@ -1412,15 +1412,294 @@ const standardStaffSkin: StandardStaffSkinPack = {
     skinKey: StandardStaffSkinKeyEnum.AddLine_d,
   },
 } as StandardStaffSkinPack;
+
+// 简谱拍号：复用五线谱的上下数字样式
+function makeNumberNotationTimeSignature(top: string, bottom: string, key: NumberNotationSkinKeyEnum) {
+  return {
+    content: `<g><text x="15" y="24" text-anchor="middle" font-size="22" font-weight="600">${top}</text><text x="15" y="46" text-anchor="middle" font-size="22" font-weight="600">${bottom}</text></g>`,
+    w: 30,
+    h: 56,
+    skinKey: key,
+  };
+}
+
+// 简谱调号：C 为空，其余用 sharp/flat 堆叠（与五线谱同 path）
+function makeNumberNotationKeySignature(key: NumberNotationSkinKeyEnum): {
+  content: string;
+  w: number;
+  h: number;
+  skinKey: NumberNotationSkinKeyEnum
+} {
+  if (key === NumberNotationSkinKeyEnum.C) {
+    return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+  }
+  const sharpKeys = [NumberNotationSkinKeyEnum.G, NumberNotationSkinKeyEnum.D, NumberNotationSkinKeyEnum.A, NumberNotationSkinKeyEnum.E, NumberNotationSkinKeyEnum.B, NumberNotationSkinKeyEnum.F_sharp];
+  const flatKeys = [NumberNotationSkinKeyEnum.F, NumberNotationSkinKeyEnum.B_flat, NumberNotationSkinKeyEnum.E_flat, NumberNotationSkinKeyEnum.A_flat, NumberNotationSkinKeyEnum.D_flat, NumberNotationSkinKeyEnum.G_flat, NumberNotationSkinKeyEnum.C_flat];
+  const sharpCount = sharpKeys.indexOf(key) + 1;
+  const flatCount = flatKeys.indexOf(key) + 1;
+  const KEY_SIG_H = STAFF_HEIGHT + 3 * (STAFF_HEIGHT / 8);
+  const SHARP_INNER = sharp.content.trim().replace(/\s+/g, ' ');
+  const FLAT_INNER = flat.content.trim().replace(/\s+/g, ' ');
+  const LINE_SP = STAFF_HEIGHT / 8;
+  if (sharpCount > 0) {
+    const items: { x: number; y: number }[] = [];
+    for (let i = 0; i < sharpCount; i++) {
+      const cy = 3 * LINE_SP + i * (LINE_SP / 2);
+      items.push({x: i * (sharp.w * 0.45), y: cy - sharp.h / 2});
+    }
+    const content = items.map(({
+                                 x,
+                                 y
+                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${SHARP_INNER}</g>`).join('');
+    return {content, w: sharp.w + (sharpCount - 1) * (sharp.w * 0.45), h: KEY_SIG_H, skinKey: key};
+  }
+  if (flatCount > 0) {
+    const items: { x: number; y: number }[] = [];
+    for (let i = 0; i < flatCount; i++) {
+      const cy = 3 * LINE_SP + i * (LINE_SP / 2);
+      items.push({x: i * (flat.w * 0.4), y: cy - flat.h / 2});
+    }
+    const content = items.map(({
+                                 x,
+                                 y
+                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${FLAT_INNER}</g>`).join('');
+    return {content, w: flat.w + (flatCount - 1) * (flat.w * 0.4), h: KEY_SIG_H, skinKey: key};
+  }
+  return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+}
+
 const numberNotationSkin: NumberNotationSkinPack = {
   [NumberNotationSkinKeyEnum.Measure]: {
-    content: `
-      <rect x="0" y="0" width="node.w" height="45" stroke="transparent" fill="transparent"></rect>
-`,
-    w: 1, // 这个写成线宽
+    content: `<rect x="0" y="0" width="node.w" height="45" stroke="transparent" fill="transparent"></rect>`,
+    w: 1,
     h: STAFF_HEIGHT,
     skinKey: NumberNotationSkinKeyEnum.Measure,
-  }
+  },
+  [NumberNotationSkinKeyEnum.Number_0]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">0</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_0
+  },
+  [NumberNotationSkinKeyEnum.Number_1]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">1</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_1
+  },
+  [NumberNotationSkinKeyEnum.Number_2]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">2</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_2
+  },
+  [NumberNotationSkinKeyEnum.Number_3]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">3</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_3
+  },
+  [NumberNotationSkinKeyEnum.Number_4]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">4</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_4
+  },
+  [NumberNotationSkinKeyEnum.Number_5]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">5</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_5
+  },
+  [NumberNotationSkinKeyEnum.Number_6]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">6</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_6
+  },
+  [NumberNotationSkinKeyEnum.Number_7]: {
+    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">7</text>`,
+    w: 20,
+    h: 32,
+    skinKey: NumberNotationSkinKeyEnum.Number_7
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_1]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 4,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_1
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_2]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 8,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_2
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_3]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/><line x1="0" y1="10" x2="14" y2="10" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 12,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_3
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_4]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="5" x2="14" y2="5" stroke="black" stroke-width="1"/><line x1="0" y1="8" x2="14" y2="8" stroke="black" stroke-width="1"/><line x1="0" y1="11" x2="14" y2="11" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 13,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_4
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_5]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="4.5" x2="14" y2="4.5" stroke="black" stroke-width="1"/><line x1="0" y1="7" x2="14" y2="7" stroke="black" stroke-width="1"/><line x1="0" y1="9.5" x2="14" y2="9.5" stroke="black" stroke-width="1"/><line x1="0" y1="12" x2="14" y2="12" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 14,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_5
+  },
+  [NumberNotationSkinKeyEnum.ReduceLine_6]: {
+    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="4" x2="14" y2="4" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/><line x1="0" y1="8" x2="14" y2="8" stroke="black" stroke-width="1"/><line x1="0" y1="10" x2="14" y2="10" stroke="black" stroke-width="1"/><line x1="0" y1="12" x2="14" y2="12" stroke="black" stroke-width="1"/>`,
+    w: 14,
+    h: 14,
+    skinKey: NumberNotationSkinKeyEnum.ReduceLine_6
+  },
+  [NumberNotationSkinKeyEnum.addLine]: {
+    content: `<line x1="0" y1="6" x2="12" y2="6" stroke="black" stroke-width="1"/>`,
+    w: 12,
+    h: 12,
+    skinKey: NumberNotationSkinKeyEnum.addLine
+  },
+  [NumberNotationSkinKeyEnum.Sharp]: {
+    content: sharp.content,
+    w: sharp.w,
+    h: sharp.h,
+    skinKey: NumberNotationSkinKeyEnum.Sharp
+  },
+  [NumberNotationSkinKeyEnum.Flat]: {
+    content: flat.content,
+    w: flat.w,
+    h: flat.h,
+    skinKey: NumberNotationSkinKeyEnum.Flat
+  },
+  [NumberNotationSkinKeyEnum.Double_sharp]: {
+    content: doubleSharp.content,
+    w: doubleSharp.w,
+    h: doubleSharp.h,
+    skinKey: NumberNotationSkinKeyEnum.Double_sharp
+  },
+  [NumberNotationSkinKeyEnum.Double_flat]: {
+    content: doubleFlat.content,
+    w: doubleFlat.w,
+    h: doubleFlat.h,
+    skinKey: NumberNotationSkinKeyEnum.Double_flat
+  },
+  [NumberNotationSkinKeyEnum.Natural]: {
+    content: natural.content,
+    w: natural.w,
+    h: natural.h,
+    skinKey: NumberNotationSkinKeyEnum.Natural
+  },
+  [NumberNotationSkinKeyEnum.Single_barline]: {
+    content: singleBarline.content,
+    w: singleBarline.w,
+    h: singleBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Single_barline
+  },
+  [NumberNotationSkinKeyEnum.Double_barline]: {
+    content: doubleBarline.content,
+    w: doubleBarline.w,
+    h: doubleBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Double_barline
+  },
+  [NumberNotationSkinKeyEnum.StartRepeat_barline]: {
+    content: startRepeatBarline.content,
+    w: startRepeatBarline.w,
+    h: startRepeatBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.StartRepeat_barline
+  },
+  [NumberNotationSkinKeyEnum.EndRepeat_barline]: {
+    content: endRepeatBarline.content,
+    w: endRepeatBarline.w,
+    h: endRepeatBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.EndRepeat_barline
+  },
+  [NumberNotationSkinKeyEnum.Dashed_barline]: {
+    content: dashedBarline.content,
+    w: dashedBarline.w,
+    h: dashedBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Dashed_barline
+  },
+  [NumberNotationSkinKeyEnum.Final_barline]: {
+    content: finalBarline.content,
+    w: finalBarline.w,
+    h: finalBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Final_barline
+  },
+  [NumberNotationSkinKeyEnum.Start_end_repeat_barline]: {
+    content: startEndRepeatBarline.content,
+    w: startEndRepeatBarline.w,
+    h: startEndRepeatBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Start_end_repeat_barline
+  },
+  [NumberNotationSkinKeyEnum.Dotted_barline]: {
+    content: dottedBarline.content,
+    w: dottedBarline.w,
+    h: dottedBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Dotted_barline
+  },
+  [NumberNotationSkinKeyEnum.Reverse_barline]: {
+    content: reverseBarline.content,
+    w: reverseBarline.w,
+    h: reverseBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Reverse_barline
+  },
+  [NumberNotationSkinKeyEnum.Heavy_barline]: {
+    content: heavyBarline.content,
+    w: heavyBarline.w,
+    h: heavyBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Heavy_barline
+  },
+  [NumberNotationSkinKeyEnum.Heavy_double_barline]: {
+    content: heavyDoubleBarline.content,
+    w: heavyDoubleBarline.w,
+    h: heavyDoubleBarline.h,
+    skinKey: NumberNotationSkinKeyEnum.Heavy_double_barline
+  },
+  [NumberNotationSkinKeyEnum['1_1']]: makeNumberNotationTimeSignature('1', '1', NumberNotationSkinKeyEnum['1_1']),
+  [NumberNotationSkinKeyEnum['1_4']]: makeNumberNotationTimeSignature('1', '4', NumberNotationSkinKeyEnum['1_4']),
+  [NumberNotationSkinKeyEnum['2_4']]: makeNumberNotationTimeSignature('2', '4', NumberNotationSkinKeyEnum['2_4']),
+  [NumberNotationSkinKeyEnum['3_4']]: makeNumberNotationTimeSignature('3', '4', NumberNotationSkinKeyEnum['3_4']),
+  [NumberNotationSkinKeyEnum['4_4']]: makeNumberNotationTimeSignature('4', '4', NumberNotationSkinKeyEnum['4_4']),
+  [NumberNotationSkinKeyEnum['3_8']]: makeNumberNotationTimeSignature('3', '8', NumberNotationSkinKeyEnum['3_8']),
+  [NumberNotationSkinKeyEnum['6_8']]: makeNumberNotationTimeSignature('6', '8', NumberNotationSkinKeyEnum['6_8']),
+  [NumberNotationSkinKeyEnum.AugmentationDot_1]: {
+    content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/>`,
+    w: 3,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.AugmentationDot_1
+  },
+  [NumberNotationSkinKeyEnum.AugmentationDot_2]: {
+    content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/>`,
+    w: 8,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.AugmentationDot_2
+  },
+  [NumberNotationSkinKeyEnum.AugmentationDot_3]: {
+    content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/><circle cx="11.5" cy="1.5" r="1.5" fill="black"/>`,
+    w: 13,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.AugmentationDot_3
+  },
+  [NumberNotationSkinKeyEnum.C]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.C),
+  [NumberNotationSkinKeyEnum.G]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.G),
+  [NumberNotationSkinKeyEnum.D]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.D),
+  [NumberNotationSkinKeyEnum.A]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.A),
+  [NumberNotationSkinKeyEnum.E]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.E),
+  [NumberNotationSkinKeyEnum.B]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.B),
+  [NumberNotationSkinKeyEnum.F_sharp]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.F_sharp),
+  [NumberNotationSkinKeyEnum.F]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.F),
+  [NumberNotationSkinKeyEnum.B_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.B_flat),
+  [NumberNotationSkinKeyEnum.E_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.E_flat),
+  [NumberNotationSkinKeyEnum.A_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.A_flat),
+  [NumberNotationSkinKeyEnum.D_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.D_flat),
+  [NumberNotationSkinKeyEnum.G_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.G_flat),
+  [NumberNotationSkinKeyEnum.C_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.C_flat),
 }
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,

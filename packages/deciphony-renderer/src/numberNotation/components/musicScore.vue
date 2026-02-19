@@ -44,7 +44,7 @@
 <script lang="ts" setup>
 import {computed, ref, watch} from 'vue'
 import mock from '../mock/happyBirthday'
-import {musicScoreToVDom} from "@/numberNotation/render/vDom";
+import {musicScoreToVDom} from "@/numberNotation/render/musicScoreToVDom";
 import {applyVDomUpdate} from "@/numberNotation/render/update";
 import {defaultSkin} from "@/skins/defaultSkin";
 import Group from './group.vue'
@@ -55,7 +55,7 @@ import type {MusicScore} from "@/types/MusicScoreType";
 import type {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 
 const props = defineProps<{
-  data?: MusicScore
+  data: MusicScore
   /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
   slotConfig?: SlotConfig
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
@@ -72,6 +72,7 @@ const vDom = ref<VDom[]>([])
 watch(
     [data, () => props.slotConfig, skinPackForLayout],
     ([d, slotConfig, s]) => {
+      console.log('chicken', defaultSkin)
       vDom.value = d
           ? musicScoreToVDom(d, slotConfig, {skin: skin.value})
           : []

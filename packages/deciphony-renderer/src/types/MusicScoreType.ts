@@ -173,13 +173,22 @@ export type NotesInfo = {
   accidental?: Accidental
 } & Frame
 // ==========================================简谱================================================
+export type NotesNumberInfo = {
+  id: string
+  syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
+  accidental: Accidental,
+}
 // 简谱音乐符号
 export type NoteNumber = {
   id: string
-  type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X'
-  chronaxie: Chronaxie
-  widthRatio: number // 这个比较特殊，代表着四分音符的比例，实际情况需要时值参与计算
-  widthRatioForMeasure: number, // 这个比较特殊，代表着四分音符的比例，实际情况需要时值参与计算
-  affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
-  accidental: Accidental,
+  voicePart: {
+    chronaxie: Chronaxie // 时值
+    notesInfo: NotesNumberInfo[]
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
+    beamType: BeamTypeEnum
+  }[]
+  clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
+  widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
+  widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
 } & Frame

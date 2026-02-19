@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, StandardStaffSkinPack, VDom} from "@/types/common";
+import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, VDom} from "@/types/common";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 
@@ -10,7 +10,7 @@ defineOptions({
 
 const props = defineProps<{
   node: VDom
-  /** 曲谱模式：五线谱用 standardStaff，简谱用 numberNotation */
+  /** 曲谱模式：五线谱用 numberNotation，简谱用 numberNotation */
   notationType?: MusicScoreTypeEnum
   /** 多套皮肤包：skinName -> SkinPack；skinName=default 或未找到时使用内置 defaultSkin */
   skin?: Skin
@@ -27,8 +27,8 @@ const comment = computed(() => {
       return '单谱表'
     case 'measure':
       return '小节'
-    case 'note':
-      return '音符'
+    case 'noteHead':
+      return '音符头'
     case 'rest':
       return '休止符'
     case 'clef_f':
@@ -61,9 +61,9 @@ const skinPack = computed<SkinPack>(() => {
   return props.skin?.[name] ?? defaultSkin
 })
 
-const notationPack = computed<StandardStaffSkinPack | NumberNotationSkinPack | undefined>(() => {
+const notationPack = computed<NumberNotationSkinPack | NumberNotationSkinPack | undefined>(() => {
   const pack = skinPack.value
-  return props.notationType === MusicScoreTypeEnum.NumberNotation ? pack.numberNotation : pack.standardStaff
+  return props.notationType === MusicScoreTypeEnum.NumberNotation ? pack.numberNotation : pack.numberNotation
 })
 
 const handleSkin = computed(() => {

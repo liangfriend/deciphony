@@ -20,9 +20,10 @@ defineExpose({updateVDom})
 </script>
 
 <template>
-  <MusicScoreForStandardStaff v-if="data?.type === MusicScoreTypeEnum.StandardStaff || true" :data="data" :skin="skin"
+  <MusicScoreForStandardStaff v-if="data?.type === MusicScoreTypeEnum.StandardStaff && false" :data="data" :skin="skin"
                               :slot-config="slotConfig"/>
-  <MusicScoreForNumberNotation v-else-if="data?.type === MusicScoreTypeEnum.NumberNotation" :data="data"
+
+  <MusicScoreForNumberNotation v-else-if="data?.type === MusicScoreTypeEnum.NumberNotation || true" :data="data"
                                :skin="skin"
                                :slot-config="slotConfig"/>
 </template>

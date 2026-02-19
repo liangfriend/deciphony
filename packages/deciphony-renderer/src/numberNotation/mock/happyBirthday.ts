@@ -154,12 +154,12 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(1, 32, 6, BeamTypeEnum.Combined), // 5 祝
-    note(1, 16, 6, BeamTypeEnum.Combined), // 5 你
-    note(2, 8, 6, BeamTypeEnum.OnlyRight), // 6 生
-    note(3, 4, 6, BeamTypeEnum.None), // 5 日
-    note(4, 2, 6, BeamTypeEnum.None), // 1 快
-    note(5, 1, 6, BeamTypeEnum.None), // 7 乐
+    note(1, 128, 6, BeamTypeEnum.Combined), // 5 祝
+    note(1, 64, 6, BeamTypeEnum.Combined), // 5 你
+    note(2, 64, 6, BeamTypeEnum.OnlyRight), // 6 生
+    note(3, 64, 6, BeamTypeEnum.None), // 5 日
+    note(4, 64, 6, BeamTypeEnum.None), // 1 快
+    note(5, 64, 6, BeamTypeEnum.None), // 7 乐
   ] as NoteNumber[],
   keySignature_f: {
     id: crypto.randomUUID(),

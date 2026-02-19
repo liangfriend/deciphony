@@ -1599,9 +1599,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_6
   },
   [NumberNotationSkinKeyEnum.addLine]: {
-    content: `<line x1="0" y1="6" x2="12" y2="6" stroke="black" stroke-width="1"/>`,
-    w: 12,
-    h: 12,
+    content: `<rect x="0" y="0" width="10" height="4" fill="black"/>`,
+    w: 10,
+    h: 4,
     skinKey: NumberNotationSkinKeyEnum.addLine
   },
   [NumberNotationSkinKeyEnum.Sharp]: {

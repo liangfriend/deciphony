@@ -23,7 +23,7 @@ import {
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getNoteWidthRatio, getSlotRestChronaxie, isSlotRest} from "../utils/note";
+import {getNoteWidthRatio, getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
 import {BeamTypeEnum} from "@/numberNotation/enums/numberNotationEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -211,7 +211,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      const headX = slotStartX + (slotW - referenceW) / 2;
+      // 计算音符头的x值：四分及以下居中；二分因1条加时线 slotW/2；全音符因3条加时线 slotW/4
+      const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
+      // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
+      const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
+      const headX = slotStartX
       const beat = note.voicePart.find((b) => b.notesInfo.length > 0) ?? null;
       slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, beat, isRest: isRestSlot});
 
@@ -247,7 +251,32 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
-
+        // 休止符加时线：二分1条、全音符3条
+        const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
+        if (addLineCount > 0) {
+          const addLineSkin = skin[NumberNotationSkinKeyEnum.addLine];
+          if (addLineSkin) {
+            for (let k = 0; k < addLineCount; k++) {
+              const lineY = measureY + (measureHeight - addLineSkin.h) / 2
+              const lineX = slotStartX + effectiveSlotW * (k + 1)
+              out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: lineX,
+                y: lineY,
+                w: addLineSkin.w,
+                h: addLineSkin.h,
+                zIndex: z,
+                tag: 'addLine',
+                skinName: 'default',
+                targetId: note.id,
+                skinKey: NumberNotationSkinKeyEnum.addLine,
+                dataComment: '加时线',
+              });
+            }
+          }
+        }
       } else { // 音符渲染
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
@@ -292,6 +321,32 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           out.push(vdom);
           setNodeIdMap(idMap, n.id, vdom);
           if (!firstHeadVDom) firstHeadVDom = vdom;
+        }
+        // 音符加时线：二分1条、全音符3条，y居中，x等分居中
+        const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
+        if (addLineCount > 0) {
+          const addLineSkin = skin[NumberNotationSkinKeyEnum.addLine];
+          if (addLineSkin) {
+            for (let k = 0; k < addLineCount; k++) {
+              const lineY = measureY + (measureHeight - addLineSkin.h) / 2
+              const lineX = slotStartX + effectiveSlotW * (k + 1)
+              out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: lineX,
+                y: lineY,
+                w: addLineSkin.w,
+                h: addLineSkin.h,
+                zIndex: z,
+                tag: 'addLine',
+                skinName: 'default',
+                targetId: note.id,
+                skinKey: NumberNotationSkinKeyEnum.addLine,
+                dataComment: '加时线',
+              });
+            }
+          }
         }
       }
 

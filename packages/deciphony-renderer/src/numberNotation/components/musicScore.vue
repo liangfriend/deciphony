@@ -44,7 +44,7 @@
 <script lang="ts" setup>
 import {computed, ref, watch} from 'vue'
 import mock from '../mock/happyBirthday'
-import {musicScoreToVDom} from "@/numberNotation/render/transfer";
+import {musicScoreToVDom} from "@/numberNotation/render/vDom";
 import {applyVDomUpdate} from "@/numberNotation/render/update";
 import {defaultSkin} from "@/skins/defaultSkin";
 import Group from './group.vue'

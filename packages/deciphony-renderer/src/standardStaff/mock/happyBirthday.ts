@@ -375,7 +375,7 @@ const phrase5Measure1: Measure = {
         },
         {
           chronaxie: 32,
-          notesInfo: [{...frame, id: crypto.randomUUID(), region: 1} as NotesInfo],
+          notesInfo: [{...frame, id: crypto.randomUUID(), region: 2} as NotesInfo],
           beamType: BeamTypeEnum.Combined
         },
         6,

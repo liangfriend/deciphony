@@ -72,7 +72,6 @@ const vDom = ref<VDom[]>([])
 watch(
     [data, () => props.slotConfig, skinPackForLayout],
     ([d, slotConfig, s]) => {
-      console.log('chicken', defaultSkin)
       vDom.value = d
           ? musicScoreToVDom(d, slotConfig, {skin: skin.value})
           : []

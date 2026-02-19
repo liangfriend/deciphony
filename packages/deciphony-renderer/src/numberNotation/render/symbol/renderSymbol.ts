@@ -1,15 +1,17 @@
 /**
- * 小节符号渲染：前置谱号→前置调号→前置拍号→音符→后置谱号→小节线→后置调号→后置拍号
+ * 简谱小节符号渲染：前置谱号→前置调号→前置拍号→音符→后置谱号→小节线→后置调号→后置拍号
+ * syllable: 0=休止符, 1-7=do~si, X=节奏音符；减时线有 beamType 控制断开/连接
  */
 
 import {VDom} from "@/types/common";
 import type {AugmentationDot} from "@/types/MusicScoreType";
-import {NoteSymbol} from "@/types/MusicScoreType";
+import {NoteNumber} from "@/types/MusicScoreType";
 import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {ACCIDENTAL_NOTE_GAP, AUGMENTATION_DOT_GAP, CLEF_NOTE_GAP_RATIO} from "../constants";
 import {
+  chronaxieToBeamLineCount,
   getAccidentalSkinKey,
   getAugmentationDotSkinKey,
   getBarlineSkinKey,
@@ -17,12 +19,12 @@ import {
   getClefSkinKey,
   getKeySignatureSkinKey,
   getKeySignatureYOffset,
-  getNoteHeadSkinKey,
-  getRestSkinKey,
+  getReduceLineSkinKey,
+  getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
 import {getNoteWidthRatio, getSlotRestChronaxie, isSlotRest} from "../utils/note";
-import {renderStemAndTail} from "../note/renderStemAndTail";
+import {BeamTypeEnum} from "@/numberNotation/enums/numberNotationEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -31,6 +33,11 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     map.set(id, obj);
   }
   obj[vdom.tag] = vdom;
+}
+
+/** 音符 y 中心：全部居中，堆叠时按 stackIndex 依次 +measureHeight */
+function noteCenterY(measureY: number, measureHeight: number, stackIndex: number): number {
+  return measureY + measureHeight / 2 - stackIndex * measureHeight;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -57,9 +64,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     dataComment: string;
     targetId: string;
   };
-  /*
-  * 获取前置符号的w总和
-  * */
+
   let prefixW = 0;
   if (measure.clef_f) {
     const key = getClefSkinKey(measure.clef_f.clefType, true);
@@ -111,25 +116,20 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     });
   }
   let suffixW = 0;
-  /*
-  * 获取后置符号的w总和
-  * */
   for (const p of rightParts) {
     const item = skin[p.skinKey];
     if (item) suffixW += item.w;
   }
-  // 计算出留给音符的w总和
+
   const noteDomainW = Math.max(0, measureWidth - prefixW - suffixW);
-  /*
-  * 定义vodm添加函数
-  * */
+
   const pushSymbol = (
       x: number,
       skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum],
       tag: VDom['tag'],
       dataComment: string,
       targetId: string,
-      yOffset?: number
+      yOffset?: number,
   ) => {
     const item = skin[skinKey];
     if (!item) return;
@@ -142,12 +142,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment,
     };
     out.push(vdom);
-    // 如果添加的vdom存在id, 缓存数据方便查找
     if (targetId) setNodeIdMap(idMap, targetId, vdom);
   };
-  /*
-  * 依次渲染前置符号并累加x
-  * */
+
   let x = measureX;
   if (measure.clef_f) {
     const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
@@ -168,56 +165,56 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) x += item.w;
   }
 
-  const notes = measure.notes;
-  // 计算当前小节总的widthRatio
-  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n as NoteSymbol), 0);
+  const notes = measure.notes as NoteNumber[];
+  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n), 0);
   const domainStartX = measureX + prefixW;
-  /*
-  * 定义音符中心点坐标获取函数
-  * */
-  const noteCenterY = (region: number) =>
-      measureY + measureHeight - measureLineWidth / 2
-      - region * (measureHeight - 5 * measureLineWidth) / 8
-      - region * measureLineWidth / 2;
-  /*
-  * 使用均等槽位
-  * 如果曲谱数据的widthRatio没有设置好，出现了不合理的总宽度系数，则使用均等槽位模式
-  * 所有符号宽度域等比分配
-  * 这个正常来讲不应该被用到，属于一个防报错手段
-  * */
   const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
+
+  type SlotInfo = {
+    note: NoteNumber;
+    i: number;
+    slotStartX: number;
+    slotW: number;
+    headX: number;
+    refW: number;
+    beat: NonNullable<ReturnType<typeof notes[0]['voicePart']['find']>> | null;
+    isRest: boolean
+  };
+  const slots: SlotInfo[] = [];
 
   if (notes.length > 0) {
     let accRatio = 0;
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
-      const note = notes[i] as NoteSymbol;
+      const note = notes[i];
       const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note);
-      // 计算出符号域宽度
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
-      // 计算出符号域开始x值
       const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
       if (!useEqualSlots) accRatio += ratio;
-      const isRest = isSlotRest(note);
-      // 参考宽度：用于在 slot 内居中。休止符用休止符皮肤宽；音符用该 slot 内所有声部符头皮肤的最大宽（全/二分/四分符头尺寸可能不同）
+
+      const isRestSlot = isSlotRest(note);
+      const restChronaxie = getSlotRestChronaxie(note);
+
       let referenceW: number;
-      if (isRest) {
-        const restItem = skin[getRestSkinKey(getSlotRestChronaxie(note))];
-        if (!restItem) continue;
-        referenceW = restItem.w;
+      if (isRestSlot) {
+        const num0Item = skin[NumberNotationSkinKeyEnum.Number_0];
+        if (!num0Item) continue;
+        referenceW = num0Item.w;
       } else {
-        const beats = [...note.voicePart1, ...note.voicePart2].filter((b) => b.notesInfo.length > 0);
         referenceW = 0;
-        for (const beat of beats) {
-          const headSkin = skin[getNoteHeadSkinKey(beat.chronaxie)];
-          if (headSkin && headSkin.w > referenceW) referenceW = headSkin.w;
+        for (const b of note.voicePart) {
+          for (const n of b.notesInfo) {
+            const numSkin = skin[getSyllableSkinKey(n.syllable)];
+            if (numSkin && numSkin.w > referenceW) referenceW = numSkin.w;
+          }
         }
+        if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
-      // 计算音符头的x值
+
       const headX = slotStartX + (slotW - referenceW) / 2;
-      /*
-      * 渲染音符前谱号
-      * */
+      const beat = note.voicePart.find((b) => b.notesInfo.length > 0) ?? null;
+      slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, beat, isRest: isRestSlot});
+
       if (note.clef) {
         const clefKey = getClefSkinKey(note.clef.clefType, true);
         const clefItem = skin[clefKey];
@@ -225,9 +222,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const clefX = headX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
           const clefY = measureY - (clefItem.h - measureHeight) / 2;
           const clefVDom: VDom = {
-            startPoint: {x: 0, y: 0},
-            endPoint: {x: 0, y: 0},
-            special: {},
+            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: clefX, y: clefY, w: clefItem.w, h: clefItem.h,
             zIndex: z, tag: 'clef_f', skinName: 'default', targetId: note.clef.id,
             skinKey: clefKey, dataComment: '音符前谱号',
@@ -236,97 +231,28 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           setNodeIdMap(idMap, note.clef.id, clefVDom);
         }
       }
-      // 渲染休止符
-      if (isRest) {
-        const restChronaxie = getSlotRestChronaxie(note);
-        const headKey = getRestSkinKey(restChronaxie);
-        const restItem = skin[headKey];
-        if (!restItem) continue;
-        let ny: number;
-        if (restChronaxie === 256) ny = measureY + measureHeight / 4;
-        else if (restChronaxie === 128) ny = measureY + measureHeight / 2 - restItem.h;
-        else ny = measureY + (measureHeight - restItem.h) / 2;
+      if (!beat) continue;
+      let firstHeadVDom: VDom | null = null;
+      const allNotes = beat.notesInfo.slice();
+      // 休止符渲染
+      if (isRestSlot) {
+        const headKey = NumberNotationSkinKeyEnum.Number_0;
+        const num0Item = skin[headKey];
+        if (!num0Item) continue;
+        const ny = measureY + (measureHeight - num0Item.h) / 2;
         const vdom: VDom = {
           startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-          x: headX, y: ny, w: restItem.w, h: restItem.h,
+          x: headX, y: ny, w: num0Item.w, h: num0Item.h,
           zIndex: z, tag: 'rest', skinName: 'default', targetId: note.id, skinKey: headKey, dataComment: '休止符',
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
-        continue;
-      }
 
-      const beat1 = note.voicePart1.find((b) => b.notesInfo.length > 0);
-      const beat2 = note.voicePart2.find((b) => b.notesInfo.length > 0);
-      let stemV1: VDom | null = null;
-      let stemV2: VDom | null = null;
-      let headCenterY1: number | null = null;
-      let headCenterY2: number | null = null;
-      let firstHeadVDom: VDom | null = null;
+      } else { // 音符渲染
+        for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
+          const n = allNotes[stackIdx];
+          const hcy = noteCenterY(measureY, measureHeight, stackIdx);
 
-      const addLineSkinD = skin[NumberNotationSkinKeyEnum.AddLine_d];
-      const addLineSkinU = skin[NumberNotationSkinKeyEnum.AddLine_u];
-
-      const drawVoice = (
-          beat: {
-            chronaxie: number;
-            notesInfo: {
-              id: string;
-              region: number;
-              accidental?: { type: AccidentalTypeEnum; id?: string; relativeX?: number; relativeY?: number }
-            }[];
-            augmentationDot?: import("@/types/MusicScoreType").AugmentationDot;
-          },
-          directionUp: boolean,
-          setStemAndHead?: (stem: VDom, headCenterY: number) => void,
-      ) => {
-        const regions = beat.notesInfo.map((n) => n.region);
-        const headKey = getNoteHeadSkinKey(beat.chronaxie);
-        const headItem = skin[headKey];
-        const minRegion = Math.min(...regions);
-        const maxRegion = Math.max(...regions);
-        // 加线x
-        const ledgerX = headX + headItem.w / 2 - (addLineSkinD?.w ?? 15) / 2;
-        // 符干尾部离小节最远的距离信息
-        const extremeRegion = directionUp ? maxRegion : minRegion;
-        const extremeHeadY = noteCenterY(extremeRegion) - headItem.h / 2;
-        const extremeHeadCenterY = extremeHeadY + headItem.h / 2;
-        // 相反一侧最远距离音符头中心点y
-        const otherExtremeHeadCenterY = directionUp ? noteCenterY(minRegion) : noteCenterY(maxRegion);
-        // 最远音符信息
-        const extremeNotesInfo = beat.notesInfo.find((n) => n.region === extremeRegion);
-        // 是否需要加线
-        const needLower = new Set<number>();
-        const needUpper = new Set<number>();
-        for (const r of regions) {
-          if (r < -1) for (let line = -2; line >= r; line -= 2) needLower.add(line);
-          if (r > 9) for (let line = 10; line <= r; line += 2) needUpper.add(line);
-        }
-        // 渲染加线
-        if (addLineSkinD) for (const r of needLower) {
-          const lineY = noteCenterY(r);
-          out.push({
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-            x: ledgerX, y: lineY + measureLineWidth / 2 - addLineSkinD.h,
-            w: addLineSkinD.w, h: addLineSkinD.h, zIndex: 1000,
-            tag: 'addLine', skinName: 'default', targetId: note.id,
-            skinKey: NumberNotationSkinKeyEnum.AddLine_d, dataComment: '下加线',
-          });
-        }
-        if (addLineSkinU) for (const r of needUpper) {
-          const lineY = noteCenterY(r);
-          out.push({
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-            x: ledgerX, y: lineY - measureLineWidth / 2,
-            w: addLineSkinU.w, h: addLineSkinU.h, zIndex: z - 1,
-            tag: 'addLine', skinName: 'default', targetId: note.id,
-            skinKey: NumberNotationSkinKeyEnum.AddLine_u, dataComment: '上加线',
-          });
-        }
-        // 渲染变音符号和音符头
-        beat.notesInfo.forEach((n) => {
-          const ny = noteCenterY(n.region) - headItem.h / 2;
-          const hcy = noteCenterY(n.region);
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
             const accSkin = skin[accSkinKey];
@@ -351,81 +277,124 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               });
             }
           }
-          // 渲染音符头
+
+          const numKey = getSyllableSkinKey(n.syllable);
+          const numItem = skin[numKey];
+          if (!numItem) continue;
+
+          const ny = hcy - numItem.h / 2;
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-            x: headX, y: ny, w: headItem.w, h: headItem.h, zIndex: z,
-            tag: 'noteHead', skinName: 'default', targetId: n.id, skinKey: headKey, dataComment: '音符头',
+            x: headX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
+            tag: 'noteHead', skinName: 'default', targetId: n.id, skinKey: numKey,
+            dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
           };
           out.push(vdom);
           setNodeIdMap(idMap, n.id, vdom);
           if (!firstHeadVDom) firstHeadVDom = vdom;
-        });
-        // 渲染附点
-        if (beat.augmentationDot) {
-          const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
-          const augSkin = skin[augSkinKey];
-          if (augSkin) {
-            const augX = headX + headItem.w + AUGMENTATION_DOT_GAP * measureHeight;
-            beat.notesInfo.forEach((n) => {
-              let augY = noteCenterY(n.region) - augSkin.h / 2;
-              if (n.region % 2 === 0) augY -= measureHeight / 8;
-              out.push({
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: augX,
-                y: augY,
-                w: augSkin.w,
-                h: augSkin.h,
-                zIndex: z,
-                tag: 'accidental',
-                skinName: 'default',
-                targetId: beat.augmentationDot!.id,
-                skinKey: augSkinKey,
-                dataComment: '附点符号',
-              });
-            });
-          }
         }
-        if (!extremeNotesInfo) return;
-        /*
-        * 渲染符尾和符干。不过这里不是最终的符干vdom,后续beam里会调整符干vdom
-        * */
-        const stemTailVDoms = renderStemAndTail({
-          note,
-          headX: headX,
-          headY: extremeHeadY,
-          headW: headItem.w,
-          headH: headItem.h,
-          measureY,
-          measureHeight,
-          measureWidth,
-          skin,
-          zIndex: z,
-          idMap,
-          chronaxie: beat.chronaxie,
-          direction: directionUp ? 'up' : 'down',
-          stemTargetId: extremeNotesInfo.id,
-          headCenterYOther: otherExtremeHeadCenterY,
-        });
-        for (const v of stemTailVDoms) {
-          out.push(v);
-          if (v.tag === 'noteStem') setStemAndHead?.(v, extremeHeadCenterY);
-          if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
-        }
-      };
+      }
 
-      if (beat1) drawVoice(beat1, note.direction === 'up', (s, h) => {
-        stemV1 = s;
-        headCenterY1 = h;
-      });
-      if (beat2) drawVoice(beat2, note.direction !== 'up', (s, h) => {
-        stemV2 = s;
-        headCenterY2 = h;
-      });
+      if (beat.augmentationDot) {
+        const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
+        const augSkin = skin[augSkinKey];
+        const numItem = skin[NumberNotationSkinKeyEnum.Number_1] ?? {w: 20, h: 32};
+        if (augSkin) {
+          const augX = headX + numItem.w + AUGMENTATION_DOT_GAP * measureHeight;
+          allNotes.forEach((n, stackIdx) => {
+            if (n.syllable === 0 || n.syllable === 'X') return;
+            const hcy = noteCenterY(measureY, measureHeight, stackIdx);
+            const augY = hcy - augSkin.h / 2;
+            out.push({
+              startPoint: {x: 0, y: 0},
+              endPoint: {x: 0, y: 0},
+              special: {},
+              x: augX,
+              y: augY,
+              w: augSkin.w,
+              h: augSkin.h,
+              zIndex: z,
+              tag: 'accidental',
+              skinName: 'default',
+              targetId: beat.augmentationDot!.id,
+              skinKey: augSkinKey,
+              dataComment: '附点',
+            });
+          });
+        }
+      }
 
       if (firstHeadVDom) setNodeIdMap(idMap, note.id, firstHeadVDom);
+    }
+
+    // 第二遍：渲染减时线（slots 已完整，可正确计算连接）
+    /*
+    * 比如音符A,B 减时线数： 1 2
+      此时将A的减时线延长到B的x位置
+      音符A,B 减时线：2 1
+      此时将B的减时线x减少到A的减时线结束位置，就是A的音符x+音符皮肤w。然后延长B的减时线w到B的x+B音符皮肤w
+      音符A B C  2 1 2
+      此时将中间减时线向左移动，并延长到音符C开始
+      就是这样，永远会移动减时线少的乙方
+    * */
+    const hasReduceLine = (s: SlotInfo) => s.beat != null && s.beat.chronaxie <= 32;
+    for (let i = 0; i < slots.length; i++) {
+      const slot = slots[i];
+      if (!slot.beat || slot.beat.chronaxie > 32) continue;
+      const reduceLineKey = getReduceLineSkinKey(slot.beat.chronaxie);
+      const reduceLineSkin = skin[reduceLineKey];
+      if (!reduceLineSkin) continue;
+      const allNotes = slot.beat.notesInfo;
+      if (allNotes.length === 0) continue;
+
+      const beamType = slot.beat.beamType ?? BeamTypeEnum.None;
+      const myCount = chronaxieToBeamLineCount(slot.beat.chronaxie);
+      let leftIdx = i;
+      let rightIdx = i;
+      if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
+        if (beamType === BeamTypeEnum.Combined) {
+          for (let j = i - 1; j >= 0; j--) {
+            const s = slots[j];
+            if (s.isRest || !s.beat || !hasReduceLine(s)) break;
+            if (s.beat.beamType !== BeamTypeEnum.Combined) break;
+            leftIdx = j;
+          }
+        }
+        for (let j = i + 1; j < slots.length; j++) {
+          const s = slots[j];
+          if (s.isRest || !s.beat || !hasReduceLine(s)) break;
+          if (s.beat.beamType !== BeamTypeEnum.Combined) break;
+          rightIdx = j;
+        }
+      }
+      const leftSlot = leftIdx < i ? slots[i - 1] : null;
+      const rightSlot = rightIdx > i ? slots[i + 1] : null;
+      const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.beat!.chronaxie) : Infinity;
+      const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.beat!.chronaxie) : Infinity;
+      const lineX = myCount < leftCount && leftSlot
+          ? leftSlot.headX + leftSlot.refW
+          : slot.headX;
+      const lineEnd = myCount < rightCount && rightSlot
+          ? rightSlot.headX
+          : slot.headX + slot.refW;
+      const lineW = Math.max(lineEnd - lineX, slot.refW);
+      const lowestCy = noteCenterY(measureY, measureHeight, allNotes.length - 1);
+      const reduceY = lowestCy + (skin[NumberNotationSkinKeyEnum.Number_1]?.h ?? 32) / 2 + 2;
+      out.push({
+        startPoint: {x: 0, y: 0},
+        endPoint: {x: 0, y: 0},
+        special: {},
+        x: lineX,
+        y: reduceY,
+        w: lineW,
+        h: reduceLineSkin.h,
+        zIndex: z,
+        tag: 'accidental',
+        skinName: 'default',
+        targetId: slot.beat.notesInfo[0]?.id ?? slot.note.id,
+        skinKey: reduceLineKey,
+        dataComment: '减时线',
+      });
     }
   }
 

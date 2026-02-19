@@ -3,7 +3,7 @@
  */
 
 import {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
-import {MusicScore, NoteSymbol} from "@/types/MusicScoreType";
+import {MusicScore, NoteNumber} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import type {NodeIdMap} from "./types";
@@ -192,7 +192,7 @@ export function musicScoreToVDom(
         * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
         * */
         processBeam({
-          measure: measure as { notes: NoteSymbol[] },
+          measure: measure as { notes: NoteNumber[] },
           nodeIdMap,
           vDoms,
           symbolVDomsLength: symbolVDoms.length,

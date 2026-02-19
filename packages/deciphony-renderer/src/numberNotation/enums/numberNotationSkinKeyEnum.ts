@@ -94,6 +94,23 @@ export enum NumberNotationSkinKeyEnum {
   AugmentationDot_1 = 'augmentationDot_1',
   AugmentationDot_2 = 'augmentationDot_2',
   AugmentationDot_3 = 'augmentationDot_3',
-  AddLine_u = 'addLine_u', // 上方的加线
-  AddLine_d = 'addLine_d', // 下方的加线
+  AddLine_u = 'addLine_u', // 上方的加线（五线谱风格）
+  AddLine_d = 'addLine_d', // 下方的加线（五线谱风格）
+  // 简谱专用：数字 0-7、减时线、高/低音点线
+  Number_0 = 'number_0',
+  Number_1 = 'number_1',
+  Number_2 = 'number_2',
+  Number_3 = 'number_3',
+  Number_4 = 'number_4',
+  Number_5 = 'number_5',
+  Number_6 = 'number_6',
+  Number_7 = 'number_7',
+  Number_X = 'number_X', // 节奏音符（无音高）
+  ReduceLine_1 = 'reduceLine_1',
+  ReduceLine_2 = 'reduceLine_2',
+  ReduceLine_3 = 'reduceLine_3',
+  ReduceLine_4 = 'reduceLine_4',
+  ReduceLine_5 = 'reduceLine_5',
+  ReduceLine_6 = 'reduceLine_6',
+  addLine = 'addLine', // 简谱高/低音点下方的横线
 }

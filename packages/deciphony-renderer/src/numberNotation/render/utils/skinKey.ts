@@ -172,3 +172,32 @@ export function getAugmentationDotSkinKey(augmentationDot: AugmentationDot): Num
   };
   return map[augmentationDot.count as 1 | 2 | 3];
 }
+
+/** 简谱 syllable → 数字皮肤 key。0=休止符(Number_0)，1-7=音高，'X'=节奏音符(Number_X) */
+export function getSyllableSkinKey(syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X'): NumberNotationSkinKeyEnum {
+  if (syllable === 'X') return NumberNotationSkinKeyEnum.Number_X;
+  const map: Record<number, NumberNotationSkinKeyEnum> = {
+    0: NumberNotationSkinKeyEnum.Number_0,
+    1: NumberNotationSkinKeyEnum.Number_1,
+    2: NumberNotationSkinKeyEnum.Number_2,
+    3: NumberNotationSkinKeyEnum.Number_3,
+    4: NumberNotationSkinKeyEnum.Number_4,
+    5: NumberNotationSkinKeyEnum.Number_5,
+    6: NumberNotationSkinKeyEnum.Number_6,
+    7: NumberNotationSkinKeyEnum.Number_7,
+  };
+  return map[syllable] ?? NumberNotationSkinKeyEnum.Number_1;
+}
+
+/** 时值 chronaxie → 简谱减时线皮肤 key（32→1条线，16→2条…） */
+export function getReduceLineSkinKey(chronaxie: number): NumberNotationSkinKeyEnum {
+  const map: Record<number, NumberNotationSkinKeyEnum> = {
+    32: NumberNotationSkinKeyEnum.ReduceLine_1,
+    16: NumberNotationSkinKeyEnum.ReduceLine_2,
+    8: NumberNotationSkinKeyEnum.ReduceLine_3,
+    4: NumberNotationSkinKeyEnum.ReduceLine_4,
+    2: NumberNotationSkinKeyEnum.ReduceLine_5,
+    1: NumberNotationSkinKeyEnum.ReduceLine_6,
+  };
+  return map[chronaxie] ?? NumberNotationSkinKeyEnum.ReduceLine_1;
+}

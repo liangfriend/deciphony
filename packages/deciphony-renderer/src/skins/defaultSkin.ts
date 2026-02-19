@@ -27,10 +27,10 @@ const treble = {
   content: `
        <g transform="
                scale(0.18)">
-          <path id="Vector"
-                d="M58.2521 128.588L52.5358 100.789C71.9986 84.2187 80.9814 66.5533 80.9814 47.2446C80.9814 32.3181 75.1289 16.5699 63.1519 0C49.6777 10.9553 41.9198 32.7289 41.9198 56.1458C41.9198 64.4992 43.0086 72.4417 44.7779 80.1104C14.9713 105.308 0 128.451 0 149.676C0 174.6 25.5874 195.278 53.2163 195.278C59.341 195.278 63.9685 194.319 68.1877 192.265L73.2235 216.641C76.0308 232.176 60.9865 244.44 46.4112 244.44C42.0559 244.44 37.8367 243.344 34.0258 241.427C44.0974 240.331 51.7192 234.169 51.7192 225.131C51.7192 217.051 45.1862 208.698 36.7479 208.698C27.2206 208.698 20.6877 216.093 20.6877 225.679C20.6877 239.099 31.5759 248 44.6418 248C62.1991 248 77.0344 236.497 77.0344 220.064C77.0344 216.504 71.5903 191.991 71.4542 191.17C85.4728 184.322 95 172.272 95 159.399C94.8431 138.883 77.0476 126.943 58.2521 128.588ZM65.4656 18.7609C71.9195 18.7609 74.3123 29.9375 74.3123 34.9199C74.3123 47.6554 65.3295 62.0342 47.6361 77.7824C44.0453 63.3306 46.2924 18.7609 65.4656 18.7609ZM12.1132 156.66C12.1132 139.132 25.043 121.056 49.5415 102.706L54.9857 128.998C41.3754 131.874 29.8066 143.514 29.8066 156.523C29.8066 167.616 37.7006 175.284 49.4054 177.202C42.192 172.683 38.6533 167.068 38.6533 160.358C38.6533 151.32 47.0917 144.61 57.8438 143.103L67.235 188.431C45.0494 200.606 12.1132 182.493 12.1132 156.66ZM70.5014 186.65L61.2464 142.692C73.7567 141.724 83.5673 151.091 83.5673 164.055C83.5673 172.683 79.0759 180.214 70.5014 186.65Z"
-                fill="black"/>
-      </g>
+        <path id="Vector"
+              d="M58.2521 128.588L52.5358 100.789C71.9986 84.2187 80.9814 66.5533 80.9814 47.2446C80.9814 32.3181 75.1289 16.5699 63.1519 0C49.6777 10.9553 41.9198 32.7289 41.9198 56.1458C41.9198 64.4992 43.0086 72.4417 44.7779 80.1104C14.9713 105.308 0 128.451 0 149.676C0 174.6 25.5874 195.278 53.2163 195.278C59.341 195.278 63.9685 194.319 68.1877 192.265L73.2235 216.641C76.0308 232.176 60.9865 244.44 46.4112 244.44C42.0559 244.44 37.8367 243.344 34.0258 241.427C44.0974 240.331 51.7192 234.169 51.7192 225.131C51.7192 217.051 45.1862 208.698 36.7479 208.698C27.2206 208.698 20.6877 216.093 20.6877 225.679C20.6877 239.099 31.5759 248 44.6418 248C62.1991 248 77.0344 236.497 77.0344 220.064C77.0344 216.504 71.5903 191.991 71.4542 191.17C85.4728 184.322 95 172.272 95 159.399C94.8431 138.883 77.0476 126.943 58.2521 128.588ZM65.4656 18.7609C71.9195 18.7609 74.3123 29.9375 74.3123 34.9199C74.3123 47.6554 65.3295 62.0342 47.6361 77.7824C44.0453 63.3306 46.2924 18.7609 65.4656 18.7609ZM12.1132 156.66C12.1132 139.132 25.043 121.056 49.5415 102.706L54.9857 128.998C41.3754 131.874 29.8066 143.514 29.8066 156.523C29.8066 167.616 37.7006 175.284 49.4054 177.202C42.192 172.683 38.6533 167.068 38.6533 160.358C38.6533 151.32 47.0917 144.61 57.8438 143.103L67.235 188.431C45.0494 200.606 12.1132 182.493 12.1132 156.66ZM70.5014 186.65L61.2464 142.692C73.7567 141.724 83.5673 151.091 83.5673 164.055C83.5673 172.683 79.0759 180.214 70.5014 186.65Z"
+              fill="black"/>
+    </g>
 `,
   w: 95 * 0.18 + 5, // 宽高一定要等于图形的宽高，否则会导致布局错误
   h: 248 * 0.18,
@@ -158,12 +158,12 @@ const sharp = {
 const flat = {
   content: `
      <g transform="translate(-39.6836, -20.7969)">
-    <path
+      <path
         d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
         stroke="black"
         fill="transparent"
         stroke-width="1.52124"
-    />
+      />
   </g>
 `,
   w: 8.63,
@@ -1476,86 +1476,125 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Measure,
   },
   [NumberNotationSkinKeyEnum.Number_0]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">0</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.3301, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">0</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_0
   },
   [NumberNotationSkinKeyEnum.Number_1]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">1</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-5.1660, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">1</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_1
   },
   [NumberNotationSkinKeyEnum.Number_2]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">2</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.3301, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">2</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_2
   },
   [NumberNotationSkinKeyEnum.Number_3]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">3</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.3301, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">3</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_3
   },
   [NumberNotationSkinKeyEnum.Number_4]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">4</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.0859, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">4</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_4
   },
   [NumberNotationSkinKeyEnum.Number_5]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">5</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.3301, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">5</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_5
   },
   [NumberNotationSkinKeyEnum.Number_6]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">6</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.3008, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">6</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_6
   },
   [NumberNotationSkinKeyEnum.Number_7]: {
-    content: `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">7</text>`,
-    w: 20,
-    h: 32,
+    content: `<g transform="translate(-3.5645, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">7</text>
+</g>`,
+    w: 14.16,
+    h: 35,
     skinKey: NumberNotationSkinKeyEnum.Number_7
   },
+  [NumberNotationSkinKeyEnum.Number_X]: {
+    content: `<g transform="translate(-1.6602, -1.7500)">
+        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">X</text>
+</g>`,
+    w: 14.16,
+    h: 35,
+    skinKey: NumberNotationSkinKeyEnum.Number_X
+  },
   [NumberNotationSkinKeyEnum.ReduceLine_1]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/>`,
-    w: 14,
-    h: 4,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
+    h: 1,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_1
   },
   [NumberNotationSkinKeyEnum.ReduceLine_2]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/>`,
-    w: 14,
-    h: 8,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="4.5" x2="node.w" y2="4.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
+    h: 5,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_2
   },
   [NumberNotationSkinKeyEnum.ReduceLine_3]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/><line x1="0" y1="10" x2="14" y2="10" stroke="black" stroke-width="1"/>`,
-    w: 14,
-    h: 12,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="4.5" x2="node.w" y2="4.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="7.5" x2="node.w" y2="7.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
+    h: 8,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_3
   },
   [NumberNotationSkinKeyEnum.ReduceLine_4]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="5" x2="14" y2="5" stroke="black" stroke-width="1"/><line x1="0" y1="8" x2="14" y2="8" stroke="black" stroke-width="1"/><line x1="0" y1="11" x2="14" y2="11" stroke="black" stroke-width="1"/>`,
-    w: 14,
-    h: 13,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="4.5" x2="node.w" y2="4.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="7.5" x2="node.w" y2="7.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="9.5" x2="node.w" y2="9.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
+    h: 10,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_4
   },
   [NumberNotationSkinKeyEnum.ReduceLine_5]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="4.5" x2="14" y2="4.5" stroke="black" stroke-width="1"/><line x1="0" y1="7" x2="14" y2="7" stroke="black" stroke-width="1"/><line x1="0" y1="9.5" x2="14" y2="9.5" stroke="black" stroke-width="1"/><line x1="0" y1="12" x2="14" y2="12" stroke="black" stroke-width="1"/>`,
-    w: 14,
-    h: 14,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="4.5" x2="node.w" y2="4.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="7.5" x2="node.w" y2="7.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="9.5" x2="node.w" y2="9.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="11.5" x2="node.w" y2="11.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
+    h: 12,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_5
   },
   [NumberNotationSkinKeyEnum.ReduceLine_6]: {
-    content: `<line x1="0" y1="2" x2="14" y2="2" stroke="black" stroke-width="1"/><line x1="0" y1="4" x2="14" y2="4" stroke="black" stroke-width="1"/><line x1="0" y1="6" x2="14" y2="6" stroke="black" stroke-width="1"/><line x1="0" y1="8" x2="14" y2="8" stroke="black" stroke-width="1"/><line x1="0" y1="10" x2="14" y2="10" stroke="black" stroke-width="1"/><line x1="0" y1="12" x2="14" y2="12" stroke="black" stroke-width="1"/>`,
-    w: 14,
+    content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="4.5" x2="node.w" y2="4.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="7.5" x2="node.w" y2="7.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="9.5" x2="node.w" y2="9.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="11.5" x2="node.w" y2="11.5" stroke="black" stroke-width="1"/>
+<line x1="0" y1="13.5" x2="node.w" y2="13.5" stroke="black" stroke-width="1"/>`,
+    w: 0, // 这个w没用
     h: 14,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_6
   },

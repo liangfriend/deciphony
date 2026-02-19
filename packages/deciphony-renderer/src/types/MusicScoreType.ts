@@ -175,6 +175,7 @@ export type NotesInfo = {
 // ==========================================简谱================================================
 export type NotesNumberInfo = {
   id: string
+  /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
   syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
   accidental: Accidental,
 }

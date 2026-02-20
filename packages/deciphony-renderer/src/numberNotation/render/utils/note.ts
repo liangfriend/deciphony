@@ -48,10 +48,10 @@ export function getChronaxieWidthCoefficient(chronaxie: number): number {
   if (chronaxie === 64) return 1;
   if (chronaxie === 32) return 0.5;
   if (chronaxie === 16) return 0.25;
-  if (chronaxie === 8) return 0.125;
-  if (chronaxie === 4) return 0.0625;
-  if (chronaxie === 2) return 0.06;
-  if (chronaxie === 1) return 0.05;
+  if (chronaxie === 8) return 0.25;
+  if (chronaxie === 4) return 0.25;
+  if (chronaxie === 2) return 0.25;
+  if (chronaxie === 1) return 0.25;
   return 1;
 }
 

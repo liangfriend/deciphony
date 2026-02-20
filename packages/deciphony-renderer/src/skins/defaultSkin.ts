@@ -1423,50 +1423,6 @@ function makeNumberNotationTimeSignature(top: string, bottom: string, key: Numbe
   };
 }
 
-// 简谱调号：C 为空，其余用 sharp/flat 堆叠（与五线谱同 path）
-function makeNumberNotationKeySignature(key: NumberNotationSkinKeyEnum): {
-  content: string;
-  w: number;
-  h: number;
-  skinKey: NumberNotationSkinKeyEnum
-} {
-  if (key === NumberNotationSkinKeyEnum.C) {
-    return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
-  }
-  const sharpKeys = [NumberNotationSkinKeyEnum.G, NumberNotationSkinKeyEnum.D, NumberNotationSkinKeyEnum.A, NumberNotationSkinKeyEnum.E, NumberNotationSkinKeyEnum.B, NumberNotationSkinKeyEnum.F_sharp];
-  const flatKeys = [NumberNotationSkinKeyEnum.F, NumberNotationSkinKeyEnum.B_flat, NumberNotationSkinKeyEnum.E_flat, NumberNotationSkinKeyEnum.A_flat, NumberNotationSkinKeyEnum.D_flat, NumberNotationSkinKeyEnum.G_flat, NumberNotationSkinKeyEnum.C_flat];
-  const sharpCount = sharpKeys.indexOf(key) + 1;
-  const flatCount = flatKeys.indexOf(key) + 1;
-  const KEY_SIG_H = STAFF_HEIGHT + 3 * (STAFF_HEIGHT / 8);
-  const SHARP_INNER = sharp.content.trim().replace(/\s+/g, ' ');
-  const FLAT_INNER = flat.content.trim().replace(/\s+/g, ' ');
-  const LINE_SP = STAFF_HEIGHT / 8;
-  if (sharpCount > 0) {
-    const items: { x: number; y: number }[] = [];
-    for (let i = 0; i < sharpCount; i++) {
-      const cy = 3 * LINE_SP + i * (LINE_SP / 2);
-      items.push({x: i * (sharp.w * 0.45), y: cy - sharp.h / 2});
-    }
-    const content = items.map(({
-                                 x,
-                                 y
-                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${SHARP_INNER}</g>`).join('');
-    return {content, w: sharp.w + (sharpCount - 1) * (sharp.w * 0.45), h: KEY_SIG_H, skinKey: key};
-  }
-  if (flatCount > 0) {
-    const items: { x: number; y: number }[] = [];
-    for (let i = 0; i < flatCount; i++) {
-      const cy = 3 * LINE_SP + i * (LINE_SP / 2);
-      items.push({x: i * (flat.w * 0.4), y: cy - flat.h / 2});
-    }
-    const content = items.map(({
-                                 x,
-                                 y
-                               }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${FLAT_INNER}</g>`).join('');
-    return {content, w: flat.w + (flatCount - 1) * (flat.w * 0.4), h: KEY_SIG_H, skinKey: key};
-  }
-  return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
-}
 
 const numberNotationSkin: NumberNotationSkinPack = {
   [NumberNotationSkinKeyEnum.Measure]: {
@@ -1605,33 +1561,72 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.addLine
   },
   [NumberNotationSkinKeyEnum.Sharp]: {
-    content: sharp.content,
-    w: sharp.w,
-    h: sharp.h,
+    content: `
+    <g transform="scale(0.5) 
+    translate(-37.88,-13.1562)
+               ">
+      <rect x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black" />
+      <rect x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black" />
+      <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
+      <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
+    </g>
+`,
+    w: 6.12,
+    h: 15.02,
     skinKey: NumberNotationSkinKeyEnum.Sharp
   },
   [NumberNotationSkinKeyEnum.Flat]: {
-    content: flat.content,
-    w: flat.w,
-    h: flat.h,
+    content: `
+     <g transform="scale(0.5) translate(-39.6836, -20.7969)">
+      <path
+        d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
+        stroke="black"
+        fill="transparent"
+        stroke-width="1.52124"
+      />
+  </g>
+`,
+    w: 4.32,
+    h: 14.71,
     skinKey: NumberNotationSkinKeyEnum.Flat
   },
   [NumberNotationSkinKeyEnum.Double_sharp]: {
-    content: doubleSharp.content,
-    w: doubleSharp.w,
-    h: doubleSharp.h,
+    content: `
+     <g transform="scale(0.5) translate(-37.8828, -13.1562)">
+         <rect id="Rectangle 1264" x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black"></rect>
+        <rect id="Rectangle 1265" x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black"></rect>
+        <path id="Rectangle 1266" d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black"></path>
+        <path id="Rectangle 1267" d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black"></path>
+        <g transform="translate(14,0)">
+            <rect id="Rectangle 1264" x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black"></rect>
+            <rect id="Rectangle 1265" x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black"></rect>
+            <path id="Rectangle 1266" d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black"></path>
+            <path id="Rectangle 1267" d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black"></path>
+        </g>
+</g>
+`,
+    w: 13.12,
+    h: 15.02,
     skinKey: NumberNotationSkinKeyEnum.Double_sharp
   },
   [NumberNotationSkinKeyEnum.Double_flat]: {
-    content: doubleFlat.content,
-    w: doubleFlat.w,
-    h: doubleFlat.h,
+    content: `<g transform="scale(0.5) translate(-39.6836, -21.7969)">
+        <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
+        <g transform="translate(11,0)">
+            <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
+    
+        </g>
+</g>`,
+    w: 9.82,
+    h: 14.71,
     skinKey: NumberNotationSkinKeyEnum.Double_flat
   },
   [NumberNotationSkinKeyEnum.Natural]: {
-    content: natural.content,
-    w: natural.w,
-    h: natural.h,
+    content: `<g transform="scale(0.5) translate(-3.5000, -11.0000)">
+        <path id="natural_1_" d="M5.1,23.1v5.1l5.6-1.2v-5L5.1,23.1z M12.2,17.8V39h-1.6v-8.3l-7.1,1.5V11h1.6v8.3L12.2,17.8z"></path>
+</g>`,
+    w: 4.35,
+    h: 14,
     skinKey: NumberNotationSkinKeyEnum.Natural
   },
   [NumberNotationSkinKeyEnum.Single_barline]: {
@@ -1725,20 +1720,80 @@ const numberNotationSkin: NumberNotationSkinPack = {
     h: 3,
     skinKey: NumberNotationSkinKeyEnum.AugmentationDot_3
   },
-  [NumberNotationSkinKeyEnum.C]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.C),
-  [NumberNotationSkinKeyEnum.G]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.G),
-  [NumberNotationSkinKeyEnum.D]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.D),
-  [NumberNotationSkinKeyEnum.A]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.A),
-  [NumberNotationSkinKeyEnum.E]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.E),
-  [NumberNotationSkinKeyEnum.B]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.B),
-  [NumberNotationSkinKeyEnum.F_sharp]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.F_sharp),
-  [NumberNotationSkinKeyEnum.F]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.F),
-  [NumberNotationSkinKeyEnum.B_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.B_flat),
-  [NumberNotationSkinKeyEnum.E_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.E_flat),
-  [NumberNotationSkinKeyEnum.A_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.A_flat),
-  [NumberNotationSkinKeyEnum.D_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.D_flat),
-  [NumberNotationSkinKeyEnum.G_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.G_flat),
-  [NumberNotationSkinKeyEnum.C_flat]: makeNumberNotationKeySignature(NumberNotationSkinKeyEnum.C_flat),
+  [NumberNotationSkinKeyEnum.C]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=C</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.C
+  },
+  [NumberNotationSkinKeyEnum.G]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=G</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G
+  },
+  [NumberNotationSkinKeyEnum.D]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=D</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D
+  },
+  [NumberNotationSkinKeyEnum.A]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=A</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A
+  },
+  [NumberNotationSkinKeyEnum.E]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=E</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E
+  },
+  [NumberNotationSkinKeyEnum.B]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=B</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B
+  },
+  [NumberNotationSkinKeyEnum.F_sharp]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=F♯</text>
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp
+  },
+  [NumberNotationSkinKeyEnum.F]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=F</text>
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F
+  },
+  [NumberNotationSkinKeyEnum.B_flat]: {
+    content: `<g transform="translate(0.0000, 17.2727)">
+        <text>1=B♭</text>
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat
+  },
+  [NumberNotationSkinKeyEnum.E_flat]: {
+    content: `<text>1=B♭</text>`,
+    w: 44.28,
+    h: 22.73,
+    skinKey: NumberNotationSkinKeyEnum.B_flat
+  },
+  [NumberNotationSkinKeyEnum.A_flat]: {
+    content: `<text>1=A♭</text>`,
+    w: 44.28,
+
+    skinKey: NumberNotationSkinKeyEnum.A_flat
+  },
+  [NumberNotationSkinKeyEnum.D_flat]: {
+    content: `<text>1=D♭</text>`,
+    w: 44.28,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.D_flat
+  },
+  [NumberNotationSkinKeyEnum.G_flat]: {
+    content: `<text>1=G♭</text>`,
+    w: 44.28,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.G_flat
+  }, [NumberNotationSkinKeyEnum.C_flat]: {
+    content: `<text>1=C♭</text>`,
+    w: 44.28,
+    h: 3,
+    skinKey: NumberNotationSkinKeyEnum.C_flat
+  },
 }
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,

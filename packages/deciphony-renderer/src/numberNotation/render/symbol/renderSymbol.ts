@@ -6,10 +6,20 @@
 import {VDom} from "@/types/common";
 import type {AugmentationDot} from "@/types/MusicScoreType";
 import {NoteNumber} from "@/types/MusicScoreType";
-import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
-import {ACCIDENTAL_NOTE_GAP, AUGMENTATION_DOT_GAP, CLEF_NOTE_GAP_RATIO} from "../constants";
+import {
+  ACCIDENTAL_NOTE_X_GAP,
+  ACCIDENTAL_NOTE_Y_OFFSET,
+  AUGMENTATION_DOT_X_GAP,
+  AUGMENTATION_DOT_Y_OFFSET,
+  CLEF_NOTE_GAP_RATIO,
+  KEY_SIGNATURE_B_X_OFFSET,
+  KEY_SIGNATURE_B_Y_OFFSET,
+  KEY_SIGNATURE_F_X_OFFSET,
+  KEY_SIGNATURE_F_Y_OFFSET,
+  REDUCE_LINE_Y_OFFSET
+} from "../constants";
 import {
   chronaxieToBeamLineCount,
   getAccidentalSkinKey,
@@ -18,7 +28,6 @@ import {
   getClefForMeasure,
   getClefSkinKey,
   getKeySignatureSkinKey,
-  getKeySignatureYOffset,
   getReduceLineSkinKey,
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
@@ -36,8 +45,8 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
 }
 
 /** 音符 y 中心：全部居中，堆叠时按 stackIndex 依次 +measureHeight */
-function noteCenterY(measureY: number, measureHeight: number, stackIndex: number): number {
-  return measureY + measureHeight / 2 - stackIndex * measureHeight;
+function noteCenterY(measureY: number, measureHeight: number, stackIndex: number, noteH = measureHeight): number {
+  return measureY + measureHeight / 2 - stackIndex * noteH;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -56,7 +65,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   const out: VDom[] = [];
   const z = 1001;
   const clefType = getClefForMeasure(measures, measureIndex);
-  const keySignatureYOffset = getKeySignatureYOffset(clefType, measureHeight, measureLineWidth);
 
   type RightPart = {
     skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum];
@@ -118,11 +126,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   let suffixW = 0;
   for (const p of rightParts) {
     const item = skin[p.skinKey];
+    // 简谱调号不参与x累加
+    if (p.tag === 'keySignature_b') continue;
     if (item) suffixW += item.w;
   }
 
   const noteDomainW = Math.max(0, measureWidth - prefixW - suffixW);
 
+  /** 简谱调号位置：前置 X=小节x Y=小节y-调号.h；后置 X=小节x+小节w-调号.w Y=小节y-调号.h */
   const pushSymbol = (
       x: number,
       skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum],
@@ -130,16 +141,18 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       dataComment: string,
       targetId: string,
       yOffset?: number,
+      opts?: { xOverride?: number; yOverride?: number },
   ) => {
     const item = skin[skinKey];
     if (!item) return;
-    let y = measureY + (measureHeight - item.h) / 2;
-    if (yOffset != null) y += yOffset;
+    const finalX = opts?.xOverride ?? x;
+    let y = opts?.yOverride != null ? opts.yOverride : measureY + (measureHeight - item.h) / 2;
+    if (opts?.yOverride == null && yOffset != null) y += yOffset;
     const vdom: VDom = {
       startPoint: {x: 0, y: 0},
       endPoint: {x: 0, y: 0},
       special: {},
-      x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment,
+      x: finalX, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment,
     };
     out.push(vdom);
     if (targetId) setNodeIdMap(idMap, targetId, vdom);
@@ -154,9 +167,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
   if (measure.keySignature_f) {
     const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.type);
-    pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', measure.keySignature_f.id ?? '', keySignatureYOffset);
-    const item = skin[keySigKey];
-    if (item) x += item.w;
+    const keySigItem = skin[keySigKey];
+    const kf = measure.keySignature_f;
+    if (keySigItem) {
+      pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', kf.id ?? '', undefined, {
+        xOverride: x + KEY_SIGNATURE_F_X_OFFSET * measureHeight + (kf.relativeX ?? 0),
+        yOverride: measureY - keySigItem.h + KEY_SIGNATURE_F_Y_OFFSET * measureHeight + (kf.relativeY ?? 0),
+      });
+    }
   }
   if (measure.timeSignature_f) {
     const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.type);
@@ -280,15 +298,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       } else { // 音符渲染
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
-          const hcy = noteCenterY(measureY, measureHeight, stackIdx);
+          const numKey = getSyllableSkinKey(n.syllable);
+          const numItem = skin[numKey];
+          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h);
 
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
             const accSkin = skin[accSkinKey];
             if (accSkin) {
-              const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w + (n.accidental.relativeX ?? 0);
-              const isFlatOrDoubleFlat = n.accidental.type === AccidentalTypeEnum.Flat || n.accidental.type === AccidentalTypeEnum.Double_flat;
-              const accY = isFlatOrDoubleFlat ? (hcy + measureHeight / 8) - accSkin.h + (n.accidental.relativeY ?? 0) : hcy - accSkin.h / 2 + (n.accidental.relativeY ?? 0);
+              const accX = headX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w + (n.accidental.relativeX ?? 0);
+              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight + (n.accidental.relativeY ?? 0)
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},
@@ -307,8 +326,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
           }
 
-          const numKey = getSyllableSkinKey(n.syllable);
-          const numItem = skin[numKey];
+
           if (!numItem) continue;
 
           const ny = hcy - numItem.h / 2;
@@ -353,13 +371,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       if (beat.augmentationDot) {
         const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
         const augSkin = skin[augSkinKey];
-        const numItem = skin[NumberNotationSkinKeyEnum.Number_1] ?? {w: 20, h: 32};
+        const numItem = skin[NumberNotationSkinKeyEnum.Number_1];
         if (augSkin) {
-          const augX = headX + numItem.w + AUGMENTATION_DOT_GAP * measureHeight;
+          const augX = headX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
           allNotes.forEach((n, stackIdx) => {
             if (n.syllable === 0 || n.syllable === 'X') return;
-            const hcy = noteCenterY(measureY, measureHeight, stackIdx);
-            const augY = hcy - augSkin.h / 2;
+            const numKey = getSyllableSkinKey(n.syllable);
+            const numItem = skin[numKey];
+            const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h);
+            const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
             out.push({
               startPoint: {x: 0, y: 0},
               endPoint: {x: 0, y: 0},
@@ -433,8 +453,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           ? rightSlot.headX
           : slot.headX + slot.refW;
       const lineW = Math.max(lineEnd - lineX, slot.refW);
-      const lowestCy = noteCenterY(measureY, measureHeight, allNotes.length - 1);
-      const reduceY = lowestCy + (skin[NumberNotationSkinKeyEnum.Number_1]?.h ?? 32) / 2 + 2;
+      const lowestNote = allNotes[0];
+      const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
+      const lowestCy = noteCenterY(measureY, measureHeight, 0);
+      const reduceY = lowestCy + lowestNumSkin?.h / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
       out.push({
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
@@ -455,10 +477,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   x = measureX + measureWidth - suffixW;
   for (const p of rightParts) {
-    const yOff = p.tag === 'keySignature_b' ? keySignatureYOffset : undefined;
-    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, yOff);
     const item = skin[p.skinKey];
-    if (item) x += item.w;
+    if (!item) continue;
+    const opts = p.tag === 'keySignature_b' && measure.keySignature_b
+        ? {
+            xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
+            yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
+          }
+        : undefined;
+    pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, undefined, opts);
+    x += item.w;
   }
 
   return out;

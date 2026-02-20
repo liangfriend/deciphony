@@ -50,22 +50,36 @@ const accidentalNatural: Accidental = {
   ...frame,
   id: crypto.randomUUID(),
   type: AccidentalTypeEnum.Natural,
-  widthRatio: 2,
-  widthRatioForMeasure: 10,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
 };
 const accidentalSharp: Accidental = {
   ...frame,
   id: crypto.randomUUID(),
   type: AccidentalTypeEnum.Sharp,
-  widthRatio: 2,
-  widthRatioForMeasure: 10,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
 };
 const accidentalFlat: Accidental = {
   ...frame,
   id: crypto.randomUUID(),
   type: AccidentalTypeEnum.Flat,
-  widthRatio: 2,
-  widthRatioForMeasure: 10,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
+};
+const accidentalDoubleSharp: Accidental = {
+  ...frame,
+  id: crypto.randomUUID(),
+  type: AccidentalTypeEnum.Double_sharp,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
+};
+const accidentalDoubleFlat: Accidental = {
+  ...frame,
+  id: crypto.randomUUID(),
+  type: AccidentalTypeEnum.Double_flat,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
 };
 
 function notesInfo(syllables: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | "X")[], accidental: Accidental = accidentalNatural): NotesNumberInfo[] {
@@ -154,18 +168,18 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(1, 128, 6, BeamTypeEnum.Combined), // 5 祝
-    note(1, 64, 6, BeamTypeEnum.Combined), // 5 你
-    note(2, 64, 6, BeamTypeEnum.OnlyRight), // 6 生
-    note(3, 64, 6, BeamTypeEnum.None), // 5 日
-    note(4, 64, 6, BeamTypeEnum.None), // 1 快
+    note(1, 128, 6, BeamTypeEnum.Combined, accidentalSharp, augmentationDot(2)), // 5 祝
+    note(1, 64, 6, BeamTypeEnum.Combined, accidentalFlat), // 5 你
+    note(2, 64, 6, BeamTypeEnum.OnlyRight, accidentalNatural), // 6 生
+    note(3, 64, 6, BeamTypeEnum.None, accidentalDoubleSharp), // 5 日
+    note(4, 64, 6, BeamTypeEnum.None, accidentalDoubleFlat), // 1 快
     note(5, 64, 6, BeamTypeEnum.None), // 7 乐
   ] as NoteNumber[],
   keySignature_f: {
     id: crypto.randomUUID(),
-    type: KeySignatureTypeEnum.D,
-    widthRatio: 10,
-    widthRatioForMeasure: 10,
+    type: KeySignatureTypeEnum.B_flat,
+    widthRatio: 0,
+    widthRatioForMeasure: 0,
     ...frame,
   },
   clef_f: clef,
@@ -313,7 +327,7 @@ const phrase4Measure2: Measure = {
 const phrase5Measure1: Measure = {
   ...frame,
   notes: [
-    chord([1, 3, 5], 64, 6), // 135 和弦
+    chord([1, 5, 3], 32, 6), // 135 和弦
     rest(64),
     chord([2, 4], 32, 6), // 24 双音
     note(5, 32, 6, BeamTypeEnum.None, accidentalSharp), // #5

@@ -1797,6 +1797,33 @@ const numberNotationSkin: NumberNotationSkinPack = {
 }
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,
-  // 简谱皮肤包，
   numberNotation: numberNotationSkin
 };
+
+/** 将皮肤包中所有 fill="black"、stroke="black" 替换为目标颜色，并为隐式黑色元素包一层 g 以应用颜色 */
+function applySkinColor(color: string): SkinPack {
+  const replaceColor = (content: string) => {
+    let s = content
+      .replace(/stroke="black"/g, `stroke="${color}"`)
+      .replace(/fill="black"/g, `fill="${color}"`);
+    return `<g fill="${color}" stroke="${color}">${s}</g>`;
+  };
+  const mapPack = <T extends Record<string, { content: string; w: number; h: number; skinKey: unknown }>>(
+    pack: T
+  ): T => {
+    const out = {} as T;
+    for (const k of Object.keys(pack) as (keyof T)[]) {
+      const item = pack[k];
+      out[k] = { ...item, content: replaceColor(item.content) } as T[keyof T];
+    }
+    return out;
+  };
+  return {
+    standardStaff: standardStaffSkin ? mapPack(standardStaffSkin) : undefined,
+    numberNotation: numberNotationSkin ? mapPack(numberNotationSkin) : undefined,
+  };
+}
+
+export const defaultSkinRed: SkinPack = applySkinColor('#c00');
+export const defaultSkinBlue: SkinPack = applySkinColor('#06c');
+

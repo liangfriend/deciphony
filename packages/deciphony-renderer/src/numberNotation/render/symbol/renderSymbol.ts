@@ -61,7 +61,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     measureLineWidth,
     skin,
     idMap,
+    skinName,
   } = params;
+  const skinNameForNodes = skinName ?? 'default';
   const out: VDom[] = [];
   const z = 1001;
   const clefType = getClefForMeasure(measures, measureIndex);
@@ -152,7 +154,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       startPoint: {x: 0, y: 0},
       endPoint: {x: 0, y: 0},
       special: {},
-      x: finalX, y, w: item.w, h: item.h, zIndex: z, tag, skinName: 'default', targetId, skinKey, dataComment,
+      x: finalX, y, w: item.w, h: item.h, zIndex: z, tag, skinName: skinNameForNodes, targetId, skinKey, dataComment,
     };
     out.push(vdom);
     if (targetId) setNodeIdMap(idMap, targetId, vdom);
@@ -246,7 +248,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const clefVDom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: clefX, y: clefY, w: clefItem.w, h: clefItem.h,
-            zIndex: z, tag: 'clef_f', skinName: 'default', targetId: note.clef.id,
+            zIndex: z, tag: 'clef_f', skinName: skinNameForNodes, targetId: note.clef.id,
             skinKey: clefKey, dataComment: '音符前谱号',
           };
           out.push(clefVDom);
@@ -265,7 +267,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const vdom: VDom = {
           startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
           x: headX, y: ny, w: num0Item.w, h: num0Item.h,
-          zIndex: z, tag: 'rest', skinName: 'default', targetId: note.id, skinKey: headKey, dataComment: '休止符',
+          zIndex: z, tag: 'rest', skinName: skinNameForNodes, targetId: note.id, skinKey: headKey, dataComment: '休止符',
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
@@ -287,7 +289,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 h: addLineSkin.h,
                 zIndex: z,
                 tag: 'addLine',
-                skinName: 'default',
+                skinName: skinNameForNodes,
                 targetId: note.id,
                 skinKey: NumberNotationSkinKeyEnum.addLine,
                 dataComment: '加时线',
@@ -318,7 +320,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 h: accSkin.h,
                 zIndex: z,
                 tag: 'accidental',
-                skinName: 'default',
+                skinName: skinNameForNodes,
                 targetId: n.accidental.id ?? n.id,
                 skinKey: accSkinKey,
                 dataComment: '变音符号',
@@ -333,7 +335,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: headX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
-            tag: 'noteHead', skinName: 'default', targetId: n.id, skinKey: numKey,
+            tag: 'noteHead', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
             dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
           };
           out.push(vdom);
@@ -358,7 +360,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 h: addLineSkin.h,
                 zIndex: z,
                 tag: 'addLine',
-                skinName: 'default',
+                skinName: skinNameForNodes,
                 targetId: note.id,
                 skinKey: NumberNotationSkinKeyEnum.addLine,
                 dataComment: '加时线',
@@ -390,7 +392,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               h: augSkin.h,
               zIndex: z,
               tag: 'accidental',
-              skinName: 'default',
+              skinName: skinNameForNodes,
               targetId: beat.augmentationDot!.id,
               skinKey: augSkinKey,
               dataComment: '附点',
@@ -469,7 +471,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         h: reduceLineSkin.h,
         zIndex: z,
         tag: 'accidental',
-        skinName: 'default',
+        skinName: skinNameForNodes,
         targetId: slot.beat.notesInfo[0]?.id ?? slot.note.id,
         skinKey: reduceLineKey,
         dataComment: '减时线',

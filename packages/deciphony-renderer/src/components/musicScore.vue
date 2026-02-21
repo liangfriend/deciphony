@@ -42,7 +42,7 @@ import {musicScoreToVDom as musicScoreToVDomNumber} from '@/numberNotation/rende
 import {musicScoreToVDom as musicScoreToVDomStandard} from '@/standardStaff/render/musicScoreToVDom'
 import {applyVDomUpdate as applyVDomUpdateNumber} from '@/numberNotation/render/update'
 import {applyVDomUpdate as applyVDomUpdateStandard} from '@/standardStaff/render/update'
-import {defaultSkin} from '@/skins/defaultSkin'
+import {defaultSkin, defaultSkinBlue, defaultSkinRed} from '@/skins/defaultSkin'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import Group from './group.vue'
 import Slur from './slur.vue'
@@ -59,32 +59,46 @@ const props = defineProps<{
   slotConfig?: SlotConfig
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
   skin?: Skin
+  skinName?: string
 }>()
-
-const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.NumberNotation)
+// 测试：更改谱子类型
+const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
 const defaultMock = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? mockNumberNotation : mockStandardStaff
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? mockNumberNotation : mockStandardStaff
 )
 const data = computed(() => props.data ?? defaultMock.value)
-const skin = computed(() => props.skin ?? {default: defaultSkin})
+const skin = computed<Skin>(() =>
+  props.skin ?? {
+    default: defaultSkin,
+    red: defaultSkinRed,
+    blue: defaultSkinBlue,
+  }
+)
 
-const skinPackForLayout = computed<SkinPack>(() => skin.value?.default ?? defaultSkin)
+/** skinName 在 skin 中查得到则用 skinName，否则用 default */
+const effectiveSkinName = computed(() => {
+  const sn = props.skinName
+  const s = skin.value
+  return sn && s && sn in s ? sn : 'default'
+})
+
+const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
 
 const vDom = ref<VDom[]>([])
 
 const musicScoreToVDom = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
 const applyVDomUpdate = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? applyVDomUpdateNumber : applyVDomUpdateStandard
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? applyVDomUpdateNumber : applyVDomUpdateStandard
 )
 
-// data、slotConfig 或 skin 变化时重新计算 vDom
+// data、slotConfig、skin、skinName 变化时重新计算 vDom
 watch(
-    [data, () => props.slotConfig, skinPackForLayout],
+    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
     ([d, slotConfig]) => {
       vDom.value = d
-          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value})
+          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
           : []
     },
     {immediate: true}

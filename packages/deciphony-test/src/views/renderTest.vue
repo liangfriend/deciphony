@@ -1,5 +1,10 @@
 <template>
-  <music-score ref="msRef" music-score="" @pointerdown="handlePointerDown"></music-score>
+  <music-score ref="msRef" :slot-config="{'g-r':{w:50}}" music-score="" skin-name="default"
+               @pointerdown="handlePointerDown">
+    <template #g-r>
+      <text>插槽测试</text>
+    </template>
+  </music-score>
 </template>
 <script lang="ts" setup>
 import {onMounted, ref} from 'vue'

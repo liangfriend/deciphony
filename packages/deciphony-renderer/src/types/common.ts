@@ -68,6 +68,7 @@ export type VDom = {
 
 // 曲谱层面13个插槽名称（不含符号层面 symbol-*）
 export type SlotName =
+    | 'g' | 's'
     | 'g-l' | 'g-r'
     | 's-l' | 's-r'
     | 'm' | 'm-u' | 'm-d' | 's-u'

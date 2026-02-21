@@ -19,10 +19,12 @@ export type RenderSymbolParams = {
   measureLineWidth: number;
   skin: import("@/types/common").NumberNotationSkinPack;
   idMap: NodeIdMap;
+  skinName?: string;
 };
 
 export type RenderDoubleAffiliatedSymbolParams = {
   musicScore: MusicScore;
   VDoms: VDom[];
   idMap: NodeIdMap;
+  skinName?: string;
 };

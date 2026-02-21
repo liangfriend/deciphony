@@ -6,7 +6,8 @@ import type {RenderDoubleAffiliatedSymbolParams} from "../types";
  * 附属型符号渲染：连音线(slur)、反复房子(volta) 等
  */
 export function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbolParams): void {
-  const {musicScore, idMap, VDoms} = params;
+  const {musicScore, idMap, VDoms, skinName} = params;
+  const skinNameForNodes = skinName ?? 'default';
   const symbols = musicScore.affiliatedSymbols ?? [];
   for (let i = 0; i < symbols.length; i++) {
     const affiliatedSymbol = symbols[i];
@@ -41,7 +42,7 @@ export function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbo
         targetId: affiliatedSymbol.id,
         zIndex: 1001,
         tag: 'affiliation',
-        skinName: 'default',
+        skinName: skinNameForNodes,
         dataComment: '连音线',
         special: {
           slur: slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur,
@@ -67,7 +68,7 @@ export function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbo
         h: voltaH,
         zIndex: 1001,
         tag: 'affiliation',
-        skinName: 'default',
+        skinName: skinNameForNodes,
         targetId: affiliatedSymbol.id,
         dataComment: '反复房子',
       };

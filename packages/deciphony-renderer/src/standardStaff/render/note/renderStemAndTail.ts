@@ -52,6 +52,7 @@ export function renderStemAndTail(params: {
   direction?: 'up' | 'down';
   stemTargetId?: string;
   headCenterYOther?: number;
+  skinName?: string;
 }): VDom[] {
   const {
     note,
@@ -66,6 +67,7 @@ export function renderStemAndTail(params: {
     stemTargetId,
     headCenterYOther,
   } = params;
+  const skinNameForNodes = params.skinName ?? 'default';
   const chronaxie = params.chronaxie ?? (note as { chronaxie?: number }).chronaxie ?? 64;
   const direction = params.direction ?? note.direction;
   const out: VDom[] = [];
@@ -104,7 +106,7 @@ export function renderStemAndTail(params: {
       h: totalStemH,
       zIndex,
       tag: 'noteStem',
-      skinName: 'default',
+      skinName: skinNameForNodes,
       targetId,
       skinKey: StandardStaffSkinKeyEnum.NoteStem,
       dataComment: '符干',
@@ -126,7 +128,7 @@ export function renderStemAndTail(params: {
           h: tailSkin.h,
           zIndex,
           tag: 'noteTail',
-          skinName: 'default',
+          skinName: skinNameForNodes,
           targetId,
           skinKey: tailKey,
           dataComment: '符尾',
@@ -146,7 +148,7 @@ export function renderStemAndTail(params: {
       h: totalStemH,
       zIndex,
       tag: 'noteStem',
-      skinName: 'default',
+      skinName: skinNameForNodes,
       targetId,
       skinKey: StandardStaffSkinKeyEnum.NoteStem,
       dataComment: '符干',
@@ -170,7 +172,7 @@ export function renderStemAndTail(params: {
           h: tailSkin.h,
           zIndex,
           tag: 'noteTail',
-          skinName: 'default',
+          skinName: skinNameForNodes,
           targetId,
           skinKey: tailKey,
           dataComment: '符尾',

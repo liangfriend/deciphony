@@ -69,8 +69,10 @@ export function processBeam(params: {
   skin: StandardStaffSkinPack;
   measureHeight: number;
   measureLineWidth: number;
+  skinName?: string;
 }): void {
-  const {measure, nodeIdMap, vDoms, symbolVDomsLength, skin, measureHeight, measureLineWidth} = params;
+  const {measure, nodeIdMap, vDoms, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
+  const skinNameForNodes = skinName ?? 'default';
   const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth);
   const beamGroupsUp = buildBeamGroups(measure, 'up');
   const beamGroupsDown = buildBeamGroups(measure, 'down');
@@ -132,7 +134,7 @@ export function processBeam(params: {
         x: 0, y: 0, w: 0, h: 0,
         zIndex: 1001,
         tag: 'noteBeam',
-        skinName: 'default',
+        skinName: skinNameForNodes,
         targetId: '',
         dataComment: '符杠',
       });

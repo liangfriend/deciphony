@@ -11,6 +11,7 @@ const STAFF_HEIGHT = 45;
 
 const measure = {
   content: `
+      <rect x="0" y="0" width="node.w" height="node.h" stroke="transparent" fill="transparent" />
       <line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1" />
       <line x1="0" y1="11.5" x2="node.w" y2="11.5" stroke="black" stroke-width="1" />
       <line x1="0" y1="22.5" x2="node.w" y2="22.5" stroke="black" stroke-width="1" />

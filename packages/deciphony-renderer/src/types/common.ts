@@ -74,8 +74,8 @@ export type SlotName =
     | 'm' | 'm-u' | 'm-d' | 's-u'
     | 's-d' | 'g-u' | 'g-d' | 't'
 
-// 插槽配置：影响 transfer 布局计算的宽高
-export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number }>>
+// 插槽配置：影响 transfer 布局计算的宽高；zIndex 未配置时默认为 900
+export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number; zIndex?: number }>>
 
 // 插槽作用域 props：用户在使用具名插槽时可接收
 export type SlotProps = { node: VDom }

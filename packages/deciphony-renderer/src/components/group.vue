@@ -73,6 +73,11 @@ const handleSkin = computed(() => {
     temp = temp.replaceAll('node.w', '' + node.w).replaceAll('node.h', '' + node.h)
     // 为根 <svg> 注入 style 强制宽高，避免嵌套 SVG 无内容时被折叠为 0（期望尺寸由 width/height 决定）
     temp = temp.replace(/<svg([^>]*)>/i, (_, attrs) => `<svg${attrs} style="width:${node.w}px;height:${node.h}px;display:block">`)
+    // 为皮肤包内所有文档元素标记 data-target-id
+    const targetId = node.targetId ?? ''
+    const escapedId = String(targetId).replace(/"/g, '&quot;')
+    temp = temp.replace(/<(\w+)(\s[^>]*?)?(\/?>)/g, (_, tagName, rest = '', closing) =>
+      `<${tagName}${rest} data-target-id="${escapedId}"${closing}`)
     return temp
   }
 })

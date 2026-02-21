@@ -1,8 +1,8 @@
 <template>
   <music-score ref="msRef" :slot-config="{'g-r':{w:50}}" music-score="" skin-name="default"
                @pointerdown="handlePointerDown">
-    <template #g-r>
-      <text>插槽测试</text>
+    <template #g>
+      <rect></rect>
     </template>
   </music-score>
 </template>
@@ -20,7 +20,21 @@ onMounted(() => {
 })
 
 function handlePointerDown(e) {
-  console.log('chicken', e)
+
+  const targetId = e.target.getAttribute('data-target-id')
+  msRef.value.updateVDom((vdom) => {
+    console.log('chicken', vdom)
+    const target = vdom.forEach(item => {
+      if (item.targetId === targetId) {
+        item.skinName = 'red'
+      } else {
+        item.skinName = 'default'
+      }
+    })
+
+
+    return vdom
+  })
 }
 
 </script>

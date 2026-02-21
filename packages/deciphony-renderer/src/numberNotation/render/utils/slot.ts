@@ -7,3 +7,7 @@ export function getSlotH(config: SlotConfig | undefined, name: SlotName): number
 export function getSlotW(config: SlotConfig | undefined, name: SlotName): number {
   return config?.[name]?.w ?? 0;
 }
+
+export function getSlotZIndex(config: SlotConfig | undefined, name: SlotName): number {
+  return config?.[name]?.zIndex ?? 900;
+}

@@ -7,7 +7,7 @@ import {MusicScore, NoteNumber} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import type {NodeIdMap} from "./types";
-import {getSlotH, getSlotW} from "./utils/slot";
+import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
 import {getMeasureWidthRatio} from "./utils/note";
 import {renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
@@ -57,7 +57,7 @@ export function musicScoreToVDom(
   vDoms.push({
     startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
     x: 0, y: scoreCurrentY, w: musicScore.width, h: musicScore.topSpaceHeight,
-    zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 't', dataComment: '顶部插槽',
+    zIndex: getSlotZIndex(config, 't'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 't', dataComment: '顶部插槽',
   });
   scoreCurrentY += musicScore.topSpaceHeight;
 
@@ -68,7 +68,7 @@ export function musicScoreToVDom(
       glSlot = {
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: 0, y: grandStaffStartY, w: gLW, h: 0,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-l', dataComment: '复谱表左侧插槽',
+        zIndex: getSlotZIndex(config, 'g-l'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-l', dataComment: '复谱表左侧插槽',
       };
       vDoms.push(glSlot);
     }
@@ -77,7 +77,7 @@ export function musicScoreToVDom(
       grSlot = {
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: width - gRW, y: grandStaffStartY, w: gRW, h: 0,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-r', dataComment: '复谱表右侧插槽',
+        zIndex: getSlotZIndex(config, 'g-r'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-r', dataComment: '复谱表右侧插槽',
       };
       vDoms.push(grSlot);
     }
@@ -93,14 +93,14 @@ export function musicScoreToVDom(
     const gSlot: VDom = {
       startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
       x: grandStaffX, y: grandStaffStartY, w: grandStaffW, h: 0,
-      zIndex: 999, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g', dataComment: '复谱表（含外边距）',
+      zIndex: getSlotZIndex(config, 'g'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g', dataComment: '复谱表（含外边距）',
     };
     vDoms.push(gSlot);
 
     vDoms.push({
       startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
       x: grandStaffX, y: grandStaffCurrentY, w: grandStaffW, h: gUH,
-      zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-u', dataComment: '复谱表上方插槽',
+      zIndex: getSlotZIndex(config, 'g-u'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-u', dataComment: '复谱表上方插槽',
     });
     grandStaffCurrentY += gUH;
 
@@ -120,20 +120,20 @@ export function musicScoreToVDom(
       const sSlot: VDom = {
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: grandStaffX, y: singleStaffStartY, w: grandStaffW, h: 0,
-        zIndex: 999, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's', dataComment: '单谱表（含外边距）',
+        zIndex: getSlotZIndex(config, 's'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's', dataComment: '单谱表（含外边距）',
       };
       vDoms.push(sSlot);
 
       const slSlot: VDom = {
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: gLW, y: singleStaffStartY, w: sLW, h: 0,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-l', dataComment: '单谱表左侧插槽',
+        zIndex: getSlotZIndex(config, 's-l'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-l', dataComment: '单谱表左侧插槽',
       };
       vDoms.push(slSlot);
       const srSlot: VDom = {
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: width - gLW - gRW, y: singleStaffStartY, w: sRW, h: 0,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-r', dataComment: '单谱表右侧插槽',
+        zIndex: getSlotZIndex(config, 's-r'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-r', dataComment: '单谱表右侧插槽',
       };
       vDoms.push(srSlot);
 
@@ -147,7 +147,7 @@ export function musicScoreToVDom(
       vDoms.push({
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: grandStaffX, y: grandStaffCurrentY, w: grandStaffW, h: sUH,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-u', dataComment: '单谱表上方插槽',
+        zIndex: getSlotZIndex(config, 's-u'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-u', dataComment: '单谱表上方插槽',
       });
       grandStaffCurrentY += sUH;
 
@@ -157,7 +157,7 @@ export function musicScoreToVDom(
         vDoms.push({
           startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
           x: measureCurrentX, y: grandStaffCurrentY, w: measureWidth, h: mUH,
-          zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm-u', dataComment: '小节上方插槽',
+          zIndex: getSlotZIndex(config, 'm-u'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm-u', dataComment: '小节上方插槽',
         });
         measureCurrentX += measureWidth;
       }
@@ -221,7 +221,7 @@ export function musicScoreToVDom(
         vDoms.push({
           startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
           x: measureCurrentX, y: grandStaffCurrentY, w: measureWidth, h: measureHeight,
-          zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm', dataComment: '小节插槽',
+          zIndex: getSlotZIndex(config, 'm'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm', dataComment: '小节插槽',
         });
         measureCurrentX += measureWidth;
       }
@@ -241,7 +241,7 @@ export function musicScoreToVDom(
         vDoms.push({
           startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
           x: measureCurrentX, y: grandStaffCurrentY, w: measureWidth, h: mDH,
-          zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm-d', dataComment: '小节下方插槽',
+          zIndex: getSlotZIndex(config, 'm-d'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'm-d', dataComment: '小节下方插槽',
         });
         measureCurrentX += measureWidth;
       }
@@ -251,7 +251,7 @@ export function musicScoreToVDom(
       vDoms.push({
         startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
         x: grandStaffX, y: grandStaffCurrentY, w: grandStaffW, h: sDH,
-        zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-d', dataComment: '单谱表下方插槽',
+        zIndex: getSlotZIndex(config, 's-d'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 's-d', dataComment: '单谱表下方插槽',
       });
       grandStaffCurrentY += sDH;
 
@@ -269,7 +269,7 @@ export function musicScoreToVDom(
     vDoms.push({
       startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
       x: grandStaffX, y: grandStaffCurrentY, w: grandStaffW, h: gDH,
-      zIndex: 1000, tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-d', dataComment: '复谱表下方插槽',
+      zIndex: getSlotZIndex(config, 'g-d'), tag: 'slot', skinName: effectiveSkinName, targetId: '', slotName: 'g-d', dataComment: '复谱表下方插槽',
     });
     grandStaffCurrentY += gDH;
 

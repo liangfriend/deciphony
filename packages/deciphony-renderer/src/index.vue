@@ -1,33 +1,28 @@
 <script lang="ts" setup>
-import MusicScoreForStandardStaff from '@/standardStaff/components/musicScore.vue'
-import MusicScoreForNumberNotation from '@/numberNotation/components/musicScore.vue'
-import type {MusicScore} from "@/types/MusicScoreType";
+import {ref} from 'vue'
+import MusicScore from '@/components/musicScore.vue'
+import type {MusicScore as MusicScoreType} from "@/types/MusicScoreType";
 import type {Skin, SlotConfig} from "@/types/common";
-import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 
 defineProps<{
-  data: MusicScore
+  data: MusicScoreType
   /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
   slotConfig?: SlotConfig
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
   skin?: Skin
 }>()
-const updateVDom = () => {
 
-}
-defineExpose({updateVDom})
-
+const musicScoreRef = ref<InstanceType<typeof MusicScore> | null>(null)
+defineExpose({
+  updateVDom: (updater: (vDom: import('@/types/common').VDom[]) => import('@/types/common').VDom[]) => {
+    musicScoreRef.value?.updateVDom(updater)
+  },
+})
 </script>
 
 <template>
-  <MusicScoreForStandardStaff v-if="data?.type === MusicScoreTypeEnum.StandardStaff" :data="data" :skin="skin"
-                              :slot-config="slotConfig"/>
-
-  <MusicScoreForNumberNotation v-else-if="data?.type === MusicScoreTypeEnum.NumberNotation || true" :data="data"
-                               :skin="skin"
-                               :slot-config="slotConfig"/>
+  <MusicScore ref="musicScoreRef" :data="data" :skin="skin" :slot-config="slotConfig"/>
 </template>
 
 <style scoped>
-
 </style>

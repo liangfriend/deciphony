@@ -148,7 +148,7 @@ function chord(
 
 /** 休止符（syllable 0） */
 function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteNumber {
-  return note(0, chronaxie, widthRatio);
+  return note(0, chronaxie, widthRatio, BeamTypeEnum.Combined);
 }
 
 /** 256→1 的时值序列（用于休止符展示） */
@@ -168,9 +168,9 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(1, 128, 6, BeamTypeEnum.Combined, accidentalSharp, augmentationDot(2)), // 5 祝
-    note(1, 64, 6, BeamTypeEnum.Combined, accidentalFlat), // 5 你
-    note(2, 64, 6, BeamTypeEnum.OnlyRight, accidentalNatural), // 6 生
+    note(1, 32, 6, BeamTypeEnum.Combined, accidentalSharp, augmentationDot(2)), // 5 祝
+    note(1, 32, 6, BeamTypeEnum.Combined, accidentalFlat), // 5 你
+    note(2, 64, 6, BeamTypeEnum.None, accidentalNatural), // 6 生
     note(3, 64, 6, BeamTypeEnum.None, accidentalDoubleSharp), // 5 日
     note(4, 64, 6, BeamTypeEnum.None, accidentalDoubleFlat), // 1 快
     note(5, 64, 6, BeamTypeEnum.None), // 7 乐
@@ -286,9 +286,9 @@ const phrase3Measures: Measure[] = BARLINE_TYPES.map((t, i) => barlineMeasure(t,
 const phrase4Measure1: Measure = {
   ...frame,
   notes: [
-    note(5, 32, 6, BeamTypeEnum.None, accidentalNatural, augmentationDot(1)), // 5. 一附点
-    note(5, 32, 6, BeamTypeEnum.None, accidentalNatural, augmentationDot(2)), // 5.. 二附点
-    note(6, 32, 6, BeamTypeEnum.None, accidentalNatural, augmentationDot(3)), // 6... 三附点
+    note(7, 32, 6, BeamTypeEnum.Combined, accidentalNatural, augmentationDot(1)), // 5. 一附点
+    note(5, 32, 6, BeamTypeEnum.Combined, accidentalNatural, augmentationDot(2)), // 5.. 二附点
+    note(6, 32, 6, BeamTypeEnum.Combined, accidentalNatural, augmentationDot(3)), // 6... 三附点
     note(4, 64, 6), // 4
     note(5, 64, 6), // 5
     note(4, 64, 6), // 4
@@ -327,8 +327,8 @@ const phrase4Measure2: Measure = {
 const phrase5Measure1: Measure = {
   ...frame,
   notes: [
-    chord([1, 5, 3], 32, 6), // 135 和弦
-    rest(64),
+    chord([1, 5, 3], 32, 6, BeamTypeEnum.Combined), // 135 和弦
+    rest(32),
     chord([2, 4], 32, 6), // 24 双音
     note(5, 32, 6, BeamTypeEnum.None, accidentalSharp), // #5
     note(6, 32, 6, BeamTypeEnum.None, accidentalFlat), // b6

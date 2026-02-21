@@ -411,6 +411,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       音符A B C  2 1 2
       此时将中间减时线向左移动，并延长到音符C开始
       就是这样，永远会移动减时线少的乙方
+      * 如果A B 相等，延长左侧减时线
     * */
     const hasReduceLine = (s: SlotInfo) => s.beat != null && s.beat.chronaxie <= 32;
     for (let i = 0; i < slots.length; i++) {
@@ -446,11 +447,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const rightSlot = rightIdx > i ? slots[i + 1] : null;
       const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.beat!.chronaxie) : Infinity;
       const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.beat!.chronaxie) : Infinity;
+      // 减时线少的向多的一方延伸；相等时延长左侧（myCount <= rightCount 时向右延伸）
       const lineX = myCount < leftCount && leftSlot
           ? leftSlot.headX + leftSlot.refW
           : slot.headX;
-      const lineEnd = myCount < rightCount && rightSlot
-          ? rightSlot.headX
+      const lineEnd = myCount <= rightCount && rightSlot
+          ? rightSlot.headX + rightSlot.refW
           : slot.headX + slot.refW;
       const lineW = Math.max(lineEnd - lineX, slot.refW);
       const lowestNote = allNotes[0];
@@ -481,9 +483,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (!item) continue;
     const opts = p.tag === 'keySignature_b' && measure.keySignature_b
         ? {
-            xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
-            yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
-          }
+          xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
+          yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
+        }
         : undefined;
     pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, undefined, opts);
     x += item.w;

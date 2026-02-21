@@ -131,7 +131,7 @@ export function processBeam(params: {
         },
         x: 0, y: 0, w: 0, h: 0,
         zIndex: 1001,
-        tag: 'affiliation',
+        tag: 'noteBeam',
         skinName: 'default',
         targetId: '',
         dataComment: '符杠',

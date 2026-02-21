@@ -1,5 +1,5 @@
 <template>
-  <music-score ref="msRef" music-score=""></music-score>
+  <music-score ref="msRef" music-score="" @pointerdown="handlePointerDown"></music-score>
 </template>
 <script lang="ts" setup>
 import {onMounted, ref} from 'vue'
@@ -13,5 +13,9 @@ onMounted(() => {
     return vdom
   })
 })
+
+function handlePointerDown(e) {
+  console.log('chicken', e)
+}
 
 </script>

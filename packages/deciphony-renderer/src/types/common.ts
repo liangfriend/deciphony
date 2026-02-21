@@ -23,6 +23,7 @@ export type VDomTagType =
     | 'barline'        // 小节线
     | 'noteStem'       // 符干
     | 'noteTail'       // 符尾
+    | 'noteBeam'       // 符杠
     | 'accidental'     // 变音符号
     | 'addLine'        // 加线（上下加线）
     | 'slot'           // 插槽

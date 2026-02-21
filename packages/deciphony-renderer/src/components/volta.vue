@@ -29,8 +29,4 @@ const h = computed(() => props.vDom.h);
 </template>
 
 <style scoped>
-/* 保证svg缩放时，线条不变*/
-/*.volta line {
-  vector-effect: non-scaling-stroke;
-}*/
 </style>

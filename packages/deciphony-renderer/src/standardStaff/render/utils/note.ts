@@ -4,13 +4,8 @@ import {CLEF_NOTE_GAP_RATIO} from "../constants";
 
 /** 音符位取两声部中最大时值用于宽度系数 */
 export function getSlotChronaxie(note: NoteSymbol): number {
-  let max = 0;
-  for (const beat of note.voicePart1) {
-    if (beat.chronaxie > max) max = beat.chronaxie;
-  }
-  for (const beat of note.voicePart2) {
-    if (beat.chronaxie > max) max = beat.chronaxie;
-  }
+  let max = note.voicePart1.chronaxie;
+  if (note.voicePart2 && note.voicePart2.chronaxie > max) max = note.voicePart2.chronaxie;
   return max || 64;
 }
 
@@ -25,8 +20,7 @@ export function isSlotRest(note: NoteSymbol): boolean {
 
 /** 休止符位取第一个有拍子的声部的时值用于休止符形状 */
 export function getSlotRestChronaxie(note: NoteSymbol): number {
-  const first = note.voicePart1[0] ?? note.voicePart2[0];
-  return first?.chronaxie ?? 64;
+  return note.voicePart1?.chronaxie ?? note.voicePart2?.chronaxie ?? 64;
 }
 
 /** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
@@ -48,17 +42,11 @@ export function getNoteWidthRatio(note: NoteSymbol): number {
   const base = (note.widthRatio ?? 0) * getChronaxieWidthCoefficient(getSlotChronaxie(note));
   let sub = 0;
   if (note.clef) sub += note.clef.widthRatio + CLEF_NOTE_GAP_RATIO;
-  for (const beat of note.voicePart1) {
-    for (const n of beat.notesInfo) {
+  for (const beat of [note.voicePart1, note.voicePart2].filter(Boolean)) {
+    for (const n of beat!.notesInfo) {
       if (n.accidental?.widthRatio) sub += n.accidental.widthRatio;
     }
-    if (beat.augmentationDot?.widthRatio) sub += beat.augmentationDot.widthRatio;
-  }
-  for (const beat of note.voicePart2) {
-    for (const n of beat.notesInfo) {
-      if (n.accidental?.widthRatio) sub += n.accidental.widthRatio;
-    }
-    if (beat.augmentationDot?.widthRatio) sub += beat.augmentationDot.widthRatio;
+    if (beat!.augmentationDot?.widthRatio) sub += beat!.augmentationDot.widthRatio;
   }
   return base + sub;
 }
@@ -68,17 +56,11 @@ export function getNoteWidthRatioForMeasure(note: NoteSymbol): number {
   const base = (note.widthRatioForMeasure ?? 0) * getChronaxieWidthCoefficient(getSlotChronaxie(note));
   let sub = 0;
   if (note.clef) sub += note.clef.widthRatioForMeasure + CLEF_NOTE_GAP_RATIO;
-  for (const beat of note.voicePart1) {
-    for (const n of beat.notesInfo) {
+  for (const beat of [note.voicePart1, note.voicePart2].filter(Boolean)) {
+    for (const n of beat!.notesInfo) {
       if (n.accidental?.widthRatioForMeasure) sub += n.accidental.widthRatioForMeasure;
     }
-    if (beat.augmentationDot?.widthRatioForMeasure) sub += beat.augmentationDot.widthRatioForMeasure;
-  }
-  for (const beat of note.voicePart2) {
-    for (const n of beat.notesInfo) {
-      if (n.accidental?.widthRatioForMeasure) sub += n.accidental.widthRatioForMeasure;
-    }
-    if (beat.augmentationDot?.widthRatioForMeasure) sub += beat.augmentationDot.widthRatioForMeasure;
+    if (beat!.augmentationDot?.widthRatioForMeasure) sub += beat!.augmentationDot.widthRatioForMeasure;
   }
   return base + sub;
 }

@@ -144,24 +144,21 @@ export type Accidental = {
 //   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
 //   beamType: BeamTypeEnum
 // } & Frame
+
+export type VoiceBeatSymbol = {
+  chronaxie: Chronaxie
+  notesInfo: NotesInfo[]
+  augmentationDot?: AugmentationDot
+  affiliatedSymbols: SingleAffiliatedSymbol[]
+  beamType: BeamTypeEnum
+}
+
 export type NoteSymbol = {
   id: string
   type: NoteSymbolTypeEnum
   direction: 'up' | 'down' // 控制声部1符干方向（声部2反向），休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
-  voicePart1: {
-    chronaxie: Chronaxie // 时值
-    notesInfo: NotesInfo[]
-    augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
-    beamType: BeamTypeEnum
-  }[]
-  voicePart2: {
-    chronaxie: Chronaxie // 时值
-    notesInfo: NotesInfo[]
-    augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
-    beamType: BeamTypeEnum
-  }[]
+  voicePart1: VoiceBeatSymbol
+  voicePart2?: VoiceBeatSymbol
   clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
@@ -179,16 +176,19 @@ export type NotesNumberInfo = {
   syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
   accidental: Accidental,
 }
+
+export type VoiceBeatNumber = {
+  chronaxie: Chronaxie
+  notesInfo: NotesNumberInfo[]
+  augmentationDot?: AugmentationDot
+  affiliatedSymbols: SingleAffiliatedSymbol[]
+  beamType: BeamTypeEnum
+}
+
 // 简谱音乐符号
 export type NoteNumber = {
   id: string
-  voicePart: {
-    chronaxie: Chronaxie // 时值
-    notesInfo: NotesNumberInfo[]
-    augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型, 声部统一
-    beamType: BeamTypeEnum
-  }[]
+  voicePart: VoiceBeatNumber
   clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie

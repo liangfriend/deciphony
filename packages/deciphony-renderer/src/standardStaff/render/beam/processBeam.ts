@@ -15,7 +15,7 @@ import {computeBeamSlope} from "./beamSlope";
 type BeamGroupMember = { note: NoteSymbol; voice: 1 | 2 };
 
 function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined {
-  const beat = voice === 1 ? n.voicePart1[0] : n.voicePart2[0];
+  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
   if (!beat || beat.notesInfo.length === 0) return undefined;
   const directionUp = voice === 1 ? n.direction === 'up' : n.direction !== 'up';
   const regions = beat.notesInfo.map((no) => no.region);
@@ -29,7 +29,7 @@ function getVoiceForDirection(n: NoteSymbol, direction: 'up' | 'down'): 1 | 2 {
 
 function getBeatForDirection(n: NoteSymbol, direction: 'up' | 'down') {
   const voice = getVoiceForDirection(n, direction);
-  const beat = voice === 1 ? n.voicePart1[0] : n.voicePart2[0];
+  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
   return beat?.notesInfo.length ? beat : undefined;
 }
 
@@ -92,8 +92,8 @@ export function processBeam(params: {
     const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
     const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
     const lineCount = Math.min(...group.map(({note, voice}) => {
-      const beat = voice === 1 ? note.voicePart1[0] : note.voicePart2[0];
-      return chronaxieToBeamLineCount(beat!.chronaxie);
+      const beat = voice === 1 ? note.voicePart1 : note.voicePart2!;
+      return chronaxieToBeamLineCount(beat.chronaxie);
     }));
     for (const {note, voice} of group) {
       const stemId = getExtremeNotesInfoId(note, voice);

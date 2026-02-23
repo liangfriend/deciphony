@@ -16,18 +16,7 @@
         <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
         <Beam v-else-if="node.special?.beam" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
-          <rect
-              v-if="false"
-              :height="node.h"
-              :width="node.w"
-              data-comment="插槽占位虚线"
-              fill="none"
-              stroke="#ddd"
-              stroke-dasharray="4"
-              stroke-width="1"
-              x="0"
-              y="0"
-          />
+
         </slot>
       </g>
     </template>
@@ -40,8 +29,7 @@ import mockNumberNotation from '@/numberNotation/mock/happyBirthday'
 import mockStandardStaff from '@/standardStaff/mock/happyBirthday'
 import {musicScoreToVDom as musicScoreToVDomNumber} from '@/numberNotation/render/musicScoreToVDom'
 import {musicScoreToVDom as musicScoreToVDomStandard} from '@/standardStaff/render/musicScoreToVDom'
-import {applyVDomUpdate as applyVDomUpdateNumber} from '@/numberNotation/render/update'
-import {applyVDomUpdate as applyVDomUpdateStandard} from '@/standardStaff/render/update'
+import {diffAndMergeVDom} from '@/render/update'
 import {defaultSkin, defaultSkinBlue, defaultSkinRed} from '@/skins/defaultSkin'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import Group from './group.vue'
@@ -68,11 +56,11 @@ const defaultMock = computed(() =>
 )
 const data = computed(() => props.data ?? defaultMock.value)
 const skin = computed<Skin>(() =>
-  props.skin ?? {
-    default: defaultSkin,
-    red: defaultSkinRed,
-    blue: defaultSkinBlue,
-  }
+        props.skin ?? {
+          default: defaultSkin,
+          red: defaultSkinRed,
+          blue: defaultSkinBlue,
+        }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -84,24 +72,24 @@ const effectiveSkinName = computed(() => {
 
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
 
+const emit = defineEmits<{ reRender: [vDom: VDom[]] }>()
 const vDom = ref<VDom[]>([])
 
 const musicScoreToVDom = computed(() =>
     notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
-const applyVDomUpdate = computed(() =>
-    notationType.value === MusicScoreTypeEnum.NumberNotation ? applyVDomUpdateNumber : applyVDomUpdateStandard
-)
 
-// data、slotConfig、skin、skinName 变化时重新计算 vDom
+// data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
     [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
     ([d, slotConfig]) => {
+      // const oldVDom = vDom.value.map((node) => ({...node}));
       vDom.value = d
           ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
           : []
+      emit('reRender', vDom.value)
     },
-    {immediate: true}
+    {immediate: true, deep: true}
 )
 
 /**
@@ -109,8 +97,14 @@ watch(
  * @param updater (vDom: VDom[]) => VDom[] 用户修改后 return
  */
 function updateVDomHandler(updater: (vDom: VDom[]) => VDom[]) {
-  applyVDomUpdate.value(vDom.value, updater)
+  // const oldVDom = vDom.value.map((node) => ({...node}));
+  updater(vDom.value)
 }
 
 defineExpose({updateVDom: updateVDomHandler})
 </script>
+<style scoped>
+svg {
+  user-select: none;
+}
+</style>

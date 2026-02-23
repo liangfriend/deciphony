@@ -47,6 +47,8 @@ export type VDom = {
   skinKey?: SkinKey;
   skinName: string; // 皮肤名
   slotName?: SlotName;  // 插槽名称，tag='slot'时使用
+  /** 插槽返回的数据：g 开头返回 GrandStaff，s 开头返回 SingleStaff，m 开头返回 Measure；t 无 */
+  slotData?: SlotData;
   dataComment?: string;
   special: {
     slur?: {
@@ -66,6 +68,12 @@ export type VDom = {
   }
 }
 
+/** 插槽返回的数据：g 开头返回 GrandStaff，s 开头返回 SingleStaff，m 开头返回 Measure */
+export type SlotData =
+  | import('@/types/MusicScoreType').GrandStaff
+  | import('@/types/MusicScoreType').SingleStaff
+  | import('@/types/MusicScoreType').Measure;
+
 // 曲谱层面13个插槽名称（不含符号层面 symbol-*）
 export type SlotName =
     | 'g' | 's'
@@ -77,8 +85,8 @@ export type SlotName =
 // 插槽配置：影响 transfer 布局计算的宽高；zIndex 未配置时默认为 900
 export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number; zIndex?: number }>>
 
-// 插槽作用域 props：用户在使用具名插槽时可接收
-export type SlotProps = { node: VDom }
+/** 插槽作用域 props：用户在使用具名插槽时可接收；node.slotData 为对应上下文数据 */
+export type SlotProps = { node: VDom };
 
 /** 皮肤项：content + 尺寸 + skinKey（每谱的 key 枚举不同） */
 export type SkinItem<K extends string = string> = {

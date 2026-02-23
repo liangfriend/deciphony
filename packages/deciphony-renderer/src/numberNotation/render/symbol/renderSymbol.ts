@@ -4,7 +4,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {AugmentationDot} from "@/types/MusicScoreType";
+import type {AugmentationDot, VoiceBeatNumber} from "@/types/MusicScoreType";
 import {NoteNumber} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
@@ -197,7 +197,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     slotW: number;
     headX: number;
     refW: number;
-    beat: NonNullable<ReturnType<typeof notes[0]['voicePart']['find']>> | null;
+    beat: VoiceBeatNumber | null;
     isRest: boolean
   };
   const slots: SlotInfo[] = [];
@@ -222,11 +222,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         referenceW = num0Item.w;
       } else {
         referenceW = 0;
-        for (const b of note.voicePart) {
-          for (const n of b.notesInfo) {
-            const numSkin = skin[getSyllableSkinKey(n.syllable)];
-            if (numSkin && numSkin.w > referenceW) referenceW = numSkin.w;
-          }
+        for (const n of note.voicePart.notesInfo) {
+          const numSkin = skin[getSyllableSkinKey(n.syllable)];
+          if (numSkin && numSkin.w > referenceW) referenceW = numSkin.w;
         }
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
@@ -236,7 +234,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
       const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
       const headX = slotStartX
-      const beat = note.voicePart.find((b) => b.notesInfo.length > 0) ?? null;
+      const beat = note.voicePart.notesInfo.length > 0 ? note.voicePart : null;
       slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, beat, isRest: isRestSlot});
 
       if (note.clef) {

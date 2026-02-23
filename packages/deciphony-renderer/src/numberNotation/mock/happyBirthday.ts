@@ -103,15 +103,13 @@ function note(
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: [
-      {
-        chronaxie,
-        notesInfo: notes,
-        affiliatedSymbols: [],
-        beamType,
-        ...(augmentationDot ? {augmentationDot} : {}),
-      },
-    ],
+    voicePart: {
+      chronaxie,
+      notesInfo: notes,
+      affiliatedSymbols: [],
+      beamType,
+      ...(augmentationDot ? {augmentationDot} : {}),
+    },
     widthRatio,
     widthRatioForMeasure: widthRatio,
   };
@@ -133,14 +131,12 @@ function chord(
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: [
-      {
-        chronaxie,
-        notesInfo: notes,
-        affiliatedSymbols: [],
-        beamType,
-      },
-    ],
+    voicePart: {
+      chronaxie,
+      notesInfo: notes,
+      affiliatedSymbols: [],
+      beamType,
+    },
     widthRatio,
     widthRatioForMeasure: widthRatio,
   };

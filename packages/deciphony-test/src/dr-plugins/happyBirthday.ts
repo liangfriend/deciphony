@@ -80,7 +80,7 @@ function note(
         ...frame,
         type: NoteSymbolTypeEnum.Note,
         direction,
-        voicePart1: { chronaxie, notesInfo, affiliatedSymbols: [], beamType },
+        voicePart1: {chronaxie, notesInfo, affiliatedSymbols: [], beamType},
         widthRatio,
         widthRatioForMeasure: widthRatio,
         id: crypto.randomUUID(),
@@ -94,7 +94,7 @@ function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteSymbol {
         ...frame,
         type: NoteSymbolTypeEnum.Rest,
         direction: 'up',
-        voicePart1: { chronaxie, notesInfo: [], affiliatedSymbols: [], beamType: BeamTypeEnum.None },
+        voicePart1: {chronaxie, notesInfo: [], affiliatedSymbols: [], beamType: BeamTypeEnum.None},
         widthRatio,
         widthRatioForMeasure: widthRatio,
         id: crypto.randomUUID(),
@@ -117,8 +117,8 @@ function noteSlot(
         ...frame,
         type: NoteSymbolTypeEnum.Note,
         direction,
-        voicePart1: { ...v1, affiliatedSymbols: [] },
-        ...(v2 ? { voicePart2: { ...v2, affiliatedSymbols: [] } } : {}),
+        voicePart1: {...v1, affiliatedSymbols: []},
+        ...(v2 ? {voicePart2: {...v2, affiliatedSymbols: []}} : {}),
         widthRatio,
         widthRatioForMeasure: widthRatio,
         id: crypto.randomUUID(),
@@ -282,7 +282,7 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 function withAugmentationDot(n: NoteSymbol, dot: AugmentationDot): NoteSymbol {
     return {
         ...n,
-        voicePart1: { ...n.voicePart1, augmentationDot: dot },
+        voicePart1: {...n.voicePart1, augmentationDot: dot},
     };
 }
 

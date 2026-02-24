@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import RenderTest from "./views/renderTest.vue";
+import DrEdit from "./views/dr-render-extensions/dr-edit/index.vue";
 import WebAudioTest from "./views/webAudioTest.vue";
 import ElectronMessage from "./views/electronMessage.vue";
 import UiTest from "./views/uiTest.vue";
@@ -9,7 +10,9 @@ import PlayerTest from "./views/playerTest.vue";
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <render-test></render-test>
+  <!--  <render-test></render-test>-->
+  <dr-edit></dr-edit>
+  
   <!--    <electron-message></ele/ctron-message>-->
   <!--    <test></test>-->
   <!--    <player-test></player-test>-->

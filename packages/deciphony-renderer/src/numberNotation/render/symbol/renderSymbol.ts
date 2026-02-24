@@ -65,7 +65,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   } = params;
   const skinNameForNodes = skinName ?? 'default';
   const out: VDom[] = [];
-  const z = 1001;
+  const z = 1200;
   const clefType = getClefForMeasure(measures, measureIndex);
 
   type RightPart = {

@@ -9,5 +9,7 @@ export function getSlotW(config: SlotConfig | undefined, name: SlotName): number
 }
 
 export function getSlotZIndex(config: SlotConfig | undefined, name: SlotName): number {
-  return config?.[name]?.zIndex ?? 900;
+  const cfg = config?.[name];
+  if (cfg?.zIndex !== undefined) return cfg.zIndex;
+  return name === 'm' ? 1100 : 1000;
 }

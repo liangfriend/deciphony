@@ -49,7 +49,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   } = params;
   const skinNameForNodes = skinName ?? 'default';
   const out: VDom[] = [];
-  const z = 1001;
+  const z = 1200;
   const clefType = getClefForMeasure(measures, measureIndex);
   const keySignatureYOffset = getKeySignatureYOffset(clefType, measureHeight, measureLineWidth);
 
@@ -310,7 +310,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           out.push({
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: ledgerX, y: lineY + measureLineWidth / 2 - addLineSkinD.h,
-            w: addLineSkinD.w, h: addLineSkinD.h, zIndex: 1000,
+            w: addLineSkinD.w, h: addLineSkinD.h, zIndex: z,
             tag: 'addLine', skinName: skinNameForNodes, targetId: note.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_d, dataComment: '下加线',
           });
@@ -320,7 +320,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           out.push({
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: ledgerX, y: lineY - measureLineWidth / 2,
-            w: addLineSkinU.w, h: addLineSkinU.h, zIndex: z - 1,
+            w: addLineSkinU.w, h: addLineSkinU.h, zIndex: z,
             tag: 'addLine', skinName: skinNameForNodes, targetId: note.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_u, dataComment: '上加线',
           });

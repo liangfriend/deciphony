@@ -1,61 +1,61 @@
 <template>
   <div class="container">
     <div class="left ">
-      <music-score ref="msRef" :slot-config="{'g-r':{w:50}}" :data="musicScoreData" skin-name="default"
-                   @reRender="reRender"
+      <music-score ref="msRef" :data="musicScoreData" :slot-config="{'g-r':{w:50}}" skin-name="default"
                    @pointerdown="handlePointerDown"
                    @pointermove="handlePointerMove"
-                   @pointerup="handlePointerUp">
+                   @pointerup="handlePointerUp"
+                   @renderMusicScore="renderMusicScore">
         <template #g="{ node }">
           <rect
-              :data-tag="node.tag"
-              :data-slot-name="node.slotName??''"
-              :data-target-id="node.targetId"
-              :height="node.h"
-              :width="node.w"
-              data-comment="插槽"
-              fill="transparent"
-              x="0"
-              y="0"
+            :data-slot-name="node.slotName??''"
+            :data-tag="node.tag"
+            :data-target-id="node.targetId"
+            :height="node.h"
+            :width="node.w"
+            data-comment="插槽"
+            fill="transparent"
+            x="0"
+            y="0"
           />
           <rect
-              v-show="node.targetId === highlightTargetId"
-              :width="node.w"
-              :height="node.h"
-              :data-tag="node.tag"
-              :data-target-id="node.targetId"
-              x="0"
-              y="0"
-              fill="transparent"
-              stroke="red"
-              stroke-dasharray="4 2"
-              stroke-width="1"
+            v-show="node.targetId === highlightTargetId"
+            :data-tag="node.tag"
+            :data-target-id="node.targetId"
+            :height="node.h"
+            :width="node.w"
+            fill="transparent"
+            stroke="red"
+            stroke-dasharray="4 2"
+            stroke-width="1"
+            x="0"
+            y="0"
           />
         </template>
         <template #s="{ node }">
           <rect
-              :data-tag="node.tag"
-              :data-slot-name="node.slotName??''"
-              :data-target-id="node.targetId"
-              :height="node.h"
-              :width="node.w"
-              data-comment="插槽"
-              fill="transparent"
-              x="0"
-              y="0"
+            :data-slot-name="node.slotName??''"
+            :data-tag="node.tag"
+            :data-target-id="node.targetId"
+            :height="node.h"
+            :width="node.w"
+            data-comment="插槽"
+            fill="transparent"
+            x="0"
+            y="0"
           />
           <rect
-              v-show="node.targetId === highlightTargetId"
-              :width="node.w"
-              :height="node.h"
-              :data-tag="node.tag"
-              :data-target-id="node.targetId"
-              x="0"
-              y="0"
-              fill="transparent"
-              stroke="red"
-              stroke-dasharray="4 2"
-              stroke-width="1"
+            v-show="node.targetId === highlightTargetId"
+            :data-tag="node.tag"
+            :data-target-id="node.targetId"
+            :height="node.h"
+            :width="node.w"
+            fill="transparent"
+            stroke="red"
+            stroke-dasharray="4 2"
+            stroke-width="1"
+            x="0"
+            y="0"
           />
         </template>
       </music-score>
@@ -71,7 +71,7 @@
 import {nextTick, onMounted, ref} from 'vue'
 import MusicScore from "deciphony-renderer";
 import type {MusicScore as MusicScoreType, NotesInfo} from "deciphony-renderer";
-import data from "../dr-plugins/happyBirthday";
+import data from "./dr-render-extensions/mock/happyBirthday";
 
 /** 小节高度、线宽、一间高度：由皮肤包决定，此处假定已明确 */
 const MEASURE_HEIGHT = 45
@@ -84,7 +84,7 @@ const msRef = ref(null)
 onMounted(() => {
 })
 
-function reRender(vdom) {
+function renderMusicScore(vdom) {
 }
 
 const musicScoreData = ref(data)
@@ -127,7 +127,6 @@ const dragState = ref<{
 } | null>(null)
 
 
-
 function svgPointFromEvent(e: PointerEvent): { x: number; y: number } | null {
   const svg = msRef.value?.$el as SVGSVGElement | undefined
   // 检测兼容性
@@ -154,7 +153,7 @@ function handlePointerDown(e: PointerEvent) {
       const pt = svgPointFromEvent(e)
       const ni = findNotesInfoById(musicScoreData.value, targetId)
       if (pt && ni) {
-        dragState.value = { targetId, startRegion: ni.region, startSvgY: pt.y }
+        dragState.value = {targetId, startRegion: ni.region, startSvgY: pt.y}
         ;(e.currentTarget as Element)?.setPointerCapture?.(e.pointerId)
       }
     }

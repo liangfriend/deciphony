@@ -75,46 +75,40 @@ export function musicScoreToVDom(
 
     for (const grandStaff of grandStaffs) {
         const grandStaffStartY = scoreCurrentY;
-        let glSlot: VDom = {} as VDom;
-        if (gLW > 0) {
-            glSlot = {
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: 0,
-                y: grandStaffStartY,
-                w: gLW,
-                h: 0,
-                zIndex: getSlotZIndex(config, 'g-l'),
-                tag: 'slot',
-                skinName: effectiveSkinName,
-                slotName: 'g-l',
-                targetId: `g-l-${grandStaff.id}`,
-                slotData: readonly(grandStaff),
-                dataComment: '复谱表左侧插槽',
-            };
-            vDoms.push(glSlot);
-        }
-        let grSlot: VDom = {} as VDom;
-        if (gRW > 0) {
-            grSlot = {
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: width - gRW,
-                y: grandStaffStartY,
-                w: gRW,
-                h: 0,
-                zIndex: getSlotZIndex(config, 'g-r'),
-                tag: 'slot',
-                skinName: effectiveSkinName,
-                slotName: 'g-r',
-                targetId: `g-r-${grandStaff.id}`,
-                slotData: readonly(grandStaff),
-                dataComment: '复谱表右侧插槽',
-            };
-            vDoms.push(grSlot);
-        }
+        const glSlot: VDom = {
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: 0,
+            y: grandStaffStartY,
+            w: gLW,
+            h: 0,
+            zIndex: getSlotZIndex(config, 'g-l'),
+            tag: 'slot',
+            skinName: effectiveSkinName,
+            slotName: 'g-l',
+            targetId: `g-l-${grandStaff.id}`,
+            slotData: readonly(grandStaff),
+            dataComment: '复谱表左侧插槽',
+        };
+        vDoms.push(glSlot);
+        const grSlot: VDom = {
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: width - gRW,
+            y: grandStaffStartY,
+            w: gRW,
+            h: 0,
+            zIndex: getSlotZIndex(config, 'g-r'),
+            tag: 'slot',
+            skinName: effectiveSkinName,
+            slotName: 'g-r',
+            targetId: `g-r-${grandStaff.id}`,
+            slotData: readonly(grandStaff),
+            dataComment: '复谱表右侧插槽',
+        };
+        vDoms.push(grSlot);
         let grandStaffCurrentY = grandStaffStartY;
 
         const gSlot: VDom = {
@@ -438,14 +432,33 @@ export function musicScoreToVDom(
 
         const grandStaffH = grandStaffCurrentY - grandStaffStartY;
         gSlot.h = grandStaffH;
+        glSlot.h = grandStaffH;
+        grSlot.h = grandStaffH;
         scoreCurrentY = grandStaffCurrentY;
-        if (gLW > 0) glSlot.h = grandStaffH;
-        if (gRW > 0) grSlot.h = grandStaffH;
+    }
+    const eH = config?.['e']?.h;
+    if (eH !== undefined && eH > 0) {
+        vDoms.push({
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: 0,
+            y: scoreCurrentY,
+            w: width,
+            h: eH,
+            zIndex: getSlotZIndex(config, 'e'),
+            tag: 'slot',
+            skinName: effectiveSkinName,
+            targetId: 'e',
+            slotName: 'e',
+            dataComment: '底部插槽',
+        });
     }
     /*
     * 渲染双音符或双小节附属符号
     * slur,volta
     * */
     renderDoubleAffiliatedSymbol({idMap: nodeIdMap, musicScore, VDoms: vDoms, skinName: effectiveSkinName});
+    vDoms.sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
     return vDoms;
 }

@@ -132,7 +132,7 @@ export function processBeam(params: {
           },
         },
         x: 0, y: 0, w: 0, h: 0,
-        zIndex: 1001,
+        zIndex: 1200,
         tag: 'noteBeam',
         skinName: skinNameForNodes,
         targetId: '',

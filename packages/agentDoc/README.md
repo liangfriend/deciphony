@@ -5,4 +5,5 @@
 ## 文件说明
 
 - `001-代码结构理解.md` - 初次熟悉代码时的架构与数据流分析
+- `002-renderer与测试demo总览.md` - deciphony-renderer 与 renderTest.vue 快速总览
 - 后续可按迭代序号追加文档

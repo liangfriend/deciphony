@@ -80,9 +80,9 @@ export type SlotName =
     | 'g-l' | 'g-r'
     | 's-l' | 's-r'
     | 'm' | 'm-u' | 'm-d' | 's-u'
-    | 's-d' | 'g-u' | 'g-d' | 't'
+    | 's-d' | 'g-u' | 'g-d' | 't' | 'e'
 
-// 插槽配置：影响 transfer 布局计算的宽高；zIndex 未配置时默认为 900
+// 插槽配置：影响 transfer 布局计算的宽高；zIndex 未配置时 slot 默认 1000，m 插槽默认 1100
 export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number; zIndex?: number }>>
 
 /** 插槽作用域 props：用户在使用具名插槽时可接收；node.slotData 为对应上下文数据 */

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="left ">
-      <music-score ref="msRef" :data="musicScoreData" :slot-config="{'g-r':{w:50}}" skin-name="default"
+      <music-score ref="msRef" :slot-config="{'g-r':{w:50}}" skin-name="default"
                    @pointerdown="handlePointerDown"
                    @pointermove="handlePointerMove"
                    @pointerup="handlePointerUp"

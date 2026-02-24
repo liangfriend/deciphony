@@ -129,21 +129,6 @@ export type Accidental = {
   widthRatioForMeasure: number
 } & Frame
 // ==========================================线谱================================================
-// 音乐符号
-// export type NoteSymbol = {
-//   id: string
-//   type: NoteSymbolTypeEnum
-//
-//   chronaxie: Chronaxie // 时值0
-//   direction: 'up' | 'down' // 控制符干方向，休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
-//   region: number[], // 在五线谱上的位置，0就是第一线的位置，1是第一间的位置  休止符的region没有意义
-//   accidental?: Accidental
-//   augmentationDot?: AugmentationDot
-//   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
-//   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
-//   affiliatedSymbols: SingleAffiliatedSymbol[], // 单音符附属型
-//   beamType: BeamTypeEnum
-// } & Frame
 
 export type VoiceBeatSymbol = {
   chronaxie: Chronaxie
@@ -175,6 +160,8 @@ export type NotesNumberInfo = {
   /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
   syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
   accidental: Accidental,
+  /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
+  octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
 }
 
 export type VoiceBeatNumber = {

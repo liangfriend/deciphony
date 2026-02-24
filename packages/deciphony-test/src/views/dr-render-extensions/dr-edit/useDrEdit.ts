@@ -5,14 +5,16 @@
 import {ref} from 'vue'
 import type {Measure, MusicScore as MusicScoreType, NotesInfo, NoteSymbol} from 'deciphony-renderer'
 import {
+  AccidentalTypeEnum,
   BarlineTypeEnum,
   ClefTypeEnum,
   KeySignatureTypeEnum,
   NoteSymbolTypeEnum,
-  TimeSignatureTypeEnum
+  TimeSignatureTypeEnum,
 } from 'deciphony-renderer'
 import type {DrRenderCore} from '../useDrRenderCore'
 import {
+  createEmptyMeasure,
   createGrandStaff,
   createSingleStaff,
   createRest,
@@ -98,6 +100,7 @@ function findMeasureBySymbolId(
   return null
 }
 
+const frame = { relativeH: 0, relativeY: 0, relativeW: 0, relativeX: 0 }
 const DELETABLE_TAGS = ['clef_f', 'clef_b', 'keySignature_f', 'keySignature_b', 'timeSignature_f', 'timeSignature_b', 'barline', 'rest', 'noteHead'] as const
 
 export function useDrEdit(core: DrRenderCore) {
@@ -179,7 +182,7 @@ export function useDrEdit(core: DrRenderCore) {
   /** 根据点击的 targetId 和 tag 查找所属小节；slot m-xxx、或小节内任意符号（谱号、拍号、调号、小节线、音符、休止符）均视为选中该小节 */
   function findMeasureBySelection(targetId: string, tag: string): Measure | null {
     if (!targetId) return null
-    if (tag === 'measure') return findMeasureById(targetId)
+    if (targetId.startsWith('m-') || tag === 'measure') return findMeasureById(targetId)
     if (
       tag === 'clef_f' || tag === 'clef_b' || tag === 'keySignature_f' || tag === 'keySignature_b' ||
       tag === 'timeSignature_f' || tag === 'timeSignature_b' || tag === 'barline'
@@ -246,6 +249,73 @@ export function useDrEdit(core: DrRenderCore) {
     const notes = m.notes as Array<unknown>
     if (!Array.isArray(notes)) return
     notes.push(createNote(region, chronaxie as import('deciphony-renderer').Chronaxie))
+  }
+
+  /** 在选中小节后添加新的空小节 */
+  function addMeasureAfter(measureId: string) {
+    const m = findMeasureById(measureId)
+    if (!m) return
+    for (const gs of musicScoreData.value.grandStaffs ?? []) {
+      for (const staff of gs.staves ?? []) {
+        const idx = staff.measures?.findIndex((x) => x.id === m.id)
+        if (idx !== undefined && idx >= 0) {
+          const newMeasure = createEmptyMeasure(m)
+          staff.measures!.splice(idx + 1, 0, newMeasure)
+          nextTick(applyHighlight)
+          return
+        }
+      }
+    }
+  }
+
+  /** 更新音符附点：0=无，1/2/3=附点数量 */
+  function updateNoteAugmentationDot(notesInfoId: string, count: 0 | 1 | 2 | 3) {
+    const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
+    if (!found) return
+    const note = found.note as { voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: unknown }; voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: unknown } }
+    const vp = note.voicePart1?.notesInfo?.some((n: { id: string }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
+    if (!vp) return
+    if (count === 0) {
+      delete vp.augmentationDot
+    } else {
+      vp.augmentationDot = {
+        ...frame,
+        id: crypto.randomUUID(),
+        count: count as 1 | 2 | 3,
+        widthRatio: count === 1 ? 2 : count === 2 ? 3 : 4,
+        widthRatioForMeasure: count === 1 ? 4 : count === 2 ? 6.5 : 9,
+      }
+    }
+    nextTick(applyHighlight)
+  }
+
+  /** 获取选中音符的附点和变音符号当前值（用于 UI 展示） */
+  function getSelectedNoteOptions(notesInfoId: string): { augmentationDotCount: 0 | 1 | 2 | 3; accidentalType: string } {
+    const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
+    if (!found) return { augmentationDotCount: 0, accidentalType: '' }
+    const note = found.note as { voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } }; voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } } }
+    const vp = note.voicePart1?.notesInfo?.some((n: { id: string }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
+    const dot = (vp?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+    const acc = found.notesInfo.accidental?.type ?? ''
+    return { augmentationDotCount: dot, accidentalType: acc }
+  }
+
+  /** 更新音符变音符号：null=无，否则为 AccidentalTypeEnum */
+  function updateNoteAccidental(notesInfoId: string, type: AccidentalTypeEnum | null) {
+    const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
+    if (!found) return
+    if (type === null) {
+      delete found.notesInfo.accidental
+    } else {
+      found.notesInfo.accidental = {
+        ...frame,
+        id: crypto.randomUUID(),
+        type,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
+      }
+    }
+    nextTick(applyHighlight)
   }
 
   /** 选中音符或休止符时，返回 { type, measure, note, chronaxie } */
@@ -337,6 +407,7 @@ export function useDrEdit(core: DrRenderCore) {
     test,
     addGrandStaff,
     addSingleStaff,
+    addMeasureAfter,
     findMeasureById,
     findMeasureBySelection,
     updateMeasureClef,
@@ -347,6 +418,9 @@ export function useDrEdit(core: DrRenderCore) {
     addNoteToMeasure,
     findSelectedNoteOrRest,
     updateSymbolChronaxie,
+    getSelectedNoteOptions,
+    updateNoteAugmentationDot,
+    updateNoteAccidental,
     isDeletableSymbol,
     deleteSymbol,
   }

@@ -18,6 +18,9 @@ import {
   KEY_SIGNATURE_B_Y_OFFSET,
   KEY_SIGNATURE_F_X_OFFSET,
   KEY_SIGNATURE_F_Y_OFFSET,
+  OCTAVE_DOT_FIRST_OFFSET,
+  OCTAVE_DOT_LAST_EDGE_MARGIN,
+  OCTAVE_DOT_SPACING,
   REDUCE_LINE_Y_OFFSET
 } from "../constants";
 import {
@@ -44,9 +47,55 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   obj[vdom.tag] = vdom;
 }
 
-/** 音符 y 中心：全部居中，堆叠时按 stackIndex 依次 +measureHeight */
-function noteCenterY(measureY: number, measureHeight: number, stackIndex: number, noteH = measureHeight): number {
-  return measureY + measureHeight / 2 - stackIndex * noteH;
+/** 音符 y 中心：全部居中，堆叠时按 stackIndex 依次 +measureHeight；yOffset 为八度点等导致的累加偏移（负值=上移） */
+function noteCenterY(
+  measureY: number,
+  measureHeight: number,
+  stackIndex: number,
+  noteH = measureHeight,
+  yOffset = 0,
+): number {
+  return measureY + measureHeight / 2 - stackIndex * noteH + yOffset;
+}
+
+/** 计算单个音符的上/下八度点总高度（用于堆叠时累加偏移） */
+function getOctaveDotHeight(
+  octaveDot: number | undefined,
+  dotH: number,
+  fOff: number,
+  spacing: number,
+  isUpper: boolean,
+): number {
+  if (octaveDot == null || octaveDot === 0) return 0;
+  const need = isUpper ? octaveDot > 0 : octaveDot < 0;
+  if (!need) return 0;
+  const count = Math.abs(octaveDot);
+  return fOff + count * dotH + Math.max(0, count - 1) * spacing;
+}
+
+/** 计算和弦各音符的八度点累加 y 偏移：上方音符需累加自己的下八度点 + 下方音符的上下八度点 */
+function computeOctaveDotYOffsets(
+  allNotes: { syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X'; octaveDot?: number }[],
+  dotH: number,
+  fOff: number,
+  spacing: number,
+  lastEdgeMargin: number,
+): number[] {
+  const offsets: number[] = [];
+  const skip = (s: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X') => s === 0 || s === 'X';
+  for (let k = 0; k < allNotes.length; k++) {
+    let acc = 0;
+    for (let j = 0; j < k; j++) {
+      const upperJ = skip(allNotes[j].syllable) ? 0 : getOctaveDotHeight(allNotes[j].octaveDot, dotH, fOff, spacing, true);
+      const lowerJ1 = j + 1 < allNotes.length && !skip(allNotes[j + 1].syllable)
+        ? getOctaveDotHeight(allNotes[j + 1].octaveDot, dotH, fOff, spacing, false)
+        : 0;
+      acc += upperJ + lowerJ1;
+      if (upperJ > 0 && lowerJ1 > 0) acc += lastEdgeMargin;
+    }
+    offsets.push(-acc);
+  }
+  return offsets;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -256,6 +305,13 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       if (!beat) continue;
       let firstHeadVDom: VDom | null = null;
       const allNotes = beat.notesInfo.slice();
+      const octaveDotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
+      const fOff = OCTAVE_DOT_FIRST_OFFSET * measureHeight;
+      const spacing = OCTAVE_DOT_SPACING * measureHeight;
+      const lastEdgeMargin = OCTAVE_DOT_LAST_EDGE_MARGIN * measureHeight;
+      const octaveDotYOffsets = octaveDotSkin
+        ? computeOctaveDotYOffsets(allNotes, octaveDotSkin.h, fOff, spacing, lastEdgeMargin)
+        : allNotes.map(() => 0);
       // 休止符渲染
       if (isRestSlot) {
         const headKey = NumberNotationSkinKeyEnum.Number_0;
@@ -300,7 +356,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
           const numItem = skin[numKey];
-          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h);
+          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem?.h ?? measureHeight, octaveDotYOffsets[stackIdx]);
 
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
@@ -339,6 +395,49 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           out.push(vdom);
           setNodeIdMap(idMap, n.id, vdom);
           if (!firstHeadVDom) firstHeadVDom = vdom;
+
+          // 八度点：休止符与节奏音符不渲染
+          if ((n.syllable === 0 || n.syllable === 'X') || (n.octaveDot ?? 0) === 0) continue;
+          if (!octaveDotSkin) continue;
+          const dotCount = Math.abs(n.octaveDot!);
+          const dotX = headX + (numItem.w - octaveDotSkin.w) / 2;
+          if (n.octaveDot! > 0) {
+            // 上方八度点：从音符顶部向上排列
+            let dotY = ny - fOff - octaveDotSkin.h;
+            for (let k = 0; k < dotCount; k++) {
+              out.push({
+                startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+                x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
+                tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
+                skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
+              });
+              dotY -= octaveDotSkin.h + spacing;
+            }
+          } else {
+            // 下方八度点：仅最下方音符（stackIdx 0）有减时线时贴着减时线下缘，其它音符贴着自身下缘
+            let baseBottom: number;
+            if (stackIdx === 0 && beat && beat.chronaxie <= 32) {
+              const reduceLineKey = getReduceLineSkinKey(beat.chronaxie);
+              const reduceLineSkin = skin[reduceLineKey];
+              const lowestNote = allNotes[0];
+              const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
+              const lowestCy = noteCenterY(measureY, measureHeight, 0, lowestNumSkin?.h ?? measureHeight, octaveDotYOffsets[0]);
+              const reduceY = lowestCy + (lowestNumSkin?.h ?? 0) / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
+              baseBottom = reduceY + (reduceLineSkin?.h ?? 0);
+            } else {
+              baseBottom = hcy + numItem.h / 2;
+            }
+            let dotY = baseBottom + fOff;
+            for (let k = 0; k < dotCount; k++) {
+              out.push({
+                startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+                x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
+                tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
+                skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
+              });
+              dotY += octaveDotSkin.h + spacing;
+            }
+          }
         }
         // 音符加时线：二分1条、全音符3条，y居中，x等分居中
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
@@ -372,13 +471,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
         const augSkin = skin[augSkinKey];
         const numItem = skin[NumberNotationSkinKeyEnum.Number_1];
-        if (augSkin) {
+        if (augSkin && numItem) {
           const augX = headX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
           allNotes.forEach((n, stackIdx) => {
             if (n.syllable === 0 || n.syllable === 'X') return;
             const numKey = getSyllableSkinKey(n.syllable);
-            const numItem = skin[numKey];
-            const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h);
+            const numItemN = skin[numKey];
+            if (!numItemN) return;
+            const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItemN.h, octaveDotYOffsets[stackIdx]);
             const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
             out.push({
               startPoint: {x: 0, y: 0},

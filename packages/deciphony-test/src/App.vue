@@ -10,9 +10,9 @@ import PlayerTest from "./views/playerTest.vue";
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <!--  <render-test></render-test>-->
-  <dr-edit></dr-edit>
-  
+  <render-test></render-test>
+  <!--  <dr-edit></dr-edit>-->
+
   <!--    <electron-message></ele/ctron-message>-->
   <!--    <test></test>-->
   <!--    <player-test></player-test>-->

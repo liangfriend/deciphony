@@ -82,24 +82,30 @@ const accidentalDoubleFlat: Accidental = {
   widthRatioForMeasure: 0,
 };
 
-function notesInfo(syllables: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | "X")[], accidental: Accidental = accidentalNatural): NotesNumberInfo[] {
+function notesInfo(
+  syllables: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | "X")[],
+  accidental: Accidental = accidentalNatural,
+  octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0,
+): NotesNumberInfo[] {
   return syllables.map((s) => ({
     id: crypto.randomUUID(),
     syllable: s,
     accidental,
+    octaveDot,
   }));
 }
 
 /** 简谱音符：syllable 1-7 = do~si，0 = 休止符，'X' = 节奏音符 */
 function note(
-    syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | "X",
-    chronaxie: Chronaxie = 64,
-    widthRatio = 6,
-    beamType: BeamTypeEnum = BeamTypeEnum.None,
-    accidental: Accidental = accidentalNatural,
-    augmentationDot?: AugmentationDot,
+  syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | "X",
+  chronaxie: Chronaxie = 64,
+  widthRatio = 6,
+  beamType: BeamTypeEnum = BeamTypeEnum.None,
+  accidental: Accidental = accidentalNatural,
+  augmentationDot?: AugmentationDot,
+  octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0,
 ): NoteNumber {
-  const notes = syllable === "X" ? notesInfo(["X"], accidental) : notesInfo([syllable as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7], accidental);
+  const notes = syllable === "X" ? notesInfo(["X"], accidental, octaveDot) : notesInfo([syllable as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7], accidental, octaveDot);
   return {
     ...frame,
     id: crypto.randomUUID(),
@@ -117,16 +123,18 @@ function note(
 
 /** 简谱和弦（多音堆叠） */
 function chord(
-    syllables: (1 | 2 | 3 | 4 | 5 | 6 | 7)[],
-    chronaxie: Chronaxie = 64,
-    widthRatio = 6,
-    beamType: BeamTypeEnum = BeamTypeEnum.None,
-    accidental: Accidental = accidentalNatural,
+  syllables: (1 | 2 | 3 | 4 | 5 | 6 | 7)[],
+  chronaxie: Chronaxie = 64,
+  widthRatio = 6,
+  beamType: BeamTypeEnum = BeamTypeEnum.None,
+  accidental: Accidental = accidentalNatural,
+  octaveDots?: (-5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6)[],
 ): NoteNumber {
-  const notes = syllables.map((s) => ({
+  const notes = syllables.map((s, i) => ({
     id: crypto.randomUUID(),
     syllable: s as 1 | 2 | 3 | 4 | 5 | 6 | 7,
     accidental,
+    octaveDot: (octaveDots?.[i] ?? 0) as -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6,
   }));
   return {
     ...frame,
@@ -164,7 +172,7 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 const phrase1Measure1: Measure = {
   ...frame,
   notes: [
-    note(1, 32, 6, BeamTypeEnum.Combined, accidentalSharp, augmentationDot(2)), // 5 祝
+    note(1, 32, 6, BeamTypeEnum.Combined, accidentalSharp, augmentationDot(2), -2), // 5 祝
     note(1, 32, 6, BeamTypeEnum.Combined, accidentalFlat), // 5 你
     note(2, 64, 6, BeamTypeEnum.None, accidentalNatural), // 6 生
     note(3, 64, 6, BeamTypeEnum.None, accidentalDoubleSharp), // 5 日
@@ -323,7 +331,7 @@ const phrase4Measure2: Measure = {
 const phrase5Measure1: Measure = {
   ...frame,
   notes: [
-    chord([1, 5, 3], 32, 6, BeamTypeEnum.Combined), // 135 和弦
+    chord([1, 5, 3], 32, 6, BeamTypeEnum.Combined, null, [-2, -1, -5]), // 135 和弦
     rest(32),
     chord([2, 4], 32, 6), // 24 双音
     note(5, 32, 6, BeamTypeEnum.None, accidentalSharp), // #5
@@ -345,6 +353,45 @@ const phrase5Measure1: Measure = {
   ...frame,
 };
 const phrase5Measure2: Measure = {
+  ...frame,
+  notes: [],
+  affiliatedSymbols: [],
+  barline: {
+    barlineType: BarlineTypeEnum.Final_barline,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+    id: crypto.randomUUID(),
+    ...frame,
+  },
+  widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  ...frame,
+};
+
+// 第六行：八度点示例（高八度点=上方，低八度点=下方；有减时线时下方点贴着减时线）
+const phrase6Measure1: Measure = {
+  ...frame,
+  notes: [
+    note(1, 64, 6, BeamTypeEnum.None, accidentalNatural, undefined, 1),   // 高八度 1
+    note(5, 64, 6, BeamTypeEnum.None, accidentalNatural, undefined, -1),  // 低八度 5
+    note(3, 32, 6, BeamTypeEnum.Combined, accidentalNatural, undefined, -1), // 低八度 3（有减时线）
+    note(6, 64, 6), // 普通 6
+  ] as NoteNumber[],
+  clef_f: clef,
+  timeSignature_f: time34,
+  barline: {
+    barlineType: BarlineTypeEnum.Single_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+    id: crypto.randomUUID(),
+    ...frame,
+  },
+  widthRatioForMeasure: 100,
+  id: crypto.randomUUID(),
+  affiliatedSymbols: [],
+  ...frame,
+};
+const phrase6Measure2: Measure = {
   ...frame,
   notes: [],
   affiliatedSymbols: [],
@@ -443,6 +490,23 @@ const data: MusicScore = {
           id: crypto.randomUUID(),
           ...frame,
           measures: [phrase5Measure1, phrase5Measure2],
+          uSpaceI: 20,
+          dSpaceI: 20,
+          uSpaceO: 20,
+          dSpaceO: 20,
+        },
+      ],
+      uSpace: 40,
+      dSpace: 40,
+    },
+    {
+      id: crypto.randomUUID(),
+      ...frame,
+      staves: [
+        {
+          id: crypto.randomUUID(),
+          ...frame,
+          measures: [phrase6Measure1, phrase6Measure2],
           uSpaceI: 20,
           dSpaceI: 20,
           uSpaceO: 20,

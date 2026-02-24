@@ -163,6 +163,31 @@
             </button>
           </div>
         </div>
+        <template v-if="selectedNoteOrRest.type === 'note'">
+          <div class="field">
+            <label>附点</label>
+            <div class="chronaxie-btns">
+              <button
+                v-for="d in [0, 1, 2, 3]"
+                :key="d"
+                :class="{ active: noteAugmentationDotCount === d }"
+                @click="drEdit.updateNoteAugmentationDot(highlightTargetId, d as 0|1|2|3)"
+              >{{ d === 0 ? '无' : d }}</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>变音符号</label>
+            <select :value="noteAccidentalType || ''"
+                @change="(e: Event) => { const v = (e.target as HTMLSelectElement).value; drEdit.updateNoteAccidental(highlightTargetId, v ? v as any : null) }">
+              <option value="">无</option>
+              <option value="Sharp">升</option>
+              <option value="Flat">降</option>
+              <option value="double_sharp">重升</option>
+              <option value="double_flat">重降</option>
+              <option value="natural">还原</option>
+            </select>
+          </div>
+        </template>
         <button v-if="selectedDeletableSymbol" class="btn-delete"
                 @click="drEdit.deleteSymbol(highlightTargetId, highlightTag)">
           删除
@@ -243,6 +268,15 @@
             </button>
           </div>
         </div>
+        <div class="field">
+          <button class="btn-add-measure" @click="drEdit.addMeasureAfter(selectedMeasure!.id)">
+            向后添加小节
+          </button>
+        </div>
+        <button v-if="selectedDeletableSymbol" class="btn-delete"
+                @click="drEdit.deleteSymbol(highlightTargetId, highlightTag)">
+          删除选中符号
+        </button>
       </div>
       <button v-else @click="drEdit.test">测试</button>
     </div>
@@ -290,6 +324,16 @@ const selectedDeletableSymbol = computed(() => {
   const tag = highlightTag.value
   if (!tid || !drEdit.isDeletableSymbol(tid, tag)) return null
   return {targetId: tid, tag}
+})
+
+const noteAugmentationDotCount = computed(() => {
+  if (highlightTag.value !== 'noteHead' || !highlightTargetId.value) return 0
+  return drEdit.getSelectedNoteOptions(highlightTargetId.value).augmentationDotCount
+})
+
+const noteAccidentalType = computed(() => {
+  if (highlightTag.value !== 'noteHead' || !highlightTargetId.value) return ''
+  return drEdit.getSelectedNoteOptions(highlightTargetId.value).accidentalType
 })
 </script>
 
@@ -372,5 +416,18 @@ const selectedDeletableSymbol = computed(() => {
 
 .btn-delete:hover {
   background: #ffebee;
+}
+
+.btn-add-measure {
+  padding: 6px 12px;
+  color: #2196f3;
+  border: 1px solid #2196f3;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-add-measure:hover {
+  background: #e3f2fd;
 }
 </style>

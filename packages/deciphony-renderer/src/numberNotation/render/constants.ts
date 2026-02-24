@@ -13,6 +13,12 @@ export const CLEF_NOTE_GAP_RATIO = 1 / 8;
 export const AUGMENTATION_DOT_X_GAP = 0;
 /** 减时线偏移y值（与 measureHeight 的比值） */
 export const REDUCE_LINE_Y_OFFSET = 0
+/** 八度点：第一个点与音符（或减时线，当下方有减时线时）的距离（与 measureHeight 的比值） */
+export const OCTAVE_DOT_FIRST_OFFSET = 0
+/** 八度点：相邻点之间的垂直间距（与 measureHeight 的比值） */
+export const OCTAVE_DOT_SPACING = 1 / 8
+/** 八度点：最后一粒点与相邻反向八度点的边距（防止下八度点与上八度点贴合） */
+export const OCTAVE_DOT_LAST_EDGE_MARGIN = 1 / 4
 /** 附点符号y值与音符中心点y值偏移（与 measureHeight 的比值） */
 export const AUGMENTATION_DOT_Y_OFFSET = 1 / 8;
 /** 一节高度（一线或一间的距离）比例 */

@@ -50,7 +50,7 @@ const props = defineProps<{
   skinName?: string
 }>()
 // 测试：更改谱子类型
-const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
+const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.NumberNotation)
 const defaultMock = computed(() =>
   notationType.value === MusicScoreTypeEnum.NumberNotation ? mockNumberNotation : mockStandardStaff
 )

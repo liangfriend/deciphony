@@ -161,6 +161,24 @@ function createKeySignature(type: KeySignatureTypeEnum) {
   return { ...frame, id: crypto.randomUUID(), type, widthRatio: 10, widthRatioForMeasure: 10 }
 }
 
+/** 创建空小节，可选从前一小节继承 clef、timeSignature、keySignature */
+function createEmptyMeasure(prevMeasure?: Measure): Measure {
+  const m: Measure = {
+    ...frame,
+    id: crypto.randomUUID(),
+    notes: [],
+    affiliatedSymbols: [],
+    widthRatioForMeasure: 100,
+    clef_f: prevMeasure?.clef_f ? createClef(prevMeasure.clef_f.clefType) : createClef(ClefTypeEnum.Treble),
+    timeSignature_f: prevMeasure?.timeSignature_f ? createTimeSignature(prevMeasure.timeSignature_f.type) : createTimeSignature(TimeSignatureTypeEnum['4_4']),
+    barline: createBarline(BarlineTypeEnum.Single_barline),
+  }
+  if (prevMeasure?.keySignature_f) {
+    m.keySignature_f = createKeySignature(prevMeasure.keySignature_f.type)
+  }
+  return m
+}
+
 export {
   createGrandStaff,
   createSingleStaff,
@@ -170,4 +188,5 @@ export {
   createBarline,
   createTimeSignature,
   createKeySignature,
+  createEmptyMeasure,
 }

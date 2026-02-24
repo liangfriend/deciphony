@@ -6,11 +6,11 @@
       <Group v-if="!AFFILIATION_TAGS.has(node.tag)" :node="node" :notation-type="data.type"
              :skin="skin"/>
       <g
-        v-else-if="AFFILIATION_TAGS.has(node.tag)"
-        :data-comment="node.dataComment"
-        :data-slot-name="node.slotName??''"
-        :data-target-id="node.targetId"
-        :transform="`translate(${node.x}, ${node.y})`"
+          v-else-if="AFFILIATION_TAGS.has(node.tag)"
+          :data-comment="node.dataComment"
+          :data-slot-name="node.slotName??''"
+          :data-target-id="node.targetId"
+          :transform="`translate(${node.x}, ${node.y})`"
       >
         <Slur v-if="node.special?.slur" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
@@ -52,15 +52,15 @@ const props = defineProps<{
 // 测试：更改谱子类型
 const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.NumberNotation)
 const defaultMock = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? mockNumberNotation : mockStandardStaff
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? mockNumberNotation : mockStandardStaff
 )
 const data = computed(() => props.data ?? defaultMock.value)
 const skin = computed<Skin>(() =>
-    props.skin ?? {
-      default: defaultSkin,
-      red: defaultSkinRed,
-      blue: defaultSkinBlue,
-    }
+        props.skin ?? {
+          default: defaultSkin,
+          red: defaultSkinRed,
+          blue: defaultSkinBlue,
+        }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -76,20 +76,20 @@ const emit = defineEmits<{ renderMusicScore: [vDom: VDom[]] }>()
 const vDom = ref<VDom[]>([])
 
 const musicScoreToVDom = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
 
 // data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
-  [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
-  ([d, slotConfig]) => {
-    // const oldVDom = vDom.value.map((node) => ({...node}));
-    vDom.value = d
-      ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
-      : []
-    emit('renderMusicScore', vDom.value)
-  },
-  {immediate: true, deep: true}
+    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
+    ([d, slotConfig]) => {
+      // const oldVDom = vDom.value.map((node) => ({...node}));
+      vDom.value = d
+          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
+          : []
+      emit('renderMusicScore', vDom.value)
+    },
+    {immediate: true, deep: true}
 )
 
 /**

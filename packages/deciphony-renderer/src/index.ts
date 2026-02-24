@@ -2,7 +2,16 @@ import MusicScoreVue from './components/musicScore.vue'
 
 export default MusicScoreVue
 
-export type {MusicScore, NotesInfo, GrandStaff, SingleStaff, Measure, NoteSymbol} from './types/MusicScoreType'
+export type {
+  MusicScore,
+  NotesInfo,
+  NotesNumberInfo,
+  NoteNumber,
+  GrandStaff,
+  SingleStaff,
+  Measure,
+  NoteSymbol,
+} from './types/MusicScoreType'
 export type {Chronaxie} from './types/common'
 
 export {

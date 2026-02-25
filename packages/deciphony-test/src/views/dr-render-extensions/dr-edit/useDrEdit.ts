@@ -34,7 +34,7 @@ function findNoteAndNotesInfoById(
   score: MusicScoreType,
   id: string
 ): {
-  note: { direction?: 'up' | 'down' };
+  note: NoteSymbol;
   notesInfo: NotesInfo;
   measure: { notes: unknown[] };
   noteIndex: number
@@ -42,11 +42,11 @@ function findNoteAndNotesInfoById(
   for (const gs of score.grandStaffs ?? []) {
     for (const staff of gs.staves ?? []) {
       for (const measure of staff.measures ?? []) {
-        const notes = measure.notes ?? []
+        const notes = (measure.notes ?? []) as NoteSymbol[]
         for (let i = 0; i < notes.length; i++) {
           const note = notes[i]
-          if (!('voicePart1' in note)) continue
-          const parts = [note.voicePart1, (note as { voicePart2?: typeof note.voicePart1 }).voicePart2].filter(Boolean)
+          if (note.type !== NoteSymbolTypeEnum.Note) continue
+          const parts = [note.voicePart, note.voicePart2].filter(Boolean)
           for (const vp of parts) {
             if (!vp) continue
             for (const ni of vp.notesInfo ?? []) {
@@ -139,7 +139,7 @@ export function useDrEdit(core: DrRenderCore) {
     const newRegion = Math.round(state.startRegion - deltaY / PX_PER_REGION)
     if (newRegion > REGION_MAX || newRegion < REGION_MIN) return
     const found = findNoteAndNotesInfoById(musicScoreData.value, state.targetId)
-    if (found && found.notesInfo.region !== newRegion) {
+    if (found && found.notesInfo.region !== newRegion && found.note.type === NoteSymbolTypeEnum.Note) {
       found.notesInfo.region = newRegion
       found.note.direction = newRegion > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
       nextTick(applyHighlight)
@@ -154,9 +154,9 @@ export function useDrEdit(core: DrRenderCore) {
   })
 
   function test() {
-    const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0]
-    if (!note || !('voicePart1' in note)) return
-    const ni = note.voicePart1.notesInfo[0]
+    const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0] as NoteSymbol | undefined
+    if (!note || !('type' in note) || note.type !== NoteSymbolTypeEnum.Note) return
+    const ni = note.voicePart.notesInfo[0]
     if (!ni) return
     ni.region = 8
     note.direction = ni.region > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
@@ -238,7 +238,7 @@ export function useDrEdit(core: DrRenderCore) {
   function addRestToMeasure(measureId: string, chronaxie: number) {
     const m = findMeasureById(measureId)
     if (!m || !('notes' in m)) return
-    const notes = m.notes as Array<{ voicePart1?: { chronaxie: number } }>
+    const notes = m.notes as unknown[]
     if (!Array.isArray(notes)) return
     notes.push(createRest(chronaxie as import('deciphony-renderer').Chronaxie))
   }
@@ -272,8 +272,9 @@ export function useDrEdit(core: DrRenderCore) {
   function updateNoteAugmentationDot(notesInfoId: string, count: 0 | 1 | 2 | 3) {
     const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
     if (!found) return
-    const note = found.note as { voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: unknown }; voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: unknown } }
-    const vp = note.voicePart1?.notesInfo?.some((n: { id: string }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
+    const note = found.note
+    if (note.type !== NoteSymbolTypeEnum.Note) return
+    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
     if (!vp) return
     if (count === 0) {
       delete vp.augmentationDot
@@ -293,8 +294,9 @@ export function useDrEdit(core: DrRenderCore) {
   function getSelectedNoteOptions(notesInfoId: string): { augmentationDotCount: 0 | 1 | 2 | 3; accidentalType: string } {
     const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
     if (!found) return { augmentationDotCount: 0, accidentalType: '' }
-    const note = found.note as { voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } }; voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } } }
-    const vp = note.voicePart1?.notesInfo?.some((n: { id: string }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
+    const note = found.note
+    if (note.type !== NoteSymbolTypeEnum.Note) return { augmentationDotCount: 0, accidentalType: '' }
+    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
     const dot = (vp?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
     const acc = found.notesInfo.accidental?.type ?? ''
     return { augmentationDotCount: dot, accidentalType: acc }
@@ -323,14 +325,15 @@ export function useDrEdit(core: DrRenderCore) {
     if (tag === 'noteHead') {
       const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
       if (!found) return null
-      const note = found.note as { voicePart1?: { chronaxie: number }; voicePart2?: { chronaxie: number } }
-      const chronaxie = note.voicePart1?.chronaxie ?? note.voicePart2?.chronaxie ?? 64
+      const note = found.note
+      if (note.type !== NoteSymbolTypeEnum.Note) return null
+      const chronaxie = note.voicePart?.chronaxie ?? note.voicePart2?.chronaxie ?? 64
       return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
     }
     if (tag === 'rest') {
       const found = findRestById(musicScoreData.value, targetId)
       if (!found) return null
-      const chronaxie = found.note.voicePart1?.chronaxie ?? 64
+      const chronaxie = found.note.type === NoteSymbolTypeEnum.Rest ? found.note.chronaxie : 64
       return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
     }
     return null
@@ -341,13 +344,14 @@ export function useDrEdit(core: DrRenderCore) {
     if (tag === 'noteHead') {
       const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
       if (!found) return
-      const note = found.note as { voicePart1?: { chronaxie: number }; voicePart2?: { chronaxie: number } }
-      if (note.voicePart1) note.voicePart1.chronaxie = chronaxie
+      const note = found.note
+      if (note.type !== NoteSymbolTypeEnum.Note) return
+      if (note.voicePart) note.voicePart.chronaxie = chronaxie
       if (note.voicePart2) note.voicePart2.chronaxie = chronaxie
     } else if (tag === 'rest') {
       const found = findRestById(musicScoreData.value, targetId)
-      if (!found) return
-      if (found.note.voicePart1) found.note.voicePart1.chronaxie = chronaxie
+      if (!found || found.note.type !== NoteSymbolTypeEnum.Rest) return
+      found.note.chronaxie = chronaxie
     }
     nextTick(applyHighlight)
   }

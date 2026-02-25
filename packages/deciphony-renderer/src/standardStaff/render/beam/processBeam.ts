@@ -5,6 +5,7 @@
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
+import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
 import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
@@ -15,7 +16,8 @@ import {computeBeamSlope} from "./beamSlope";
 type BeamGroupMember = { note: NoteSymbol; voice: 1 | 2 };
 
 function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined {
-  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
+  if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
+  const beat = voice === 1 ? n.voicePart : n.voicePart2;
   if (!beat || beat.notesInfo.length === 0) return undefined;
   const directionUp = voice === 1 ? n.direction === 'up' : n.direction !== 'up';
   const regions = beat.notesInfo.map((no) => no.region);
@@ -23,13 +25,14 @@ function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined 
   return beat.notesInfo.find((no) => no.region === extremeRegion)?.id;
 }
 
-function getVoiceForDirection(n: NoteSymbol, direction: 'up' | 'down'): 1 | 2 {
+function getVoiceForDirection(n: NoteSymbol & { type: 'Note'; direction: 'up' | 'down' }, direction: 'up' | 'down'): 1 | 2 {
   return n.direction === direction ? 1 : 2;
 }
 
 function getBeatForDirection(n: NoteSymbol, direction: 'up' | 'down') {
+  if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
   const voice = getVoiceForDirection(n, direction);
-  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
+  const beat = voice === 1 ? n.voicePart : n.voicePart2;
   return beat?.notesInfo.length ? beat : undefined;
 }
 
@@ -80,6 +83,7 @@ export function processBeam(params: {
   const processBeamGroup = (group: BeamGroupMember[], direction: 'up' | 'down') => {
     const stemEnds: Array<{ x: number; y: number }> = [];
     for (const {note, voice} of group) {
+      if (note.type !== NoteSymbolTypeEnum.Note) continue;
       const stemId = getExtremeNotesInfoId(note, voice);
       const stem = stemId ? nodeIdMap.get(stemId)?.noteStem : undefined;
       if (!stem) continue;
@@ -92,7 +96,7 @@ export function processBeam(params: {
     const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
     const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
     const lineCount = Math.min(...group.map(({note, voice}) => {
-      const beat = voice === 1 ? note.voicePart1 : note.voicePart2!;
+      const beat = voice === 1 ? note.voicePart : note.voicePart2!;
       return chronaxieToBeamLineCount(beat.chronaxie);
     }));
     for (const {note, voice} of group) {

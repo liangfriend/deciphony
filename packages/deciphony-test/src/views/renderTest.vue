@@ -96,8 +96,8 @@ function findNotesInfoById(score: MusicScoreType, id: string): NotesInfo | null 
     for (const staff of gs.staves ?? []) {
       for (const measure of staff.measures ?? []) {
         for (const note of measure.notes ?? []) {
-          if (!('voicePart1' in note)) continue
-          const parts = [note.voicePart1, (note as { voicePart2?: typeof note.voicePart1 }).voicePart2].filter(Boolean)
+          if (!('type' in note) || note.type !== 'Note') continue
+          const parts = [note.voicePart, note.voicePart2].filter(Boolean)
           for (const vp of parts) {
             for (const ni of vp.notesInfo ?? []) {
               if (ni.id === id) return ni
@@ -182,7 +182,8 @@ function handlePointerUp(e: PointerEvent) {
 }
 
 function test() {
-  musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0].voicePart1.notesInfo[0].region = 8
+  const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0]
+  if (note && 'type' in note && note.type === 'Note') note.voicePart.notesInfo[0].region = 8
 
 }
 </script>

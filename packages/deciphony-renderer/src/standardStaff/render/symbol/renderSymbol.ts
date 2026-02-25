@@ -208,7 +208,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (!restItem) continue;
         referenceW = restItem.w;
       } else {
-        const beats = [note.voicePart1, note.voicePart2].filter((b): b is NonNullable<typeof b> => !!b && b.notesInfo.length > 0);
+        const beats = [note.voicePart, note.voicePart2].filter((b): b is NonNullable<typeof b> => !!b && b.notesInfo.length > 0);
         referenceW = 0;
         for (const beat of beats) {
           const headSkin = skin[getNoteHeadSkinKey(beat.chronaxie)];
@@ -258,7 +258,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         continue;
       }
 
-      const beat1 = note.voicePart1.notesInfo.length > 0 ? note.voicePart1 : null;
+      const beat1 = note.voicePart.notesInfo.length > 0 ? note.voicePart : null;
       const beat2 = note.voicePart2?.notesInfo.length ? note.voicePart2 : null;
       let stemV1: VDom | null = null;
       let stemV2: VDom | null = null;

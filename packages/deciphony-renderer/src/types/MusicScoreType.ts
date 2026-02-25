@@ -138,17 +138,25 @@ export type VoiceBeatSymbol = {
   beamType: BeamTypeEnum
 }
 
-export type NoteSymbol = {
+export type NoteSymbol = ({
   id: string
-  type: NoteSymbolTypeEnum
+  type: NoteSymbolTypeEnum.Note
   direction: 'up' | 'down' // 控制声部1符干方向（声部2反向），休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
-  voicePart1: VoiceBeatSymbol
+  voicePart: VoiceBeatSymbol
   voicePart2?: VoiceBeatSymbol
   clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
   widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
   widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
-
-} & Frame
+} & Frame) | ({
+  id: string
+  type: NoteSymbolTypeEnum.Rest
+  chronaxie: Chronaxie
+  augmentationDot?: AugmentationDot
+  affiliatedSymbols: SingleAffiliatedSymbol[]
+  clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
+  widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
+  widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
+} & Frame)
 export type NotesInfo = {
   id: string
   region: number

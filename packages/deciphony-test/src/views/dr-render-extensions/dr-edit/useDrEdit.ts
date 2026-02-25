@@ -242,7 +242,7 @@ export function useDrEdit(core: DrRenderCore) {
             const newRegion = Math.round(state.startRegion - deltaY / PX_PER_REGION)
             if (newRegion > REGION_MAX || newRegion < REGION_MIN) return
             const found = findNoteAndNotesInfoById(musicScoreData.value, state.targetId)
-            if (found && found.notesInfo.region !== newRegion) {
+            if (found && found.notesInfo.region !== newRegion && found.note.type === NoteSymbolTypeEnum.Note) {
                 found.notesInfo.region = newRegion
                 found.note.direction = newRegion > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
                 nextTick(applyHighlight)
@@ -417,6 +417,13 @@ export function useDrEdit(core: DrRenderCore) {
 
   /** 获取选中音符的附点和变音符号当前值（用于 UI 展示） */
   function getSelectedNoteOptions(notesInfoId: string): { augmentationDotCount: 0 | 1 | 2 | 3; accidentalType: string } {
+    if (isNumberNotation()) {
+      const found = findNoteNumberAndNotesInfoById(musicScoreData.value, notesInfoId)
+      if (!found) return { augmentationDotCount: 0, accidentalType: '' }
+      const dot = (found.note.voicePart.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+      const acc = found.notesInfo.accidental?.type ?? ''
+      return { augmentationDotCount: dot, accidentalType: acc }
+    }
     const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
     if (!found) return { augmentationDotCount: 0, accidentalType: '' }
     const note = found.note
@@ -464,6 +471,12 @@ export function useDrEdit(core: DrRenderCore) {
   /** 选中音符或休止符时，返回 { type, measure, note, chronaxie } */
   function findSelectedNoteOrRest(targetId: string, tag: string) {
     if (tag === 'noteHead') {
+      if (isNumberNotation()) {
+        const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found) return null
+        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
+      }
       const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
       if (!found) return null
       const note = found.note
@@ -472,6 +485,12 @@ export function useDrEdit(core: DrRenderCore) {
       return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
     }
     if (tag === 'rest') {
+      if (isNumberNotation()) {
+        const found = findRestByIdNumber(musicScoreData.value, targetId)
+        if (!found) return null
+        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
+      }
       const found = findRestById(musicScoreData.value, targetId)
       if (!found) return null
       const chronaxie = found.note.type === NoteSymbolTypeEnum.Rest ? found.note.chronaxie : 64
@@ -483,15 +502,26 @@ export function useDrEdit(core: DrRenderCore) {
   /** 更新音符或休止符的 chronaxie */
   function updateSymbolChronaxie(targetId: string, tag: string, chronaxie: import('deciphony-renderer').Chronaxie) {
     if (tag === 'noteHead') {
-      const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
-      if (!found) return
-      const note = found.note as { voicePart1?: { chronaxie: number }; voicePart2?: { chronaxie: number } }
-      if (note.voicePart1) note.voicePart1.chronaxie = chronaxie
-      if (note.voicePart2) note.voicePart2.chronaxie = chronaxie
+      if (isNumberNotation()) {
+        const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found) return
+        found.note.voicePart.chronaxie = chronaxie
+      } else {
+        const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found || found.note.type !== NoteSymbolTypeEnum.Note) return
+        if (found.note.voicePart) found.note.voicePart.chronaxie = chronaxie
+        if (found.note.voicePart2) found.note.voicePart2.chronaxie = chronaxie
+      }
     } else if (tag === 'rest') {
-      const found = findRestById(musicScoreData.value, targetId)
-      if (!found) return
-      if (found.note.voicePart1) found.note.voicePart1.chronaxie = chronaxie
+      if (isNumberNotation()) {
+        const found = findRestByIdNumber(musicScoreData.value, targetId)
+        if (!found) return
+        found.note.voicePart.chronaxie = chronaxie
+      } else {
+        const found = findRestById(musicScoreData.value, targetId)
+        if (!found || found.note.type !== NoteSymbolTypeEnum.Rest) return
+        found.note.chronaxie = chronaxie
+      }
     }
     nextTick(applyHighlight)
   }

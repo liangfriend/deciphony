@@ -2,7 +2,7 @@ import {MusicScore, MusicScoreTypeEnum} from "deciphony-renderer";
 
 const data: MusicScore = {
   id: '111',
-  type: MusicScoreTypeEnum.StandardStaff,
+  type: MusicScoreTypeEnum.NumberNotation,
   grandStaffs: [],
   affiliatedSymbols: [], // 包含双音符附属型，双小节附属型
   width: 800,

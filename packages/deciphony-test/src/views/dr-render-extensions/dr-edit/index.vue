@@ -201,7 +201,7 @@
       </div>
       <div v-else-if="selectedMeasure" class="measure-panel">
         <h4>小节</h4>
-        <div class="field">
+        <div v-if="!drEdit.isNumberNotation()" class="field">
           <label>前置谱号</label>
           <select :value="selectedMeasure.clef_f?.clefType"
                   @change="(e: Event) => drEdit.updateMeasureClef(selectedMeasure!.id, (e.target as HTMLSelectElement).value as any)">

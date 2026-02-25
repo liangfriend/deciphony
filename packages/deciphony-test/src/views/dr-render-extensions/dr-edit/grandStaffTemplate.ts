@@ -1,4 +1,5 @@
 import {
+  AccidentalTypeEnum,
   BarlineTypeEnum,
   ClefTypeEnum,
   KeySignatureTypeEnum,
@@ -7,7 +8,14 @@ import {
   TimeSignatureTypeEnum,
 } from 'deciphony-renderer'
 import type { Chronaxie } from 'deciphony-renderer'
-import type { GrandStaff, Measure, NoteSymbol, SingleStaff } from 'deciphony-renderer'
+import type {
+  GrandStaff,
+  Measure,
+  NoteNumber,
+  NoteSymbol,
+  NotesNumberInfo,
+  SingleStaff,
+} from 'deciphony-renderer'
 
 const frame = { relativeH: 0, relativeY: 0, relativeW: 0, relativeX: 0 }
 
@@ -179,6 +187,126 @@ function createEmptyMeasure(prevMeasure?: Measure): Measure {
   return m
 }
 
+// ---------- 简谱模板：小节无谱号，休止符/音符为 NoteNumber ----------
+
+const defaultAccidentalNumber = () => ({
+  ...frame,
+  id: crypto.randomUUID(),
+  type: AccidentalTypeEnum.Natural,
+  widthRatio: 0,
+  widthRatioForMeasure: 0,
+})
+
+function createMeasureNumber(prevMeasure?: Measure): Measure {
+  const m: Measure = {
+    ...frame,
+    id: crypto.randomUUID(),
+    notes: [],
+    affiliatedSymbols: [],
+    widthRatioForMeasure: 100,
+    timeSignature_f: prevMeasure?.timeSignature_f
+      ? createTimeSignature(prevMeasure.timeSignature_f.type)
+      : createTimeSignature(TimeSignatureTypeEnum['4_4']),
+    barline: createBarline(BarlineTypeEnum.Single_barline),
+  }
+  if (prevMeasure?.keySignature_f) {
+    m.keySignature_f = createKeySignature(prevMeasure.keySignature_f.type)
+  }
+  return m
+}
+
+/** 简谱休止符：syllable=0，NoteNumber 结构 */
+function createRestNumber(chronaxie: Chronaxie, widthRatio = 6): NoteNumber {
+  const accidental = defaultAccidentalNumber()
+  const notesInfo: NotesNumberInfo[] = [
+    {
+      id: crypto.randomUUID(),
+      syllable: 0,
+      accidental,
+      octaveDot: 0,
+    },
+  ]
+  return {
+    ...frame,
+    id: crypto.randomUUID(),
+    voicePart: {
+      chronaxie,
+      notesInfo,
+      affiliatedSymbols: [],
+      beamType: BeamTypeEnum.None,
+    },
+    widthRatio,
+    widthRatioForMeasure: widthRatio,
+  }
+}
+
+/** 简谱音符：syllable 1–7，默认 1(do) */
+function createNoteNumber(
+  syllable: 1 | 2 | 3 | 4 | 5 | 6 | 7 = 1,
+  chronaxie: Chronaxie,
+  widthRatio = 6
+): NoteNumber {
+  const accidental = defaultAccidentalNumber()
+  const notesInfo: NotesNumberInfo[] = [
+    {
+      id: crypto.randomUUID(),
+      syllable,
+      accidental,
+      octaveDot: 0,
+    },
+  ]
+  return {
+    ...frame,
+    id: crypto.randomUUID(),
+    voicePart: {
+      chronaxie,
+      notesInfo,
+      affiliatedSymbols: [],
+      beamType: BeamTypeEnum.None,
+    },
+    widthRatio,
+    widthRatioForMeasure: widthRatio,
+  }
+}
+
+function createGrandStaffNumber(): GrandStaff {
+  const measure = createMeasureNumber()
+  const staff: SingleStaff = {
+    ...frame,
+    id: crypto.randomUUID(),
+    measures: [measure],
+    uSpaceI: 20,
+    dSpaceI: 20,
+    uSpaceO: 20,
+    dSpaceO: 20,
+  }
+  return {
+    ...frame,
+    id: crypto.randomUUID(),
+    staves: [staff],
+    uSpace: 40,
+    dSpace: 40,
+  }
+}
+
+function createSingleStaffNumber(): SingleStaff {
+  const measure = createMeasureNumber()
+  return {
+    ...frame,
+    id: crypto.randomUUID(),
+    measures: [measure],
+    uSpaceI: 20,
+    dSpaceI: 20,
+    uSpaceO: 20,
+    dSpaceO: 20,
+  }
+}
+
+/** 简谱空小节：无谱号，可继承拍号、调号 */
+function createEmptyMeasureNumber(prevMeasure?: Measure): Measure {
+  return createMeasureNumber(prevMeasure)
+}
+
 export {
   createGrandStaff,
   createSingleStaff,
@@ -189,4 +317,11 @@ export {
   createTimeSignature,
   createKeySignature,
   createEmptyMeasure,
+  createGrandStaffNumber,
+  createSingleStaffNumber,
+  createRestNumber,
+  createNoteNumber,
+  createEmptyMeasureNumber,
+  createMeasureNumber,
 }
+

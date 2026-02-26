@@ -164,7 +164,11 @@ export function musicScoreToVDom(
 
             let totalWidthRatioForMeasure = 0;
             for (const m of staff.measures) {
-                totalWidthRatioForMeasure += getMeasureWidthRatio(m);
+                totalWidthRatioForMeasure += getMeasureWidthRatio(m, skin);
+            }
+            // 避免除零导致 measureWidth/坐标 变为 NaN（数据与皮肤均无宽度系数时 total 可能为 0）
+            if (!Number.isFinite(totalWidthRatioForMeasure) || totalWidthRatioForMeasure <= 0) {
+                totalWidthRatioForMeasure = 1;
             }
 
             const sSlot: VDom = {
@@ -247,7 +251,7 @@ export function musicScoreToVDom(
 
             let measureCurrentX = grandStaffX;
             for (const measure of staff.measures) {
-                const measureWidth = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW;
+                const measureWidth = getMeasureWidthRatio(measure, skin) / totalWidthRatioForMeasure * grandStaffW;
                 vDoms.push({
                     startPoint: {x: 0, y: 0},
                     endPoint: {x: 0, y: 0},
@@ -278,7 +282,7 @@ export function musicScoreToVDom(
             measureCurrentX = grandStaffX;
             for (let mi = 0; mi < staff.measures.length; mi++) {
                 const measure = staff.measures[mi];
-                const measureWidth = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW;
+                const measureWidth = getMeasureWidthRatio(measure, skin) / totalWidthRatioForMeasure * grandStaffW;
                 vDoms.push({
                     startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
                     x: measureCurrentX, y: grandStaffCurrentY, w: measureWidth, h: measureHeight,
@@ -294,7 +298,7 @@ export function musicScoreToVDom(
             * */
             for (let mi = 0; mi < staff.measures.length; mi++) {
                 const measure = staff.measures[mi];
-                const measureWidth = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW;
+                const measureWidth = getMeasureWidthRatio(measure, skin) / totalWidthRatioForMeasure * grandStaffW;
                 // 渲染小节上的所有符号
                 const symbolVDoms = renderSymbol({
                     measure,
@@ -354,7 +358,7 @@ export function musicScoreToVDom(
 
             measureCurrentX = grandStaffX;
             for (const measure of staff.measures) {
-                const measureWidth = getMeasureWidthRatio(measure) / totalWidthRatioForMeasure * grandStaffW;
+                const measureWidth = getMeasureWidthRatio(measure, skin) / totalWidthRatioForMeasure * grandStaffW;
                 vDoms.push({
                     startPoint: {x: 0, y: 0},
                     endPoint: {x: 0, y: 0},

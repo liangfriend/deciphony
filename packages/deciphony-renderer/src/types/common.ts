@@ -59,8 +59,8 @@ export type VDom = {
     };
     volta?: Record<string, unknown>;
     beam?: {
-      /** 每条符杠对应一个对象，便于扩展（如断开、样式等） */
-      lines: Array<Record<string, unknown>>;
+      /** 本段内每条符杠，每条线一个空对象表示画满整段 */
+      lines: Record<string, never>[];
       spacing: number;
       thickness: number;
       direction: 'up' | 'down';
@@ -88,12 +88,16 @@ export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number; zInd
 /** 插槽作用域 props：用户在使用具名插槽时可接收；node.slotData 为对应上下文数据 */
 export type SlotProps = { node: VDom };
 
-/** 皮肤项：content + 尺寸 + skinKey（每谱的 key 枚举不同） */
+/** 皮肤项：content + 尺寸 + skinKey（每谱的 key 枚举不同）；可选宽度占比供数据未设置时回退 */
 export type SkinItem<K extends string = string> = {
   content: string;
   w: number;
   h: number;
   skinKey: K;
+  /** 符号在小节内宽度占比（数据未设置时使用，0 为有效值） */
+  widthRatio?: number;
+  /** 符号对单谱表小节宽度占比（数据未设置时使用，0 为有效值） */
+  widthRatioForMeasure?: number;
 };
 
 /** 五线谱单套皮肤包 */

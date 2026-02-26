@@ -49,7 +49,7 @@ export type Measure = {
     keySignature_b?: KeySignature,
     timeSignature_f?: TimeSignature,
     timeSignature_b?: TimeSignature,
-    widthRatioForMeasure: number,
+    widthRatioForMeasure?: number,
     affiliatedSymbols: SingleAffiliatedSymbol[] // 包含单小节附属型
 } & Frame
 
@@ -59,8 +59,8 @@ export type Measure = {
 export type AugmentationDot = {
     id: string
     count: 1 | 2 | 3,
-    widthRatio: number
-    widthRatioForMeasure: number,
+    widthRatio?: number
+    widthRatioForMeasure?: number,
 } & Frame
 /*
 * 附属型符号 accent above, accidental等等， 符干符尾不属于附属型符号，它是根据音符时值信息固定逻辑判断是否存在的符号
@@ -98,35 +98,35 @@ export type SingleAffiliatedSymbol = { // 单音符，单小节附属符号
 export type Barline = {
     id: string
     barlineType: BarlineTypeEnum
-    widthRatio: number // 目前完全无用
-    widthRatioForMeasure: number
+    widthRatio?: number // 目前完全无用
+    widthRatioForMeasure?: number
 } & Frame
 // 谱号 谱号出现在小节和音符上 后置谱号在小节线之前
 export type Clef = {
     id: string
     clefType: ClefTypeEnum
-    widthRatio: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
-    widthRatioForMeasure: number
+    widthRatio?: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
+    widthRatioForMeasure?: number
 } & Frame
 // 调号 后置调号在小节线之后
 export type KeySignature = {
     id: string
     type: KeySignatureTypeEnum
-    widthRatio: number // 目前完全无用
-    widthRatioForMeasure: number
+    widthRatio?: number // 目前完全无用
+    widthRatioForMeasure?: number
 } & Frame
 // 拍号 后置拍号在小节线之后
 export type TimeSignature = {
     id: string
     type: TimeSignatureTypeEnum
-    widthRatio: number // 目前完全无用
-    widthRatioForMeasure: number
+    widthRatio?: number // 目前完全无用
+    widthRatioForMeasure?: number
 } & Frame
 export type Accidental = {
     id: string
     type: AccidentalTypeEnum
-    widthRatio: number // 目前完全无用
-    widthRatioForMeasure: number
+    widthRatio?: number // 目前完全无用
+    widthRatioForMeasure?: number
 } & Frame
 // ==========================================线谱================================================
 
@@ -145,8 +145,8 @@ export type NoteSymbol = ({
   voicePart: VoiceBeatSymbol
   voicePart2?: VoiceBeatSymbol
   clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
-  widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
-  widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
+  widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+  widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 } & Frame) | ({
   id: string
   type: NoteSymbolTypeEnum.Rest
@@ -154,8 +154,8 @@ export type NoteSymbol = ({
   augmentationDot?: AugmentationDot
   affiliatedSymbols: SingleAffiliatedSymbol[]
   clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
-  widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
-  widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
+  widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+  widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 } & Frame)
 export type NotesInfo = {
     id: string
@@ -180,11 +180,10 @@ export type VoiceBeatNumber = {
     beamType: BeamTypeEnum
 }
 
-// 简谱音乐符号
+// 简谱音乐符号（简谱无谱号概念，无 clef）
 export type NoteNumber = {
     id: string
     voicePart: VoiceBeatNumber
-    clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
-    widthRatio: number // 这个是代表四分音符，具体需要乘算chronaxie
-    widthRatioForMeasure: number, // 这个是代表四分音符，具体需要乘算chronaxie
+    widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+    widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 } & Frame

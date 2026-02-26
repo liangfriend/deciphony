@@ -13,7 +13,6 @@ import {
   ACCIDENTAL_NOTE_Y_OFFSET,
   AUGMENTATION_DOT_X_GAP,
   AUGMENTATION_DOT_Y_OFFSET,
-  CLEF_NOTE_GAP_RATIO,
   KEY_SIGNATURE_B_X_OFFSET,
   KEY_SIGNATURE_B_Y_OFFSET,
   KEY_SIGNATURE_F_X_OFFSET,
@@ -235,7 +234,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
 
   const notes = measure.notes as NoteNumber[];
-  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n), 0);
+  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n, skin), 0);
   const domainStartX = measureX + prefixW;
   const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
 
@@ -256,7 +255,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i];
-      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note);
+      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin);
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
       const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
       if (!useEqualSlots) accRatio += ratio;
@@ -286,22 +285,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const beat = note.voicePart.notesInfo.length > 0 ? note.voicePart : null;
       slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, beat, isRest: isRestSlot});
 
-      if (note.clef) {
-        const clefKey = getClefSkinKey(note.clef.clefType, true);
-        const clefItem = skin[clefKey];
-        if (clefItem) {
-          const clefX = headX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
-          const clefY = measureY - (clefItem.h - measureHeight) / 2;
-          const clefVDom: VDom = {
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-            x: clefX, y: clefY, w: clefItem.w, h: clefItem.h,
-            zIndex: z, tag: 'clef_f', skinName: skinNameForNodes, targetId: note.clef.id,
-            skinKey: clefKey, dataComment: '音符前谱号',
-          };
-          out.push(clefVDom);
-          setNodeIdMap(idMap, note.clef.id, clefVDom);
-        }
-      }
       if (!beat) continue;
       let firstHeadVDom: VDom | null = null;
       const allNotes = beat.notesInfo.slice();

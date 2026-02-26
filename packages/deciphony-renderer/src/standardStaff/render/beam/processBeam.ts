@@ -15,6 +15,7 @@ import {computeBeamSlope} from "./beamSlope";
 
 type BeamGroupMember = { note: NoteSymbol; voice: 1 | 2 };
 
+// 找到一个和弦里符杠方向最高的音符
 function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined {
   if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
   const beat = voice === 1 ? n.voicePart : n.voicePart2;
@@ -25,7 +26,10 @@ function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined 
   return beat.notesInfo.find((no) => no.region === extremeRegion)?.id;
 }
 
-function getVoiceForDirection(n: NoteSymbol & { type: 'Note'; direction: 'up' | 'down' }, direction: 'up' | 'down'): 1 | 2 {
+function getVoiceForDirection(n: NoteSymbol & {
+  type: 'Note';
+  direction: 'up' | 'down'
+}, direction: 'up' | 'down'): 1 | 2 {
   return n.direction === direction ? 1 : 2;
 }
 
@@ -49,9 +53,9 @@ function buildBeamGroups(measure: { notes: NoteSymbol[] }, direction: 'up' | 'do
     const preHasTail = preBeat && preBeat.chronaxie <= 32;
     const nextHasTail = nextBeat && nextBeat.chronaxie <= 32;
     const canBeamWithNext = nextNote && nextBeat && hasTail && nextHasTail
-        && beat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextBeat.beamType);
+      && beat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextBeat.beamType);
     const canBeamWithPre = preBeat && preHasTail && hasTail
-        && preBeat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(beat.beamType);
+      && preBeat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(beat.beamType);
     const voice = getVoiceForDirection(note, direction);
     const member: BeamGroupMember = {note, voice};
     if (canBeamWithPre && groups.length > 0) {
@@ -79,9 +83,10 @@ export function processBeam(params: {
   const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth);
   const beamGroupsUp = buildBeamGroups(measure, 'up');
   const beamGroupsDown = buildBeamGroups(measure, 'down');
-
+  // 渲染符杠
   const processBeamGroup = (group: BeamGroupMember[], direction: 'up' | 'down') => {
     const stemEnds: Array<{ x: number; y: number }> = [];
+    // 找到符干的端点
     for (const {note, voice} of group) {
       if (note.type !== NoteSymbolTypeEnum.Note) continue;
       const stemId = getExtremeNotesInfoId(note, voice);
@@ -92,13 +97,20 @@ export function processBeam(params: {
       stemEnds.push({x, y});
     }
     if (stemEnds.length < 2) return;
+    // 得到斜率和锚点
     const {inclination, anchor} = computeBeamSlope(stemEnds, direction);
     const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
     const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
-    const lineCount = Math.min(...group.map(({note, voice}) => {
+    // 需要渲染几条线（取组内最小，即“共有的”线数）
+    const beamCounts = group.map(({note, voice}) => {
       const beat = voice === 1 ? note.voicePart : note.voicePart2!;
       return chronaxieToBeamLineCount(beat.chronaxie);
-    }));
+    });
+    const lineCount = Math.min(...beamCounts);
+    const nStems = stemEnds.length;
+    // 每段符杠：lines 为 {}[]，每条线一个空对象，表示该段内画满整条
+    const linesTemplate = Array.from({ length: lineCount }, (): Record<string, never> => ({}));
+    // 中间的音符高的某些情况，两侧stem要进行延长
     for (const {note, voice} of group) {
       const stemId = getExtremeNotesInfoId(note, voice);
       const stem = stemId ? (nodeIdMap.get(stemId)?.noteStem as VDom | undefined) : undefined;
@@ -113,7 +125,6 @@ export function processBeam(params: {
         stem.h = Math.max(beamY - stemTop, minStemLength);
       }
     }
-    const nStems = stemEnds.length;
     const overlap = 1;
     for (let j = 0; j < nStems; j++) {
       const leftX = j === 0 ? stemEnds[0].x : (stemEnds[j - 1].x + stemEnds[j].x) / 2;
@@ -129,7 +140,7 @@ export function processBeam(params: {
         endPoint: {x: rightXAdj + dx, y: rightY + dy},
         special: {
           beam: {
-            lines: Array.from({length: lineCount}, () => ({})),
+            lines: linesTemplate,
             spacing: BEAM_LINE_SPACING * measureHeight,
             thickness: BEAM_THICKNESS * measureHeight,
             direction,
@@ -159,6 +170,7 @@ export function processBeam(params: {
                                   }) => getExtremeNotesInfoId(note, voice)).filter((id): id is string => id != null),
   ]);
   const startIdx = vDoms.length - symbolVDomsLength;
+  // 去掉符尾
   for (let i = vDoms.length - 1; i >= startIdx; i--) {
     const node = vDoms[i];
     if (node.tag === 'noteTail' && node.targetId && beamedNoteHeadIds.has(node.targetId)) {

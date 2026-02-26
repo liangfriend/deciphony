@@ -172,7 +172,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   const notes = measure.notes;
   // 计算当前小节总的widthRatio
-  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n as NoteSymbol), 0);
+  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n as NoteSymbol, skin), 0);
   const domainStartX = measureX + prefixW;
   /*
   * 定义音符中心点坐标获取函数
@@ -194,7 +194,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i] as NoteSymbol;
-      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note);
+      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin);
       // 计算出符号域宽度
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
       // 计算出符号域开始x值

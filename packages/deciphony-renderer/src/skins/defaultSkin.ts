@@ -22,6 +22,7 @@ const measure = {
     w: 1, // 这个写成线宽
     h: STAFF_HEIGHT,
     skinKey: StandardStaffSkinKeyEnum.Measure,
+    widthRatioForMeasure: 100,
 };
 
 // 谱号
@@ -37,6 +38,8 @@ const treble = {
     w: 95 * 0.18 + 5, // 宽高一定要等于图形的宽高，否则会导致布局错误
     h: 248 * 0.18,
     skinKey: StandardStaffSkinKeyEnum.Treble,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 
 const alto = {
@@ -53,6 +56,8 @@ const alto = {
     h: 45 * 0.6,
 
     skinKey: StandardStaffSkinKeyEnum.Bass,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 const tenor = {
     content: `
@@ -68,6 +73,8 @@ const tenor = {
     h: 45 * 0.6,
 
     skinKey: StandardStaffSkinKeyEnum.Bass,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 const bass = {
     content: `
@@ -83,6 +90,8 @@ const bass = {
     h: 106.78 * 0.3,
 
     skinKey: StandardStaffSkinKeyEnum.Bass,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 
 const trebleF = {
@@ -93,7 +102,7 @@ const trebleF = {
                 d="M58.2521 128.588L52.5358 100.789C71.9986 84.2187 80.9814 66.5533 80.9814 47.2446C80.9814 32.3181 75.1289 16.5699 63.1519 0C49.6777 10.9553 41.9198 32.7289 41.9198 56.1458C41.9198 64.4992 43.0086 72.4417 44.7779 80.1104C14.9713 105.308 0 128.451 0 149.676C0 174.6 25.5874 195.278 53.2163 195.278C59.341 195.278 63.9685 194.319 68.1877 192.265L73.2235 216.641C76.0308 232.176 60.9865 244.44 46.4112 244.44C42.0559 244.44 37.8367 243.344 34.0258 241.427C44.0974 240.331 51.7192 234.169 51.7192 225.131C51.7192 217.051 45.1862 208.698 36.7479 208.698C27.2206 208.698 20.6877 216.093 20.6877 225.679C20.6877 239.099 31.5759 248 44.6418 248C62.1991 248 77.0344 236.497 77.0344 220.064C77.0344 216.504 71.5903 191.991 71.4542 191.17C85.4728 184.322 95 172.272 95 159.399C94.8431 138.883 77.0476 126.943 58.2521 128.588ZM65.4656 18.7609C71.9195 18.7609 74.3123 29.9375 74.3123 34.9199C74.3123 47.6554 65.3295 62.0342 47.6361 77.7824C44.0453 63.3306 46.2924 18.7609 65.4656 18.7609ZM12.1132 156.66C12.1132 139.132 25.043 121.056 49.5415 102.706L54.9857 128.998C41.3754 131.874 29.8066 143.514 29.8066 156.523C29.8066 167.616 37.7006 175.284 49.4054 177.202C42.192 172.683 38.6533 167.068 38.6533 160.358C38.6533 151.32 47.0917 144.61 57.8438 143.103L67.235 188.431C45.0494 200.606 12.1132 182.493 12.1132 156.66ZM70.5014 186.65L61.2464 142.692C73.7567 141.724 83.5673 151.091 83.5673 164.055C83.5673 172.683 79.0759 180.214 70.5014 186.65Z"
                 fill="black"/>
       </g>
-`, w: 95 * 0.32 + 5, h: 79.36, skinKey: StandardStaffSkinKeyEnum.Treble_f
+`, w: 95 * 0.32 + 5, h: 79.36, skinKey: StandardStaffSkinKeyEnum.Treble_f, widthRatio: 10, widthRatioForMeasure: 18,
 };
 const bassF = {
     content: `
@@ -105,7 +114,7 @@ const bassF = {
       />
     </g>
 `, w: 104.88 * 0.42 + 5,
-    h: 45, skinKey: StandardStaffSkinKeyEnum.Bass_f
+    h: 45, skinKey: StandardStaffSkinKeyEnum.Bass_f, widthRatio: 10, widthRatioForMeasure: 18,
 };
 
 const altoF = {
@@ -122,6 +131,8 @@ const altoF = {
     h: 45,
 
     skinKey: StandardStaffSkinKeyEnum.Alto_f,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 const tenorF = {
     content: `
@@ -137,6 +148,8 @@ const tenorF = {
     h: 45,
 
     skinKey: StandardStaffSkinKeyEnum.Alto_f,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
 };
 
 // 变音记号
@@ -155,6 +168,8 @@ const sharp = {
     h: 30.04,
 
     skinKey: StandardStaffSkinKeyEnum.Sharp,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
 };
 
 const flat = {
@@ -172,6 +187,8 @@ const flat = {
     h: 29.42,
 
     skinKey: StandardStaffSkinKeyEnum.Flat,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
 };
 
 const doubleSharp = {
@@ -193,6 +210,8 @@ const doubleSharp = {
     h: 30.04,
 
     skinKey: StandardStaffSkinKeyEnum.Double_sharp,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
 };
 
 const doubleFlat = {
@@ -207,6 +226,8 @@ const doubleFlat = {
     h: 29.42,
 
     skinKey: StandardStaffSkinKeyEnum.Double_flat,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
 };
 
 const natural = {
@@ -217,6 +238,8 @@ const natural = {
     h: 28,
 
     skinKey: StandardStaffSkinKeyEnum.Natural,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
 };
 
 // 调号：C 为空；其余由 sharp/flat 按五线位置堆叠。keySignature 小节居中，上方留 3 格，h = STAFF_HEIGHT + 3*LINE_SPACING
@@ -234,10 +257,12 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
     content: string;
     w: number;
     h: number;
-    skinKey: StandardStaffSkinKeyEnum
+    skinKey: StandardStaffSkinKeyEnum;
+    widthRatio?: number;
+    widthRatioForMeasure?: number;
 } {
     if (key === StandardStaffSkinKeyEnum.C) {
-        return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+        return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
     }
     const sharpKeys = [
         StandardStaffSkinKeyEnum.G,
@@ -270,7 +295,7 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
                                        y
                                    }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${SHARP_INNER}</g>`).join('');
         const w = sharp.w + (sharpCount - 1) * KEY_SIG_SHARP_OFFSET_X;
-        return {content, w, h: KEY_SIG_H, skinKey: key};
+        return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
     }
     if (flatCount > 0) {
         const items: { x: number; y: number }[] = [];
@@ -283,9 +308,9 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
                                        y
                                    }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${FLAT_INNER}</g>`).join('');
         const w = flat.w + (flatCount - 1) * KEY_SIG_FLAT_OFFSET_X;
-        return {content, w, h: KEY_SIG_H, skinKey: key};
+        return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
     }
-    return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key};
+    return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
 }
 
 // 小节线
@@ -297,6 +322,8 @@ const singleBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Single_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const doubleBarline = {
@@ -308,6 +335,8 @@ const doubleBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Double_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const startRepeatBarline = {
@@ -321,6 +350,8 @@ const startRepeatBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.StartRepeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const endRepeatBarline = {
@@ -334,6 +365,8 @@ const endRepeatBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.EndRepeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 const startEndRepeatBarline = {
     content: `
@@ -349,6 +382,8 @@ const startEndRepeatBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.EndRepeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 
 }
 
@@ -361,6 +396,8 @@ const finalBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Final_barline,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
 };
 
 const dashedBarline = {
@@ -371,6 +408,8 @@ const dashedBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Dashed_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const dottedBarline = {
@@ -381,6 +420,8 @@ const dottedBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Dotted_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const reverseBarline = {
@@ -392,6 +433,8 @@ const reverseBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Reverse_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const heavyBarline = {
@@ -402,6 +445,8 @@ const heavyBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Heavy_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 const heavyDoubleBarline = {
@@ -413,6 +458,8 @@ const heavyDoubleBarline = {
     h: STAFF_HEIGHT,
 
     skinKey: StandardStaffSkinKeyEnum.Heavy_double_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
 };
 
 // 拍号
@@ -443,6 +490,8 @@ function makeNoteHead(key: StandardStaffSkinKeyEnum) {
             w: 16,
             h: 10,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     }
     // 空心倾斜：外圈闭合后向内约 3px 再绕内圈一周形成圆环（加厚）
@@ -458,13 +507,13 @@ function makeNoteHead(key: StandardStaffSkinKeyEnum) {
 </g>
 `;
     if (key === StandardStaffSkinKeyEnum.NoteHead_2) {
-        return {content: tiltedEllipse, w: 14.59, h: 10.49, skinKey: key};
+        return {content: tiltedEllipse, w: 14.59, h: 10.49, skinKey: key, widthRatio: 6, widthRatioForMeasure: 6};
     }
     if (key === StandardStaffSkinKeyEnum.NoteHead_3) {
-        return {content: tiltedEllipseFilled, w: 14.59, h: 10.49, skinKey: key};
+        return {content: tiltedEllipseFilled, w: 14.59, h: 10.49, skinKey: key, widthRatio: 6, widthRatioForMeasure: 6};
     }
 
-    return {content: tiltedEllipseFilled, w: 14, h: 90, skinKey: key};
+    return {content: tiltedEllipseFilled, w: 14, h: 90, skinKey: key, widthRatio: 6, widthRatioForMeasure: 6};
 }
 
 // 符干（高度由 transfer 动态传入 node.h，需拉伸填满故用 preserveAspectRatio="none"）
@@ -653,6 +702,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 10, // 符尾的宽高其实不参与计算，这个完全是左上定点对齐的，但是这里还是写一下吧
             h: 6,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_2) {
         return {
@@ -660,6 +711,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 10,
             h: 6,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_3) {
         return {
@@ -669,6 +722,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 6.2,
             h: 18.2,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_4) {
         return {
@@ -678,6 +733,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 6.2,
             h: 11.04,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_5) {
         return {
@@ -687,6 +744,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 8,
             h: 17.03,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_6) {
         return {
@@ -696,6 +755,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 9.6,
             h: 23.03,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_7) {
         return {
@@ -705,6 +766,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 11.4,
             h: 29.03,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_8) {
         return {
@@ -714,6 +777,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 12.9,
             h: 35.03,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     } else if (key === StandardStaffSkinKeyEnum.Rest_9) {
         return {
@@ -723,6 +788,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
             w: 14.4,
             h: 40.73,
             skinKey: key,
+            widthRatio: 6,
+            widthRatioForMeasure: 6,
         };
     }
     return {
@@ -730,6 +797,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
         w: 10, // 符尾的宽高其实不参与计算，这个完全是左上定点对齐的，但是这里还是写一下吧
         h: 6,
         skinKey: key,
+        widthRatio: 6,
+        widthRatioForMeasure: 6,
     };
 
 }
@@ -1388,18 +1457,24 @@ const standardStaffSkin: StandardStaffSkinPack = {
         w: 3,
         h: 3,
         skinKey: StandardStaffSkinKeyEnum.AugmentationDot_1,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [StandardStaffSkinKeyEnum.AugmentationDot_2]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 8,
         h: 3,
         skinKey: StandardStaffSkinKeyEnum.AugmentationDot_2,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [StandardStaffSkinKeyEnum.AugmentationDot_3]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/><circle cx="11.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 13,
         h: 3,
         skinKey: StandardStaffSkinKeyEnum.AugmentationDot_3,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [StandardStaffSkinKeyEnum.AddLine_u]: {
         content: `<line x1="0" y1="0.5" x2="16" y2="0.5" stroke="black" stroke-width="1" />`,
@@ -1422,6 +1497,8 @@ function makeNumberNotationTimeSignature(top: string, bottom: string, key: Numbe
         w: 30,
         h: 56,
         skinKey: key,
+        widthRatio: 0,
+        widthRatioForMeasure: 0,
     };
 }
 
@@ -1432,6 +1509,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
         w: 1,
         h: STAFF_HEIGHT,
         skinKey: NumberNotationSkinKeyEnum.Measure,
+        widthRatioForMeasure: 100,
     },
     [NumberNotationSkinKeyEnum.Number_0]: {
         content: `<g transform="translate(-3.3301, -1.7500)">
@@ -1582,7 +1660,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
 `,
         w: 6.12,
         h: 15.02,
-        skinKey: NumberNotationSkinKeyEnum.Sharp
+        skinKey: NumberNotationSkinKeyEnum.Sharp,
+        widthRatio: 10,
+        widthRatioForMeasure: 10,
     },
     [NumberNotationSkinKeyEnum.Flat]: {
         content: `
@@ -1597,7 +1677,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
 `,
         w: 4.32,
         h: 14.71,
-        skinKey: NumberNotationSkinKeyEnum.Flat
+        skinKey: NumberNotationSkinKeyEnum.Flat,
+        widthRatio: 10,
+        widthRatioForMeasure: 10,
     },
     [NumberNotationSkinKeyEnum.Double_sharp]: {
         content: `
@@ -1616,7 +1698,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
 `,
         w: 13.12,
         h: 15.02,
-        skinKey: NumberNotationSkinKeyEnum.Double_sharp
+        skinKey: NumberNotationSkinKeyEnum.Double_sharp,
+        widthRatio: 10,
+        widthRatioForMeasure: 10,
     },
     [NumberNotationSkinKeyEnum.Double_flat]: {
         content: `<g transform="scale(0.5) translate(-39.6836, -21.7969)">
@@ -1628,7 +1712,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
         w: 9.82,
         h: 14.71,
-        skinKey: NumberNotationSkinKeyEnum.Double_flat
+        skinKey: NumberNotationSkinKeyEnum.Double_flat,
+        widthRatio: 10,
+        widthRatioForMeasure: 10,
     },
     [NumberNotationSkinKeyEnum.Natural]: {
         content: `<g transform="scale(0.5) translate(-3.5000, -11.0000)">
@@ -1636,73 +1722,97 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
         w: 4.35,
         h: 14,
-        skinKey: NumberNotationSkinKeyEnum.Natural
+        skinKey: NumberNotationSkinKeyEnum.Natural,
+        widthRatio: 10,
+        widthRatioForMeasure: 10,
     },
     [NumberNotationSkinKeyEnum.Single_barline]: {
         content: singleBarline.content,
         w: singleBarline.w,
         h: singleBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Single_barline
+        skinKey: NumberNotationSkinKeyEnum.Single_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Double_barline]: {
         content: doubleBarline.content,
         w: doubleBarline.w,
         h: doubleBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Double_barline
+        skinKey: NumberNotationSkinKeyEnum.Double_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.StartRepeat_barline]: {
         content: startRepeatBarline.content,
         w: startRepeatBarline.w,
         h: startRepeatBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.StartRepeat_barline
+        skinKey: NumberNotationSkinKeyEnum.StartRepeat_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.EndRepeat_barline]: {
         content: endRepeatBarline.content,
         w: endRepeatBarline.w,
         h: endRepeatBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.EndRepeat_barline
+        skinKey: NumberNotationSkinKeyEnum.EndRepeat_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Dashed_barline]: {
         content: dashedBarline.content,
         w: dashedBarline.w,
         h: dashedBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Dashed_barline
+        skinKey: NumberNotationSkinKeyEnum.Dashed_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Final_barline]: {
         content: finalBarline.content,
         w: finalBarline.w,
         h: finalBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Final_barline
+        skinKey: NumberNotationSkinKeyEnum.Final_barline,
+        widthRatio: 6,
+        widthRatioForMeasure: 6,
     },
     [NumberNotationSkinKeyEnum.Start_end_repeat_barline]: {
         content: startEndRepeatBarline.content,
         w: startEndRepeatBarline.w,
         h: startEndRepeatBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Start_end_repeat_barline
+        skinKey: NumberNotationSkinKeyEnum.Start_end_repeat_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Dotted_barline]: {
         content: dottedBarline.content,
         w: dottedBarline.w,
         h: dottedBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Dotted_barline
+        skinKey: NumberNotationSkinKeyEnum.Dotted_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Reverse_barline]: {
         content: reverseBarline.content,
         w: reverseBarline.w,
         h: reverseBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Reverse_barline
+        skinKey: NumberNotationSkinKeyEnum.Reverse_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Heavy_barline]: {
         content: heavyBarline.content,
         w: heavyBarline.w,
         h: heavyBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Heavy_barline
+        skinKey: NumberNotationSkinKeyEnum.Heavy_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum.Heavy_double_barline]: {
         content: heavyDoubleBarline.content,
         w: heavyDoubleBarline.w,
         h: heavyDoubleBarline.h,
-        skinKey: NumberNotationSkinKeyEnum.Heavy_double_barline
+        skinKey: NumberNotationSkinKeyEnum.Heavy_double_barline,
+        widthRatio: 4,
+        widthRatioForMeasure: 4,
     },
     [NumberNotationSkinKeyEnum['1_1']]: makeNumberNotationTimeSignature('1', '1', NumberNotationSkinKeyEnum['1_1']),
     [NumberNotationSkinKeyEnum['1_4']]: makeNumberNotationTimeSignature('1', '4', NumberNotationSkinKeyEnum['1_4']),
@@ -1715,93 +1825,99 @@ const numberNotationSkin: NumberNotationSkinPack = {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 3,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_1
+        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_1,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [NumberNotationSkinKeyEnum.AugmentationDot_2]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 8,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_2
+        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_2,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [NumberNotationSkinKeyEnum.AugmentationDot_3]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/><circle cx="6.5" cy="1.5" r="1.5" fill="black"/><circle cx="11.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 13,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_3
+        skinKey: NumberNotationSkinKeyEnum.AugmentationDot_3,
+        widthRatio: 14,
+        widthRatioForMeasure: 14,
     },
     [NumberNotationSkinKeyEnum.C]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=C</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.C
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.C, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.G]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=G</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.D]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=D</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.A]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=A</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.E]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=E</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.B]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=B</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.F_sharp]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=F♯</text>
-</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.F]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=F</text>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.B_flat]: {
         content: `<g transform="translate(0.0000, 17.2727)">
         <text>1=B♭</text>
-</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.E_flat]: {
         content: `<text>1=B♭</text>`,
         w: 44.28,
         h: 22.73,
-        skinKey: NumberNotationSkinKeyEnum.B_flat
+        skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.A_flat]: {
         content: `<text>1=A♭</text>`,
         w: 44.28,
 
-        skinKey: NumberNotationSkinKeyEnum.A_flat
+        skinKey: NumberNotationSkinKeyEnum.A_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.D_flat]: {
         content: `<text>1=D♭</text>`,
         w: 44.28,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.D_flat
+        skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.G_flat]: {
         content: `<text>1=G♭</text>`,
         w: 44.28,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.G_flat
+        skinKey: NumberNotationSkinKeyEnum.G_flat, widthRatio: 0, widthRatioForMeasure: 0,
     }, [NumberNotationSkinKeyEnum.C_flat]: {
         content: `<text>1=C♭</text>`,
         w: 44.28,
         h: 3,
-        skinKey: NumberNotationSkinKeyEnum.C_flat
+        skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
 }
 export const defaultSkin: SkinPack = {

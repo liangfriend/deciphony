@@ -28,6 +28,8 @@ export type GrandStaff = {
     staves: SingleStaff[],
     uSpace: number,  // 复谱表上间距
     dSpace: number,  // 复谱表下间距
+    /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
+    linkedStaff?: boolean
 } & Frame
 
 export type SingleStaff = {

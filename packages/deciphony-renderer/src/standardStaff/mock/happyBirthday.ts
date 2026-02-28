@@ -345,7 +345,7 @@ const phrase5Measure1: Measure = {
     // 双声部同一音符位：声部1 高音，声部2 低音，符干反向合并
     noteSlot(
       {
-        chronaxie: 16,
+        chronaxie: 32,
         notesInfo: [{...frame, id: crypto.randomUUID(), region: 6, accidental: defaultAccidental} as NotesInfo],
         beamType: BeamTypeEnum.Combined,
         augmentationDot: augmentationDot(2)
@@ -362,7 +362,7 @@ const phrase5Measure1: Measure = {
     // 双声部 + 其中一声部为和弦
     noteSlot(
       {
-        chronaxie: 32,
+        chronaxie: 16,
         notesInfo: [{
           ...frame,
           id: crypto.randomUUID(),
@@ -385,7 +385,7 @@ const phrase5Measure1: Measure = {
       6,
       'up',
     ),
-    note(4, 64, 6, 'up', BeamTypeEnum.None),
+    note(4, 32, 6, 'up', BeamTypeEnum.Combined),
   ],
   clef_f: clef,
   timeSignature_f: time34,

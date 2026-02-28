@@ -59,8 +59,10 @@ export type VDom = {
     };
     volta?: Record<string, unknown>;
     beam?: {
-      /** 本段内每条符杠，每条线一个空对象表示画满整段 */
-      lines: Record<string, never>[];
+      /** 本段内每条符杠，type 表示伸展方向，scaleX 表示从 centerX 向外的缩放，默认 1 */
+      lines: { type: 'left' | 'right' | 'both' | 'none'; scaleX?: number }[];
+      /** 本段对应音符符干中心 x 坐标，配合 type 计算实际绘制范围 */
+      centerX: number;
       spacing: number;
       thickness: number;
       direction: 'up' | 'down';

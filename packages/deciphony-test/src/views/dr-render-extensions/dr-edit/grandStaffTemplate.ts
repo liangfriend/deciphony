@@ -128,12 +128,12 @@ function createRest(chronaxie: Chronaxie, widthRatio = 6): NoteSymbol {
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Rest,
-    direction: 'up',
-    voicePart1: { chronaxie, notesInfo: [], affiliatedSymbols: [], beamType: BeamTypeEnum.None },
+    chronaxie,
+    affiliatedSymbols: [],
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
-  } as NoteSymbol
+  }
 }
 
 function createNote(region: number, chronaxie: Chronaxie, widthRatio = 6, direction: 'up' | 'down' = 'up'): NoteSymbol {
@@ -141,7 +141,7 @@ function createNote(region: number, chronaxie: Chronaxie, widthRatio = 6, direct
     ...frame,
     type: NoteSymbolTypeEnum.Note,
     direction,
-    voicePart1: {
+    voicePart: {
       chronaxie,
       notesInfo: [{ ...frame, id: crypto.randomUUID(), region }],
       affiliatedSymbols: [],
@@ -150,7 +150,7 @@ function createNote(region: number, chronaxie: Chronaxie, widthRatio = 6, direct
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
-  } as NoteSymbol
+  }
 }
 
 function createClef(clefType: ClefTypeEnum) {

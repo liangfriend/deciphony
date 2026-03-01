@@ -65,32 +65,30 @@ function findNoteAndNotesInfoById(
     score: MusicScoreType,
     id: string
 ): {
-    note: { direction?: 'up' | 'down' };
-    notesInfo: NotesInfo;
-    measure: { notes: unknown[] };
-    noteIndex: number
+  note: NoteSymbol;
+  notesInfo: NotesInfo;
+  measure: { notes: unknown[] };
+  noteIndex: number
 } | null {
-    for (const gs of score.grandStaffs ?? []) {
-        for (const staff of gs.staves ?? []) {
-            for (const measure of staff.measures ?? []) {
-                const notes = measure.notes ?? []
-                for (let i = 0; i < notes.length; i++) {
-                    const note = notes[i]
-                    if (!('voicePart1' in note)) continue
-                    const parts = [note.voicePart1, (note as {
-                        voicePart2?: typeof note.voicePart1
-                    }).voicePart2].filter(Boolean)
-                    for (const vp of parts) {
-                        if (!vp) continue
-                        for (const ni of vp.notesInfo ?? []) {
-                            if (ni.id === id) return {note, notesInfo: ni, measure, noteIndex: i}
-                        }
-                    }
-                }
+  for (const gs of score.grandStaffs ?? []) {
+    for (const staff of gs.staves ?? []) {
+      for (const measure of staff.measures ?? []) {
+        const notes = (measure.notes ?? []) as NoteSymbol[]
+        for (let i = 0; i < notes.length; i++) {
+          const note = notes[i]
+          if (note.type !== NoteSymbolTypeEnum.Note) continue
+          const parts = [note.voicePart, note.voicePart2].filter(Boolean)
+          for (const vp of parts) {
+            if (!vp) continue
+            for (const ni of vp.notesInfo ?? []) {
+              if (ni.id === id) return {note, notesInfo: ni, measure, noteIndex: i}
             }
+          }
         }
+      }
     }
-    return null
+  }
+  return null
 }
 
 function findRestById(score: MusicScoreType, id: string): {
@@ -244,7 +242,7 @@ export function useDrEdit(core: DrRenderCore) {
             const newRegion = Math.round(state.startRegion - deltaY / PX_PER_REGION)
             if (newRegion > REGION_MAX || newRegion < REGION_MIN) return
             const found = findNoteAndNotesInfoById(musicScoreData.value, state.targetId)
-            if (found && found.notesInfo.region !== newRegion) {
+            if (found && found.notesInfo.region !== newRegion && found.note.type === NoteSymbolTypeEnum.Note) {
                 found.notesInfo.region = newRegion
                 found.note.direction = newRegion > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
                 nextTick(applyHighlight)
@@ -268,14 +266,14 @@ export function useDrEdit(core: DrRenderCore) {
         }
     })
 
-    function test() {
-        const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0]
-        if (!note || !('voicePart1' in note)) return
-        const ni = note.voicePart1.notesInfo[0]
-        if (!ni) return
-        ni.region = 8
-        note.direction = ni.region > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
-    }
+  function test() {
+    const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0] as NoteSymbol | undefined
+    if (!note || !('type' in note) || note.type !== NoteSymbolTypeEnum.Note) return
+    const ni = note.voicePart.notesInfo[0]
+    if (!ni) return
+    ni.region = 8
+    note.direction = ni.region > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
+  }
 
     function addGrandStaff() {
         const gs = isNumberNotation() ? createGrandStaffNumber() : createGrandStaff()
@@ -395,74 +393,46 @@ export function useDrEdit(core: DrRenderCore) {
         }
     }
 
-    /** 更新音符附点：0=无，1/2/3=附点数量 */
-    function updateNoteAugmentationDot(notesInfoId: string, count: 0 | 1 | 2 | 3) {
-        if (isNumberNotation()) {
-            const found = findNoteNumberAndNotesInfoById(musicScoreData.value, notesInfoId)
-            if (!found) return
-            const vp = found.note.voicePart
-            if (count === 0) {
-                delete vp.augmentationDot
-            } else {
-                vp.augmentationDot = {
-                    ...frame,
-                    id: crypto.randomUUID(),
-                    count: count as 1 | 2 | 3,
-                    widthRatio: count === 1 ? 2 : count === 2 ? 3 : 4,
-                    widthRatioForMeasure: count === 1 ? 4 : count === 2 ? 6.5 : 9,
-                }
-            }
-        } else {
-            const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
-            if (!found) return
-            const note = found.note as {
-                voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: unknown };
-                voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: unknown }
-            }
-            const vp = note.voicePart1?.notesInfo?.some((n: {
-                id: string
-            }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
-            if (!vp) return
-            if (count === 0) {
-                delete vp.augmentationDot
-            } else {
-                vp.augmentationDot = {
-                    ...frame,
-                    id: crypto.randomUUID(),
-                    count: count as 1 | 2 | 3,
-                    widthRatio: count === 1 ? 2 : count === 2 ? 3 : 4,
-                    widthRatioForMeasure: count === 1 ? 4 : count === 2 ? 6.5 : 9,
-                }
-            }
-        }
-        nextTick(applyHighlight)
+  /** 更新音符附点：0=无，1/2/3=附点数量 */
+  function updateNoteAugmentationDot(notesInfoId: string, count: 0 | 1 | 2 | 3) {
+    const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
+    if (!found) return
+    const note = found.note
+    if (note.type !== NoteSymbolTypeEnum.Note) return
+    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
+    if (!vp) return
+    if (count === 0) {
+      delete vp.augmentationDot
+    } else {
+      vp.augmentationDot = {
+        ...frame,
+        id: crypto.randomUUID(),
+        count: count as 1 | 2 | 3,
+        widthRatio: count === 1 ? 2 : count === 2 ? 3 : 4,
+        widthRatioForMeasure: count === 1 ? 4 : count === 2 ? 6.5 : 9,
+      }
     }
+    nextTick(applyHighlight)
+  }
 
-    /** 获取选中音符的附点和变音符号当前值（用于 UI 展示） */
-    function getSelectedNoteOptions(notesInfoId: string): {
-        augmentationDotCount: 0 | 1 | 2 | 3;
-        accidentalType: string
-    } {
-        if (isNumberNotation()) {
-            const found = findNoteNumberAndNotesInfoById(musicScoreData.value, notesInfoId)
-            if (!found) return {augmentationDotCount: 0, accidentalType: ''}
-            const dot = (found.note.voicePart?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
-            const acc = found.notesInfo.accidental?.type ?? ''
-            return {augmentationDotCount: dot, accidentalType: acc}
-        }
-        const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
-        if (!found) return {augmentationDotCount: 0, accidentalType: ''}
-        const note = found.note as {
-            voicePart1?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } };
-            voicePart2?: { notesInfo: { id: string }[]; augmentationDot?: { count: number } }
-        }
-        const vp = note.voicePart1?.notesInfo?.some((n: {
-            id: string
-        }) => n.id === notesInfoId) ? note.voicePart1 : note.voicePart2
-        const dot = (vp?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
-        const acc = found.notesInfo.accidental?.type ?? ''
-        return {augmentationDotCount: dot, accidentalType: acc}
+  /** 获取选中音符的附点和变音符号当前值（用于 UI 展示） */
+  function getSelectedNoteOptions(notesInfoId: string): { augmentationDotCount: 0 | 1 | 2 | 3; accidentalType: string } {
+    if (isNumberNotation()) {
+      const found = findNoteNumberAndNotesInfoById(musicScoreData.value, notesInfoId)
+      if (!found) return { augmentationDotCount: 0, accidentalType: '' }
+      const dot = (found.note.voicePart.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+      const acc = found.notesInfo.accidental?.type ?? ''
+      return { augmentationDotCount: dot, accidentalType: acc }
     }
+    const found = findNoteAndNotesInfoById(musicScoreData.value, notesInfoId)
+    if (!found) return { augmentationDotCount: 0, accidentalType: '' }
+    const note = found.note
+    if (note.type !== NoteSymbolTypeEnum.Note) return { augmentationDotCount: 0, accidentalType: '' }
+    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
+    const dot = (vp?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+    const acc = found.notesInfo.accidental?.type ?? ''
+    return { augmentationDotCount: dot, accidentalType: acc }
+  }
 
     /** 更新音符变音符号：null=无，否则为 AccidentalTypeEnum */
     function updateNoteAccidental(notesInfoId: string, type: AccidentalTypeEnum | null) {
@@ -498,61 +468,63 @@ export function useDrEdit(core: DrRenderCore) {
         nextTick(applyHighlight)
     }
 
-    /** 选中音符或休止符时，返回 { type, measure, note, chronaxie } */
-    function findSelectedNoteOrRest(targetId: string, tag: string) {
-        if (tag === 'noteHead') {
-            const found = isNumberNotation()
-                ? findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
-                : findNoteAndNotesInfoById(musicScoreData.value, targetId)
-            if (!found) return null
-            const chronaxie = isNumberNotation()
-                ? (found.note as NoteNumber).voicePart?.chronaxie ?? 64
-                : (found.note as {
-                voicePart1?: { chronaxie: number };
-                voicePart2?: { chronaxie: number }
-            }).voicePart1?.chronaxie ?? (found.note as {
-                voicePart2?: { chronaxie: number }
-            }).voicePart2?.chronaxie ?? 64
-            return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
-        }
-        if (tag === 'rest') {
-            const found = isNumberNotation()
-                ? findRestByIdNumber(musicScoreData.value, targetId)
-                : findRestById(musicScoreData.value, targetId)
-            if (!found) return null
-            const chronaxie = isNumberNotation()
-                ? (found.note as NoteNumber).voicePart?.chronaxie ?? 64
-                : (found.note as NoteSymbol).voicePart1?.chronaxie ?? 64
-            return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
-        }
-        return null
+  /** 选中音符或休止符时，返回 { type, measure, note, chronaxie } */
+  function findSelectedNoteOrRest(targetId: string, tag: string) {
+    if (tag === 'noteHead') {
+      if (isNumberNotation()) {
+        const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found) return null
+        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
+      }
+      const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
+      if (!found) return null
+      const note = found.note
+      if (note.type !== NoteSymbolTypeEnum.Note) return null
+      const chronaxie = note.voicePart?.chronaxie ?? note.voicePart2?.chronaxie ?? 64
+      return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
     }
+    if (tag === 'rest') {
+      if (isNumberNotation()) {
+        const found = findRestByIdNumber(musicScoreData.value, targetId)
+        if (!found) return null
+        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
+      }
+      const found = findRestById(musicScoreData.value, targetId)
+      if (!found) return null
+      const chronaxie = found.note.type === NoteSymbolTypeEnum.Rest ? found.note.chronaxie : 64
+      return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
+    }
+    return null
+  }
 
-    /** 更新音符或休止符的 chronaxie */
-    function updateSymbolChronaxie(targetId: string, tag: string, chronaxie: import('deciphony-renderer').Chronaxie) {
-        if (isNumberNotation()) {
-            if (tag === 'noteHead') {
-                const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
-                if (found) found.note.voicePart.chronaxie = chronaxie
-            } else if (tag === 'rest') {
-                const found = findRestByIdNumber(musicScoreData.value, targetId)
-                if (found) found.note.voicePart.chronaxie = chronaxie
-            }
-        } else {
-            if (tag === 'noteHead') {
-                const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
-                if (!found) return
-                const note = found.note as { voicePart1?: { chronaxie: number }; voicePart2?: { chronaxie: number } }
-                if (note.voicePart1) note.voicePart1.chronaxie = chronaxie
-                if (note.voicePart2) note.voicePart2.chronaxie = chronaxie
-            } else if (tag === 'rest') {
-                const found = findRestById(musicScoreData.value, targetId)
-                if (!found) return
-                if (found.note.voicePart1) found.note.voicePart1.chronaxie = chronaxie
-            }
-        }
-        nextTick(applyHighlight)
+  /** 更新音符或休止符的 chronaxie */
+  function updateSymbolChronaxie(targetId: string, tag: string, chronaxie: import('deciphony-renderer').Chronaxie) {
+    if (tag === 'noteHead') {
+      if (isNumberNotation()) {
+        const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found) return
+        found.note.voicePart.chronaxie = chronaxie
+      } else {
+        const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
+        if (!found || found.note.type !== NoteSymbolTypeEnum.Note) return
+        if (found.note.voicePart) found.note.voicePart.chronaxie = chronaxie
+        if (found.note.voicePart2) found.note.voicePart2.chronaxie = chronaxie
+      }
+    } else if (tag === 'rest') {
+      if (isNumberNotation()) {
+        const found = findRestByIdNumber(musicScoreData.value, targetId)
+        if (!found) return
+        found.note.voicePart.chronaxie = chronaxie
+      } else {
+        const found = findRestById(musicScoreData.value, targetId)
+        if (!found || found.note.type !== NoteSymbolTypeEnum.Rest) return
+        found.note.chronaxie = chronaxie
+      }
     }
+    nextTick(applyHighlight)
+  }
 
     /** 判断当前选中是否为可删除符号 */
     function isDeletableSymbol(targetId: string, tag: string) {

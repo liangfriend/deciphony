@@ -18,5 +18,7 @@ export const MIN_STEM_HEIGHT_RATIO = 7 / 8;
 export const BEAM_THICKNESS = 2 / 16;
 /** 符杠多条线之间的空隙比例 */
 export const BEAM_LINE_SPACING = 2 / 32;
+/** 符杠非全连时从 centerX 向两侧的缩放值，0.5 表示左右各收缩一半 */
+export const BEAM_PARTIAL_SCALE = 0.5;
 /** 符干 y 值偏移量 */
 export const STEM_Y_OFFSET = 0.05;

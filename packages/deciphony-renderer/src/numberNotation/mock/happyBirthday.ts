@@ -417,6 +417,7 @@ const data: MusicScore = {
     {
       id: crypto.randomUUID(),
       ...frame,
+      linkedStaff: true,
       staves: [
         {
           id: crypto.randomUUID(),
@@ -427,14 +428,6 @@ const data: MusicScore = {
           uSpaceO: 20,
           dSpaceO: 20,
         },
-      ],
-      uSpace: 40,
-      dSpace: 40,
-    },
-    {
-      id: crypto.randomUUID(),
-      ...frame,
-      staves: [
         {
           id: crypto.randomUUID(),
           ...frame,
@@ -468,11 +461,21 @@ const data: MusicScore = {
     {
       id: crypto.randomUUID(),
       ...frame,
+      linkedStaff: true,
       staves: [
         {
           id: crypto.randomUUID(),
           ...frame,
           measures: [phrase4Measure1, phrase4Measure2],
+          uSpaceI: 20,
+          dSpaceI: 20,
+          uSpaceO: 20,
+          dSpaceO: 20,
+        },
+        {
+          id: crypto.randomUUID(),
+          ...frame,
+          measures: [phrase4Measure1],
           uSpaceI: 20,
           dSpaceI: 20,
           uSpaceO: 20,

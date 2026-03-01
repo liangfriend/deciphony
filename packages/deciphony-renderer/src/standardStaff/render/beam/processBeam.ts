@@ -5,17 +5,20 @@
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
+import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
 import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
-import {BEAM_LINE_SPACING, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
+import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 
 type BeamGroupMember = { note: NoteSymbol; voice: 1 | 2 };
 
+// 找到一个和弦里符杠方向最高的音符
 function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined {
-  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
+  if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
+  const beat = voice === 1 ? n.voicePart : n.voicePart2;
   if (!beat || beat.notesInfo.length === 0) return undefined;
   const directionUp = voice === 1 ? n.direction === 'up' : n.direction !== 'up';
   const regions = beat.notesInfo.map((no) => no.region);
@@ -23,13 +26,17 @@ function getExtremeNotesInfoId(n: NoteSymbol, voice: 1 | 2): string | undefined 
   return beat.notesInfo.find((no) => no.region === extremeRegion)?.id;
 }
 
-function getVoiceForDirection(n: NoteSymbol, direction: 'up' | 'down'): 1 | 2 {
+function getVoiceForDirection(n: NoteSymbol & {
+  type: 'Note';
+  direction: 'up' | 'down'
+}, direction: 'up' | 'down'): 1 | 2 {
   return n.direction === direction ? 1 : 2;
 }
 
 function getBeatForDirection(n: NoteSymbol, direction: 'up' | 'down') {
+  if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
   const voice = getVoiceForDirection(n, direction);
-  const beat = voice === 1 ? n.voicePart1 : n.voicePart2;
+  const beat = voice === 1 ? n.voicePart : n.voicePart2;
   return beat?.notesInfo.length ? beat : undefined;
 }
 
@@ -46,9 +53,9 @@ function buildBeamGroups(measure: { notes: NoteSymbol[] }, direction: 'up' | 'do
     const preHasTail = preBeat && preBeat.chronaxie <= 32;
     const nextHasTail = nextBeat && nextBeat.chronaxie <= 32;
     const canBeamWithNext = nextNote && nextBeat && hasTail && nextHasTail
-        && beat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextBeat.beamType);
+      && beat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(nextBeat.beamType);
     const canBeamWithPre = preBeat && preHasTail && hasTail
-        && preBeat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(beat.beamType);
+      && preBeat.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(beat.beamType);
     const voice = getVoiceForDirection(note, direction);
     const member: BeamGroupMember = {note, voice};
     if (canBeamWithPre && groups.length > 0) {
@@ -76,10 +83,12 @@ export function processBeam(params: {
   const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth);
   const beamGroupsUp = buildBeamGroups(measure, 'up');
   const beamGroupsDown = buildBeamGroups(measure, 'down');
-
+  // 渲染符杠
   const processBeamGroup = (group: BeamGroupMember[], direction: 'up' | 'down') => {
     const stemEnds: Array<{ x: number; y: number }> = [];
+    // 找到符干的端点
     for (const {note, voice} of group) {
+      if (note.type !== NoteSymbolTypeEnum.Note) continue;
       const stemId = getExtremeNotesInfoId(note, voice);
       const stem = stemId ? nodeIdMap.get(stemId)?.noteStem : undefined;
       if (!stem) continue;
@@ -88,13 +97,39 @@ export function processBeam(params: {
       stemEnds.push({x, y});
     }
     if (stemEnds.length < 2) return;
+    // 得到斜率和锚点
     const {inclination, anchor} = computeBeamSlope(stemEnds, direction);
     const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
     const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
-    const lineCount = Math.min(...group.map(({note, voice}) => {
-      const beat = voice === 1 ? note.voicePart1 : note.voicePart2!;
+    // 需要渲染几条线：取组内最大，以支持“第一条全连、第二条半连”
+    const beamCounts = group.map(({note, voice}) => {
+      const beat = voice === 1 ? note.voicePart : note.voicePart2!;
       return chronaxieToBeamLineCount(beat.chronaxie);
-    }));
+    });
+    const lineCount = Math.max(...beamCounts);
+    const nStems = stemEnds.length;
+    type BeamLineSpec = { type: 'left' | 'right' | 'both' | 'none'; scaleX?: number };
+    const linesPerSegment: BeamLineSpec[][] = [];
+    for (let seg = 0; seg < nStems; seg++) {
+      const row: BeamLineSpec[] = [];
+      for (let L = 0; L < lineCount; L++) {
+        const leftmost = beamCounts.findIndex((c) => c > L);
+        let rightmost = -1;
+        if (leftmost >= 0) for (let i = nStems - 1; i >= 0; i--) if (beamCounts[i] > L) { rightmost = i; break; }
+        if (leftmost < 0 || seg < leftmost || seg > rightmost) {
+          row.push({ type: 'none' });
+          continue;
+        }
+        if (leftmost === rightmost) {
+          // 非全连：仅此段有该条杠，用 BEAM_PARTIAL_SCALE 向两侧收缩
+          row.push({ type: seg === 0 ? 'right' : seg === nStems - 1 ? 'left' : 'both', scaleX: BEAM_PARTIAL_SCALE });
+        } else if (seg === leftmost) row.push({ type: 'right' });
+        else if (seg === rightmost) row.push({ type: 'left' });
+        else row.push({ type: 'both' }); // 中间段全连，scaleX 默认 1
+      }
+      linesPerSegment.push(row);
+    }
+    // 中间的音符高的某些情况，两侧stem要进行延长
     for (const {note, voice} of group) {
       const stemId = getExtremeNotesInfoId(note, voice);
       const stem = stemId ? (nodeIdMap.get(stemId)?.noteStem as VDom | undefined) : undefined;
@@ -109,7 +144,6 @@ export function processBeam(params: {
         stem.h = Math.max(beamY - stemTop, minStemLength);
       }
     }
-    const nStems = stemEnds.length;
     const overlap = 1;
     for (let j = 0; j < nStems; j++) {
       const leftX = j === 0 ? stemEnds[0].x : (stemEnds[j - 1].x + stemEnds[j].x) / 2;
@@ -125,7 +159,8 @@ export function processBeam(params: {
         endPoint: {x: rightXAdj + dx, y: rightY + dy},
         special: {
           beam: {
-            lines: Array.from({length: lineCount}, () => ({})),
+            lines: linesPerSegment[j],
+            centerX: stemEnds[j].x + stemHalfW,
             spacing: BEAM_LINE_SPACING * measureHeight,
             thickness: BEAM_THICKNESS * measureHeight,
             direction,
@@ -155,6 +190,7 @@ export function processBeam(params: {
                                   }) => getExtremeNotesInfoId(note, voice)).filter((id): id is string => id != null),
   ]);
   const startIdx = vDoms.length - symbolVDomsLength;
+  // 去掉符尾
   for (let i = vDoms.length - 1; i >= startIdx; i--) {
     const node = vDoms[i];
     if (node.tag === 'noteTail' && node.targetId && beamedNoteHeadIds.has(node.targetId)) {

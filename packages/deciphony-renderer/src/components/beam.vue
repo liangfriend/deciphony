@@ -9,25 +9,45 @@ const props = defineProps<{
 
 const beam = computed(() => props.vDom.special?.beam);
 
-/** 每条符杠为四边形：左/右边垂直，上/下边沿起止点斜率 */
+/** 每条符杠为四边形；按 lines[].type、centerX、scaleX 计算 x 范围；scaleX 表示从 centerX 向外的缩放，默认 1 */
 const quads = computed(() => {
   const b = beam.value;
-  const {startPoint, endPoint} = props.vDom;
+  const { startPoint, endPoint } = props.vDom;
   if (!b || !startPoint || !endPoint) return [];
-  const {lines, spacing, direction, thickness = 1.5} = b;
+  const { lines, centerX, direction, thickness = 1.5 } = b;
   const left = startPoint;
   const right = endPoint;
-  // 第一条符杠 = 符杠位置(i=0)，第二条第三条往下排；视觉往下 = y 增加
-  return lines.map((_, i) => {
+  const fullW = right.x - left.x;
+  const fullDy = right.y - left.y;
+  const scaleX = (s: number | undefined) => s ?? 1;
+
+  return lines.map((spec, i) => {
+    if (spec.type === 'none') return null;
+    const s = scaleX(spec.scaleX);
+    let x0: number, x1: number;
+    if (spec.type === 'left') {
+      if (centerX <= left.x) return null;
+      x0 = centerX - s * (centerX - left.x);
+      x1 = centerX;
+    } else if (spec.type === 'right') {
+      if (centerX >= right.x) return null;
+      x0 = centerX;
+      x1 = centerX + s * (right.x - centerX);
+    } else {
+      x0 = centerX - s * (centerX - left.x);
+      x1 = centerX + s * (right.x - centerX);
+    }
+    const t0 = fullW === 0 ? 0 : (x0 - left.x) / fullW;
+    const t1 = fullW === 0 ? 1 : (x1 - left.x) / fullW;
+    const y0 = left.y + fullDy * t0;
+    const y1 = left.y + fullDy * t1;
     const dy = i * (thickness + thickness);
     if (direction === 'up') {
-      // 上边在上：左上一右上一右下—左下
-      return `M ${left.x} ${left.y + dy} L ${right.x} ${right.y + dy} L ${right.x} ${right.y + dy + thickness} L ${left.x} ${left.y + dy + thickness} Z`;
+      return `M ${x0} ${y0 + dy} L ${x1} ${y1 + dy} L ${x1} ${y1 + dy + thickness} L ${x0} ${y0 + dy + thickness} Z`;
     } else {
-      // 下边在下：左上—右上—右下—左下
-      return `M ${left.x} ${left.y - dy} L ${right.x} ${right.y - dy} L ${right.x} ${right.y - dy - thickness} L ${left.x} ${left.y - dy - thickness} Z`;
+      return `M ${x0} ${y0 - dy} L ${x1} ${y1 - dy} L ${x1} ${y1 - dy - thickness} L ${x0} ${y0 - dy - thickness} Z`;
     }
-  });
+  }).filter((d): d is string => d != null);
 });
 </script>
 

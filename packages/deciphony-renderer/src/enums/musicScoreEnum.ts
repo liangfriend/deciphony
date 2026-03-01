@@ -99,3 +99,10 @@ export enum AccidentalTypeEnum {
     Double_flat = 'double_flat',
     Natural = 'natural',
 }
+
+// 符杠类型
+export enum BeamTypeEnum {
+    None = 'None', // 无符杠
+    OnlyRight = 'OnlyRight', // 只连接右侧
+    Combined = 'Combined', // 完全连接
+}

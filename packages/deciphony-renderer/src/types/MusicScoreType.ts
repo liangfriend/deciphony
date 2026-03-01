@@ -1,6 +1,6 @@
 import {
     AccidentalTypeEnum,
-    BarlineTypeEnum,
+    BarlineTypeEnum, BeamTypeEnum,
     ClefTypeEnum,
     DoubleAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
@@ -10,7 +10,6 @@ import {
     TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
-import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
 // ==========================================通用================================================
 export type MusicScore = {
     id: string

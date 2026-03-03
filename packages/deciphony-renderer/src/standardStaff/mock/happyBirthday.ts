@@ -9,7 +9,7 @@ import {
   NoteSymbolTypeEnum,
   TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
-import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {
   Accidental,
   AugmentationDot,

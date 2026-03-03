@@ -11,7 +11,7 @@ import {
   MusicScoreTypeEnum,
   TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
-import {BeamTypeEnum} from "@/numberNotation/enums/numberNotationEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {
   Accidental,
   AugmentationDot,

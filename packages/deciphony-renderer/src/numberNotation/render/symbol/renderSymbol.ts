@@ -35,7 +35,7 @@ import {
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
 import {getNoteWidthRatio, getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
-import {BeamTypeEnum} from "@/numberNotation/enums/numberNotationEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -185,13 +185,13 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   /** 简谱调号位置：前置 X=小节x Y=小节y-调号.h；后置 X=小节x+小节w-调号.w Y=小节y-调号.h */
   const pushSymbol = (
-      x: number,
-      skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum],
-      tag: VDom['tag'],
-      dataComment: string,
-      targetId: string,
-      yOffset?: number,
-      opts?: { xOverride?: number; yOverride?: number },
+    x: number,
+    skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum],
+    tag: VDom['tag'],
+    dataComment: string,
+    targetId: string,
+    yOffset?: number,
+    opts?: { xOverride?: number; yOverride?: number },
   ) => {
     const item = skin[skinKey];
     if (!item) return;
@@ -302,9 +302,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (!num0Item) continue;
         const ny = measureY + (measureHeight - num0Item.h) / 2;
         const vdom: VDom = {
-          startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-          x: headX, y: ny, w: num0Item.w, h: num0Item.h,
-          zIndex: z, tag: 'rest', skinName: skinNameForNodes, targetId: note.id, skinKey: headKey, dataComment: '休止符',
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: headX,
+          y: ny,
+          w: num0Item.w,
+          h: num0Item.h,
+          zIndex: z,
+          tag: 'rest',
+          skinName: skinNameForNodes,
+          targetId: note.id,
+          skinKey: headKey,
+          dataComment: '休止符',
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
@@ -532,11 +542,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.beat!.chronaxie) : Infinity;
       // 减时线少的向多的一方延伸；相等时延长左侧（myCount <= rightCount 时向右延伸）
       const lineX = myCount < leftCount && leftSlot
-          ? leftSlot.headX + leftSlot.refW
-          : slot.headX;
+        ? leftSlot.headX + leftSlot.refW
+        : slot.headX;
       const lineEnd = myCount <= rightCount && rightSlot
-          ? rightSlot.headX + rightSlot.refW
-          : slot.headX + slot.refW;
+        ? rightSlot.headX + rightSlot.refW
+        : slot.headX + slot.refW;
       const lineW = Math.max(lineEnd - lineX, slot.refW);
       const lowestNote = allNotes[0];
       const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
@@ -565,11 +575,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const item = skin[p.skinKey];
     if (!item) continue;
     const opts = p.tag === 'keySignature_b' && measure.keySignature_b
-        ? {
-          xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
-          yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
-        }
-        : undefined;
+      ? {
+        xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
+        yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
+      }
+      : undefined;
     pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, undefined, opts);
     x += item.w;
   }

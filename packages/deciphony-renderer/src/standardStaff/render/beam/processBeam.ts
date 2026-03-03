@@ -6,7 +6,7 @@ import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
 import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
-import {BeamTypeEnum} from "@/standardStaff/enums/standardStaffEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
@@ -115,17 +115,20 @@ export function processBeam(params: {
       for (let L = 0; L < lineCount; L++) {
         const leftmost = beamCounts.findIndex((c) => c > L);
         let rightmost = -1;
-        if (leftmost >= 0) for (let i = nStems - 1; i >= 0; i--) if (beamCounts[i] > L) { rightmost = i; break; }
+        if (leftmost >= 0) for (let i = nStems - 1; i >= 0; i--) if (beamCounts[i] > L) {
+          rightmost = i;
+          break;
+        }
         if (leftmost < 0 || seg < leftmost || seg > rightmost) {
-          row.push({ type: 'none' });
+          row.push({type: 'none'});
           continue;
         }
         if (leftmost === rightmost) {
           // 非全连：仅此段有该条杠，用 BEAM_PARTIAL_SCALE 向两侧收缩
-          row.push({ type: seg === 0 ? 'right' : seg === nStems - 1 ? 'left' : 'both', scaleX: BEAM_PARTIAL_SCALE });
-        } else if (seg === leftmost) row.push({ type: 'right' });
-        else if (seg === rightmost) row.push({ type: 'left' });
-        else row.push({ type: 'both' }); // 中间段全连，scaleX 默认 1
+          row.push({type: seg === 0 ? 'right' : seg === nStems - 1 ? 'left' : 'both', scaleX: BEAM_PARTIAL_SCALE});
+        } else if (seg === leftmost) row.push({type: 'right'});
+        else if (seg === rightmost) row.push({type: 'left'});
+        else row.push({type: 'both'}); // 中间段全连，scaleX 默认 1
       }
       linesPerSegment.push(row);
     }

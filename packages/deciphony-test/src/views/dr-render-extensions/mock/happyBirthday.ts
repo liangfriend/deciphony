@@ -362,7 +362,7 @@ const phrase5Measure1: Measure = {
     // 双声部 + 其中一声部为和弦
     noteSlot(
       {
-        chronaxie: 32,
+        chronaxie: 16,
         notesInfo: [{
           ...frame,
           id: crypto.randomUUID(),
@@ -385,7 +385,7 @@ const phrase5Measure1: Measure = {
       6,
       'up',
     ),
-    note(4, 64, 6, 'up', BeamTypeEnum.None),
+    note(4, 32, 6, 'up', BeamTypeEnum.Combined),
   ],
   clef_f: clef,
   timeSignature_f: time34,
@@ -440,6 +440,7 @@ const data: MusicScore = {
     {
       id: crypto.randomUUID(),
       ...frame,
+      linkedStaff: true,
       staves: [
         {
           id: crypto.randomUUID(),
@@ -450,14 +451,6 @@ const data: MusicScore = {
           uSpaceO: 20,
           dSpaceO: 20,
         },
-      ],
-      uSpace: 40,
-      dSpace: 40,
-    },
-    {
-      id: crypto.randomUUID(),
-      ...frame,
-      staves: [
         {
           id: crypto.randomUUID(),
           ...frame,
@@ -491,11 +484,21 @@ const data: MusicScore = {
     {
       id: crypto.randomUUID(),
       ...frame,
+      linkedStaff: true,
       staves: [
         {
           id: crypto.randomUUID(),
           ...frame,
           measures: [phrase4Measure1, phrase4Measure2],
+          uSpaceI: 20,
+          dSpaceI: 20,
+          uSpaceO: 20,
+          dSpaceO: 20,
+        },
+        {
+          id: crypto.randomUUID(),
+          ...frame,
+          measures: [phrase4Measure1],
           uSpaceI: 20,
           dSpaceI: 20,
           uSpaceO: 20,

@@ -462,6 +462,96 @@ const heavyDoubleBarline = {
     widthRatioForMeasure: 4,
 };
 
+// 连谱小节线：形状同对应小节线，h 由 node.h 动态传入；反复开始/结束/起止 无圆点
+const linkedSingleBarline = {
+    content: `<line x1="4.5" y1="0" x2="4.5" y2="node.h" stroke="black" stroke-width="1" />`,
+    w: 5,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_single_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedDoubleBarline = {
+    content: `<line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="1" /><line x1="7" y1="0" x2="7" y2="node.h" stroke="black" stroke-width="1" />`,
+    w: 6,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_double_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedStartRepeatBarline = {
+    content: `<line x1="6" y1="0" x2="6" y2="node.h" stroke="black" stroke-width="3" /><line x1="10" y1="0" x2="10" y2="node.h" stroke="black" stroke-width="2" />`,
+    w: 11.5,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_startRepeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedEndRepeatBarline = {
+    content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="12" y1="0" x2="12" y2="node.h" stroke="black" stroke-width="3" />`,
+    w: 12,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_endRepeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedStartEndRepeatBarline = {
+    content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="12" y1="0" x2="12" y2="node.h" stroke="black" stroke-width="3" /><line x1="16" y1="0" x2="16" y2="node.h" stroke="black" stroke-width="2" />`,
+    w: 21.5,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_start_end_repeat_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedDashedBarline = {
+    content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="3 3" />`,
+    w: 4,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_dashed_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedFinalBarline = {
+    content: `<line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="1" /><line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="3" />`,
+    w: 8,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_final_barline,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+};
+const linkedDottedBarline = {
+    content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="1 3" />`,
+    w: 4,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_dotted_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedReverseBarline = {
+    content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="1" /><line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="3" />`,
+    w: 8,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_reverse_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedHeavyBarline = {
+    content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="3" />`,
+    w: 6,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_heavy_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+const linkedHeavyDoubleBarline = {
+    content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="3" /><line x1="10" y1="0" x2="10" y2="node.h" stroke="black" stroke-width="3" />`,
+    w: 10,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_heavy_double_barline,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
+};
+
 // 拍号
 function makeTimeSignature(content: string, key: StandardStaffSkinKeyEnum) {
     const [top, bottom] = content.split("/");
@@ -1407,6 +1497,17 @@ const standardStaffSkin: StandardStaffSkinPack = {
     [StandardStaffSkinKeyEnum.Reverse_barline]: reverseBarline,
     [StandardStaffSkinKeyEnum.Heavy_barline]: heavyBarline,
     [StandardStaffSkinKeyEnum.Heavy_double_barline]: heavyDoubleBarline,
+    [StandardStaffSkinKeyEnum.linked_single_barline]: linkedSingleBarline,
+    [StandardStaffSkinKeyEnum.linked_double_barline]: linkedDoubleBarline,
+    [StandardStaffSkinKeyEnum.linked_startRepeat_barline]: linkedStartRepeatBarline,
+    [StandardStaffSkinKeyEnum.linked_endRepeat_barline]: linkedEndRepeatBarline,
+    [StandardStaffSkinKeyEnum.linked_dashed_barline]: linkedDashedBarline,
+    [StandardStaffSkinKeyEnum.linked_final_barline]: linkedFinalBarline,
+    [StandardStaffSkinKeyEnum.linked_start_end_repeat_barline]: linkedStartEndRepeatBarline,
+    [StandardStaffSkinKeyEnum.linked_dotted_barline]: linkedDottedBarline,
+    [StandardStaffSkinKeyEnum.linked_reverse_barline]: linkedReverseBarline,
+    [StandardStaffSkinKeyEnum.linked_heavy_barline]: linkedHeavyBarline,
+    [StandardStaffSkinKeyEnum.linked_heavy_double_barline]: linkedHeavyDoubleBarline,
 
     // 拍号
     [StandardStaffSkinKeyEnum["1_1"]]: makeTimeSignature("1/1", StandardStaffSkinKeyEnum["1_1"]),
@@ -1814,6 +1915,17 @@ const numberNotationSkin: NumberNotationSkinPack = {
         widthRatio: 4,
         widthRatioForMeasure: 4,
     },
+    [NumberNotationSkinKeyEnum.linked_single_barline]: { ...linkedSingleBarline, skinKey: NumberNotationSkinKeyEnum.linked_single_barline },
+    [NumberNotationSkinKeyEnum.linked_double_barline]: { ...linkedDoubleBarline, skinKey: NumberNotationSkinKeyEnum.linked_double_barline },
+    [NumberNotationSkinKeyEnum.linked_startRepeat_barline]: { ...linkedStartRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_startRepeat_barline },
+    [NumberNotationSkinKeyEnum.linked_endRepeat_barline]: { ...linkedEndRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_endRepeat_barline },
+    [NumberNotationSkinKeyEnum.linked_dashed_barline]: { ...linkedDashedBarline, skinKey: NumberNotationSkinKeyEnum.linked_dashed_barline },
+    [NumberNotationSkinKeyEnum.linked_final_barline]: { ...linkedFinalBarline, skinKey: NumberNotationSkinKeyEnum.linked_final_barline },
+    [NumberNotationSkinKeyEnum.linked_start_end_repeat_barline]: { ...linkedStartEndRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_start_end_repeat_barline },
+    [NumberNotationSkinKeyEnum.linked_dotted_barline]: { ...linkedDottedBarline, skinKey: NumberNotationSkinKeyEnum.linked_dotted_barline },
+    [NumberNotationSkinKeyEnum.linked_reverse_barline]: { ...linkedReverseBarline, skinKey: NumberNotationSkinKeyEnum.linked_reverse_barline },
+    [NumberNotationSkinKeyEnum.linked_heavy_barline]: { ...linkedHeavyBarline, skinKey: NumberNotationSkinKeyEnum.linked_heavy_barline },
+    [NumberNotationSkinKeyEnum.linked_heavy_double_barline]: { ...linkedHeavyDoubleBarline, skinKey: NumberNotationSkinKeyEnum.linked_heavy_double_barline },
     [NumberNotationSkinKeyEnum['1_1']]: makeNumberNotationTimeSignature('1', '1', NumberNotationSkinKeyEnum['1_1']),
     [NumberNotationSkinKeyEnum['1_4']]: makeNumberNotationTimeSignature('1', '4', NumberNotationSkinKeyEnum['1_4']),
     [NumberNotationSkinKeyEnum['2_4']]: makeNumberNotationTimeSignature('2', '4', NumberNotationSkinKeyEnum['2_4']),

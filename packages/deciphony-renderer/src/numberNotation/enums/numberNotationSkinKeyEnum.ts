@@ -15,6 +15,7 @@ export enum NumberNotationSkinKeyEnum {
   Double_sharp = 'double_sharp',
   Double_flat = 'double_flat',
   Natural = 'natural',
+  // 小节线
   Single_barline = 'single_barline',
   Double_barline = 'double_barline',
   StartRepeat_barline = 'startRepeat_barline',
@@ -26,6 +27,18 @@ export enum NumberNotationSkinKeyEnum {
   Reverse_barline = 'reverse_barline',
   Heavy_barline = 'heavy_barline',
   Heavy_double_barline = 'heavy_double_barline',
+  // 连谱小节线
+  linked_single_barline = 'linked_single_barline',
+  linked_double_barline = 'linked_double_barline',
+  linked_startRepeat_barline = 'linked_startRepeat_barline',
+  linked_endRepeat_barline = 'linked_endRepeat_barline',
+  linked_dashed_barline = 'linked_dashed_barline',
+  linked_final_barline = 'linked_final_barline',
+  linked_start_end_repeat_barline = 'linked_start_end_repeat_barline',
+  linked_dotted_barline = 'linked_dotted_barline',
+  linked_reverse_barline = 'linked_reverse_barline',
+  linked_heavy_barline = 'linked_heavy_barline',
+  linked_heavy_double_barline = 'linked_heavy_double_barline',
   // 调号，这个皮肤做的时候按照treble去定位。代码里自动对其它谱号进行y值偏移
   C = 'C',
   C_sharp = 'C_sharp',

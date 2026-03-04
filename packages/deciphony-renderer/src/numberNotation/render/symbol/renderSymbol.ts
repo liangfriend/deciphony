@@ -586,3 +586,31 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   return out;
 }
+
+/** 计算小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，简谱 suffixW 不含 keySignature_b） */
+export function getBarlineXInMeasure(
+  measure: import("@/types/MusicScoreType").Measure,
+  measureX: number,
+  measureWidth: number,
+  skin: import("@/types/common").NumberNotationSkinPack,
+): number {
+  const rightParts: { skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum]; tag: string }[] = [];
+  if (measure.clef_b) rightParts.push({ skinKey: getClefSkinKey(measure.clef_b.clefType, false), tag: 'clef_b' });
+  if (measure.barline) rightParts.push({ skinKey: getBarlineSkinKey(measure.barline.barlineType), tag: 'barline' });
+  if (measure.keySignature_b) rightParts.push({ skinKey: getKeySignatureSkinKey(measure.keySignature_b.type), tag: 'keySignature_b' });
+  if (measure.timeSignature_b) rightParts.push({ skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type), tag: 'timeSignature_b' });
+  let suffixW = 0;
+  for (const p of rightParts) {
+    if (p.tag === 'keySignature_b') continue;
+    const item = skin[p.skinKey];
+    if (item) suffixW += item.w;
+  }
+  let x = measureX + measureWidth - suffixW;
+  const barlineIdx = rightParts.findIndex((p) => p.tag === 'barline');
+  if (barlineIdx < 0) return x;
+  for (let j = 0; j < barlineIdx; j++) {
+    const item = skin[rightParts[j].skinKey];
+    if (item) x += item.w;
+  }
+  return x;
+}

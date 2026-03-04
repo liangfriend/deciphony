@@ -9,8 +9,9 @@ import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSk
 import {defaultSkin} from "@/skins/defaultSkin";
 import type {NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
+import {getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
-import {renderSymbol} from "./symbol/renderSymbol";
+import {getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
 import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
 
@@ -171,6 +172,7 @@ export function musicScoreToVDom(
         });
         grandStaffCurrentY += gUH;
 
+        let prevMeasureStartY: number | undefined = undefined;
         for (let i = 0; i < grandStaff.staves.length; i++) {
             const singleStaffStartY = grandStaffCurrentY;
             const staff = grandStaff.staves[i];
@@ -292,6 +294,37 @@ export function musicScoreToVDom(
                 measureCurrentX += measureWidth;
             }
             measureCurrentX = grandStaffX;
+
+            const currentMeasureStartY = grandStaffCurrentY + staffUSpaceI;
+            if (linkedStaff && i >= 1 && prevMeasureStartY !== undefined) {
+                const linkedBarlineY = prevMeasureStartY + measureHeight;
+                const linkedBarlineH = currentMeasureStartY - linkedBarlineY;
+                let barlineMeasureX = grandStaffX;
+                for (let mi = 0; mi < staff.measures.length; mi++) {
+                    const measure = staff.measures[mi];
+                    const measureWidth = getMeasureW(measure, mi);
+                    const barlineX = getBarlineXInMeasure(measure, barlineMeasureX, measureWidth, skin);
+                    const linkedKey = getLinkedBarlineSkinKey(measure.barline.barlineType);
+                    const barlineItem = skin[linkedKey];
+                    const barlineW = barlineItem?.w ?? 0;
+                    vDoms.push({
+                        startPoint: {x: 0, y: 0},
+                        endPoint: {x: 0, y: 0},
+                        special: {},
+                        x: barlineX,
+                        y: linkedBarlineY,
+                        w: barlineW,
+                        h: linkedBarlineH,
+                        zIndex: 1200,
+                        tag: 'barline',
+                        skinKey: linkedKey,
+                        skinName: effectiveSkinName,
+                        targetId: measure.barline.id,
+                        dataComment: '连谱小节线',
+                    });
+                    barlineMeasureX += measureWidth;
+                }
+            }
 
             vDoms.push({
                 startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
@@ -428,6 +461,7 @@ export function musicScoreToVDom(
             sSlot.h = grandStaffCurrentY - singleStaffStartY;
             slSlot.h = grandStaffCurrentY - singleStaffStartY;
             srSlot.h = grandStaffCurrentY - singleStaffStartY;
+            prevMeasureStartY = singleStaffStartY + staffUSpaceO + sUH + staffUSpaceI;
         }
 
         vDoms.push({

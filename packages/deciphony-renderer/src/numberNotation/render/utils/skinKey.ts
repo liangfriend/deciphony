@@ -25,6 +25,24 @@ export function getBarlineSkinKey(barlineType: BarlineTypeEnum): NumberNotationS
   return map[barlineType] ?? NumberNotationSkinKeyEnum.Single_barline;
 }
 
+/** 连谱小节线皮肤 key（BarlineTypeEnum → linked_*） */
+export function getLinkedBarlineSkinKey(barlineType: BarlineTypeEnum): NumberNotationSkinKeyEnum {
+  const map: Record<BarlineTypeEnum, NumberNotationSkinKeyEnum> = {
+    [BarlineTypeEnum.Single_barline]: NumberNotationSkinKeyEnum.linked_single_barline,
+    [BarlineTypeEnum.Double_barline]: NumberNotationSkinKeyEnum.linked_double_barline,
+    [BarlineTypeEnum.StartRepeat_barline]: NumberNotationSkinKeyEnum.linked_startRepeat_barline,
+    [BarlineTypeEnum.EndRepeat_barline]: NumberNotationSkinKeyEnum.linked_endRepeat_barline,
+    [BarlineTypeEnum.Dashed_barline]: NumberNotationSkinKeyEnum.linked_dashed_barline,
+    [BarlineTypeEnum.Final_barline]: NumberNotationSkinKeyEnum.linked_final_barline,
+    [BarlineTypeEnum.Start_end_repeat_barline]: NumberNotationSkinKeyEnum.linked_start_end_repeat_barline,
+    [BarlineTypeEnum.Dotted_barline]: NumberNotationSkinKeyEnum.linked_dotted_barline,
+    [BarlineTypeEnum.Reverse_barline]: NumberNotationSkinKeyEnum.linked_reverse_barline,
+    [BarlineTypeEnum.Heavy_barline]: NumberNotationSkinKeyEnum.linked_heavy_barline,
+    [BarlineTypeEnum.Heavy_double_barline]: NumberNotationSkinKeyEnum.linked_heavy_double_barline,
+  };
+  return map[barlineType] ?? NumberNotationSkinKeyEnum.linked_single_barline;
+}
+
 /** 谱号类型 + 是否前置 */
 export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): NumberNotationSkinKeyEnum {
   switch (clefType) {

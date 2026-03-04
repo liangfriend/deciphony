@@ -442,3 +442,29 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   return out;
 }
+
+/** 计算小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，供连谱小节线定位） */
+export function getBarlineXInMeasure(
+  measure: import("@/types/MusicScoreType").Measure,
+  measureX: number,
+  measureWidth: number,
+  skin: import("@/types/common").StandardStaffSkinPack,
+): number {
+  const rightKeys: typeof StandardStaffSkinKeyEnum[keyof typeof StandardStaffSkinKeyEnum][] = [];
+  if (measure.clef_b) rightKeys.push(getClefSkinKey(measure.clef_b.clefType, false));
+  if (measure.barline) rightKeys.push(getBarlineSkinKey(measure.barline.barlineType));
+  if (measure.keySignature_b) rightKeys.push(getKeySignatureSkinKey(measure.keySignature_b.type));
+  if (measure.timeSignature_b) rightKeys.push(getTimeSignatureSkinKey(measure.timeSignature_b.type));
+  let suffixW = 0;
+  for (const k of rightKeys) {
+    const item = skin[k];
+    if (item) suffixW += item.w;
+  }
+  let x = measureX + measureWidth - suffixW;
+  const barlineIdx = measure.clef_b ? 1 : 0;
+  for (let j = 0; j < barlineIdx && j < rightKeys.length; j++) {
+    const item = skin[rightKeys[j]];
+    if (item) x += item.w;
+  }
+  return x;
+}

@@ -26,5 +26,5 @@ export {
   DoubleAffiliatedSymbolNameEnum,
   SingleAffiliatedSymbolNameEnum,
   AccidentalTypeEnum,
+  BeamTypeEnum
 } from './enums/musicScoreEnum'
-export {BeamTypeEnum} from './standardStaff/enums/standardStaffEnum'

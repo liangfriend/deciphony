@@ -158,7 +158,7 @@ function findRestByIdNumber(score: MusicScoreType, id: string): {
 function findMeasureBySymbolId(
     score: MusicScoreType,
     targetId: string,
-    tag: 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline'
+    tag: 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline_f' | 'barline_b'
 ) {
     for (const gs of score.grandStaffs ?? []) {
         for (const staff of gs.staves ?? []) {
@@ -169,7 +169,8 @@ function findMeasureBySymbolId(
                 if (tag === 'keySignature_b' && measure.keySignature_b?.id === targetId) return measure
                 if (tag === 'timeSignature_f' && measure.timeSignature_f?.id === targetId) return measure
                 if (tag === 'timeSignature_b' && measure.timeSignature_b?.id === targetId) return measure
-                if (tag === 'barline' && measure.barline?.id === targetId) return measure
+                if (tag === 'barline_f' && measure.barline_f?.id === targetId) return measure
+                if (tag === 'barline_b' && measure.barline_b?.id === targetId) return measure
             }
         }
     }
@@ -177,7 +178,7 @@ function findMeasureBySymbolId(
 }
 
 const frame = {relativeH: 0, relativeY: 0, relativeW: 0, relativeX: 0}
-const DELETABLE_TAGS = ['clef_f', 'clef_b', 'keySignature_f', 'keySignature_b', 'timeSignature_f', 'timeSignature_b', 'barline', 'rest', 'noteHead'] as const
+const DELETABLE_TAGS = ['clef_f', 'clef_b', 'keySignature_f', 'keySignature_b', 'timeSignature_f', 'timeSignature_b', 'barline_f', 'barline_b', 'rest', 'noteHead'] as const
 
 export function useDrEdit(core: DrRenderCore) {
     const {
@@ -349,8 +350,8 @@ export function useDrEdit(core: DrRenderCore) {
 
     function updateMeasureBarline(measureId: string, barlineType: BarlineTypeEnum) {
         const m = findMeasureById(measureId)
-        if (!m || !m.barline) return
-        m.barline = createBarline(barlineType)
+        if (!m) return
+        m.barline_b = createBarline(barlineType)
     }
 
     function addRestToMeasure(measureId: string, chronaxie: number) {
@@ -535,13 +536,19 @@ export function useDrEdit(core: DrRenderCore) {
                 : (tag === 'rest' ? !!findRestById(musicScoreData.value, targetId) : !!findNoteAndNotesInfoById(musicScoreData.value, targetId))
         }
         if (isNumberNotation() && (tag === 'clef_f' || tag === 'clef_b')) return false
-        return !!findMeasureBySymbolId(musicScoreData.value, targetId, tag as 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline')
+        return !!findMeasureBySymbolId(musicScoreData.value, targetId, tag as 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline_f' | 'barline_b')
     }
 
     /** 删除选中符号。小节线“删除”实为改为单线 */
     function deleteSymbol(targetId: string, tag: string) {
-        if (tag === 'barline') {
-            const m = findMeasureBySymbolId(musicScoreData.value, targetId, 'barline')
+        if (tag === 'barline_f') {
+            const m = findMeasureBySymbolId(musicScoreData.value, targetId, 'barline_f')
+            if (m) m.barline_f = createBarline(BarlineTypeEnum.Single_barline)
+            nextTick(applyHighlight)
+            return
+        }
+        if (tag === 'barline_b') {
+            const m = findMeasureBySymbolId(musicScoreData.value, targetId, 'barline_b')
             if (m) updateMeasureBarline(m.id, BarlineTypeEnum.Single_barline)
             return
         }

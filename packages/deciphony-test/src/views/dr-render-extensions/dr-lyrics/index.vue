@@ -238,7 +238,7 @@
         </div>
         <div class="field">
           <label>小节线</label>
-          <select :value="selectedMeasure.barline?.barlineType"
+          <select :value="selectedMeasure.barline_b?.barlineType"
                   @change="(e: Event) => drEdit.updateMeasureBarline(selectedMeasure!.id, (e.target as HTMLSelectElement).value as any)">
             <option value="single_barline">单线</option>
             <option value="double_barline">双线</option>

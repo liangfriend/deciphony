@@ -43,7 +43,8 @@ export type SingleStaff = {
 export type Measure = {
     id: string
     notes: NoteSymbol[] | NoteNumber[],// 音符，休止符
-    barline: Barline, // 小节线
+    barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
+    barline_b?: Barline, // 后置小节线（音符之后、clef_b 之前）
     clef_f?: Clef, // 前置谱号
     clef_b?: Clef, // 后置谱号
     keySignature_f?: KeySignature,

@@ -11,7 +11,7 @@ import type {NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
 import {getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
-import {getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
+import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
 import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
 
@@ -299,29 +299,67 @@ export function musicScoreToVDom(
             if (linkedStaff && i >= 1 && prevMeasureStartY !== undefined) {
                 const linkedBarlineY = prevMeasureStartY + measureHeight;
                 const linkedBarlineH = currentMeasureStartY - linkedBarlineY;
+                const linkedCloseLineKey = NumberNotationSkinKeyEnum.linked_close_line;
+                const linkedCloseLineItem = skin[linkedCloseLineKey];
+                vDoms.push({
+                    startPoint: {x: 0, y: 0},
+                    endPoint: {x: 0, y: 0},
+                    special: {},
+                    x: grandStaffX,
+                    y: linkedBarlineY,
+                    w: linkedCloseLineItem?.w ?? 1,
+                    h: linkedBarlineH,
+                    zIndex: 1200,
+                    tag: 'linked_close_line',
+                    skinKey: linkedCloseLineKey,
+                    skinName: effectiveSkinName,
+                    targetId: `linked-close-${staff.id}`,
+                    dataComment: '连谱闭合线',
+                });
                 let barlineMeasureX = grandStaffX;
                 for (let mi = 0; mi < staff.measures.length; mi++) {
                     const measure = staff.measures[mi];
                     const measureWidth = getMeasureW(measure, mi);
-                    const barlineX = getBarlineXInMeasure(measure, barlineMeasureX, measureWidth, skin);
-                    const linkedKey = getLinkedBarlineSkinKey(measure.barline.barlineType);
-                    const barlineItem = skin[linkedKey];
-                    const barlineW = barlineItem?.w ?? 0;
-                    vDoms.push({
-                        startPoint: {x: 0, y: 0},
-                        endPoint: {x: 0, y: 0},
-                        special: {},
-                        x: barlineX,
-                        y: linkedBarlineY,
-                        w: barlineW,
-                        h: linkedBarlineH,
-                        zIndex: 1200,
-                        tag: 'barline',
-                        skinKey: linkedKey,
-                        skinName: effectiveSkinName,
-                        targetId: measure.barline.id,
-                        dataComment: '连谱小节线',
-                    });
+                    if (measure.barline_f) {
+                        const barlineFX = getBarlineFXInMeasure(measure, barlineMeasureX, skin);
+                        const linkedKeyF = getLinkedBarlineSkinKey(measure.barline_f.barlineType);
+                        const itemF = skin[linkedKeyF];
+                        vDoms.push({
+                            startPoint: {x: 0, y: 0},
+                            endPoint: {x: 0, y: 0},
+                            special: {},
+                            x: barlineFX,
+                            y: linkedBarlineY,
+                            w: itemF?.w ?? 0,
+                            h: linkedBarlineH,
+                            zIndex: 1200,
+                            tag: 'linked_barline',
+                            skinKey: linkedKeyF,
+                            skinName: effectiveSkinName,
+                            targetId: measure.barline_f.id,
+                            dataComment: '连谱小节线',
+                        });
+                    }
+                    if (measure.barline_b) {
+                        const barlineX = getBarlineXInMeasure(measure, barlineMeasureX, measureWidth, skin);
+                        const linkedKeyB = getLinkedBarlineSkinKey(measure.barline_b.barlineType);
+                        const barlineItem = skin[linkedKeyB];
+                        vDoms.push({
+                            startPoint: {x: 0, y: 0},
+                            endPoint: {x: 0, y: 0},
+                            special: {},
+                            x: barlineX,
+                            y: linkedBarlineY,
+                            w: barlineItem?.w ?? 0,
+                            h: linkedBarlineH,
+                            zIndex: 1200,
+                            tag: 'linked_barline',
+                            skinKey: linkedKeyB,
+                            skinName: effectiveSkinName,
+                            targetId: measure.barline_b.id,
+                            dataComment: '连谱小节线',
+                        });
+                    }
                     barlineMeasureX += measureWidth;
                 }
             }
@@ -334,6 +372,23 @@ export function musicScoreToVDom(
             grandStaffCurrentY += staffUSpaceI;
 
             measureCurrentX = grandStaffX;
+            const closeLineSkinKey = NumberNotationSkinKeyEnum.Close_line;
+            const closeLineItem = skin[closeLineSkinKey];
+            vDoms.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: grandStaffX,
+                y: grandStaffCurrentY,
+                w: closeLineItem?.w ?? 1,
+                h: measureHeight,
+                zIndex: 1200,
+                tag: 'close_line',
+                skinKey: closeLineSkinKey,
+                skinName: effectiveSkinName,
+                targetId: `close-${staff.id}`,
+                dataComment: '闭合线',
+            });
             for (let mi = 0; mi < staff.measures.length; mi++) {
                 const measure = staff.measures[mi];
                 const measureWidth = getMeasureW(measure, mi);

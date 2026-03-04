@@ -20,7 +20,11 @@ export type VDomTagType =
     | 'keySignature_b' // 后置调号
     | 'timeSignature_f' // 前置拍号
     | 'timeSignature_b' // 后置拍号
-    | 'barline'        // 小节线
+    | 'barline_f'      // 前置小节线
+    | 'barline_b'      // 后置小节线
+    | 'linked_barline' // 连谱小节线
+    | 'close_line'     // 闭合线（第一小节左侧）
+    | 'linked_close_line' // 连谱闭合线
     | 'noteStem'       // 符干
     | 'noteTail'       // 符尾
     | 'noteBeam'       // 符杠

@@ -314,6 +314,20 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
 }
 
 // 小节线
+const closeLine = {
+    content: `<rect x="0" y="0" width="node.w" height="node.h" fill="black"/>`,
+    w: 1,
+    h: STAFF_HEIGHT,
+    skinKey: StandardStaffSkinKeyEnum.Close_line,
+};
+
+const linkedCloseLine = {
+    content: `<rect x="0" y="0" width="node.w" height="node.h" fill="black"/>`,
+    w: 1,
+    h: 0,
+    skinKey: StandardStaffSkinKeyEnum.linked_close_line,
+};
+
 const singleBarline = {
     content: `
       <line x1="4.5" y1="0" x2="4.5" y2="45" stroke="black" stroke-width="1" />
@@ -1485,6 +1499,9 @@ const standardStaffSkin: StandardStaffSkinPack = {
         skinKey: StandardStaffSkinKeyEnum.C_flat,
     },
 
+    // 闭合线
+    [StandardStaffSkinKeyEnum.Close_line]: closeLine,
+    [StandardStaffSkinKeyEnum.linked_close_line]: linkedCloseLine,
     // 小节线
     [StandardStaffSkinKeyEnum.Single_barline]: singleBarline,
     [StandardStaffSkinKeyEnum.Double_barline]: doubleBarline,
@@ -1827,6 +1844,8 @@ const numberNotationSkin: NumberNotationSkinPack = {
         widthRatio: 10,
         widthRatioForMeasure: 10,
     },
+    [NumberNotationSkinKeyEnum.Close_line]: { ...closeLine, skinKey: NumberNotationSkinKeyEnum.Close_line },
+    [NumberNotationSkinKeyEnum.linked_close_line]: { ...linkedCloseLine, skinKey: NumberNotationSkinKeyEnum.linked_close_line },
     [NumberNotationSkinKeyEnum.Single_barline]: {
         content: singleBarline.content,
         w: singleBarline.w,

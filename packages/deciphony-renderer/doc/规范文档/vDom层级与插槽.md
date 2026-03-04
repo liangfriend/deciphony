@@ -133,7 +133,8 @@ slotConfig = {
 | addLine | note.id | 加线（上/下） |
 | accidental | accidental.id / notesInfo.id | 变音符号 |
 | clef_b | measure.clef_b.id | 后置谱号 |
-| barline | measure.barline.id | 小节线 |
+| barline_f | measure.barline_f.id | 前置小节线 |
+| barline_b | measure.barline_b.id | 后置小节线 |
 | keySignature_b | measure.keySignature_b.id | 后置调号 |
 | timeSignature_b | measure.timeSignature_b.id | 后置拍号 |
 

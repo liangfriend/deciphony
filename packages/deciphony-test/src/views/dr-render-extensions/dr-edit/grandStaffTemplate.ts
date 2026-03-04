@@ -55,7 +55,7 @@ function createGrandStaff(): GrandStaff {
       widthRatio: 14,
       widthRatioForMeasure: 14,
     },
-    barline: {
+    barline_b: {
       ...frame,
       id: crypto.randomUUID(),
       barlineType: BarlineTypeEnum.Final_barline,
@@ -104,7 +104,7 @@ function createSingleStaff(): SingleStaff {
       widthRatio: 14,
       widthRatioForMeasure: 14,
     },
-    barline: {
+    barline_b: {
       ...frame,
       id: crypto.randomUUID(),
       barlineType: BarlineTypeEnum.Final_barline,
@@ -179,7 +179,7 @@ function createEmptyMeasure(prevMeasure?: Measure): Measure {
     widthRatioForMeasure: 100,
     clef_f: prevMeasure?.clef_f ? createClef(prevMeasure.clef_f.clefType) : createClef(ClefTypeEnum.Treble),
     timeSignature_f: prevMeasure?.timeSignature_f ? createTimeSignature(prevMeasure.timeSignature_f.type) : createTimeSignature(TimeSignatureTypeEnum['4_4']),
-    barline: createBarline(BarlineTypeEnum.Single_barline),
+    barline_b: createBarline(BarlineTypeEnum.Single_barline),
   }
   if (prevMeasure?.keySignature_f) {
     m.keySignature_f = createKeySignature(prevMeasure.keySignature_f.type)
@@ -207,7 +207,7 @@ function createMeasureNumber(prevMeasure?: Measure): Measure {
     timeSignature_f: prevMeasure?.timeSignature_f
       ? createTimeSignature(prevMeasure.timeSignature_f.type)
       : createTimeSignature(TimeSignatureTypeEnum['4_4']),
-    barline: createBarline(BarlineTypeEnum.Single_barline),
+    barline_b: createBarline(BarlineTypeEnum.Single_barline),
   }
   if (prevMeasure?.keySignature_f) {
     m.keySignature_f = createKeySignature(prevMeasure.keySignature_f.type)

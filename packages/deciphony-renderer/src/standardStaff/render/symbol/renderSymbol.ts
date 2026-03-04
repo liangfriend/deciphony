@@ -78,22 +78,28 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const item = skin[key];
     if (item) prefixW += item.w;
   }
+  if (measure.barline_f) {
+    const key = getBarlineSkinKey(measure.barline_f.barlineType);
+    const item = skin[key];
+    if (item) prefixW += item.w;
+  }
 
   const rightParts: RightPart[] = [];
+  if (measure.barline_b) {
+    rightParts.push({
+      skinKey: getBarlineSkinKey(measure.barline_b.barlineType),
+      tag: 'barline_b',
+      dataComment: '后置小节线',
+      targetId: measure.barline_b.id ?? '',
+    });
+  }
+
   if (measure.clef_b) {
     rightParts.push({
       skinKey: getClefSkinKey(measure.clef_b.clefType, false),
       tag: 'clef_b',
       dataComment: '后置谱号',
       targetId: measure.clef_b.id ?? '',
-    });
-  }
-  if (measure.barline) {
-    rightParts.push({
-      skinKey: getBarlineSkinKey(measure.barline.barlineType),
-      tag: 'barline',
-      dataComment: '小节线',
-      targetId: measure.barline.id ?? '',
     });
   }
   if (measure.keySignature_b) {
@@ -126,12 +132,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   * 定义vodm添加函数
   * */
   const pushSymbol = (
-      x: number,
-      skinKey: typeof StandardStaffSkinKeyEnum[keyof typeof StandardStaffSkinKeyEnum],
-      tag: VDom['tag'],
-      dataComment: string,
-      targetId: string,
-      yOffset?: number
+    x: number,
+    skinKey: typeof StandardStaffSkinKeyEnum[keyof typeof StandardStaffSkinKeyEnum],
+    tag: VDom['tag'],
+    dataComment: string,
+    targetId: string,
+    yOffset?: number
   ) => {
     const item = skin[skinKey];
     if (!item) return;
@@ -169,6 +175,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const item = skin[timeSigKey];
     if (item) x += item.w;
   }
+  if (measure.barline_f) {
+    const barlineKey = getBarlineSkinKey(measure.barline_f.barlineType);
+    pushSymbol(x, barlineKey, 'barline_f', '前置小节线', measure.barline_f.id ?? '');
+    const item = skin[barlineKey];
+    if (item) x += item.w;
+  }
 
   const notes = measure.notes;
   // 计算当前小节总的widthRatio
@@ -178,9 +190,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   * 定义音符中心点坐标获取函数
   * */
   const noteCenterY = (region: number) =>
-      measureY + measureHeight - measureLineWidth / 2
-      - region * (measureHeight - 5 * measureLineWidth) / 8
-      - region * measureLineWidth / 2;
+    measureY + measureHeight - measureLineWidth / 2
+    - region * (measureHeight - 5 * measureLineWidth) / 8
+    - region * measureLineWidth / 2;
   /*
   * 使用均等槽位
   * 如果曲谱数据的widthRatio没有设置好，出现了不合理的总宽度系数，则使用均等槽位模式
@@ -249,9 +261,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         else if (restChronaxie === 128) ny = measureY + measureHeight / 2 - restItem.h;
         else ny = measureY + (measureHeight - restItem.h) / 2;
         const vdom: VDom = {
-          startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-          x: headX, y: ny, w: restItem.w, h: restItem.h,
-          zIndex: z, tag: 'rest', skinName: skinNameForNodes, targetId: note.id, skinKey: headKey, dataComment: '休止符',
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: headX,
+          y: ny,
+          w: restItem.w,
+          h: restItem.h,
+          zIndex: z,
+          tag: 'rest',
+          skinName: skinNameForNodes,
+          targetId: note.id,
+          skinKey: headKey,
+          dataComment: '休止符',
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
@@ -270,17 +292,17 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const addLineSkinU = skin[StandardStaffSkinKeyEnum.AddLine_u];
 
       const drawVoice = (
-          beat: {
-            chronaxie: number;
-            notesInfo: {
-              id: string;
-              region: number;
-              accidental?: { type: AccidentalTypeEnum; id?: string; relativeX?: number; relativeY?: number }
-            }[];
-            augmentationDot?: import("@/types/MusicScoreType").AugmentationDot;
-          },
-          directionUp: boolean,
-          setStemAndHead?: (stem: VDom, headCenterY: number) => void,
+        beat: {
+          chronaxie: number;
+          notesInfo: {
+            id: string;
+            region: number;
+            accidental?: { type: AccidentalTypeEnum; id?: string; relativeX?: number; relativeY?: number }
+          }[];
+          augmentationDot?: import("@/types/MusicScoreType").AugmentationDot;
+        },
+        directionUp: boolean,
+        setStemAndHead?: (stem: VDom, headCenterY: number) => void,
       ) => {
         const regions = beat.notesInfo.map((n) => n.region);
         const headKey = getNoteHeadSkinKey(beat.chronaxie);
@@ -443,7 +465,29 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   return out;
 }
 
-/** 计算小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，供连谱小节线定位） */
+/** 计算前置小节线在小节内的左边缘 x（clef_f + keySig_f + timeSig_f 之后，供连谱小节线 barline_f 定位） */
+export function getBarlineFXInMeasure(
+  measure: import("@/types/MusicScoreType").Measure,
+  measureX: number,
+  skin: import("@/types/common").StandardStaffSkinPack,
+): number {
+  let prefixW = 0;
+  if (measure.clef_f) {
+    const item = skin[getClefSkinKey(measure.clef_f.clefType, true)];
+    if (item) prefixW += item.w;
+  }
+  if (measure.keySignature_f) {
+    const item = skin[getKeySignatureSkinKey(measure.keySignature_f.type)];
+    if (item) prefixW += item.w;
+  }
+  if (measure.timeSignature_f) {
+    const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
+    if (item) prefixW += item.w;
+  }
+  return measureX + prefixW;
+}
+
+/** 计算后置小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，供连谱小节线 barline_b 定位） */
 export function getBarlineXInMeasure(
   measure: import("@/types/MusicScoreType").Measure,
   measureX: number,
@@ -451,8 +495,8 @@ export function getBarlineXInMeasure(
   skin: import("@/types/common").StandardStaffSkinPack,
 ): number {
   const rightKeys: typeof StandardStaffSkinKeyEnum[keyof typeof StandardStaffSkinKeyEnum][] = [];
+  if (measure.barline_b) rightKeys.push(getBarlineSkinKey(measure.barline_b.barlineType));
   if (measure.clef_b) rightKeys.push(getClefSkinKey(measure.clef_b.clefType, false));
-  if (measure.barline) rightKeys.push(getBarlineSkinKey(measure.barline.barlineType));
   if (measure.keySignature_b) rightKeys.push(getKeySignatureSkinKey(measure.keySignature_b.type));
   if (measure.timeSignature_b) rightKeys.push(getTimeSignatureSkinKey(measure.timeSignature_b.type));
   let suffixW = 0;
@@ -461,7 +505,7 @@ export function getBarlineXInMeasure(
     if (item) suffixW += item.w;
   }
   let x = measureX + measureWidth - suffixW;
-  const barlineIdx = measure.clef_b ? 1 : 0;
+  const barlineIdx = 0; // barline_b 在 rightParts 第一位
   for (let j = 0; j < barlineIdx && j < rightKeys.length; j++) {
     const item = skin[rightKeys[j]];
     if (item) x += item.w;

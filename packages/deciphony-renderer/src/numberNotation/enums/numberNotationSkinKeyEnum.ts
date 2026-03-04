@@ -15,6 +15,9 @@ export enum NumberNotationSkinKeyEnum {
   Double_sharp = 'double_sharp',
   Double_flat = 'double_flat',
   Natural = 'natural',
+  // 闭合线（单谱表第一小节左侧）
+  Close_line = 'close_line',
+  linked_close_line = 'linked_close_line',
   // 小节线
   Single_barline = 'single_barline',
   Double_barline = 'double_barline',

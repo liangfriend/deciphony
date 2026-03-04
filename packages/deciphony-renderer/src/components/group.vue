@@ -43,8 +43,16 @@ const comment = computed(() => {
       return '前置拍号'
     case 'timeSignature_b':
       return '后置拍号'
-    case 'barline':
-      return '小节线'
+    case 'barline_f':
+      return '前置小节线'
+    case 'barline_b':
+      return '后置小节线'
+    case 'linked_barline':
+      return '连谱小节线'
+    case 'close_line':
+      return '闭合线'
+    case 'linked_close_line':
+      return '连谱闭合线'
     case 'noteStem':
       return '符干'
     case 'noteTail':

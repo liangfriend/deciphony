@@ -139,22 +139,27 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const item = skin[key];
     if (item) prefixW += item.w;
   }
+  if (measure.barline_f) {
+    const key = getBarlineSkinKey(measure.barline_f.barlineType);
+    const item = skin[key];
+    if (item) prefixW += item.w;
+  }
 
   const rightParts: RightPart[] = [];
+  if (measure.barline_b) {
+    rightParts.push({
+      skinKey: getBarlineSkinKey(measure.barline_b.barlineType),
+      tag: 'barline_b',
+      dataComment: '后置小节线',
+      targetId: measure.barline_b.id ?? '',
+    });
+  }
   if (measure.clef_b) {
     rightParts.push({
       skinKey: getClefSkinKey(measure.clef_b.clefType, false),
       tag: 'clef_b',
       dataComment: '后置谱号',
       targetId: measure.clef_b.id ?? '',
-    });
-  }
-  if (measure.barline) {
-    rightParts.push({
-      skinKey: getBarlineSkinKey(measure.barline.barlineType),
-      tag: 'barline',
-      dataComment: '小节线',
-      targetId: measure.barline.id ?? '',
     });
   }
   if (measure.keySignature_b) {
@@ -230,6 +235,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.type);
     pushSymbol(x, timeSigKey, 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
     const item = skin[timeSigKey];
+    if (item) x += item.w;
+  }
+  if (measure.barline_f) {
+    const barlineKey = getBarlineSkinKey(measure.barline_f.barlineType);
+    pushSymbol(x, barlineKey, 'barline_f', '前置小节线', measure.barline_f.id ?? '');
+    const item = skin[barlineKey];
     if (item) x += item.w;
   }
 
@@ -587,7 +598,29 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   return out;
 }
 
-/** 计算小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，简谱 suffixW 不含 keySignature_b） */
+/** 计算前置小节线在小节内的左边缘 x（clef_f + keySig_f + timeSig_f 之后，供连谱小节线 barline_f 定位） */
+export function getBarlineFXInMeasure(
+  measure: import("@/types/MusicScoreType").Measure,
+  measureX: number,
+  skin: import("@/types/common").NumberNotationSkinPack,
+): number {
+  let prefixW = 0;
+  if (measure.clef_f) {
+    const item = skin[getClefSkinKey(measure.clef_f.clefType, true)];
+    if (item) prefixW += item.w;
+  }
+  if (measure.keySignature_f) {
+    const item = skin[getKeySignatureSkinKey(measure.keySignature_f.type)];
+    if (item) prefixW += item.w;
+  }
+  if (measure.timeSignature_f) {
+    const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
+    if (item) prefixW += item.w;
+  }
+  return measureX + prefixW;
+}
+
+/** 计算后置小节线在小节内的左边缘 x（与 renderSymbol 中 rightParts 摆放一致，简谱 suffixW 不含 keySignature_b） */
 export function getBarlineXInMeasure(
   measure: import("@/types/MusicScoreType").Measure,
   measureX: number,
@@ -595,8 +628,8 @@ export function getBarlineXInMeasure(
   skin: import("@/types/common").NumberNotationSkinPack,
 ): number {
   const rightParts: { skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum]; tag: string }[] = [];
+  if (measure.barline_b) rightParts.push({ skinKey: getBarlineSkinKey(measure.barline_b.barlineType), tag: 'barline_b' });
   if (measure.clef_b) rightParts.push({ skinKey: getClefSkinKey(measure.clef_b.clefType, false), tag: 'clef_b' });
-  if (measure.barline) rightParts.push({ skinKey: getBarlineSkinKey(measure.barline.barlineType), tag: 'barline' });
   if (measure.keySignature_b) rightParts.push({ skinKey: getKeySignatureSkinKey(measure.keySignature_b.type), tag: 'keySignature_b' });
   if (measure.timeSignature_b) rightParts.push({ skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type), tag: 'timeSignature_b' });
   let suffixW = 0;
@@ -606,7 +639,7 @@ export function getBarlineXInMeasure(
     if (item) suffixW += item.w;
   }
   let x = measureX + measureWidth - suffixW;
-  const barlineIdx = rightParts.findIndex((p) => p.tag === 'barline');
+  const barlineIdx = rightParts.findIndex((p) => p.tag === 'barline_b');
   if (barlineIdx < 0) return x;
   for (let j = 0; j < barlineIdx; j++) {
     const item = skin[rightParts[j].skinKey];

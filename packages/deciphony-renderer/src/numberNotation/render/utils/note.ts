@@ -89,8 +89,11 @@ export function getMeasureWidthRatio(measure: Measure, skin: NumberNotationSkinP
     for (let i = 0; i < measure.notes.length; i++) {
         acc += getNoteWidthRatioForMeasure(measure.notes[i] as NoteNumber, skin);
     }
-    if (measure.barline) {
-        acc += resolveWidthRatio(measure.barline.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline.barlineType)]?.widthRatioForMeasure);
+    if (measure.barline_f) {
+        acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.barlineType)]?.widthRatioForMeasure);
+    }
+    if (measure.barline_b) {
+        acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.barlineType)]?.widthRatioForMeasure);
     }
     if (measure.clef_f) {
         acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.clefType, true)]?.widthRatioForMeasure);

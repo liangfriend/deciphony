@@ -85,13 +85,14 @@ const handleSkin = computed(() => {
     const targetId = node.targetId ?? ''
     const escapedId = String(targetId).replace(/"/g, '&quot;')
     temp = temp.replace(/<(\w+)(\s[^>]*?)?(\/?>)/g, (_, tagName, rest = '', closing) =>
-      `<${tagName}${rest} data-target-id="${escapedId}"${closing}`)
+        `<${tagName}${rest} data-target-id="${escapedId}"${closing}`)
     return temp
   }
 })
 </script>
 
 <template>
+  <!--  测试页面重新渲染<text :transform="`translate(${node.x}, ${node.y})`">{{ Date.now() }}</text>-->
   <g
       :data-comment="comment"
       :data-slot-name="node.slotName"

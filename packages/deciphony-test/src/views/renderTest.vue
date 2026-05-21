@@ -1,22 +1,27 @@
 <template>
   <div class="container">
     <div class="left">
-      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50}}" skin-name="default" />
+      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50}}" @renderMusicScore="renderMusicScore"
+                   skin-name="default"/>
     </div>
-    <div class="right">
+    <div class="right" v-if="false">
       <textarea
-        :value="jsonText"
-        class="json-editor"
-        spellcheck="false"
-        @input="onJsonInput"
+          :value="jsonText"
+          class="json-editor"
+          spellcheck="false"
+          @input="onJsonInput"
       />
       <p v-if="parseError" class="error">{{ parseError }}</p>
+    </div>
+    <div class="right" v-else>
+      <button @click="fourth">四分音符</button>
+      <button @click="whole">全音符</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import MusicScore from 'deciphony-renderer'
 import data from './dr-render-extensions/mock/happyBirthday'
 
@@ -34,6 +39,25 @@ function onJsonInput(e: Event) {
   } catch (err) {
     parseError.value = err instanceof Error ? err.message : 'JSON 解析错误'
   }
+}
+
+function fourth() {
+  console.log('开始渲染', Date.now())
+  musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0].voicePart.chronaxie = 64
+}
+
+function renderMusicScore() {
+  console.log('js执行结束时间', Date.now())
+  const js = Date.now()
+  setTimeout(() => {
+    console.log('页面重绘所需时间', Date.now() - js)
+  })
+
+}
+
+function whole() {
+  console.log('开始渲染', Date.now())
+  musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0].voicePart.chronaxie = 256
 }
 </script>
 

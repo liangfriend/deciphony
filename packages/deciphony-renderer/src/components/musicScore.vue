@@ -1,16 +1,16 @@
 <template>
   <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
        preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" @pointerdown="">
-    <template v-for="(node, i) in vDom"
-              :key="`${i}-${node.skinName ?? 'default'}-${node.skinKey ?? ''}-${node.tag}-${node.targetId}`">
+    <template v-for="node in vDom"
+              :key="`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`">
       <Group v-if="!AFFILIATION_TAGS.has(node.tag)" :node="node" :notation-type="data.type"
              :skin="skin"/>
       <g
-        v-else-if="AFFILIATION_TAGS.has(node.tag)"
-        :data-comment="node.dataComment"
-        :data-slot-name="node.slotName??''"
-        :data-target-id="node.targetId"
-        :transform="`translate(${node.x}, ${node.y})`"
+          v-else-if="AFFILIATION_TAGS.has(node.tag)"
+          :data-comment="node.dataComment"
+          :data-slot-name="node.slotName??''"
+          :data-target-id="node.targetId"
+          :transform="`translate(${node.x}, ${node.y})`"
       >
         <Slur v-if="node.special?.slur" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
@@ -29,7 +29,7 @@ import mockNumberNotation from '@/numberNotation/mock/happyBirthday'
 import mockStandardStaff from '@/standardStaff/mock/happyBirthday'
 import {musicScoreToVDom as musicScoreToVDomNumber} from '@/numberNotation/render/musicScoreToVDom'
 import {musicScoreToVDom as musicScoreToVDomStandard} from '@/standardStaff/render/musicScoreToVDom'
-import {diffAndMergeVDom} from '@/render/update'
+import {applyVDomUpdate, diffAndMergeVDom} from '@/render/update'
 import {defaultSkin, defaultSkinBlue, defaultSkinRed} from '@/skins/defaultSkin'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import Group from './group.vue'
@@ -52,15 +52,15 @@ const props = defineProps<{
 // 测试：更改谱子类型
 const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
 const defaultMock = computed(() =>
-  notationType.value === MusicScoreTypeEnum.StandardStaff ? mockStandardStaff : mockNumberNotation
+    notationType.value === MusicScoreTypeEnum.StandardStaff ? mockStandardStaff : mockNumberNotation
 )
 const data = computed(() => props.data ?? defaultMock.value)
 const skin = computed<Skin>(() =>
-    props.skin ?? {
-      default: defaultSkin,
-      red: defaultSkinRed,
-      blue: defaultSkinBlue,
-    }
+        props.skin ?? {
+          default: defaultSkin,
+          red: defaultSkinRed,
+          blue: defaultSkinBlue,
+        }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -76,20 +76,20 @@ const emit = defineEmits<{ renderMusicScore: [vDom: VDom[]] }>()
 const vDom = ref<VDom[]>([])
 
 const musicScoreToVDom = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
 
 // data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
-  [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
-  ([d, slotConfig]) => {
-    // const oldVDom = vDom.value.map((node) => ({...node}));
-    vDom.value = d
-      ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
-      : []
-    emit('renderMusicScore', vDom.value)
-  },
-  {immediate: true, deep: true}
+    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
+    ([d, slotConfig]) => {
+      const next = d
+          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
+          : []
+      vDom.value = diffAndMergeVDom(vDom.value, next)//next//
+      emit('renderMusicScore', vDom.value)
+    },
+    {immediate: true, deep: true}
 )
 
 /**
@@ -97,8 +97,7 @@ watch(
  * @param updater (vDom: VDom[]) => VDom[] 用户修改后 return
  */
 function updateVDomHandler(updater: (vDom: VDom[]) => VDom[]) {
-  // const oldVDom = vDom.value.map((node) => ({...node}));
-  updater(vDom.value)
+  vDom.value = applyVDomUpdate(vDom.value, updater)
 }
 
 defineExpose({updateVDom: updateVDomHandler})

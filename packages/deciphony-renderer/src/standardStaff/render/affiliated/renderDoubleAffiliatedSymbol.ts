@@ -1,5 +1,8 @@
 import {VDom} from "@/types/common";
-import {DoubleAffiliatedSymbolNameEnum} from "@/enums/musicScoreEnum";
+import {
+  DoubleMeasureAffiliatedSymbolNameEnum,
+  DoubleNoteAffiliatedSymbolNameEnum,
+} from "@/enums/musicScoreEnum";
 import type {RenderDoubleAffiliatedSymbolParams} from "../types";
 
 /**
@@ -11,7 +14,7 @@ export function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbo
   const symbols = musicScore.affiliatedSymbols ?? [];
   for (let i = 0; i < symbols.length; i++) {
     const affiliatedSymbol = symbols[i];
-    if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.slur) {
+    if (affiliatedSymbol.name === DoubleNoteAffiliatedSymbolNameEnum.slur) {
       const startNote = idMap.get(affiliatedSymbol.startId)?.noteHead;
       const endNote = idMap.get(affiliatedSymbol.endId)?.noteHead;
       if (!startNote || !endNote) continue;
@@ -50,7 +53,7 @@ export function renderDoubleAffiliatedSymbol(params: RenderDoubleAffiliatedSymbo
       };
       VDoms.push(slurVDom);
     }
-    if (affiliatedSymbol.name === DoubleAffiliatedSymbolNameEnum.volta) {
+    if (affiliatedSymbol.name === DoubleMeasureAffiliatedSymbolNameEnum.volta) {
       const measureVDom = idMap.get(affiliatedSymbol.startId)?.measure;
       if (!measureVDom) continue;
       const measureH = measureVDom.h;

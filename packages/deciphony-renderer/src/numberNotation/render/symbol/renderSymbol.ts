@@ -4,7 +4,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {AugmentationDot, VoiceBeatNumber} from "@/types/MusicScoreType";
+import type {AugmentationDot} from "@/types/MusicScoreType";
 import {NoteNumber} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
@@ -256,8 +256,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     slotW: number;
     headX: number;
     refW: number;
-    beat: VoiceBeatNumber | null;
-    isRest: boolean
+    isRest: boolean;
   };
   const slots: SlotInfo[] = [];
 
@@ -281,7 +280,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         referenceW = num0Item.w;
       } else {
         referenceW = 0;
-        for (const n of note.voicePart.notesInfo) {
+        for (const n of note.notesInfo) {
           const numSkin = skin[getSyllableSkinKey(n.syllable)];
           if (numSkin && numSkin.w > referenceW) referenceW = numSkin.w;
         }
@@ -292,13 +291,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
       // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
       const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
-      const headX = slotStartX
-      const beat = note.voicePart.notesInfo.length > 0 ? note.voicePart : null;
-      slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, beat, isRest: isRestSlot});
+      const headX = slotStartX;
+      if (note.notesInfo.length === 0) continue;
+      slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, isRest: isRestSlot});
 
-      if (!beat) continue;
       let firstHeadVDom: VDom | null = null;
-      const allNotes = beat.notesInfo.slice();
+      const allNotes = note.notesInfo.slice();
       const octaveDotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
       const fOff = OCTAVE_DOT_FIRST_OFFSET * measureHeight;
       const spacing = OCTAVE_DOT_SPACING * measureHeight;
@@ -420,8 +418,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           } else {
             // 下方八度点：仅最下方音符（stackIdx 0）有减时线时贴着减时线下缘，其它音符贴着自身下缘
             let baseBottom: number;
-            if (stackIdx === 0 && beat && beat.chronaxie <= 32) {
-              const reduceLineKey = getReduceLineSkinKey(beat.chronaxie);
+            if (stackIdx === 0 && note.chronaxie <= 32) {
+              const reduceLineKey = getReduceLineSkinKey(note.chronaxie);
               const reduceLineSkin = skin[reduceLineKey];
               const lowestNote = allNotes[0];
               const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
@@ -471,8 +469,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
       }
 
-      if (beat.augmentationDot) {
-        const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
+      if (note.augmentationDot) {
+        const augSkinKey = getAugmentationDotSkinKey(note.augmentationDot as AugmentationDot);
         const augSkin = skin[augSkinKey];
         const numItem = skin[NumberNotationSkinKeyEnum.Number_1];
         if (augSkin && numItem) {
@@ -495,7 +493,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               zIndex: z,
               tag: 'accidental',
               skinName: skinNameForNodes,
-              targetId: beat.augmentationDot!.id,
+              targetId: note.augmentationDot!.id,
               skinKey: augSkinKey,
               dataComment: '附点',
             });
@@ -517,40 +515,40 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       就是这样，永远会移动减时线少的乙方
       * 如果A B 相等，延长左侧减时线
     * */
-    const hasReduceLine = (s: SlotInfo) => s.beat != null && s.beat.chronaxie <= 32;
+    const hasReduceLine = (s: SlotInfo) => !s.isRest && s.note.chronaxie <= 32;
     for (let i = 0; i < slots.length; i++) {
       const slot = slots[i];
-      if (!slot.beat || slot.beat.chronaxie > 32) continue;
-      const reduceLineKey = getReduceLineSkinKey(slot.beat.chronaxie);
+      if (slot.isRest || slot.note.chronaxie > 32) continue;
+      const reduceLineKey = getReduceLineSkinKey(slot.note.chronaxie);
       const reduceLineSkin = skin[reduceLineKey];
       if (!reduceLineSkin) continue;
-      const allNotes = slot.beat.notesInfo;
+      const allNotes = slot.note.notesInfo;
       if (allNotes.length === 0) continue;
 
-      const beamType = slot.beat.beamType ?? BeamTypeEnum.None;
-      const myCount = chronaxieToBeamLineCount(slot.beat.chronaxie);
+      const beamType = slot.note.beamType ?? BeamTypeEnum.None;
+      const myCount = chronaxieToBeamLineCount(slot.note.chronaxie);
       let leftIdx = i;
       let rightIdx = i;
       if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
         if (beamType === BeamTypeEnum.Combined) {
           for (let j = i - 1; j >= 0; j--) {
             const s = slots[j];
-            if (s.isRest || !s.beat || !hasReduceLine(s)) break;
-            if (s.beat.beamType !== BeamTypeEnum.Combined) break;
+            if (s.isRest || s.note.chronaxie > 32) break;
+            if (s.note.beamType !== BeamTypeEnum.Combined) break;
             leftIdx = j;
           }
         }
         for (let j = i + 1; j < slots.length; j++) {
           const s = slots[j];
-          if (s.isRest || !s.beat || !hasReduceLine(s)) break;
-          if (s.beat.beamType !== BeamTypeEnum.Combined) break;
+          if (s.isRest || s.note.chronaxie > 32) break;
+          if (s.note.beamType !== BeamTypeEnum.Combined) break;
           rightIdx = j;
         }
       }
       const leftSlot = leftIdx < i ? slots[i - 1] : null;
       const rightSlot = rightIdx > i ? slots[i + 1] : null;
-      const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.beat!.chronaxie) : Infinity;
-      const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.beat!.chronaxie) : Infinity;
+      const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.note.chronaxie) : Infinity;
+      const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.note.chronaxie) : Infinity;
       // 减时线少的向多的一方延伸；相等时延长左侧（myCount <= rightCount 时向右延伸）
       const lineX = myCount < leftCount && leftSlot
         ? leftSlot.headX + leftSlot.refW
@@ -574,7 +572,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         zIndex: z,
         tag: 'accidental',
         skinName: skinNameForNodes,
-        targetId: slot.beat.notesInfo[0]?.id ?? slot.note.id,
+        targetId: slot.note.notesInfo[0]?.id ?? slot.note.id,
         skinKey: reduceLineKey,
         dataComment: '减时线',
       });

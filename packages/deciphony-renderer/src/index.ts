@@ -23,8 +23,10 @@ export {
   SpanSymbolTypeEnum,
   SpanSymbolNameEnum,
   NoteSymbolTypeEnum,
-  DoubleAffiliatedSymbolNameEnum,
-  SingleAffiliatedSymbolNameEnum,
+  DoubleNoteAffiliatedSymbolNameEnum,
+  DoubleMeasureAffiliatedSymbolNameEnum,
+  SingleNoteAffiliatedSymbolNameEnum,
+  SingleMeasureAffiliatedSymbolNameEnum,
   AccidentalTypeEnum,
   BeamTypeEnum
 } from './enums/musicScoreEnum'

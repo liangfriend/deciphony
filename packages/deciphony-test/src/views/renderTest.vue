@@ -44,7 +44,8 @@ function onJsonInput(e: Event) {
 
 function fourth() {
   console.log('开始渲染', Date.now())
-  musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0].voicePart.chronaxie = 64
+  const note = musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0]
+  if (note.notesInfo?.[0]) note.notesInfo[0].chronaxie = 64
 }
 
 function renderMusicScore() {
@@ -58,7 +59,8 @@ function renderMusicScore() {
 
 function whole() {
   console.log('开始渲染', Date.now())
-  musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0].voicePart.chronaxie = 256
+  const note = musicScoreData.value.grandStaffs[0].staves[0].measures[0].notes[0]
+  if (note.notesInfo?.[0]) note.notesInfo[0].chronaxie = 256
 }
 </script>
 

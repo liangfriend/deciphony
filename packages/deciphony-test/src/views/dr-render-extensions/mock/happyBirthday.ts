@@ -4,7 +4,8 @@ import {
     BeamTypeEnum,
     BracketTypeEnum,
     ClefTypeEnum,
-    DoubleAffiliatedSymbolNameEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
+    DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
@@ -59,6 +60,26 @@ const defaultAccidental: Accidental = {
     widthRatioForMeasure: 10,
 };
 
+/** 构建 notesInfo 列表（单声部单音或和弦） */
+function makeNotesInfo(
+    regions: number[],
+    chronaxie: Chronaxie,
+    direction: 'up' | 'down',
+    beamType: BeamTypeEnum,
+    accidental?: Accidental[],
+): NotesInfo[] {
+    return regions.map((r, i) => ({
+        ...frame,
+        id: crypto.randomUUID(),
+        direction,
+        region: r,
+        chronaxie,
+        beamType,
+        affiliatedSymbols: [],
+        accidental: accidental?.[i] ?? (regions.length === 1 ? defaultAccidental : undefined),
+    }));
+}
+
 /** 单声部单音或和弦：region 可单数或数组；多声部用 noteSlot。仅需展示音符前谱号时传 noteClef */
 function note(
     region: number | number[],
@@ -70,17 +91,10 @@ function note(
     noteClef?: Clef,
 ): NoteSymbol {
     const regions = Array.isArray(region) ? region : [region];
-    const notesInfo = regions.map((r, i) => ({
-        ...frame,
-        id: crypto.randomUUID(),
-        region: r,
-        accidental: accidental?.[i] ?? (regions.length === 1 ? defaultAccidental : undefined),
-    }));
     const out: NoteSymbol = {
         ...frame,
         type: NoteSymbolTypeEnum.Note,
-        direction,
-        voicePart: {chronaxie, notesInfo, affiliatedSymbols: [], beamType},
+        notesInfo: makeNotesInfo(regions, chronaxie, direction, beamType, accidental),
         widthRatio,
         widthRatioForMeasure: widthRatio,
         id: crypto.randomUUID(),
@@ -93,6 +107,7 @@ function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteSymbol {
     return {
         ...frame,
         type: NoteSymbolTypeEnum.Rest,
+        notesInfo: [],
         chronaxie,
         affiliatedSymbols: [],
         widthRatio,
@@ -101,24 +116,36 @@ function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteSymbol {
     };
 }
 
-/** 双声部一音符位：声部1 + 声部2（符干反向） */
+/** 双声部一音符位：声部1 + 声部2（符干按各自 direction） */
 function noteSlot(
-    v1: { chronaxie: Chronaxie; notesInfo: NotesInfo[]; beamType: BeamTypeEnum, augmentationDot: AugmentationDot },
+    v1: { chronaxie: Chronaxie; notesInfo: Omit<NotesInfo, 'direction' | 'chronaxie' | 'beamType'>[]; beamType: BeamTypeEnum; augmentationDot?: AugmentationDot },
     v2: {
         chronaxie: Chronaxie;
-        notesInfo: NotesInfo[];
-        beamType: BeamTypeEnum,
-        augmentationDot: AugmentationDot
+        notesInfo: Omit<NotesInfo, 'direction' | 'chronaxie' | 'beamType'>[];
+        beamType: BeamTypeEnum;
+        augmentationDot?: AugmentationDot;
     } | null,
     widthRatio = 6,
     direction: 'up' | 'down' = 'up',
 ): NoteSymbol {
+    const mapVoice = (
+        voice: typeof v1,
+        voiceDirection: 'up' | 'down',
+    ): NotesInfo[] => voice.notesInfo.map((ni) => ({
+        ...ni,
+        direction: voiceDirection,
+        chronaxie: voice.chronaxie,
+        beamType: voice.beamType,
+        affiliatedSymbols: ni.affiliatedSymbols ?? [],
+        ...(voice.augmentationDot ? {augmentationDot: voice.augmentationDot} : {}),
+    }));
     return {
         ...frame,
         type: NoteSymbolTypeEnum.Note,
-        direction,
-        voicePart: {...v1, affiliatedSymbols: []},
-        ...(v2 ? {voicePart2: {...v2, affiliatedSymbols: []}} : {}),
+        notesInfo: [
+            ...mapVoice(v1, direction),
+            ...(v2 ? mapVoice(v2, direction === 'up' ? 'down' : 'up') : []),
+        ],
         widthRatio,
         widthRatioForMeasure: widthRatio,
         id: crypto.randomUUID(),
@@ -280,10 +307,9 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
     };
 }
 
-/** 给音符位第一个声部第一拍加附点（Note 在 voicePart，Rest 在顶层） */
 function withAugmentationDot(n: NoteSymbol, dot: AugmentationDot): NoteSymbol {
     if (n.type === NoteSymbolTypeEnum.Rest) return {...n, augmentationDot: dot};
-    return {...n, voicePart: {...n.voicePart, augmentationDot: dot}};
+    return {...n, notesInfo: n.notesInfo.map((ni) => ({...ni, augmentationDot: dot}))};
 }
 
 // 第四句：祝你生日快乐（前三个音分别带 1、2、3 个附点；首个音带音符前谱号展示）
@@ -357,15 +383,14 @@ const phrase5Measure1: Measure = {
         noteSlot(
             {
                 chronaxie: 32,
-                notesInfo: [{...frame, id: crypto.randomUUID(), region: 6, accidental: defaultAccidental} as NotesInfo],
+                notesInfo: [{...frame, id: crypto.randomUUID(), region: 6, accidental: defaultAccidental, affiliatedSymbols: []}],
                 beamType: BeamTypeEnum.Combined,
-                augmentationDot: augmentationDot(2)
+                augmentationDot: augmentationDot(2),
             },
             {
                 chronaxie: 32,
-                notesInfo: [{...frame, id: crypto.randomUUID(), region: 0, accidental: defaultAccidental} as NotesInfo],
+                notesInfo: [{...frame, id: crypto.randomUUID(), region: 0, accidental: defaultAccidental, affiliatedSymbols: []}],
                 beamType: BeamTypeEnum.Combined,
-                augmentationDot: augmentationDot(0)
             },
             6,
             'up',
@@ -378,20 +403,21 @@ const phrase5Measure1: Measure = {
                     ...frame,
                     id: crypto.randomUUID(),
                     region: 5,
-                    accidental: defaultAccidental
-                } as NotesInfo, {
+                    accidental: defaultAccidental,
+                    affiliatedSymbols: [],
+                }, {
                     ...frame,
                     id: crypto.randomUUID(),
-                    region: 3
-                } as NotesInfo],
+                    region: 3,
+                    affiliatedSymbols: [],
+                }],
                 beamType: BeamTypeEnum.Combined,
-                augmentationDot: augmentationDot(2)
+                augmentationDot: augmentationDot(2),
             },
             {
                 chronaxie: 32,
-                notesInfo: [{...frame, id: crypto.randomUUID(), region: 2} as NotesInfo],
+                notesInfo: [{...frame, id: crypto.randomUUID(), region: 2, affiliatedSymbols: []}],
                 beamType: BeamTypeEnum.Combined,
-                augmentationDot: augmentationDot(0)
             },
             6,
             'up',
@@ -545,7 +571,7 @@ const data: MusicScore = {
     ],
     affiliatedSymbols: [{
         id: crypto.randomUUID(),
-        name: DoubleAffiliatedSymbolNameEnum.slur,
+        name: DoubleNoteAffiliatedSymbolNameEnum.slur,
         startId: phrase1Measure1.notes[0].id,
         endId: phrase1Measure1.notes[1].id,
         relativeH: 0,
@@ -562,7 +588,7 @@ const data: MusicScore = {
         }
     }, {
         id: crypto.randomUUID(),
-        name: DoubleAffiliatedSymbolNameEnum.volta,
+        name: DoubleMeasureAffiliatedSymbolNameEnum.volta,
         startId: phrase1Measure1.id,
         endId: phrase1Measure1.id,
         relativeH: 10,

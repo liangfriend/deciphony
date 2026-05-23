@@ -38,13 +38,15 @@ function note(
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Note,
-    direction,
-    voicePart: {
+    notesInfo: [{
+      ...frame,
+      id: crypto.randomUUID(),
+      direction,
+      region,
       chronaxie,
-      notesInfo: [{...frame, id: crypto.randomUUID(), region}],
-      affiliatedSymbols: [],
       beamType: BeamTypeEnum.None,
-    },
+      affiliatedSymbols: [],
+    }],
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),

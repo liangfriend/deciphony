@@ -2,11 +2,13 @@ import {
     AccidentalTypeEnum,
     BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
     ClefTypeEnum,
-    DoubleAffiliatedSymbolNameEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
+    DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
-    SingleAffiliatedSymbolNameEnum,
+    SingleMeasureAffiliatedSymbolNameEnum,
+    SingleNoteAffiliatedSymbolNameEnum,
     TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
@@ -15,7 +17,7 @@ export type MusicScore = {
     id: string
     type: MusicScoreTypeEnum,
     grandStaffs: GrandStaff[],
-    affiliatedSymbols: DoubleAffiliatedSymbol[] // 包含双音符附属型，双小节附属型
+    affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
     width: number,
     height: number,
     topSpaceHeight: number, // 顶部高度
@@ -61,7 +63,7 @@ export type Measure = {
     timeSignature_f?: TimeSignature,
     timeSignature_b?: TimeSignature,
     widthRatioForMeasure?: number,
-    affiliatedSymbols: SingleAffiliatedSymbol[] // 包含单小节附属型
+    affiliatedSymbols: (SingleNoteAffiliatedSymbol | SingleMeasureAffiliatedSymbol)[] // 单音符、单小节附属型
 } & Frame
 
 /*
@@ -77,31 +79,43 @@ export type AugmentationDot = {
 * 附属型符号 accent above, accidental等等， 符干符尾不属于附属型符号，它是根据音符时值信息固定逻辑判断是否存在的符号
 *
 * */
-export type DoubleAffiliatedSymbol = { // 双音符，双小节附属符号
+export type DoubleNoteAffiliatedSymbol = {
     id: string
-    name: DoubleAffiliatedSymbolNameEnum,
+    name: DoubleNoteAffiliatedSymbolNameEnum,
     startId: string,
-    endId: string, // 在双音符附属或双小节附属符号里，这个是没有意义的
-    data: { // 有一些附属型符号很特殊，需要额外的变量来计算UI
+    endId: string,
+    data: {
         slur?: {
-            relativeStartPoint: { x: number, y: number }, // slur 起点相对坐标
-            relativeEndPoint: { x: number, y: number }, // slur 终点相对坐标
-            relativeControlPoint: { x: number, y: number }, // slur 控制点相对坐标 这个，简谱没有
-            thickness: number, // 厚度，两个贝塞尔曲线控制点的y值差
-            // 后续可以在这里扩展上文字
+            relativeStartPoint: { x: number, y: number },
+            relativeEndPoint: { x: number, y: number },
+            relativeControlPoint: { x: number, y: number },
+            thickness: number,
         },
-        volta?: {
-            text: string // 文本内容
-        }
-
     }
 } & Frame
 
-export type SingleAffiliatedSymbol = { // 单音符，单小节附属符号
+export type DoubleMeasureAffiliatedSymbol = {
     id: string
-    name: SingleAffiliatedSymbolNameEnum,
-    data: { // 有一些附属型符号很特殊，需要额外的变量来计算UI
+    name: DoubleMeasureAffiliatedSymbolNameEnum,
+    startId: string,
+    endId: string,
+    data: {
+        volta?: {
+            text: string
+        }
     }
+} & Frame
+
+export type SingleNoteAffiliatedSymbol = {
+    id: string
+    name: SingleNoteAffiliatedSymbolNameEnum,
+    data: Record<string, never>
+} & Frame
+
+export type SingleMeasureAffiliatedSymbol = {
+    id: string
+    name: SingleMeasureAffiliatedSymbolNameEnum,
+    data: Record<string, never>
 } & Frame
 
 
@@ -141,39 +155,33 @@ export type Accidental = {
 } & Frame
 // ==========================================线谱================================================
 
-export type VoiceBeatSymbol = {
-    chronaxie: Chronaxie
-    notesInfo: NotesInfo[]
-    augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[]
-    beamType: BeamTypeEnum
-}
-
 export type NoteSymbol = ({
     id: string
-    type: NoteSymbolTypeEnum.Note
-    direction: 'up' | 'down' // 控制声部1符干方向（声部2反向），休止符时不起作用。 多个音符形成beam时，会对每个direction进行少数服从多数判断
-    voicePart: VoiceBeatSymbol
-    voicePart2?: VoiceBeatSymbol
-    clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
-    widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
-    widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
-} & Frame) | ({
-    id: string
-    type: NoteSymbolTypeEnum.Rest
-    chronaxie: Chronaxie
+    type: NoteSymbolTypeEnum // rest 时 notesInfo 不渲染
+    notesInfo: NotesInfo[]
+    /** 休止符时值；type 为 Rest 时使用 */
+    chronaxie?: Chronaxie
+    /** 休止符附点；type 为 Rest 时使用 */
     augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[]
-    clef?: Clef // 可选，符号前的谱号（使用前置谱号皮肤包），仅需展示时加
-    widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
-    widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+    /** 休止符单音符附属；type 为 Rest 时使用 */
+    affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+    clef?: Clef
+    widthRatio?: number
+    widthRatioForMeasure?: number,
 } & Frame)
+
 export type NotesInfo = {
     id: string
+    direction: 'up' | 'down'
     region: number
+    chronaxie: Chronaxie
+    beamType: BeamTypeEnum
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
     accidental?: Accidental
 } & Frame
-// ==========================================简谱================================================
+
+
 export type NotesNumberInfo = {
     id: string
     /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
@@ -183,18 +191,14 @@ export type NotesNumberInfo = {
     octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
 }
 
-export type VoiceBeatNumber = {
-    chronaxie: Chronaxie
-    notesInfo: NotesNumberInfo[]
-    augmentationDot?: AugmentationDot
-    affiliatedSymbols: SingleAffiliatedSymbol[]
-    beamType: BeamTypeEnum
-}
-
 // 简谱音乐符号（简谱无谱号概念，无 clef）
 export type NoteNumber = {
     id: string
-    voicePart: VoiceBeatNumber
+    chronaxie: Chronaxie
+    notesInfo: NotesNumberInfo[]
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    beamType: BeamTypeEnum
     widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
     widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 } & Frame

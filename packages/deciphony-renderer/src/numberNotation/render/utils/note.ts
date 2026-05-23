@@ -1,6 +1,5 @@
-import type {Measure, NoteNumber, NoteSymbol} from "@/types/MusicScoreType";
+import type {Measure, NoteNumber} from "@/types/MusicScoreType";
 import type {NumberNotationSkinPack} from "@/types/common";
-import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
 import {resolveWidthRatio} from "@/utils/widthRatio";
 import {
     getAccidentalSkinKey,
@@ -14,20 +13,19 @@ import {
 } from "./skinKey";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 
-/** 简谱音符位取 voicePart 时值用于宽度系数 */
+/** 简谱音符位时值 */
 export function getSlotChronaxie(note: NoteNumber): number {
-    return note.voicePart.chronaxie || 64;
+    return note.chronaxie || 64;
 }
 
-/** 是否为休止符位：简谱 syllable===0 或五线谱 type===Rest */
+/** 是否为休止符位：syllable===0 */
 export function isSlotRest(note: NoteNumber): boolean {
-    if ('type' in note && note.type === NoteSymbolTypeEnum.Rest) return true;
-    return !note.voicePart.notesInfo.length || note.voicePart.notesInfo.every((n) => n.syllable === 0);
+    return !note.notesInfo.length || note.notesInfo.every((n) => n.syllable === 0);
 }
 
-/** 休止符位取第一个有拍子的声部的时值用于休止符形状 */
+/** 休止符位时值 */
 export function getSlotRestChronaxie(note: NoteNumber): number {
-    return note.voicePart.chronaxie ?? 64;
+    return note.chronaxie ?? 64;
 }
 
 /** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
@@ -44,45 +42,46 @@ export function getChronaxieWidthCoefficient(chronaxie: number): number {
     return 1;
 }
 
-/** 音符在小节内的宽度占比与布局：仅用 widthRatio（含时值系数、变音、谱号、附点等）；数据优先，否则用皮肤，0 为有效值 */
+function collectSubWidthRatio(
+    note: NoteNumber,
+    skin: NumberNotationSkinPack,
+    pick: (item: { widthRatio?: number; widthRatioForMeasure?: number } | undefined, data?: number) => number,
+): number {
+    let sub = 0;
+    for (const n of note.notesInfo) {
+        if (n.accidental) {
+            sub += pick(skin[getAccidentalSkinKey(n.accidental.type)], n.accidental.widthRatio);
+        }
+    }
+    if (note.augmentationDot) {
+        sub += pick(skin[getAugmentationDotSkinKey(note.augmentationDot)], note.augmentationDot.widthRatio);
+    }
+    return sub;
+}
+
+/** 音符在小节内的宽度占比 */
 export function getNoteWidthRatio(note: NoteNumber, skin: NumberNotationSkinPack): number {
     const slotChronaxie = getSlotChronaxie(note);
     const isRest = isSlotRest(note);
     const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
     const slotW = resolveWidthRatio(note.widthRatio, skin[slotSkinKey]?.widthRatio);
     const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-    let sub = 0;
-    const beat = note.voicePart;
-    for (const n of beat.notesInfo) {
-        const acc = 'accidental' in n ? n.accidental : (n as { accidental?: { widthRatio?: number } }).accidental;
-        if (acc) sub += resolveWidthRatio(acc.widthRatio, skin[getAccidentalSkinKey(acc.type)]?.widthRatio);
-    }
-    if (beat.augmentationDot) {
-        sub += resolveWidthRatio(beat.augmentationDot.widthRatio, skin[getAugmentationDotSkinKey(beat.augmentationDot)]?.widthRatio);
-    }
+    const sub = collectSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio));
     return base + sub;
 }
 
-/** 音符对小节在单谱表内宽度占比的系数：仅用 widthRatioForMeasure（本包仅处理 NoteNumber）；数据优先，否则用皮肤，0 为有效值 */
+/** 音符对小节在单谱表内宽度占比的系数 */
 export function getNoteWidthRatioForMeasure(note: NoteNumber, skin: NumberNotationSkinPack): number {
     const slotChronaxie = getSlotChronaxie(note);
     const isRest = isSlotRest(note);
     const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
     const slotW = resolveWidthRatio(note.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
     const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-    let sub = 0;
-    const beat = note.voicePart;
-    for (const n of beat.notesInfo) {
-        const acc = 'accidental' in n ? n.accidental : (n as { accidental?: { widthRatioForMeasure?: number } }).accidental;
-        if (acc) sub += resolveWidthRatio(acc.widthRatioForMeasure, skin[getAccidentalSkinKey(acc.type)]?.widthRatioForMeasure);
-    }
-    if (beat.augmentationDot) {
-        sub += resolveWidthRatio(beat.augmentationDot.widthRatioForMeasure, skin[getAugmentationDotSkinKey(beat.augmentationDot)]?.widthRatioForMeasure);
-    }
+    const sub = collectSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure));
     return base + sub;
 }
 
-/** 小节的宽度系数（小节在单谱表内的宽度占比）；数据优先，否则用皮肤，0 为有效值 */
+/** 小节的宽度系数 */
 export function getMeasureWidthRatio(measure: Measure, skin: NumberNotationSkinPack): number {
     let acc = 0;
     acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[NumberNotationSkinKeyEnum.Measure]?.widthRatioForMeasure);

@@ -6,7 +6,8 @@ import {
   AccidentalTypeEnum,
   BarlineTypeEnum,
   ClefTypeEnum,
-  DoubleAffiliatedSymbolNameEnum,
+  DoubleMeasureAffiliatedSymbolNameEnum,
+  DoubleNoteAffiliatedSymbolNameEnum,
   KeySignatureTypeEnum,
   MusicScoreTypeEnum,
   TimeSignatureTypeEnum,
@@ -109,13 +110,11 @@ function note(
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: {
-      chronaxie,
-      notesInfo: notes,
-      affiliatedSymbols: [],
-      beamType,
-      ...(augmentationDot ? {augmentationDot} : {}),
-    },
+    chronaxie,
+    notesInfo: notes,
+    affiliatedSymbols: [],
+    beamType,
+    ...(augmentationDot ? {augmentationDot} : {}),
     widthRatio,
     widthRatioForMeasure: widthRatio,
   };
@@ -139,12 +138,10 @@ function chord(
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: {
-      chronaxie,
-      notesInfo: notes,
-      affiliatedSymbols: [],
-      beamType,
-    },
+    chronaxie,
+    notesInfo: notes,
+    affiliatedSymbols: [],
+    beamType,
     widthRatio,
     widthRatioForMeasure: widthRatio,
   };
@@ -523,7 +520,7 @@ const data: MusicScore = {
   affiliatedSymbols: [
     {
       id: crypto.randomUUID(),
-      name: DoubleAffiliatedSymbolNameEnum.slur,
+      name: DoubleNoteAffiliatedSymbolNameEnum.slur,
       startId: phrase1Measure1.notes[0].id,
       endId: phrase1Measure1.notes[1].id,
       ...frame,
@@ -538,7 +535,7 @@ const data: MusicScore = {
     },
     {
       id: crypto.randomUUID(),
-      name: DoubleAffiliatedSymbolNameEnum.volta,
+      name: DoubleMeasureAffiliatedSymbolNameEnum.volta,
       startId: phrase1Measure1.id,
       endId: phrase1Measure1.id,
       relativeH: 10,

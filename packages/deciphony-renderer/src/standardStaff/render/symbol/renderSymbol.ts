@@ -21,7 +21,7 @@ import {
   getRestSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getNoteWidthRatio, getSlotRestChronaxie, isSlotRest} from "../utils/note";
+import {getNoteWidthRatio, getSlotRestChronaxie, getVoiceGroups, isSlotRest, type VoiceGroup} from "../utils/note";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -220,10 +220,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (!restItem) continue;
         referenceW = restItem.w;
       } else {
-        const beats = [note.voicePart, note.voicePart2].filter((b): b is NonNullable<typeof b> => !!b && b.notesInfo.length > 0);
+        const voiceGroups = getVoiceGroups(note);
         referenceW = 0;
-        for (const beat of beats) {
-          const headSkin = skin[getNoteHeadSkinKey(beat.chronaxie)];
+        for (const group of voiceGroups) {
+          const headSkin = skin[getNoteHeadSkinKey(group.chronaxie)];
           if (headSkin && headSkin.w > referenceW) referenceW = headSkin.w;
         }
       }
@@ -280,53 +280,33 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         continue;
       }
 
-      const beat1 = note.voicePart.notesInfo.length > 0 ? note.voicePart : null;
-      const beat2 = note.voicePart2?.notesInfo.length ? note.voicePart2 : null;
-      let stemV1: VDom | null = null;
-      let stemV2: VDom | null = null;
-      let headCenterY1: number | null = null;
-      let headCenterY2: number | null = null;
+      const voiceGroups = getVoiceGroups(note);
       let firstHeadVDom: VDom | null = null;
 
       const addLineSkinD = skin[StandardStaffSkinKeyEnum.AddLine_d];
       const addLineSkinU = skin[StandardStaffSkinKeyEnum.AddLine_u];
 
-      const drawVoice = (
-        beat: {
-          chronaxie: number;
-          notesInfo: {
-            id: string;
-            region: number;
-            accidental?: { type: AccidentalTypeEnum; id?: string; relativeX?: number; relativeY?: number }
-          }[];
-          augmentationDot?: import("@/types/MusicScoreType").AugmentationDot;
-        },
-        directionUp: boolean,
-        setStemAndHead?: (stem: VDom, headCenterY: number) => void,
-      ) => {
+      const drawVoice = (group: VoiceGroup) => {
+        const directionUp = group.direction === 'up';
+        const beat = group;
         const regions = beat.notesInfo.map((n) => n.region);
         const headKey = getNoteHeadSkinKey(beat.chronaxie);
         const headItem = skin[headKey];
+        if (!headItem) return;
         const minRegion = Math.min(...regions);
         const maxRegion = Math.max(...regions);
-        // 加线x
         const ledgerX = headX + headItem.w / 2 - (addLineSkinD?.w ?? 15) / 2;
-        // 符干尾部离小节最远的距离信息
         const extremeRegion = directionUp ? maxRegion : minRegion;
         const extremeHeadY = noteCenterY(extremeRegion) - headItem.h / 2;
         const extremeHeadCenterY = extremeHeadY + headItem.h / 2;
-        // 相反一侧最远距离音符头中心点y
         const otherExtremeHeadCenterY = directionUp ? noteCenterY(minRegion) : noteCenterY(maxRegion);
-        // 最远音符信息
         const extremeNotesInfo = beat.notesInfo.find((n) => n.region === extremeRegion);
-        // 是否需要加线
         const needLower = new Set<number>();
         const needUpper = new Set<number>();
         for (const r of regions) {
           if (r < -1) for (let line = -2; line >= r; line -= 2) needLower.add(line);
           if (r > 9) for (let line = 10; line <= r; line += 2) needUpper.add(line);
         }
-        // 渲染加线
         if (addLineSkinD) for (const r of needLower) {
           const lineY = noteCenterY(r);
           out.push({
@@ -347,7 +327,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             skinKey: StandardStaffSkinKeyEnum.AddLine_u, dataComment: '上加线',
           });
         }
-        // 渲染变音符号和音符头
         beat.notesInfo.forEach((n) => {
           const ny = noteCenterY(n.region) - headItem.h / 2;
           const hcy = noteCenterY(n.region);
@@ -375,7 +354,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               });
             }
           }
-          // 渲染音符头
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: headX, y: ny, w: headItem.w, h: headItem.h, zIndex: z,
@@ -385,9 +363,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           setNodeIdMap(idMap, n.id, vdom);
           if (!firstHeadVDom) firstHeadVDom = vdom;
         });
-        // 渲染附点
-        if (beat.augmentationDot) {
-          const augSkinKey = getAugmentationDotSkinKey(beat.augmentationDot as AugmentationDot);
+        const groupAugmentationDot = beat.notesInfo.find((n) => n.augmentationDot)?.augmentationDot;
+        if (groupAugmentationDot) {
+          const augSkinKey = getAugmentationDotSkinKey(groupAugmentationDot as AugmentationDot);
           const augSkin = skin[augSkinKey];
           if (augSkin) {
             const augX = headX + headItem.w + AUGMENTATION_DOT_GAP * measureHeight;
@@ -405,7 +383,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 zIndex: z,
                 tag: 'accidental',
                 skinName: skinNameForNodes,
-                targetId: beat.augmentationDot!.id,
+                targetId: groupAugmentationDot.id,
                 skinKey: augSkinKey,
                 dataComment: '附点符号',
               });
@@ -413,9 +391,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
         if (!extremeNotesInfo) return;
-        /*
-        * 渲染符尾和符干。不过这里不是最终的符干vdom,后续beam里会调整符干vdom
-        * */
         const stemTailVDoms = renderStemAndTail({
           note,
           headX: headX,
@@ -436,19 +411,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         });
         for (const v of stemTailVDoms) {
           out.push(v);
-          if (v.tag === 'noteStem') setStemAndHead?.(v, extremeHeadCenterY);
           if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
         }
       };
 
-      if (beat1) drawVoice(beat1, note.direction === 'up', (s, h) => {
-        stemV1 = s;
-        headCenterY1 = h;
-      });
-      if (beat2) drawVoice(beat2, note.direction !== 'up', (s, h) => {
-        stemV2 = s;
-        headCenterY2 = h;
-      });
+      for (const group of voiceGroups) drawVoice(group);
 
       if (firstHeadVDom) setNodeIdMap(idMap, note.id, firstHeadVDom);
     }

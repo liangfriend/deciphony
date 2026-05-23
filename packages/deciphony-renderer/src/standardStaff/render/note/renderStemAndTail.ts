@@ -68,8 +68,8 @@ export function renderStemAndTail(params: {
     headCenterYOther,
   } = params;
   const skinNameForNodes = params.skinName ?? 'default';
-  const chronaxie = params.chronaxie ?? (note.type === 'Rest' ? note.chronaxie : note.voicePart?.chronaxie) ?? 64;
-  const direction = params.direction ?? (note.type === 'Note' ? note.direction : 'up');
+  const chronaxie = params.chronaxie ?? (note.type === NoteSymbolTypeEnum.Rest ? note.chronaxie : undefined) ?? 64;
+  const direction = params.direction ?? 'up';
   const out: VDom[] = [];
   // 如果是休止符直接返回
   if (note.type === NoteSymbolTypeEnum.Rest || chronaxie >= 256) return out;

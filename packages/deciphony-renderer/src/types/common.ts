@@ -42,6 +42,8 @@ export type VDom = {
   y: number;
   w: number;
   h: number;
+  /** 视觉缩放比例（1 为默认）；由 group.vue 对 skin 内容做 transform，w/h 仍为布局占位 */
+  scale?: number;
   startPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
   endPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
   targetId: string,

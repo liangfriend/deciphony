@@ -12,6 +12,7 @@ import {
     TimeSignatureTypeEnum
 } from "@/enums/musicScoreEnum";
 import {Chronaxie, Frame} from "@/types/common";
+import {ChronaxieEnum} from "deciphony-core";
 // ==========================================通用================================================
 export type MusicScore = {
     id: string
@@ -177,11 +178,13 @@ export type NotesInfo = {
     chronaxie: Chronaxie
     beamType: BeamTypeEnum
     augmentationDot?: AugmentationDot
+    graceNotes?: NotesInfo[]
+    graceNotesAfter?: NotesInfo[]
     affiliatedSymbols: SingleNoteAffiliatedSymbol[]
     accidental?: Accidental
 } & Frame
 
-
+// ==========================================简谱================================================
 export type NotesNumberInfo = {
     id: string
     /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
@@ -199,6 +202,8 @@ export type NoteNumber = {
     augmentationDot?: AugmentationDot
     affiliatedSymbols: SingleNoteAffiliatedSymbol[]
     beamType: BeamTypeEnum
+    graceNotes?: NoteNumber[]
+    graceNotesAfter?: NoteNumber[]
     widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
     widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 } & Frame

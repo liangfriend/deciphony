@@ -13,6 +13,7 @@ import {getBarlineSkinKey, getBracketSkinKey, getLinkedBarlineSkinKey} from "./u
 import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
+import {processGraceBeam} from "./beam/processGraceBeam";
 import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
 import {BarlineTypeEnum} from "@/enums/musicScoreEnum";
 
@@ -436,6 +437,16 @@ export function musicScoreToVDom(
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
                 * */
                 processBeam({
+                    measure: measure as { notes: NoteSymbol[] },
+                    nodeIdMap,
+                    vDoms,
+                    symbolVDomsLength: symbolVDoms.length,
+                    skin,
+                    measureHeight,
+                    measureLineWidth,
+                    skinName: effectiveSkinName,
+                });
+                processGraceBeam({
                     measure: measure as { notes: NoteSymbol[] },
                     nodeIdMap,
                     vDoms,

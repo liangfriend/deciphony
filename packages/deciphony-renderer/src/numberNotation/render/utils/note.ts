@@ -12,6 +12,7 @@ import {
     getTimeSignatureSkinKey,
 } from "./skinKey";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
+import {graceNoteNumberAfterWidth, graceNoteNumberBeforeWidth} from "@/numberNotation/render/grace/renderGraceNumber";
 
 /** 简谱音符位时值 */
 export function getSlotChronaxie(note: NoteNumber): number {
@@ -59,26 +60,45 @@ function collectSubWidthRatio(
     return sub;
 }
 
+function graceWidthRatioForNoteNumber(
+    note: NoteNumber,
+    skin: NumberNotationSkinPack,
+    measureHeight: number,
+): number {
+    if (isSlotRest(note)) return 0;
+    const before = graceNoteNumberBeforeWidth(note.graceNotes, skin, measureHeight);
+    const after = graceNoteNumberAfterWidth(note.graceNotesAfter, skin, measureHeight);
+    return ((before + after) / measureHeight) * 4;
+}
+
 /** 音符在小节内的宽度占比 */
-export function getNoteWidthRatio(note: NoteNumber, skin: NumberNotationSkinPack): number {
+export function getNoteWidthRatio(
+    note: NoteNumber,
+    skin: NumberNotationSkinPack,
+    measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
+): number {
     const slotChronaxie = getSlotChronaxie(note);
     const isRest = isSlotRest(note);
     const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
     const slotW = resolveWidthRatio(note.widthRatio, skin[slotSkinKey]?.widthRatio);
     const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
     const sub = collectSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio));
-    return base + sub;
+    return base + sub + graceWidthRatioForNoteNumber(note, skin, measureHeight);
 }
 
 /** 音符对小节在单谱表内宽度占比的系数 */
-export function getNoteWidthRatioForMeasure(note: NoteNumber, skin: NumberNotationSkinPack): number {
+export function getNoteWidthRatioForMeasure(
+    note: NoteNumber,
+    skin: NumberNotationSkinPack,
+    measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
+): number {
     const slotChronaxie = getSlotChronaxie(note);
     const isRest = isSlotRest(note);
     const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
     const slotW = resolveWidthRatio(note.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
     const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
     const sub = collectSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure));
-    return base + sub;
+    return base + sub + graceWidthRatioForNoteNumber(note, skin, measureHeight);
 }
 
 /** 小节的宽度系数 */

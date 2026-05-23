@@ -1595,13 +1595,13 @@ const standardStaffSkin: StandardStaffSkinPack = {
         widthRatioForMeasure: 14,
     },
     [StandardStaffSkinKeyEnum.AddLine_u]: {
-        content: `<line x1="0" y1="0.5" x2="16" y2="0.5" stroke="black" stroke-width="1" />`,
+        content: `<line x1="0" y1="5.5" x2="16" y2="5.5" stroke="black" stroke-width="1" />`,
         w: 16,
         h: 11,
         skinKey: StandardStaffSkinKeyEnum.AddLine_u,
     },
     [StandardStaffSkinKeyEnum.AddLine_d]: {
-        content: `<line x1="0" y1="10.5" x2="16" y2="10.5" stroke="black" stroke-width="1" />`,
+        content: `<line x1="0" y1="5.5" x2="16" y2="5.5" stroke="black" stroke-width="1" />`,
         w: 16,
         h: 11,
         skinKey: StandardStaffSkinKeyEnum.AddLine_d,
@@ -2087,24 +2087,30 @@ const numberNotationSkin: NumberNotationSkinPack = {
     [NumberNotationSkinKeyEnum.A_flat]: {
         content: `<text>1=A♭</text>`,
         w: 44.28,
-
+        h: 22.73,
         skinKey: NumberNotationSkinKeyEnum.A_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    },
+    [NumberNotationSkinKeyEnum.C_sharp]: {
+        content: `<text>1=C♯</text>`,
+        w: 44.28,
+        h: 22.73,
+        skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.D_flat]: {
         content: `<text>1=D♭</text>`,
         w: 44.28,
-        h: 3,
+        h: 22.73,
         skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     [NumberNotationSkinKeyEnum.G_flat]: {
         content: `<text>1=G♭</text>`,
         w: 44.28,
-        h: 3,
+        h: 22.73,
         skinKey: NumberNotationSkinKeyEnum.G_flat, widthRatio: 0, widthRatioForMeasure: 0,
     }, [NumberNotationSkinKeyEnum.C_flat]: {
         content: `<text>1=C♭</text>`,
         w: 44.28,
-        h: 3,
+        h: 22.73,
         skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 0, widthRatioForMeasure: 0,
     },
     /**

@@ -1,8 +1,7 @@
 import {
     AccidentalTypeEnum,
+
     BarlineTypeEnum,
-    BeamTypeEnum,
-    BracketTypeEnum,
     ClefTypeEnum,
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
@@ -11,6 +10,7 @@ import {
     NoteSymbolTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {
     Accidental,
     AugmentationDot,
@@ -76,7 +76,7 @@ function makeNotesInfo(
         chronaxie,
         beamType,
         affiliatedSymbols: [],
-        accidental: accidental?.[i] ?? (regions.length === 1 ? defaultAccidental : undefined),
+        accidental: accidental?.[i] ?? undefined
     }));
 }
 
@@ -118,7 +118,12 @@ function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteSymbol {
 
 /** 双声部一音符位：声部1 + 声部2（符干按各自 direction） */
 function noteSlot(
-    v1: { chronaxie: Chronaxie; notesInfo: Omit<NotesInfo, 'direction' | 'chronaxie' | 'beamType'>[]; beamType: BeamTypeEnum; augmentationDot?: AugmentationDot },
+    v1: {
+        chronaxie: Chronaxie;
+        notesInfo: Omit<NotesInfo, 'direction' | 'chronaxie' | 'beamType'>[];
+        beamType: BeamTypeEnum;
+        augmentationDot?: AugmentationDot
+    },
     v2: {
         chronaxie: Chronaxie;
         notesInfo: Omit<NotesInfo, 'direction' | 'chronaxie' | 'beamType'>[];
@@ -158,10 +163,32 @@ const REST_CHRONAXIES: Chronaxie[] = [256, 128, 64, 32, 16, 8, 4, 2, 1];
 // 高音谱表位置（与 NoteSymbol.region 一致：0 第一线，1 第一间，region 越大越高）：0 第一线(E)，1 第一间(F)，2 第二线(G)，3 第二间(A)，4 第三线(B)，5 第三间(C5)，6 第四线(D5)，7 第四间(E5)
 // 祝你生日快乐 旋律 C 大调 3/4
 // 第一句：祝你生日快乐（前四个八分音符连成符杠便于查看效果）
+const noteWithGrace = note(13, 128, 6, 'down', BeamTypeEnum.Combined); // G4 祝 + 前置倚音
+noteWithGrace.notesInfo[0]!.graceNotes = [
+    {
+        ...frame,
+        id: crypto.randomUUID(),
+        direction: 'down',
+        region: -3,
+        chronaxie: 32,
+        beamType: BeamTypeEnum.Combined,
+        affiliatedSymbols: [],
+    },
+    {
+        ...frame,
+        id: crypto.randomUUID(),
+        direction: 'down',
+        region: 11,
+        chronaxie: 32,
+        beamType: BeamTypeEnum.Combined,
+        affiliatedSymbols: [],
+    },
+];
+
 const phrase1Measure1: Measure = {
     ...frame,
     notes: [
-        note(7, 128, 6, 'down', BeamTypeEnum.Combined), // G4 祝
+        noteWithGrace,
         note(0, 16, 6, 'down', BeamTypeEnum.None), // G4 你
         note(-2, 8, 6, 'down', BeamTypeEnum.OnlyRight), // A4 生
         note(6, 4, 6, 'up', BeamTypeEnum.None), // G4 日
@@ -170,7 +197,7 @@ const phrase1Measure1: Measure = {
     ],
     keySignature_f: {
         id: crypto.randomUUID(),
-        type: KeySignatureTypeEnum.C,
+        type: KeySignatureTypeEnum.D,
         widthRatio: 10,
         widthRatioForMeasure: 10,
         relativeH: 0,
@@ -179,8 +206,8 @@ const phrase1Measure1: Measure = {
         relativeX: 0
     },
     clef_f: clef,
+    clef_b: clef,
     timeSignature_f: time34,
-
     barline_b: {
         barlineType: BarlineTypeEnum.Start_end_repeat_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
@@ -224,7 +251,7 @@ const phrase2Measure1: Measure = {
     clef_f: clef,
     timeSignature_f: time34,
     barline_b: {
-        barlineType: BarlineTypeEnum.Start_end_repeat_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        barlineType: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -243,7 +270,6 @@ const phrase2Measure2: Measure = {
     ...frame,
     notes: [],
     affiliatedSymbols: [],
-
     barline_b: {
         ...frame,
         barlineType: BarlineTypeEnum.Single_barline,
@@ -281,7 +307,6 @@ function barlineMeasure(barlineType: BarlineTypeEnum, isFirst: boolean): Measure
         widthRatioForMeasure: 20,
         id: crypto.randomUUID(),
         affiliatedSymbols: [],
-
         ...(isFirst ? {clef_f: clef, timeSignature_f: time34} : {}),
         barline_b: {
             ...frame,
@@ -307,6 +332,7 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
     };
 }
 
+/** 给音符位加附点（Note 写入各 notesInfo，Rest 写入顶层） */
 function withAugmentationDot(n: NoteSymbol, dot: AugmentationDot): NoteSymbol {
     if (n.type === NoteSymbolTypeEnum.Rest) return {...n, augmentationDot: dot};
     return {...n, notesInfo: n.notesInfo.map((ni) => ({...ni, augmentationDot: dot}))};
@@ -325,14 +351,6 @@ const phrase4Measure1: Measure = {
     ],
     clef_b: clef,
     timeSignature_f: time34,
-    barline_f: {
-        barlineType: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
-        id: crypto.randomUUID(),
-        relativeH: 0,
-        relativeY: 0,
-        relativeW: 0,
-        relativeX: 0
-    },
     barline_b: {
         barlineType: BarlineTypeEnum.Heavy_double_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
@@ -353,7 +371,6 @@ const phrase4Measure2: Measure = {
     ...frame,
     notes: [],
     affiliatedSymbols: [],
-
     barline_b: {
         barlineType: BarlineTypeEnum.Final_barline, widthRatio: 6, widthRatioForMeasure: 6,
         id: crypto.randomUUID(),
@@ -383,13 +400,25 @@ const phrase5Measure1: Measure = {
         noteSlot(
             {
                 chronaxie: 32,
-                notesInfo: [{...frame, id: crypto.randomUUID(), region: 6, accidental: defaultAccidental, affiliatedSymbols: []}],
+                notesInfo: [{
+                    ...frame,
+                    id: crypto.randomUUID(),
+                    region: 6,
+                    accidental: defaultAccidental,
+                    affiliatedSymbols: []
+                }],
                 beamType: BeamTypeEnum.Combined,
                 augmentationDot: augmentationDot(2),
             },
             {
                 chronaxie: 32,
-                notesInfo: [{...frame, id: crypto.randomUUID(), region: 0, accidental: defaultAccidental, affiliatedSymbols: []}],
+                notesInfo: [{
+                    ...frame,
+                    id: crypto.randomUUID(),
+                    region: 0,
+                    accidental: defaultAccidental,
+                    affiliatedSymbols: []
+                }],
                 beamType: BeamTypeEnum.Combined,
             },
             6,
@@ -478,11 +507,6 @@ const data: MusicScore = {
             id: crypto.randomUUID(),
             ...frame,
             linkedStaff: true,
-            bracket: {
-                id: crypto.randomUUID(),
-                type: BracketTypeEnum.Brace,
-                startSingleStaffIndex: 0
-            },
             staves: [
                 {
                     id: crypto.randomUUID(),

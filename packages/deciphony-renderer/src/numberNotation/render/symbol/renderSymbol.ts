@@ -35,6 +35,13 @@ import {
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
 import {getNoteWidthRatio, getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
+import {
+  graceNoteNumberAfterWidth,
+  graceNoteNumberBeforeWidth,
+  renderGraceNotesNumberAfter,
+  renderGraceNotesNumberBefore,
+} from "../grace/renderGraceNumber";
+import {computeOctaveDotYOffsets, noteCenterY} from "../utils/noteLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -44,57 +51,6 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     map.set(id, obj);
   }
   obj[vdom.tag] = vdom;
-}
-
-/** 音符 y 中心：全部居中，堆叠时按 stackIndex 依次 +measureHeight；yOffset 为八度点等导致的累加偏移（负值=上移） */
-function noteCenterY(
-  measureY: number,
-  measureHeight: number,
-  stackIndex: number,
-  noteH = measureHeight,
-  yOffset = 0,
-): number {
-  return measureY + measureHeight / 2 - stackIndex * noteH + yOffset;
-}
-
-/** 计算单个音符的上/下八度点总高度（用于堆叠时累加偏移） */
-function getOctaveDotHeight(
-  octaveDot: number | undefined,
-  dotH: number,
-  fOff: number,
-  spacing: number,
-  isUpper: boolean,
-): number {
-  if (octaveDot == null || octaveDot === 0) return 0;
-  const need = isUpper ? octaveDot > 0 : octaveDot < 0;
-  if (!need) return 0;
-  const count = Math.abs(octaveDot);
-  return fOff + count * dotH + Math.max(0, count - 1) * spacing;
-}
-
-/** 计算和弦各音符的八度点累加 y 偏移：上方音符需累加自己的下八度点 + 下方音符的上下八度点 */
-function computeOctaveDotYOffsets(
-  allNotes: { syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X'; octaveDot?: number }[],
-  dotH: number,
-  fOff: number,
-  spacing: number,
-  lastEdgeMargin: number,
-): number[] {
-  const offsets: number[] = [];
-  const skip = (s: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X') => s === 0 || s === 'X';
-  for (let k = 0; k < allNotes.length; k++) {
-    let acc = 0;
-    for (let j = 0; j < k; j++) {
-      const upperJ = skip(allNotes[j].syllable) ? 0 : getOctaveDotHeight(allNotes[j].octaveDot, dotH, fOff, spacing, true);
-      const lowerJ1 = j + 1 < allNotes.length && !skip(allNotes[j + 1].syllable)
-        ? getOctaveDotHeight(allNotes[j + 1].octaveDot, dotH, fOff, spacing, false)
-        : 0;
-      acc += upperJ + lowerJ1;
-      if (upperJ > 0 && lowerJ1 > 0) acc += lastEdgeMargin;
-    }
-    offsets.push(-acc);
-  }
-  return offsets;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -245,7 +201,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
 
   const notes = measure.notes as NoteNumber[];
-  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n, skin), 0);
+  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n, skin, measureHeight), 0);
   const domainStartX = measureX + prefixW;
   const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
 
@@ -265,7 +221,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i];
-      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin);
+      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin, measureHeight);
       const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
       const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
       if (!useEqualSlots) accRatio += ratio;
@@ -291,7 +247,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
       // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
       const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
-      const headX = slotStartX;
+      const graceBeforeW = isRestSlot ? 0 : graceNoteNumberBeforeWidth(note.graceNotes, skin, measureHeight);
+      const graceAfterW = isRestSlot ? 0 : graceNoteNumberAfterWidth(note.graceNotesAfter, skin, measureHeight);
+      const headX = slotStartX + (effectiveSlotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, isRest: isRestSlot});
 
@@ -304,6 +262,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const octaveDotYOffsets = octaveDotSkin
         ? computeOctaveDotYOffsets(allNotes, octaveDotSkin.h, fOff, spacing, lastEdgeMargin)
         : allNotes.map(() => 0);
+
+      const graceCtx = {
+        measureY,
+        measureHeight,
+        skin,
+        skinName: skinNameForNodes,
+        zIndex: z,
+        idMap,
+        out,
+      };
       // 休止符渲染
       if (isRestSlot) {
         const headKey = NumberNotationSkinKeyEnum.Number_0;
@@ -354,6 +322,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
       } else { // 音符渲染
+        renderGraceNotesNumberBefore(note.graceNotes, headX, graceCtx);
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
@@ -441,6 +410,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
           }
         }
+        renderGraceNotesNumberAfter(note.graceNotesAfter, headX, referenceW, graceCtx);
         // 音符加时线：二分1条、全音符3条，y居中，x等分居中
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {

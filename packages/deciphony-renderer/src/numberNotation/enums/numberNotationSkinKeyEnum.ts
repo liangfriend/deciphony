@@ -115,4 +115,8 @@ export enum NumberNotationSkinKeyEnum {
   addLine = 'addLine', // 简谱高/低音点下方的横线
   /** 八度点：音符上方=高八度，下方=低八度，每点表示一个八度 */
   OctaveDot = 'octaveDot',
+  // 连谱号
+  Bracket = 'bracket',
+  Brace = 'brace',
+  Square = 'square',
 }

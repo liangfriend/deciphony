@@ -9,7 +9,7 @@ import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSk
 import {defaultSkin} from "@/skins/defaultSkin";
 import type {NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
-import {getLinkedBarlineSkinKey} from "./utils/skinKey";
+import {getBracketSkinKey, getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
@@ -173,6 +173,7 @@ export function musicScoreToVDom(
         grandStaffCurrentY += gUH;
 
         let prevMeasureStartY: number | undefined = undefined;
+        const staffMeasureBounds: { measureTopY: number; measureBottomY: number }[] = [];
         for (let i = 0; i < grandStaff.staves.length; i++) {
             const singleStaffStartY = grandStaffCurrentY;
             const staff = grandStaff.staves[i];
@@ -371,6 +372,7 @@ export function musicScoreToVDom(
             });
             grandStaffCurrentY += staffUSpaceI;
 
+            const measureTopY = grandStaffCurrentY;
             measureCurrentX = grandStaffX;
             const closeLineSkinKey = NumberNotationSkinKeyEnum.Close_line;
             const closeLineItem = skin[closeLineSkinKey];
@@ -455,6 +457,7 @@ export function musicScoreToVDom(
                 measureCurrentX += measureWidth;
             }
             grandStaffCurrentY += measureHeight;
+            const measureBottomY = measureTopY + measureHeight;
             measureCurrentX = grandStaffX;
             // ==============================================下方插槽====================================================
             vDoms.push({
@@ -517,6 +520,40 @@ export function musicScoreToVDom(
             slSlot.h = grandStaffCurrentY - singleStaffStartY;
             srSlot.h = grandStaffCurrentY - singleStaffStartY;
             prevMeasureStartY = singleStaffStartY + staffUSpaceO + sUH + staffUSpaceI;
+            staffMeasureBounds.push({measureTopY, measureBottomY});
+        }
+
+        const bracket = grandStaff.bracket;
+        if (bracket) {
+            const startIdx = bracket.startSingleStaffIndex;
+            const endIdx = grandStaff.staves.length - 1;
+            if (
+                startIdx >= 0 &&
+                startIdx < staffMeasureBounds.length &&
+                endIdx >= startIdx &&
+                endIdx - startIdx + 1 >= 2
+            ) {
+                const topY = staffMeasureBounds[startIdx]!.measureTopY;
+                const bottomY = staffMeasureBounds[endIdx]!.measureBottomY;
+                const bracketSkinKey = getBracketSkinKey(bracket.type);
+                const bracketItem = skin[bracketSkinKey];
+                const bracketW = bracketItem?.w ?? 16;
+                vDoms.push({
+                    startPoint: {x: 0, y: 0},
+                    endPoint: {x: 0, y: 0},
+                    special: {},
+                    x: grandStaffX - bracketW,
+                    y: topY,
+                    w: bracketW,
+                    h: bottomY - topY,
+                    zIndex: 1200,
+                    tag: 'bracket',
+                    skinKey: bracketSkinKey,
+                    skinName: effectiveSkinName,
+                    targetId: bracket.id,
+                    dataComment: '连谱号',
+                });
+            }
         }
 
         vDoms.push({

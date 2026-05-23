@@ -1606,6 +1606,27 @@ const standardStaffSkin: StandardStaffSkinPack = {
         h: 11,
         skinKey: StandardStaffSkinKeyEnum.AddLine_d,
     },
+    /**
+     * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
+     */
+    [StandardStaffSkinKeyEnum.Bracket]: {
+        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
+        w: 30,
+        h: 0, // 动态高度，取决于复谱表
+        skinKey: StandardStaffSkinKeyEnum.Bracket,
+    },
+    [StandardStaffSkinKeyEnum.Brace]: {
+        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
+        w: 30,
+        h: 0, // 动态高度，取决于复谱表
+        skinKey: StandardStaffSkinKeyEnum.Brace,
+    },
+    [StandardStaffSkinKeyEnum.Square]: {
+        content: `<rect x="0" y="10" width="30" height="node.h" stroke="black" fill="transparent" />`,
+        w: 30,
+        h: 0, // 动态高度，取决于复谱表
+        skinKey: StandardStaffSkinKeyEnum.Square,
+    },
 } as StandardStaffSkinPack;
 
 // 简谱拍号：复用五线谱的上下数字样式
@@ -1844,8 +1865,11 @@ const numberNotationSkin: NumberNotationSkinPack = {
         widthRatio: 10,
         widthRatioForMeasure: 10,
     },
-    [NumberNotationSkinKeyEnum.Close_line]: { ...closeLine, skinKey: NumberNotationSkinKeyEnum.Close_line },
-    [NumberNotationSkinKeyEnum.linked_close_line]: { ...linkedCloseLine, skinKey: NumberNotationSkinKeyEnum.linked_close_line },
+    [NumberNotationSkinKeyEnum.Close_line]: {...closeLine, skinKey: NumberNotationSkinKeyEnum.Close_line},
+    [NumberNotationSkinKeyEnum.linked_close_line]: {
+        ...linkedCloseLine,
+        skinKey: NumberNotationSkinKeyEnum.linked_close_line
+    },
     [NumberNotationSkinKeyEnum.Single_barline]: {
         content: singleBarline.content,
         w: singleBarline.w,
@@ -1934,17 +1958,50 @@ const numberNotationSkin: NumberNotationSkinPack = {
         widthRatio: 4,
         widthRatioForMeasure: 4,
     },
-    [NumberNotationSkinKeyEnum.linked_single_barline]: { ...linkedSingleBarline, skinKey: NumberNotationSkinKeyEnum.linked_single_barline },
-    [NumberNotationSkinKeyEnum.linked_double_barline]: { ...linkedDoubleBarline, skinKey: NumberNotationSkinKeyEnum.linked_double_barline },
-    [NumberNotationSkinKeyEnum.linked_startRepeat_barline]: { ...linkedStartRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_startRepeat_barline },
-    [NumberNotationSkinKeyEnum.linked_endRepeat_barline]: { ...linkedEndRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_endRepeat_barline },
-    [NumberNotationSkinKeyEnum.linked_dashed_barline]: { ...linkedDashedBarline, skinKey: NumberNotationSkinKeyEnum.linked_dashed_barline },
-    [NumberNotationSkinKeyEnum.linked_final_barline]: { ...linkedFinalBarline, skinKey: NumberNotationSkinKeyEnum.linked_final_barline },
-    [NumberNotationSkinKeyEnum.linked_start_end_repeat_barline]: { ...linkedStartEndRepeatBarline, skinKey: NumberNotationSkinKeyEnum.linked_start_end_repeat_barline },
-    [NumberNotationSkinKeyEnum.linked_dotted_barline]: { ...linkedDottedBarline, skinKey: NumberNotationSkinKeyEnum.linked_dotted_barline },
-    [NumberNotationSkinKeyEnum.linked_reverse_barline]: { ...linkedReverseBarline, skinKey: NumberNotationSkinKeyEnum.linked_reverse_barline },
-    [NumberNotationSkinKeyEnum.linked_heavy_barline]: { ...linkedHeavyBarline, skinKey: NumberNotationSkinKeyEnum.linked_heavy_barline },
-    [NumberNotationSkinKeyEnum.linked_heavy_double_barline]: { ...linkedHeavyDoubleBarline, skinKey: NumberNotationSkinKeyEnum.linked_heavy_double_barline },
+    [NumberNotationSkinKeyEnum.linked_single_barline]: {
+        ...linkedSingleBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_single_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_double_barline]: {
+        ...linkedDoubleBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_double_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_startRepeat_barline]: {
+        ...linkedStartRepeatBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_startRepeat_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_endRepeat_barline]: {
+        ...linkedEndRepeatBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_endRepeat_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_dashed_barline]: {
+        ...linkedDashedBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_dashed_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_final_barline]: {
+        ...linkedFinalBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_final_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_start_end_repeat_barline]: {
+        ...linkedStartEndRepeatBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_start_end_repeat_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_dotted_barline]: {
+        ...linkedDottedBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_dotted_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_reverse_barline]: {
+        ...linkedReverseBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_reverse_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_heavy_barline]: {
+        ...linkedHeavyBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_heavy_barline
+    },
+    [NumberNotationSkinKeyEnum.linked_heavy_double_barline]: {
+        ...linkedHeavyDoubleBarline,
+        skinKey: NumberNotationSkinKeyEnum.linked_heavy_double_barline
+    },
     [NumberNotationSkinKeyEnum['1_1']]: makeNumberNotationTimeSignature('1', '1', NumberNotationSkinKeyEnum['1_1']),
     [NumberNotationSkinKeyEnum['1_4']]: makeNumberNotationTimeSignature('1', '4', NumberNotationSkinKeyEnum['1_4']),
     [NumberNotationSkinKeyEnum['2_4']]: makeNumberNotationTimeSignature('2', '4', NumberNotationSkinKeyEnum['2_4']),
@@ -2049,6 +2106,27 @@ const numberNotationSkin: NumberNotationSkinPack = {
         w: 44.28,
         h: 3,
         skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    },
+    /**
+     * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
+     */
+    [NumberNotationSkinKeyEnum.Bracket]: {
+        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
+        w: 30,
+        h: 0,
+        skinKey: NumberNotationSkinKeyEnum.Bracket,
+    },
+    [NumberNotationSkinKeyEnum.Brace]: {
+        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
+        w: 30,
+        h: 0,
+        skinKey: NumberNotationSkinKeyEnum.Brace,
+    },
+    [NumberNotationSkinKeyEnum.Square]: {
+        content: `<rect x="0" y="10" width="30" height="node.h" stroke="black" fill="transparent" />`,
+        w: 30,
+        h: 0,
+        skinKey: NumberNotationSkinKeyEnum.Square,
     },
 }
 export const defaultSkin: SkinPack = {

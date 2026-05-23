@@ -1,6 +1,7 @@
 import {
   AccidentalTypeEnum,
   BarlineTypeEnum,
+  BracketTypeEnum,
   ClefTypeEnum,
   KeySignatureTypeEnum,
   TimeSignatureTypeEnum,
@@ -180,6 +181,16 @@ export function getAccidentalSkinKey(type: AccidentalTypeEnum): NumberNotationSk
     [AccidentalTypeEnum.Natural]: NumberNotationSkinKeyEnum.Natural,
   };
   return map[type] ?? NumberNotationSkinKeyEnum.Natural;
+}
+
+/** 连谱号类型 → 皮肤 key */
+export function getBracketSkinKey(type: BracketTypeEnum): NumberNotationSkinKeyEnum {
+  const map: Record<BracketTypeEnum, NumberNotationSkinKeyEnum> = {
+    [BracketTypeEnum.Bracket]: NumberNotationSkinKeyEnum.Bracket,
+    [BracketTypeEnum.Brace]: NumberNotationSkinKeyEnum.Brace,
+    [BracketTypeEnum.Square]: NumberNotationSkinKeyEnum.Square,
+  };
+  return map[type] ?? NumberNotationSkinKeyEnum.Bracket;
 }
 
 export function getAugmentationDotSkinKey(augmentationDot: AugmentationDot): NumberNotationSkinKeyEnum {

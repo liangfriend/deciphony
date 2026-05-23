@@ -25,6 +25,7 @@ export type VDomTagType =
     | 'linked_barline' // 连谱小节线
     | 'close_line'     // 闭合线（第一小节左侧）
     | 'linked_close_line' // 连谱闭合线
+    | 'bracket'        // 连谱号（不参与布局，浮于谱表左侧）
     | 'noteStem'       // 符干
     | 'noteTail'       // 符尾
     | 'noteBeam'       // 符杠

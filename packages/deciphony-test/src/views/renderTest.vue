@@ -1,10 +1,11 @@
 <template>
   <div class="container">
     <div class="left">
-      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50}}" @renderMusicScore="renderMusicScore"
+      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
+                   @renderMusicScore="renderMusicScore"
                    skin-name="default"/>
     </div>
-    <div class="right" v-if="false">
+    <div class="right" v-if="true">
       <textarea
           :value="jsonText"
           class="json-editor"

@@ -3,6 +3,7 @@ import {computed} from 'vue'
 import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, StandardStaffSkinPack, VDom} from "@/types/common";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
+import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 
 defineOptions({
   name: 'Group',
@@ -53,6 +54,8 @@ const comment = computed(() => {
       return '闭合线'
     case 'linked_close_line':
       return '连谱闭合线'
+    case 'bracket':
+      return '连谱号'
     case 'noteStem':
       return '符干'
     case 'noteTail':
@@ -66,6 +69,7 @@ const comment = computed(() => {
 
 const skinPack = computed<SkinPack>(() => {
   const name = props.node.skinName ?? 'default'
+  console.log('chicken', defaultSkin.standardStaff[StandardStaffSkinKeyEnum.Bracket])
   return props.skin?.[name] ?? defaultSkin
 })
 

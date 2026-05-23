@@ -3,7 +3,7 @@ import type { StandardStaffSkinKeyEnum } from "@/standardStaff/enums/standardSta
 /** 按曲谱模式区分的 skinKey 联合类型 */
 export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum;
 /** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
-export type VDomTagType = 'title' | 'root' | 'grandStaff' | 'singleStaff' | 'measure' | 'noteHead' | 'rest' | 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline_f' | 'barline_b' | 'linked_barline' | 'close_line' | 'noteStem' | 'noteTail' | 'noteBeam' | 'accidental' | 'addLine' | 'slot' | 'space' | 'affiliation';
+export type VDomTagType = 'title' | 'root' | 'grandStaff' | 'singleStaff' | 'measure' | 'noteHead' | 'rest' | 'clef_f' | 'clef_b' | 'keySignature_f' | 'keySignature_b' | 'timeSignature_f' | 'timeSignature_b' | 'barline_f' | 'barline_b' | 'linked_barline' | 'close_line' | 'linked_close_line' | 'bracket' | 'noteStem' | 'noteTail' | 'noteBeam' | 'accidental' | 'addLine' | 'slot' | 'space' | 'affiliation';
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256;
 export type VDom = {

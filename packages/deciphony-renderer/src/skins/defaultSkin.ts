@@ -1659,7 +1659,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
         skinKey: NumberNotationSkinKeyEnum.Number_0
     },
     [NumberNotationSkinKeyEnum.Number_1]: {
-        content: `<g transform="translate(-5.1660, -1.7500)">
+        content: `<g transform="translate(-3.3301, -1.7500)">
         <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">1</text>
 </g>`,
         w: 14.16,

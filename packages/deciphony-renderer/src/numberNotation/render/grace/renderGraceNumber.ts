@@ -12,28 +12,20 @@ import {
   ACCIDENTAL_NOTE_Y_OFFSET,
   AUGMENTATION_DOT_X_GAP,
   AUGMENTATION_DOT_Y_OFFSET,
-  OCTAVE_DOT_FIRST_OFFSET,
-  OCTAVE_DOT_LAST_EDGE_MARGIN,
-  OCTAVE_DOT_SPACING,
-  REDUCE_LINE_Y_OFFSET,
 } from "../constants";
 import {
+  chronaxieToBeamLineCount,
   getAccidentalSkinKey,
   getAugmentationDotSkinKey,
   getReduceLineSkinKey,
   getSyllableSkinKey,
 } from "../utils/skinKey";
 import {computeOctaveDotYOffsets, noteCenterY} from "../utils/noteLayout";
-import {GRACE_NOTE_SCALE, graceNoteSpacing, withGraceScale} from "@/render/graceNote";
-import {boxYForVisualTop, scaledSpan, visualBottomFromBox} from "@/render/vdomScale";
+import {GRACE_NOTE_SCALE, GRACE_OCTAVE_DOT_FIRST_OFFSET, GRACE_OCTAVE_DOT_LAST_EDGE_MARGIN, GRACE_OCTAVE_DOT_SPACING, GRACE_REDUCE_LINE_Y_OFFSET, graceNoteSpacing, withGraceScale} from "@/render/graceNote";
+import {boxYForVisualTop, scaledSpan, visualBottomFromBox, visualTopFromBox} from "@/render/vdomScale";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 
 const S = GRACE_NOTE_SCALE;
-
-/** 倚音附属元素：先算视觉目标 y，再反推 center 缩放下的布局 y */
-function graceBoxY(targetVisualTop: number, h: number): number {
-  return boxYForVisualTop(targetVisualTop, h, S);
-}
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -44,8 +36,110 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   obj[vdom.tag] = vdom;
 }
 
+function graceBoxY(targetVisualTop: number, h: number): number {
+  return boxYForVisualTop(targetVisualTop, h, S);
+}
+
+/** center 缩放：视觉宽度 → 布局盒 (x,w) */
+function layoutBoxForVisualSpan(visualLeft: number, visualWidth: number, h: number): { x: number; w: number; h: number } {
+  const w = visualWidth / S;
+  return {x: visualLeft - w * (1 - S) / 2, w, h};
+}
+
 function pushGrace(out: VDom[], v: VDom): void {
   out.push(withGraceScale(v));
+}
+
+type GraceReduceSlot = {
+  note: NoteNumber;
+  visualLeft: number;
+  visualRight: number;
+  visualW: number;
+  visualBottom: number;
+};
+
+function buildGraceReduceSlot(
+  note: NoteNumber,
+  headX: number,
+  skin: NumberNotationSkinPack,
+  measureY: number,
+  measureHeight: number,
+): GraceReduceSlot | null {
+  const ni = note.notesInfo[0];
+  if (!ni) return null;
+  const numSkin = skin[getSyllableSkinKey(ni.syllable)];
+  if (!numSkin) return null;
+  const numW = numSkin.w;
+  const numH = numSkin.h;
+  const hcy = noteCenterY(measureY, measureHeight, 0, numH);
+  const ny = boxYForVisualTop(hcy - numH / 2, numH, S);
+  const visualW = scaledSpan(numW, S);
+  const visualLeft = headX + numW * (1 - S) / 2;
+  return {
+    note,
+    visualLeft,
+    visualRight: visualLeft + visualW,
+    visualW,
+    visualBottom: visualBottomFromBox(ny, numH, S),
+  };
+}
+
+/** 第二遍：倚音减时线连接（规则同 renderSymbol 主音符） */
+function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumberCtx): void {
+  const {skin, skinName, zIndex, out, measureHeight} = ctx;
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i]!;
+    if (slot.note.chronaxie > 32) continue;
+    const reduceLineKey = getReduceLineSkinKey(slot.note.chronaxie);
+    const reduceLineSkin = skin[reduceLineKey];
+    if (!reduceLineSkin) continue;
+
+    const beamType = slot.note.beamType ?? BeamTypeEnum.None;
+    const myCount = chronaxieToBeamLineCount(slot.note.chronaxie);
+    let leftIdx = i;
+    let rightIdx = i;
+    if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
+      if (beamType === BeamTypeEnum.Combined) {
+        for (let j = i - 1; j >= 0; j--) {
+          const s = slots[j]!;
+          if (s.note.chronaxie > 32) break;
+          if (s.note.beamType !== BeamTypeEnum.Combined) break;
+          leftIdx = j;
+        }
+      }
+      for (let j = i + 1; j < slots.length; j++) {
+        const s = slots[j]!;
+        if (s.note.chronaxie > 32) break;
+        if (s.note.beamType !== BeamTypeEnum.Combined) break;
+        rightIdx = j;
+      }
+    }
+    const leftSlot = leftIdx < i ? slots[i - 1]! : null;
+    const rightSlot = rightIdx > i ? slots[i + 1]! : null;
+    const leftCount = leftSlot && leftSlot.note.chronaxie <= 32
+      ? chronaxieToBeamLineCount(leftSlot.note.chronaxie) : Infinity;
+    const rightCount = rightSlot && rightSlot.note.chronaxie <= 32
+      ? chronaxieToBeamLineCount(rightSlot.note.chronaxie) : Infinity;
+
+    let visualLineLeft = slot.visualLeft;
+    let visualLineRight = slot.visualRight;
+    if (myCount < leftCount && leftSlot) {
+      visualLineLeft = leftSlot.visualRight;
+    }
+    if (myCount <= rightCount && rightSlot) {
+      visualLineRight = rightSlot.visualRight;
+    }
+    visualLineRight = Math.max(visualLineRight, visualLineLeft + slot.visualW);
+
+    const targetReduceTop = slot.visualBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
+    const box = layoutBoxForVisualSpan(visualLineLeft, visualLineRight - visualLineLeft, reduceLineSkin.h);
+    pushGrace(out, {
+      startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+      x: box.x, y: graceBoxY(targetReduceTop, reduceLineSkin.h), w: box.w, h: box.h, zIndex,
+      tag: 'accidental', skinName, targetId: slot.note.notesInfo[0]!.id,
+      skinKey: reduceLineKey, dataComment: '倚音减时线',
+    });
+  }
 }
 
 /** 单条倚音 NoteNumber 占位宽度（视觉缩放后） */
@@ -112,7 +206,7 @@ export type RenderGraceNumberCtx = {
   out: VDom[];
 };
 
-/** 在 headX 渲染一条倚音；数字顶边与主音对齐，附属元素相对缩放后的视觉边界 + 常量间距 */
+/** 在 headX 渲染一条倚音（不含减时线；减时线由 processGraceReduceLines 第二遍连接） */
 export function renderGraceNoteNumberAt(
   note: NoteNumber,
   headX: number,
@@ -121,14 +215,12 @@ export function renderGraceNoteNumberAt(
   const {measureY, measureHeight, skin, skinName, zIndex, idMap, out} = ctx;
   const allNotes = note.notesInfo.slice();
   const octaveDotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
-  const fOff = OCTAVE_DOT_FIRST_OFFSET * measureHeight;
-  const spacing = OCTAVE_DOT_SPACING * measureHeight;
-  const lastEdgeMargin = OCTAVE_DOT_LAST_EDGE_MARGIN * measureHeight;
+  const fOff = GRACE_OCTAVE_DOT_FIRST_OFFSET * measureHeight;
+  const spacing = GRACE_OCTAVE_DOT_SPACING * measureHeight;
+  const lastEdgeMargin = GRACE_OCTAVE_DOT_LAST_EDGE_MARGIN * measureHeight;
   const octaveDotYOffsets = octaveDotSkin
-    ? computeOctaveDotYOffsets(allNotes, octaveDotSkin.h, fOff, spacing, lastEdgeMargin)
+    ? computeOctaveDotYOffsets(allNotes, scaledSpan(octaveDotSkin.h, S), fOff, spacing, lastEdgeMargin)
     : allNotes.map(() => 0);
-
-  let lowestGraceVisualBottom = 0;
 
   for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
     const n = allNotes[stackIdx]!;
@@ -139,9 +231,6 @@ export function renderGraceNoteNumberAt(
     const mainNy = hcy - numItem.h / 2;
     const ny = boxYForVisualTop(mainNy, numItem.h, S);
     const noteVisualBottom = visualBottomFromBox(ny, numItem.h, S);
-    if (stackIdx === 0) {
-      lowestGraceVisualBottom = noteVisualBottom;
-    }
 
     if (n.accidental) {
       const accSkinKey = getAccidentalSkinKey(n.accidental.type);
@@ -171,7 +260,8 @@ export function renderGraceNoteNumberAt(
       const dotCount = Math.abs(n.octaveDot!);
       const dotX = headX + (numItem.w - octaveDotSkin.w) / 2;
       if (n.octaveDot! > 0) {
-        let targetDotTop = mainNy - fOff - octaveDotSkin.h;
+        const dotH = scaledSpan(octaveDotSkin.h, S);
+        let targetDotTop = visualTopFromBox(ny, numItem.h, S) - fOff - dotH;
         for (let k = 0; k < dotCount; k++) {
           pushGrace(out, {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
@@ -179,17 +269,18 @@ export function renderGraceNoteNumberAt(
             tag: 'accidental', skinName, targetId: n.id,
             skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '倚音八度点',
           });
-          targetDotTop -= octaveDotSkin.h + spacing;
+          targetDotTop -= dotH + spacing;
         }
       } else {
         let baseBottom: number;
         if (stackIdx === 0 && note.chronaxie <= 32) {
           const reduceLineSkin = skin[getReduceLineSkinKey(note.chronaxie)];
-          const reduceVisualTop = noteVisualBottom + REDUCE_LINE_Y_OFFSET * measureHeight;
+          const reduceVisualTop = noteVisualBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
           baseBottom = reduceVisualTop + scaledSpan(reduceLineSkin?.h ?? 0, S);
         } else {
           baseBottom = noteVisualBottom;
         }
+        const dotH = scaledSpan(octaveDotSkin.h, S);
         let targetDotTop = baseBottom + fOff;
         for (let k = 0; k < dotCount; k++) {
           pushGrace(out, {
@@ -198,7 +289,7 @@ export function renderGraceNoteNumberAt(
             tag: 'accidental', skinName, targetId: n.id,
             skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '倚音八度点',
           });
-          targetDotTop += octaveDotSkin.h + spacing;
+          targetDotTop += dotH + spacing;
         }
       }
     }
@@ -226,23 +317,6 @@ export function renderGraceNoteNumberAt(
       });
     }
   }
-
-  if (note.chronaxie <= 32 && allNotes[0]) {
-    const reduceLineKey = getReduceLineSkinKey(note.chronaxie);
-    const reduceLineSkin = skin[reduceLineKey];
-    const lowest = allNotes[0];
-    const lowestSkin = skin[getSyllableSkinKey(lowest.syllable)];
-    if (reduceLineSkin && lowestSkin) {
-      const targetReduceTop = lowestGraceVisualBottom + REDUCE_LINE_Y_OFFSET * measureHeight;
-      const lineW = lowestSkin.w * (note.beamType === BeamTypeEnum.None ? 1 : 1.5);
-      pushGrace(out, {
-        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-        x: headX, y: graceBoxY(targetReduceTop, reduceLineSkin.h), w: lineW, h: reduceLineSkin.h, zIndex,
-        tag: 'accidental', skinName, targetId: lowest.id,
-        skinKey: reduceLineKey, dataComment: '倚音减时线',
-      });
-    }
-  }
 }
 
 /** 前置倚音：index0 靠主音，整体向左扩散 */
@@ -253,14 +327,18 @@ export function renderGraceNotesNumberBefore(
 ): void {
   if (!graceNotes?.length) return;
   const gap = graceNoteSpacing(ctx.measureHeight);
+  const reduceSlots: GraceReduceSlot[] = [];
   let x = mainHeadX - gap;
   for (let i = 0; i < graceNotes.length; i++) {
     const gn = graceNotes[i]!;
     const gw = estimateGraceNoteNumberWidth(gn, ctx.skin, ctx.measureHeight);
     x -= gw;
     renderGraceNoteNumberAt(gn, x, ctx);
+    const slot = buildGraceReduceSlot(gn, x, ctx.skin, ctx.measureY, ctx.measureHeight);
+    if (slot) reduceSlots.unshift(slot);
     if (i < graceNotes.length - 1) x -= gap;
   }
+  processGraceReduceLines(reduceSlots, ctx);
 }
 
 /** 后置倚音：向右扩散 */
@@ -272,10 +350,14 @@ export function renderGraceNotesNumberAfter(
 ): void {
   if (!graceNotesAfter?.length) return;
   const gap = graceNoteSpacing(ctx.measureHeight);
+  const reduceSlots: GraceReduceSlot[] = [];
   let x = mainHeadX + mainRefW + gap;
   for (let i = 0; i < graceNotesAfter.length; i++) {
     const gn = graceNotesAfter[i]!;
     renderGraceNoteNumberAt(gn, x, ctx);
+    const slot = buildGraceReduceSlot(gn, x, ctx.skin, ctx.measureY, ctx.measureHeight);
+    if (slot) reduceSlots.push(slot);
     x += estimateGraceNoteNumberWidth(gn, ctx.skin, ctx.measureHeight) + gap;
   }
+  processGraceReduceLines(reduceSlots, ctx);
 }

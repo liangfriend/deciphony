@@ -166,17 +166,17 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
 }
 
 // 第一行：祝你生日快乐 旋律 C 大调 3/4  (5 5 6 5 1 7 | 5 - -)
-const noteWithGrace = note(1, 32, 6, BeamTypeEnum.Combined, accidentalSharp, null, -2); // 5 祝 + 前置倚音
-noteWithGrace.graceNotes = [note(2, 32, 6, BeamTypeEnum.Combined,), note(3, 32, 6, BeamTypeEnum.Combined, accidentalSharp,)];
+const noteWithGrace = note(1, 32, 6, BeamTypeEnum.Combined, null, augmentationDot(0), -2); // 5 祝 + 前置倚音
+noteWithGrace.graceNotesAfter = [note(2, 32, 6, BeamTypeEnum.Combined, null, augmentationDot(0), -2), note(3, 32, 6, BeamTypeEnum.None, accidentalSharp,)];
 
 const phrase1Measure1: Measure = {
     ...frame,
     notes: [
         noteWithGrace,
-        note(1, 32, 6, BeamTypeEnum.Combined, accidentalFlat), // 5 你
+        note(3, 32, 6, BeamTypeEnum.None, accidentalFlat), // 5 你
         note(2, 64, 6, BeamTypeEnum.None, accidentalNatural), // 6 生
-        note(3, 64, 6, BeamTypeEnum.Combined, accidentalDoubleSharp), // 5 日
-        note(4, 64, 6, BeamTypeEnum.Combined, accidentalDoubleFlat), // 1 快
+        note(3, 32, 6, BeamTypeEnum.Combined, accidentalDoubleSharp, augmentationDot(0), -2), // 5 日
+        note(4, 32, 6, BeamTypeEnum.Combined, accidentalDoubleFlat), // 1 快
         note(5, 64, 6, BeamTypeEnum.None), // 7 乐
     ] as NoteNumber[],
     keySignature_f: {

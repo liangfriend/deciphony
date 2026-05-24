@@ -11,6 +11,15 @@ export function withGraceScale(v: VDom): VDom {
 /** 倚音间距：相对小节高度 measureHeight 的比例（主音与最近倚音、倚音之间） */
 export const GRACE_NOTE_SPACING_RATIO = 1 / 8;
 
+/** 倚音减时线相对音符视觉底边的 y 偏移（与 measureHeight 的比值） */
+export const GRACE_REDUCE_LINE_Y_OFFSET = 0;
+/** 倚音八度点：第一个点与音符（或减时线）的距离（与 measureHeight 的比值） */
+export const GRACE_OCTAVE_DOT_FIRST_OFFSET = 0;
+/** 倚音八度点：相邻点垂直间距（约为普通音符一半，匹配 0.5 缩放） */
+export const GRACE_OCTAVE_DOT_SPACING = 1 / 16;
+/** 倚音八度点：最后一粒点与相邻反向八度点的边距 */
+export const GRACE_OCTAVE_DOT_LAST_EDGE_MARGIN = 1 / 8;
+
 export function graceNoteSpacing(measureHeight: number): number {
   return GRACE_NOTE_SPACING_RATIO * measureHeight;
 }

@@ -64,7 +64,7 @@ export type Measure = {
     timeSignature_f?: TimeSignature,
     timeSignature_b?: TimeSignature,
     widthRatioForMeasure?: number,
-    affiliatedSymbols: (SingleNoteAffiliatedSymbol | SingleMeasureAffiliatedSymbol)[] // 单音符、单小节附属型
+    affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
 } & Frame
 
 /*
@@ -160,11 +160,11 @@ export type NoteSymbol = ({
     id: string
     type: NoteSymbolTypeEnum // rest 时 notesInfo 不渲染
     notesInfo: NotesInfo[]
-    /** 休止符时值；type 为 Rest 时使用 */
+    /** 时值 */
     chronaxie?: Chronaxie
-    /** 休止符附点；type 为 Rest 时使用 */
+    /** 附点 */
     augmentationDot?: AugmentationDot
-    /** 休止符单音符附属；type 为 Rest 时使用 */
+    /** 单音符附属 */
     affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
     clef?: Clef
     widthRatio?: number

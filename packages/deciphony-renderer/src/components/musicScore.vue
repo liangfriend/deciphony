@@ -18,6 +18,7 @@
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
 
         </slot>
+        <Group v-else :node="node" :notation-type="data.type" :skin="skin"/>
       </g>
     </template>
   </svg>

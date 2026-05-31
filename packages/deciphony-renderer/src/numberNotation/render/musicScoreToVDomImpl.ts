@@ -13,7 +13,7 @@ import {getBracketSkinKey, getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
-import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
+import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -436,6 +436,14 @@ export function musicScoreToVDom(
                     skinName: effectiveSkinName,
                     idMap: nodeIdMap,
                 }));
+                renderSingleMeasureAffiliatedSymbols(
+                    measure,
+                    measureCurrentX,
+                    grandStaffCurrentY,
+                    measureWidth,
+                    measureHeight,
+                    {VDoms: vDoms, idMap: nodeIdMap, skinName: effectiveSkinName, skin, measureHeight},
+                );
                 /*
                 * 渲染符杠
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
@@ -620,7 +628,12 @@ export function musicScoreToVDom(
     * 渲染双音符或双小节附属符号
     * slur,volta
     * */
-    renderDoubleAffiliatedSymbol({idMap: nodeIdMap, musicScore, VDoms: vDoms, skinName: effectiveSkinName});
+    renderMusicScoreAffiliatedSymbols(musicScore, {
+        VDoms: vDoms,
+        idMap: nodeIdMap,
+        skinName: effectiveSkinName,
+        skin,
+    });
     vDoms.sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
     return vDoms;
 }

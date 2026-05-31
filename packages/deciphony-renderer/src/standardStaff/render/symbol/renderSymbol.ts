@@ -30,6 +30,7 @@ import {
     renderGraceNotesAfter,
     renderGraceNotesBefore,
 } from "../grace/renderGraceStaff";
+import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     let obj = map.get(id);
@@ -401,6 +402,13 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     };
                     out.push(vdom);
                     setNodeIdMap(idMap, n.id, vdom);
+                    renderSingleNoteAffiliatedSymbols(n.affiliatedSymbols, vdom, {
+                        VDoms: out,
+                        idMap,
+                        skinName: skinNameForNodes,
+                        skin,
+                        measureHeight,
+                    });
                     if (!firstHeadVDom) firstHeadVDom = vdom;
                     renderGraceNotesAfter(n.graceNotesAfter, headX, headItem.w, graceCtx);
                 });

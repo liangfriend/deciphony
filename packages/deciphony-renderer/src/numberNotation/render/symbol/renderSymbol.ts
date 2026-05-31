@@ -43,6 +43,7 @@ import {
 } from "../grace/renderGraceNumber";
 import {computeOctaveDotYOffsets, noteCenterY} from "../utils/noteLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
+import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -409,6 +410,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               dotY += octaveDotSkin.h + spacing;
             }
           }
+        }
+        if (firstHeadVDom) {
+          renderSingleNoteAffiliatedSymbols(note.affiliatedSymbols, firstHeadVDom, {
+            VDoms: out,
+            idMap,
+            skinName: skinNameForNodes,
+            skin,
+            measureHeight,
+          });
         }
         renderGraceNotesNumberAfter(note.graceNotesAfter, headX, referenceW, graceCtx);
         // 音符加时线：二分1条、全音符3条，y居中，x等分居中

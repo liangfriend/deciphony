@@ -109,6 +109,8 @@ export type DoubleMeasureAffiliatedSymbol = {
     data: {
         volta?: {
             text: string
+            /** 盒子高度（× measureHeight），默认 0.5 */
+            heightRatio?: number
         }
     }
 } & Frame

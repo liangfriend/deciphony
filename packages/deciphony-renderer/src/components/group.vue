@@ -57,6 +57,10 @@ const comment = computed(() => {
       return '连谱闭合线'
     case 'bracket':
       return '连谱号'
+    case 'repeat_f':
+      return '小节前反复'
+    case 'repeat_b':
+      return '小节末反复'
     case 'noteStem':
       return '符干'
     case 'noteTail':

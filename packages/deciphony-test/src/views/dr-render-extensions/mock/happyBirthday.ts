@@ -1,16 +1,17 @@
 import {
     AccidentalTypeEnum,
-
-    BarlineTypeEnum, BracketTypeEnum,
+    BarlineTypeEnum,
+    BeamTypeEnum,
+    BracketTypeEnum,
     ClefTypeEnum,
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
+    MeasureEndRepeatEnum,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
-import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {
     Accidental,
     AugmentationDot,
@@ -252,6 +253,14 @@ const phrase2Measure1: Measure = {
     timeSignature_f: time34,
     barline_b: {
         barlineType: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        id: crypto.randomUUID(),
+        relativeH: 0,
+        relativeY: 0,
+        relativeW: 0,
+        relativeX: 0
+    },
+    endRepeat: {
+        type: MeasureEndRepeatEnum.DC,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,

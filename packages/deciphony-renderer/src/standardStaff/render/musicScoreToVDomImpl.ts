@@ -15,6 +15,7 @@ import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbo
 import {processBeam} from "./beam/processBeam";
 import {processGraceBeam} from "./beam/processGraceBeam";
 import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
+import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
 import {BarlineTypeEnum} from "@/enums/musicScoreEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -432,6 +433,16 @@ export function musicScoreToVDom(
                     skinName: effectiveSkinName,
                 });
                 vDoms.push(...symbolVDoms);
+                vDoms.push(...renderMeasureRepeat({
+                    measure,
+                    measureX: measureCurrentX,
+                    measureY: grandStaffCurrentY,
+                    measureWidth,
+                    measureHeight,
+                    skin,
+                    skinName: effectiveSkinName,
+                    idMap: nodeIdMap,
+                }));
                 /*
                 * 渲染符杠
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）

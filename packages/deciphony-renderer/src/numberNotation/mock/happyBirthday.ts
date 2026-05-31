@@ -9,6 +9,8 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
+    MeasureEndRepeatEnum,
+    MeasureStartRepeatEnum,
     MusicScoreTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
@@ -199,6 +201,16 @@ const phrase1Measure1: Measure = {
     widthRatioForMeasure: 100,
     id: crypto.randomUUID(),
     affiliatedSymbols: [],
+    startRepeat: {
+        ...frame,
+        id: crypto.randomUUID(),
+        type: MeasureStartRepeatEnum.Coda,
+    },
+    endRepeat: {
+        ...frame,
+        id: crypto.randomUUID(),
+        type: MeasureEndRepeatEnum.To_coda,
+    },
     ...frame,
 };
 const phrase1Measure2: Measure = {

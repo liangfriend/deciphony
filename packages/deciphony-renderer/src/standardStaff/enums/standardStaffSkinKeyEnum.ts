@@ -115,5 +115,16 @@ export enum StandardStaffSkinKeyEnum {
     // 连谱号
     Bracket = 'bracket', // 标准连谱号
     Brace = 'brace', // 大括号
-    Square = 'square' // 中括号
+    Square = 'square', // 中括号
+    // 反复符号（不含反复小节线与 volta）
+    Repeat_coda = 'repeat_coda',
+    Repeat_to_coda = 'repeat_to_coda',
+    Repeat_segno = 'repeat_segno',
+    Repeat_dc = 'repeat_dc',
+    Repeat_ds = 'repeat_ds',
+    Repeat_fine = 'repeat_fine',
+    Repeat_dc_al_fine = 'repeat_dc_al_fine',
+    Repeat_dc_al_coda = 'repeat_dc_al_coda',
+    Repeat_ds_al_fine = 'repeat_ds_al_fine',
+    Repeat_ds_al_coda = 'repeat_ds_al_coda',
 }

@@ -85,4 +85,15 @@ export enum NumberNotationSkinKeyEnum {
     Bracket = 'bracket',
     Brace = 'brace',
     Square = 'square',
+    // 反复符号
+    Repeat_coda = 'repeat_coda',
+    Repeat_to_coda = 'repeat_to_coda',
+    Repeat_segno = 'repeat_segno',
+    Repeat_dc = 'repeat_dc',
+    Repeat_ds = 'repeat_ds',
+    Repeat_fine = 'repeat_fine',
+    Repeat_dc_al_fine = 'repeat_dc_al_fine',
+    Repeat_dc_al_coda = 'repeat_dc_al_coda',
+    Repeat_ds_al_fine = 'repeat_ds_al_fine',
+    Repeat_ds_al_coda = 'repeat_ds_al_coda',
 }

@@ -31,6 +31,8 @@ export type VDomTagType =
     | 'noteBeam'       // 符杠
     | 'accidental'     // 变音符号
     | 'addLine'        // 加线（上下加线）
+    | 'repeat_f'       // 小节前反复符号（Coda / Segno）
+    | 'repeat_b'       // 小节末反复符号（DC / DS / Fine 等）
     | 'slot'           // 插槽
     | 'space'          // 空白（边距等）
     | 'affiliation'    // 附属符号

@@ -14,6 +14,7 @@ import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {processBeam} from "./beam/processBeam";
 import {renderDoubleAffiliatedSymbol} from "./affiliated/renderDoubleAffiliatedSymbol";
+import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     let obj = map.get(id);
@@ -425,6 +426,16 @@ export function musicScoreToVDom(
                     skinName: effectiveSkinName,
                 });
                 vDoms.push(...symbolVDoms);
+                vDoms.push(...renderMeasureRepeat({
+                    measure,
+                    measureX: measureCurrentX,
+                    measureY: grandStaffCurrentY,
+                    measureWidth,
+                    measureHeight,
+                    skin,
+                    skinName: effectiveSkinName,
+                    idMap: nodeIdMap,
+                }));
                 /*
                 * 渲染符杠
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）

@@ -5,6 +5,8 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
+    MeasureEndRepeatEnum,
+    MeasureStartRepeatEnum,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
     SingleMeasureAffiliatedSymbolNameEnum,
@@ -42,7 +44,7 @@ export type Bracket = {
     id: string
     type: BracketTypeEnum,
     startSingleStaffIndex: number // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
-}
+} & Frame
 export type SingleStaff = {
     id: string
     measures: Measure[], // 小节
@@ -63,6 +65,10 @@ export type Measure = {
     keySignature_b?: KeySignature,
     timeSignature_f?: TimeSignature,
     timeSignature_b?: TimeSignature,
+    /** 小节前反复符号（Coda / Segno，最多一个） */
+    startRepeat?: MeasureStartRepeat,
+    /** 小节末反复符号（DC / DS / Fine 等，最多一个） */
+    endRepeat?: MeasureEndRepeat,
     widthRatioForMeasure?: number,
     affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
 } & Frame
@@ -117,6 +123,18 @@ export type SingleMeasureAffiliatedSymbol = {
     id: string
     name: SingleMeasureAffiliatedSymbolNameEnum,
     data: Record<string, never>
+} & Frame
+
+/** 小节前反复符号 */
+export type MeasureStartRepeat = {
+    id: string
+    type: MeasureStartRepeatEnum
+} & Frame
+
+/** 小节末反复符号 */
+export type MeasureEndRepeat = {
+    id: string
+    type: MeasureEndRepeatEnum
 } & Frame
 
 

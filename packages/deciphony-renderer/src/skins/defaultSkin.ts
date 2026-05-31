@@ -10,6 +10,15 @@ import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 // 统一的五线谱高度
 const STAFF_HEIGHT = 45;
 
+/** Coda / To Coda 占位（后续替换为正式符号） */
+const REPEAT_PLACEHOLDER_RECT = `<rect x="0" y="0" width="30" height="30" fill="none" stroke="black" stroke-width="1"/>`;
+
+function repeatTextSkin(label: string, w: number, h: number, centered: boolean): string {
+    const x = centered ? w / 2 : 0;
+    const anchor = centered ? 'middle' : 'start';
+    return `<text x="${x}" y="${Math.round(h * 0.78)}" text-anchor="${anchor}" font-size="13" font-weight="600" font-style="italic">${label}</text>`;
+}
+
 const measure = {
     content: `
       <rect x="0" y="0" width="node.w" height="node.h" stroke="transparent" fill="transparent" />
@@ -1651,6 +1660,66 @@ const standardStaffSkin: StandardStaffSkinPack = {
         h: 0,
         skinKey: StandardStaffSkinKeyEnum.Square,
     },
+    [StandardStaffSkinKeyEnum.Repeat_coda]: {
+        content: REPEAT_PLACEHOLDER_RECT,
+        w: 30,
+        h: 30,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_coda,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_to_coda]: {
+        content: REPEAT_PLACEHOLDER_RECT,
+        w: 30,
+        h: 30,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_to_coda,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_segno]: {
+        content: repeatTextSkin('Segno', 40, 18, true),
+        w: 40,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_segno,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_dc]: {
+        content: repeatTextSkin('D.C.', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_dc,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_ds]: {
+        content: repeatTextSkin('D.S.', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_ds,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_fine]: {
+        content: repeatTextSkin('Fine', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_fine,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_dc_al_fine]: {
+        content: repeatTextSkin('D.C. al Fine', 80, 18, false),
+        w: 80,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_dc_al_fine,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_dc_al_coda]: {
+        content: repeatTextSkin('D.C. al Coda', 86, 18, false),
+        w: 86,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_dc_al_coda,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_ds_al_fine]: {
+        content: repeatTextSkin('D.S. al Fine', 80, 18, false),
+        w: 80,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_ds_al_fine,
+    },
+    [StandardStaffSkinKeyEnum.Repeat_ds_al_coda]: {
+        content: repeatTextSkin('D.S. al Coda', 86, 18, false),
+        w: 86,
+        h: 18,
+        skinKey: StandardStaffSkinKeyEnum.Repeat_ds_al_coda,
+    },
 } as StandardStaffSkinPack;
 
 // 简谱拍号：复用五线谱的上下数字样式
@@ -2175,6 +2244,66 @@ const numberNotationSkin: NumberNotationSkinPack = {
         w: 30,
         h: 0,
         skinKey: NumberNotationSkinKeyEnum.Square,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_coda]: {
+        content: REPEAT_PLACEHOLDER_RECT,
+        w: 30,
+        h: 30,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_coda,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_to_coda]: {
+        content: REPEAT_PLACEHOLDER_RECT,
+        w: 30,
+        h: 30,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_to_coda,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_segno]: {
+        content: repeatTextSkin('Segno', 40, 18, true),
+        w: 40,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_segno,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_dc]: {
+        content: repeatTextSkin('D.C.', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_dc,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_ds]: {
+        content: repeatTextSkin('D.S.', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_ds,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_fine]: {
+        content: repeatTextSkin('Fine', 32, 18, false),
+        w: 32,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_fine,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_dc_al_fine]: {
+        content: repeatTextSkin('D.C. al Fine', 80, 18, false),
+        w: 80,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_dc_al_fine,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_dc_al_coda]: {
+        content: repeatTextSkin('D.C. al Coda', 86, 18, false),
+        w: 86,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_dc_al_coda,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_ds_al_fine]: {
+        content: repeatTextSkin('D.S. al Fine', 80, 18, false),
+        w: 80,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_ds_al_fine,
+    },
+    [NumberNotationSkinKeyEnum.Repeat_ds_al_coda]: {
+        content: repeatTextSkin('D.S. al Coda', 86, 18, false),
+        w: 86,
+        h: 18,
+        skinKey: NumberNotationSkinKeyEnum.Repeat_ds_al_coda,
     },
 }
 export const defaultSkin: SkinPack = {

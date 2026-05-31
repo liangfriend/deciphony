@@ -11,6 +11,8 @@ export type {
   SingleStaff,
   Measure,
   NoteSymbol,
+  MeasureStartRepeat,
+  MeasureEndRepeat,
 } from './types/MusicScoreType'
 export type {Chronaxie} from './types/common'
 
@@ -27,6 +29,8 @@ export {
   DoubleMeasureAffiliatedSymbolNameEnum,
   SingleNoteAffiliatedSymbolNameEnum,
   SingleMeasureAffiliatedSymbolNameEnum,
+  MeasureStartRepeatEnum,
+  MeasureEndRepeatEnum,
   AccidentalTypeEnum,
   BeamTypeEnum
 } from './enums/musicScoreEnum'

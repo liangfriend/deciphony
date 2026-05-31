@@ -4,6 +4,7 @@ import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, StandardStaffSkinPack,
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import {vdomOuterTransform} from "@/render/vdomScale";
+import {applySkinContentTemplate} from "@/render/skinContent";
 
 defineOptions({
   name: 'Group',
@@ -82,8 +83,7 @@ const outerTransform = computed(() => vdomOuterTransform(props.node))
 const handleSkin = computed(() => {
   return (skinItem: SkinItem | undefined, node: VDom) => {
     if (!skinItem) return ''
-    let temp = skinItem.content
-    temp = temp.replaceAll('node.w', '' + node.w).replaceAll('node.h', '' + node.h)
+    let temp = applySkinContentTemplate(skinItem.content, node)
     temp = temp.replace(/<svg([^>]*)>/i, (_, attrs) => `<svg${attrs} style="width:${node.w}px;height:${node.h}px;display:block">`)
     const targetId = node.targetId ?? ''
     const escapedId = String(targetId).replace(/"/g, '&quot;')

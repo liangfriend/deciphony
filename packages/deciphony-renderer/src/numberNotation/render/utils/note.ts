@@ -14,6 +14,7 @@ import {
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {graceNoteNumberAfterWidth, graceNoteNumberBeforeWidth} from "@/numberNotation/render/grace/renderGraceNumber";
 
+
 /** 简谱音符位时值 */
 export function getSlotChronaxie(note: NoteNumber): number {
     return note.chronaxie || 64;

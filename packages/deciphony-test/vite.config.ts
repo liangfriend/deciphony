@@ -1,9 +1,9 @@
 import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
-import {fileURLToPath, URL} from "node:url";
 
-console.log('chicken', path.resolve(__dirname, '../deciphony-renderer/src/index.ts'))
+const rendererSrc = path.resolve(__dirname, '../deciphony-renderer/src');
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [vue(),
@@ -16,14 +16,14 @@ export default defineConfig({
     assetsInclude: ['**/*.glb'],
     resolve: {
         alias: {
-            'deciphony-renderer': path.resolve(__dirname, '../deciphony-renderer/src/index.ts'),
+            'deciphony-renderer': path.resolve(rendererSrc, 'index.ts'),
             'deciphony-player': path.resolve(__dirname, './node_modules/deciphony-player/src/index.ts'),
             'deciphony-ui': path.resolve(__dirname, './node_modules/deciphony-ui/src/index.ts'),
             'deciphony-core': path.resolve(__dirname, './node_modules/deciphony-core/src/index.ts'),
             'deciphony-core/utils/*': path.resolve(__dirname, './node_modules/deciphony-core/src/utils/*'),
             '@assets': path.resolve(__dirname, './node_modules/deciphony-ui/src/assets'),
-            '@': path.resolve(__dirname, './node_modules/deciphony-renderer/src'),
-            // '@': path.resolve(__dirname, './node_modules/deciphony-ui/src'),
+            // 必须与 deciphony-renderer 指向同一份源码，否则 @/ 与包入口会被 Vite 当成两个模块实例
+            '@': rendererSrc,
         }
     },
 

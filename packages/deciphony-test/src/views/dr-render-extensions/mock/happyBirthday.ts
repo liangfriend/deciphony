@@ -1,7 +1,7 @@
 import {
     AccidentalTypeEnum,
 
-    BarlineTypeEnum,
+    BarlineTypeEnum, BracketTypeEnum,
     ClefTypeEnum,
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
@@ -507,6 +507,11 @@ const data: MusicScore = {
             id: crypto.randomUUID(),
             ...frame,
             linkedStaff: true,
+            bracket: {
+                id: crypto.randomUUID(),
+                type: BracketTypeEnum.Square,
+                startSingleStaffIndex: 0 // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
+            },
             staves: [
                 {
                     id: crypto.randomUUID(),

@@ -49,7 +49,7 @@
         "node_modules/deciphony-ui/src/assets/*"
       ],
       "@/*": [
-        "node_modules/deciphony-renderer/src/*"
+        "../deciphony-renderer/src/*"
       ]
     }
   },

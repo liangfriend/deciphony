@@ -1609,22 +1609,46 @@ const standardStaffSkin: StandardStaffSkinPack = {
     /**
      * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
      */
+    /**
+     * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
+     */
     [StandardStaffSkinKeyEnum.Bracket]: {
-        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
-        w: 30,
-        h: 0, // 动态高度，取决于复谱表
+        content: `
+      <g transform="translate(0, 0)">
+        <g transform="translate(4.6000, 0.1)">
+            <path d="M3.1-3C2.5-2.4,1.9-1.9,1.3-1.6L-1-0.4v5.3h-3.6v-7l4-0.7c1.2-0.3,2.1-0.6,2.7-0.9c0.7-0.4,1.2-0.8,1.6-1.1l1-1.2l0.5,0.2C4.7-4.8,4-3.9,3.1-3" stroke="none"></path>
+    </g>
+          <g transform="translate(4.6000, 0.4000)">
+            <path d="M-1-0.4vcalc(node.h-1.8)h-3.6V-0.4H-1" stroke="none"></path>
+    </g>
+          <g transform="translate(4.6000, 1) translate(0, node.h)">
+            <path d="M-0.9-0.7l2.3,1.2C2,0.8,2.6,1.3,3.2,1.9c0.9,0.9,1.6,1.8,2.1,2.8L4.8,4.9L3.7,3.7C3.3,3.3,2.8,3,2.1,2.6C1.5,2.3,0.6,2-0.6,1.7l-4-0.7v-7H-1v5.3" stroke="none"></path>
+    </g>
+</g>
+`,
+        w: 12,
+        h: 0,
         skinKey: StandardStaffSkinKeyEnum.Bracket,
     },
     [StandardStaffSkinKeyEnum.Brace]: {
-        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
-        w: 30,
-        h: 0, // 动态高度，取决于复谱表
+        // 这里没有调整缩放锚点，但是缩放锚点刚好在右上角。因为缩放是从path的坐标原点开始的，而这个path刚好是往左下画的
+        content: `
+        <g transform="translate(7.2000, 0.0000)">
+        <g transform="scale(calc(node.h/86.6))">
+            <path  d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
+    </g>
+</g>`,
+        w: 7.2,
+        h: 0,
         skinKey: StandardStaffSkinKeyEnum.Brace,
     },
     [StandardStaffSkinKeyEnum.Square]: {
-        content: `<rect x="0" y="10" width="30" height="node.h" stroke="black" fill="transparent" />`,
-        w: 30,
-        h: 0, // 动态高度，取决于复谱表
+        content: `
+        
+        <path d="M10 0 L 0 0 L 0 node.h L 10 node.h"  stroke="black" fill="transparent"></path>
+`,
+        w: 12,
+        h: 0,
         skinKey: StandardStaffSkinKeyEnum.Square,
     },
 } as StandardStaffSkinPack;
@@ -2117,19 +2141,37 @@ const numberNotationSkin: NumberNotationSkinPack = {
      * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
      */
     [NumberNotationSkinKeyEnum.Bracket]: {
-        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
-        w: 30,
+        content: `
+      <g transform="translate(0, 0)">
+        <g transform="translate(4.6000, 0.1)">
+            <path d="M3.1-3C2.5-2.4,1.9-1.9,1.3-1.6L-1-0.4v5.3h-3.6v-7l4-0.7c1.2-0.3,2.1-0.6,2.7-0.9c0.7-0.4,1.2-0.8,1.6-1.1l1-1.2l0.5,0.2C4.7-4.8,4-3.9,3.1-3" stroke="none"></path>
+    </g>
+          <g transform="translate(4.6000, 0.4000)">
+            <path d="M-1-0.4vcalc(node.h-1.8)h-3.6V-0.4H-1" stroke="none"></path>
+    </g>
+          <g transform="translate(4.6000, 1) translate(0, node.h)">
+            <path d="M-0.9-0.7l2.3,1.2C2,0.8,2.6,1.3,3.2,1.9c0.9,0.9,1.6,1.8,2.1,2.8L4.8,4.9L3.7,3.7C3.3,3.3,2.8,3,2.1,2.6C1.5,2.3,0.6,2-0.6,1.7l-4-0.7v-7H-1v5.3" stroke="none"></path>
+    </g>
+</g>
+`,
+        w: 10,
         h: 0,
         skinKey: NumberNotationSkinKeyEnum.Bracket,
     },
     [NumberNotationSkinKeyEnum.Brace]: {
-        content: `<rect x="0" y="0" width="30" height="node.h" stroke="black" fill="transparent"/>`,
+        content: `<g transform="scale(calc(node.h/74))">
+        <g transform="translate(7.2000, 0.0000)">
+        <path d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
+</g></g>`,
         w: 30,
         h: 0,
         skinKey: NumberNotationSkinKeyEnum.Brace,
     },
     [NumberNotationSkinKeyEnum.Square]: {
-        content: `<rect x="0" y="10" width="30" height="node.h" stroke="black" fill="transparent" />`,
+        content: `<g transform="scale(calc(node.h/86.6))">
+        <g transform="translate(2.8000, 0.4000)">
+        <path d="M-1-0.4v86.6h-1.8V-0.4H-1" fill="#888" stroke="none"></path>
+</g></g>`,
         w: 30,
         h: 0,
         skinKey: NumberNotationSkinKeyEnum.Square,
@@ -2139,7 +2181,6 @@ export const defaultSkin: SkinPack = {
     standardStaff: standardStaffSkin,
     numberNotation: numberNotationSkin
 };
-
 
 /** 将皮肤包中所有 fill="black"、stroke="black" 替换为目标颜色，并为隐式黑色元素包一层 g 以应用颜色 */
 function applySkinColor(color: string): SkinPack {

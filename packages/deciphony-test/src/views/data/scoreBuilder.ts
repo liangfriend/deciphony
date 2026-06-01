@@ -31,12 +31,15 @@ import type {
   Measure,
   MusicScore,
   NoteNumber,
+  NoteRest,
   NotesInfo,
   NotesNumberInfo,
   NoteSymbol,
   SingleStaff,
+  StaffSlot,
   TimeSignature,
 } from '@/types/MusicScoreType';
+import {isNoteRest, isNoteSymbol} from '@/standardStaff/render/utils/staffSlot';
 
 // —— 常量 ——
 
@@ -118,22 +121,28 @@ export type InsertNoteInfoOptions = {
 };
 
 export type InsertNoteOptions = {
-  type?: NoteSymbolTypeEnum;
-  /** 休止符时值（type=Rest 时） */
-  chronaxie?: Chronaxie;
   widthRatio?: number;
   widthRatioForMeasure?: number;
   clef?: ClefTypeEnum;
-  augmentationDot?: AugmentationDot;
-  affiliatedSymbols?: NoteSymbol['affiliatedSymbols'];
   at?: number;
   /** 单音 / 和弦：直接写入 notesInfo */
   notesInfo?: InsertNoteInfoOptions[];
   /** 简写：单声部单音 */
   region?: number;
+  chronaxie?: Chronaxie;
   direction?: 'up' | 'down';
   beamType?: BeamTypeEnum;
   accidental?: AccidentalTypeEnum;
+};
+
+export type InsertRestOptions = {
+  chronaxie?: Chronaxie;
+  widthRatio?: number;
+  widthRatioForMeasure?: number;
+  clef?: ClefTypeEnum;
+  augmentationDot?: AugmentationDot;
+  affiliatedSymbols?: NoteRest['affiliatedSymbols'];
+  at?: number;
 };
 
 export type InsertNoteNumberOptions = {
@@ -185,18 +194,24 @@ function resolveMeasure(score: MusicScore, path: MeasurePath): Measure {
 function resolveNote(score: MusicScore, path: NotePath): NoteSymbol {
   const measure = resolveMeasure(score, path);
   assertIndex('noteIndex', path.noteIndex, measure.notes.length);
-  const note = measure.notes[path.noteIndex]!;
-  if (!isNoteSymbol(note)) {
-    throw new TypeError(`notes[${path.noteIndex}] 不是五线谱 NoteSymbol（可能是简谱 NoteNumber）`);
+  const slot = measure.notes[path.noteIndex]!;
+  if (!isNoteSymbol(slot)) {
+    throw new TypeError(`notes[${path.noteIndex}] 不是 NoteSymbol（可能是 NoteRest 或 NoteNumber）`);
   }
-  return note;
+  return slot;
 }
 
-export function isNoteSymbol(note: NoteSymbol | NoteNumber): note is NoteSymbol {
-  return 'type' in note && (note.type === NoteSymbolTypeEnum.Note || note.type === NoteSymbolTypeEnum.Rest);
+function resolveRest(score: MusicScore, path: NotePath): NoteRest {
+  const measure = resolveMeasure(score, path);
+  assertIndex('noteIndex', path.noteIndex, measure.notes.length);
+  const slot = measure.notes[path.noteIndex]!;
+  if (!isNoteRest(slot)) {
+    throw new TypeError(`notes[${path.noteIndex}] 不是 NoteRest`);
+  }
+  return slot;
 }
 
-export function isNoteNumber(note: NoteSymbol | NoteNumber): note is NoteNumber {
+export function isNoteNumber(note: StaffSlot | NoteNumber): note is NoteNumber {
   return !('type' in note);
 }
 
@@ -292,23 +307,8 @@ export function createNotesInfo(opts: InsertNoteInfoOptions): NotesInfo {
 }
 
 export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
-  const type = opts.type ?? NoteSymbolTypeEnum.Note;
   const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
   const widthRatioForMeasure = opts.widthRatioForMeasure ?? widthRatio;
-
-  if (type === NoteSymbolTypeEnum.Rest) {
-    return {
-      ...ZERO_FRAME,
-      id: newId(),
-      type: NoteSymbolTypeEnum.Rest,
-      notesInfo: [],
-      chronaxie: opts.chronaxie ?? 64,
-      affiliatedSymbols: opts.affiliatedSymbols ?? [],
-      widthRatio,
-      widthRatioForMeasure,
-      ...(opts.augmentationDot ? {augmentationDot: opts.augmentationDot} : {}),
-    };
-  }
 
   let notesInfo: NotesInfo[];
   if (opts.notesInfo?.length) {
@@ -334,13 +334,29 @@ export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
     notesInfo,
     widthRatio,
     widthRatioForMeasure,
-    affiliatedSymbols: opts.affiliatedSymbols ?? [],
-    ...(opts.augmentationDot ? {augmentationDot: opts.augmentationDot} : {}),
   };
   if (opts.clef != null) {
     note.clef = createClef(opts.clef);
   }
   return note;
+}
+
+export function createNoteRest(opts: InsertRestOptions = {}): NoteRest {
+  const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
+  const rest: NoteRest = {
+    ...ZERO_FRAME,
+    id: newId(),
+    type: NoteSymbolTypeEnum.Rest,
+    chronaxie: opts.chronaxie ?? 64,
+    affiliatedSymbols: opts.affiliatedSymbols ?? [],
+    widthRatio,
+    widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
+    ...(opts.augmentationDot ? {augmentationDot: opts.augmentationDot} : {}),
+  };
+  if (opts.clef != null) {
+    rest.clef = createClef(opts.clef);
+  }
+  return rest;
 }
 
 export function createNotesNumberInfo(
@@ -621,9 +637,13 @@ export function insertNote(
 export function insertRest(
   score: MusicScore,
   path: MeasurePath,
-  options: Omit<InsertNoteOptions, 'type' | 'region' | 'notesInfo'> = {},
+  options: InsertRestOptions = {},
 ): NotePath {
-  return insertNote(score, path, {...options, type: NoteSymbolTypeEnum.Rest});
+  const measure = resolveMeasure(score, path);
+  const rest = createNoteRest(options);
+  const at = options.at ?? measure.notes.length;
+  measure.notes.splice(at, 0, rest);
+  return {...path, noteIndex: at};
 }
 
 /** 向已有音符位追加一个声部 / 和弦音 */
@@ -633,9 +653,6 @@ export function insertNoteInfo(
   options: InsertNoteInfoOptions,
 ): void {
   const note = resolveNote(score, path);
-  if (note.type === NoteSymbolTypeEnum.Rest) {
-    throw new Error('insertNoteInfo：休止符不能添加 notesInfo');
-  }
   note.notesInfo.push(createNotesInfo(options));
 }
 
@@ -720,7 +737,15 @@ export function getMeasure(score: MusicScore, path: MeasurePath): Measure {
   return resolveMeasure(score, path);
 }
 
-export function getNote(score: MusicScore, path: NotePath): NoteSymbol | NoteNumber {
+export function getSlot(score: MusicScore, path: NotePath): StaffSlot | NoteNumber {
   const measure = resolveMeasure(score, path);
   return measure.notes[path.noteIndex]!;
+}
+
+export function getNote(score: MusicScore, path: NotePath): NoteSymbol {
+  return resolveNote(score, path);
+}
+
+export function getRest(score: MusicScore, path: NotePath): NoteRest {
+  return resolveRest(score, path);
 }

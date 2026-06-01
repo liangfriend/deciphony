@@ -4,7 +4,7 @@
 
 import {VDom} from "@/types/common";
 import type {AugmentationDot} from "@/types/MusicScoreType";
-import {NoteSymbol} from "@/types/MusicScoreType";
+import type {NoteRest, NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
 import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
@@ -23,6 +23,7 @@ import {
     getTimeSignatureSkinKey,
 } from "../utils/skinKey";
 import {getNoteWidthRatio, getSlotRestChronaxie, getVoiceGroups, isSlotRest, type VoiceGroup} from "../utils/note";
+import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 import {
     graceAfterWidth,
@@ -192,7 +193,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     const notes = measure.notes;
     // 计算当前小节总的widthRatio
-    const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n as NoteSymbol, skin, measureHeight), 0);
+    const totalNoteRatio = notes.reduce((sum, n) => {
+        if (!isStaffSlot(n)) return sum;
+        return sum + getNoteWidthRatio(n, skin, measureHeight);
+    }, 0);
     const domainStartX = measureX + prefixW;
     /*
     * 定义音符中心点坐标获取函数
@@ -213,22 +217,23 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         let accRatio = 0;
         const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
         for (let i = 0; i < notes.length; i++) {
-            const note = notes[i] as NoteSymbol;
-            const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin, measureHeight);
+            const slot = notes[i];
+            if (!isStaffSlot(slot)) continue;
+            const ratio = useEqualSlots ? 1 : getNoteWidthRatio(slot, skin, measureHeight);
             // 计算出符号域宽度
             const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
             // 计算出符号域开始x值
             const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
             if (!useEqualSlots) accRatio += ratio;
-            const isRest = isSlotRest(note);
+            const isRest = isSlotRest(slot);
             // 参考宽度：用于在 slot 内居中。休止符用休止符皮肤宽；音符用该 slot 内所有声部符头皮肤的最大宽（全/二分/四分符头尺寸可能不同）
             let referenceW: number;
             if (isRest) {
-                const restItem = skin[getRestSkinKey(getSlotRestChronaxie(note))];
+                const restItem = skin[getRestSkinKey(getSlotRestChronaxie(slot))];
                 if (!restItem) continue;
                 referenceW = restItem.w;
             } else {
-                const voiceGroups = getVoiceGroups(note);
+                const voiceGroups = getVoiceGroups(slot);
                 referenceW = 0;
                 for (const group of voiceGroups) {
                     const headSkin = skin[getNoteHeadSkinKey(group.chronaxie)];
@@ -237,8 +242,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
             let graceBeforeW = 0;
             let graceAfterW = 0;
-            if (!isRest) {
-                for (const ni of note.notesInfo) {
+            if (!isRest && isNoteSymbol(slot)) {
+                for (const ni of slot.notesInfo) {
                     graceBeforeW = Math.max(graceBeforeW, graceBeforeWidth(ni.graceNotes, skin, measureHeight));
                     graceAfterW = Math.max(graceAfterW, graceAfterWidth(ni.graceNotesAfter, skin, measureHeight));
                 }
@@ -247,8 +252,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             /*
             * 渲染音符前谱号
             * */
-            if (note.clef) {
-                const clefKey = getClefSkinKey(note.clef.clefType, true);
+            if (slot.clef) {
+                const clefKey = getClefSkinKey(slot.clef.clefType, true);
                 const clefItem = skin[clefKey];
                 if (clefItem) {
                     const clefX = headX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
@@ -258,16 +263,17 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                         endPoint: {x: 0, y: 0},
                         special: {},
                         x: clefX, y: clefY, w: clefItem.w, h: clefItem.h,
-                        zIndex: z, tag: 'clef_f', skinName: skinNameForNodes, targetId: note.clef.id,
+                        zIndex: z, tag: 'clef_f', skinName: skinNameForNodes, targetId: slot.clef.id,
                         skinKey: clefKey, dataComment: '音符前谱号',
                     };
                     out.push(clefVDom);
-                    setNodeIdMap(idMap, note.clef.id, clefVDom);
+                    setNodeIdMap(idMap, slot.clef.id, clefVDom);
                 }
             }
             // 渲染休止符
             if (isRest) {
-                const restChronaxie = getSlotRestChronaxie(note);
+                const rest = slot as NoteRest;
+                const restChronaxie = getSlotRestChronaxie(rest);
                 const headKey = getRestSkinKey(restChronaxie);
                 const restItem = skin[headKey];
                 if (!restItem) continue;
@@ -286,15 +292,23 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     zIndex: z,
                     tag: 'rest',
                     skinName: skinNameForNodes,
-                    targetId: note.id,
+                    targetId: rest.id,
                     skinKey: headKey,
                     dataComment: '休止符',
                 };
                 out.push(vdom);
-                setNodeIdMap(idMap, note.id, vdom);
+                setNodeIdMap(idMap, rest.id, vdom);
+                renderSingleNoteAffiliatedSymbols(rest.affiliatedSymbols ?? [], vdom, {
+                    VDoms: out,
+                    idMap,
+                    skinName: skinNameForNodes,
+                    skin,
+                    measureHeight,
+                });
                 continue;
             }
 
+            const note = slot;
             const voiceGroups = getVoiceGroups(note);
             let firstHeadVDom: VDom | null = null;
 

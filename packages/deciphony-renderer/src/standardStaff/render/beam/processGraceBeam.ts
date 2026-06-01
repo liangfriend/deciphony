@@ -10,8 +10,9 @@
 
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
-import type {NoteSymbol, NotesInfo} from "@/types/MusicScoreType";
-import {BeamTypeEnum, NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
+import type {NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
+import {isNoteSymbol} from "../utils/staffSlot";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
@@ -57,15 +58,15 @@ function buildGraceBeamGroups(graceList: NotesInfo[], isBefore: boolean): NotesI
 }
 
 /** 扫描小节，收集所有倚音连杠组 */
-function collectGraceBeamGroups(measure: { notes: NoteSymbol[] }): Array<{
+function collectGraceBeamGroups(measure: { notes: StaffSlot[] }): Array<{
     direction: 'up' | 'down';
     visualOrder: NotesInfo[];
     isBefore: boolean;
 }> {
     const result: Array<{ direction: 'up' | 'down'; visualOrder: NotesInfo[]; isBefore: boolean }> = [];
-    for (const note of measure.notes) {
-        if (note.type !== NoteSymbolTypeEnum.Note) continue;
-        for (const ni of note.notesInfo) {
+    for (const slot of measure.notes) {
+        if (!isNoteSymbol(slot)) continue;
+        for (const ni of slot.notesInfo) {
             if (ni.graceNotes?.length) {
                 for (const g of buildGraceBeamGroups(ni.graceNotes, true)) {
                     result.push({
@@ -125,7 +126,7 @@ function getGraceStem(nodeIdMap: NodeIdMap, vDoms: VDom[], niId: string): VDom |
 }
 
 export function processGraceBeam(params: {
-    measure: { notes: NoteSymbol[] };
+    measure: { notes: StaffSlot[] };
     nodeIdMap: NodeIdMap;
     vDoms: VDom[];
     symbolVDomsLength: number;

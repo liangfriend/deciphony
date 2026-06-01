@@ -9,6 +9,7 @@ import type {
     NoteNumber,
     NotesInfo,
     NotesNumberInfo,
+    NoteRest,
     NoteSymbol,
 } from 'deciphony-renderer'
 import {
@@ -73,16 +74,12 @@ function findNoteAndNotesInfoById(
   for (const gs of score.grandStaffs ?? []) {
     for (const staff of gs.staves ?? []) {
       for (const measure of staff.measures ?? []) {
-        const notes = (measure.notes ?? []) as NoteSymbol[]
+        const notes = (measure.notes ?? []) as (NoteSymbol | NoteRest)[]
         for (let i = 0; i < notes.length; i++) {
           const note = notes[i]
           if (note.type !== NoteSymbolTypeEnum.Note) continue
-          const parts = [note.voicePart, note.voicePart2].filter(Boolean)
-          for (const vp of parts) {
-            if (!vp) continue
-            for (const ni of vp.notesInfo ?? []) {
-              if (ni.id === id) return {note, notesInfo: ni, measure, noteIndex: i}
-            }
+          for (const ni of note.notesInfo ?? []) {
+            if (ni.id === id) return {note, notesInfo: ni, measure, noteIndex: i}
           }
         }
       }
@@ -94,15 +91,17 @@ function findNoteAndNotesInfoById(
 function findRestById(score: MusicScoreType, id: string): {
     measure: { notes: unknown[] };
     noteIndex: number;
-    note: NoteSymbol
+    note: NoteRest
 } | null {
     for (const gs of score.grandStaffs ?? []) {
         for (const staff of gs.staves ?? []) {
             for (const measure of staff.measures ?? []) {
                 const notes = measure.notes ?? []
                 for (let i = 0; i < notes.length; i++) {
-                    const n = notes[i] as NoteSymbol
-                    if (n.type === NoteSymbolTypeEnum.Rest && n.id === id) return {measure, noteIndex: i, note: n}
+                    const n = notes[i]
+                    if ('type' in n && n.type === NoteSymbolTypeEnum.Rest && n.id === id) {
+                        return {measure, noteIndex: i, note: n}
+                    }
                 }
             }
         }
@@ -120,11 +119,11 @@ function findNoteNumberAndNotesInfoById(
             for (const measure of staff.measures ?? []) {
                 const notes = measure.notes ?? []
                 for (let i = 0; i < notes.length; i++) {
-                    const note = notes[i]
-                    if (!('voicePart' in note)) continue
-                    const n = note as NoteNumber
-                    for (const ni of n.voicePart?.notesInfo ?? []) {
-                        if (ni.id === id) return {note: n, notesInfo: ni, measure, noteIndex: i}
+                    const n = notes[i]
+                    if (!('notesInfo' in n) || 'type' in n) continue
+                    const noteNum = n as NoteNumber
+                    for (const ni of noteNum.notesInfo ?? []) {
+                        if (ni.id === id) return {note: noteNum, notesInfo: ni, measure, noteIndex: i}
                     }
                 }
             }
@@ -144,10 +143,11 @@ function findRestByIdNumber(score: MusicScoreType, id: string): {
             for (const measure of staff.measures ?? []) {
                 const notes = measure.notes ?? []
                 for (let i = 0; i < notes.length; i++) {
-                    const n = notes[i] as NoteNumber
-                    if (!('voicePart' in n)) continue
-                    const first = n.voicePart?.notesInfo?.[0]
-                    if (first?.syllable === 0 && n.id === id) return {measure, noteIndex: i, note: n}
+                    const n = notes[i]
+                    if (!('notesInfo' in n) || 'type' in n) continue
+                    const noteNum = n as NoteNumber
+                    const first = noteNum.notesInfo?.[0]
+                    if (first?.syllable === 0 && noteNum.id === id) return {measure, noteIndex: i, note: noteNum}
                 }
             }
         }
@@ -245,7 +245,7 @@ export function useDrEdit(core: DrRenderCore) {
             const found = findNoteAndNotesInfoById(musicScoreData.value, state.targetId)
             if (found && found.notesInfo.region !== newRegion && found.note.type === NoteSymbolTypeEnum.Note) {
                 found.notesInfo.region = newRegion
-                found.note.direction = newRegion > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
+                found.notesInfo.direction = newRegion > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
                 nextTick(applyHighlight)
             }
         } else {
@@ -270,10 +270,10 @@ export function useDrEdit(core: DrRenderCore) {
   function test() {
     const note = musicScoreData.value.grandStaffs[0]?.staves[0]?.measures[0]?.notes[0] as NoteSymbol | undefined
     if (!note || !('type' in note) || note.type !== NoteSymbolTypeEnum.Note) return
-    const ni = note.voicePart.notesInfo[0]
+    const ni = note.notesInfo[0]
     if (!ni) return
     ni.region = 8
-    note.direction = ni.region > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
+    ni.direction = ni.region > REGION_DIRECTION_THRESHOLD ? 'down' : 'up'
   }
 
     function addGrandStaff() {
@@ -400,12 +400,11 @@ export function useDrEdit(core: DrRenderCore) {
     if (!found) return
     const note = found.note
     if (note.type !== NoteSymbolTypeEnum.Note) return
-    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
-    if (!vp) return
+    if (found.notesInfo.id !== notesInfoId) return
     if (count === 0) {
-      delete vp.augmentationDot
+      delete found.notesInfo.augmentationDot
     } else {
-      vp.augmentationDot = {
+      found.notesInfo.augmentationDot = {
         ...frame,
         id: crypto.randomUUID(),
         count: count as 1 | 2 | 3,
@@ -421,7 +420,7 @@ export function useDrEdit(core: DrRenderCore) {
     if (isNumberNotation()) {
       const found = findNoteNumberAndNotesInfoById(musicScoreData.value, notesInfoId)
       if (!found) return { augmentationDotCount: 0, accidentalType: '' }
-      const dot = (found.note.voicePart.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+      const dot = (found.note.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
       const acc = found.notesInfo.accidental?.type ?? ''
       return { augmentationDotCount: dot, accidentalType: acc }
     }
@@ -429,8 +428,7 @@ export function useDrEdit(core: DrRenderCore) {
     if (!found) return { augmentationDotCount: 0, accidentalType: '' }
     const note = found.note
     if (note.type !== NoteSymbolTypeEnum.Note) return { augmentationDotCount: 0, accidentalType: '' }
-    const vp = note.voicePart.notesInfo.some((n) => n.id === notesInfoId) ? note.voicePart : note.voicePart2
-    const dot = (vp?.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
+    const dot = (found.notesInfo.augmentationDot?.count as 0 | 1 | 2 | 3) ?? 0
     const acc = found.notesInfo.accidental?.type ?? ''
     return { augmentationDotCount: dot, accidentalType: acc }
   }
@@ -475,26 +473,26 @@ export function useDrEdit(core: DrRenderCore) {
       if (isNumberNotation()) {
         const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
         if (!found) return null
-        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        const chronaxie = found.note.chronaxie ?? 64
         return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
       }
       const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
       if (!found) return null
       const note = found.note
       if (note.type !== NoteSymbolTypeEnum.Note) return null
-      const chronaxie = note.voicePart?.chronaxie ?? note.voicePart2?.chronaxie ?? 64
+      const chronaxie = found.notesInfo.chronaxie ?? 64
       return {type: 'note' as const, measure: found.measure, note: found.note, chronaxie}
     }
     if (tag === 'rest') {
       if (isNumberNotation()) {
         const found = findRestByIdNumber(musicScoreData.value, targetId)
         if (!found) return null
-        const chronaxie = found.note.voicePart.chronaxie ?? 64
+        const chronaxie = found.note.chronaxie ?? 64
         return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
       }
       const found = findRestById(musicScoreData.value, targetId)
       if (!found) return null
-      const chronaxie = found.note.type === NoteSymbolTypeEnum.Rest ? found.note.chronaxie : 64
+      const chronaxie = found.note.chronaxie ?? 64
       return {type: 'rest' as const, measure: found.measure, note: found.note, chronaxie}
     }
     return null
@@ -506,21 +504,20 @@ export function useDrEdit(core: DrRenderCore) {
       if (isNumberNotation()) {
         const found = findNoteNumberAndNotesInfoById(musicScoreData.value, targetId)
         if (!found) return
-        found.note.voicePart.chronaxie = chronaxie
+        found.note.chronaxie = chronaxie
       } else {
         const found = findNoteAndNotesInfoById(musicScoreData.value, targetId)
         if (!found || found.note.type !== NoteSymbolTypeEnum.Note) return
-        if (found.note.voicePart) found.note.voicePart.chronaxie = chronaxie
-        if (found.note.voicePart2) found.note.voicePart2.chronaxie = chronaxie
+        found.notesInfo.chronaxie = chronaxie
       }
     } else if (tag === 'rest') {
       if (isNumberNotation()) {
         const found = findRestByIdNumber(musicScoreData.value, targetId)
         if (!found) return
-        found.note.voicePart.chronaxie = chronaxie
+        found.note.chronaxie = chronaxie
       } else {
         const found = findRestById(musicScoreData.value, targetId)
-        if (!found || found.note.type !== NoteSymbolTypeEnum.Rest) return
+        if (!found) return
         found.note.chronaxie = chronaxie
       }
     }

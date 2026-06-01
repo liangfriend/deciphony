@@ -1,6 +1,6 @@
-import type {Measure, NoteSymbol, NotesInfo} from "@/types/MusicScoreType";
+import type {Measure, NoteRest, NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
 import type {StandardStaffSkinPack} from "@/types/common";
-import {BeamTypeEnum, NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {Chronaxie} from "@/types/common";
 import {resolveWidthRatio} from "@/utils/widthRatio";
 import {CLEF_NOTE_GAP_RATIO} from "../constants";
@@ -19,6 +19,7 @@ import {
   graceAfterWidth,
   graceBeforeWidth,
 } from "@/standardStaff/render/grace/renderGraceStaff";
+import {isNoteRest, isNoteSymbol} from "./staffSlot";
 
 export type VoiceGroup = {
   direction: 'up' | 'down';
@@ -29,7 +30,7 @@ export type VoiceGroup = {
 
 /** 按符干方向分组：同方向多条 notesInfo 视为和弦 */
 export function getVoiceGroups(note: NoteSymbol): VoiceGroup[] {
-  if (note.type === NoteSymbolTypeEnum.Rest || note.notesInfo.length === 0) return [];
+  if (note.notesInfo.length === 0) return [];
   const map = new Map<'up' | 'down', NotesInfo[]>();
   for (const ni of note.notesInfo) {
     const list = map.get(ni.direction) ?? [];
@@ -53,25 +54,27 @@ export function getVoiceGroupForDirection(note: NoteSymbol, direction: 'up' | 'd
   return getVoiceGroups(note).find((g) => g.direction === direction);
 }
 
-/** 音符位取各声部方向中最大时值用于宽度系数 */
-export function getSlotChronaxie(note: NoteSymbol): number {
-  if (note.type === NoteSymbolTypeEnum.Rest) return note.chronaxie ?? 64;
+export function getRestChronaxie(rest: NoteRest): Chronaxie {
+  return rest.chronaxie;
+}
+
+/** 音符 / 休止符位的时值（用于宽度与皮肤） */
+export function getSlotChronaxie(slot: StaffSlot): number {
+  if (isNoteRest(slot)) return slot.chronaxie;
   let max = 64;
-  for (const ni of note.notesInfo) {
+  for (const ni of slot.notesInfo) {
     if (ni.chronaxie > max) max = ni.chronaxie;
   }
   return max;
 }
 
-/** 是否为休止符位 */
-export function isSlotRest(note: NoteSymbol): boolean {
-  return note.type === NoteSymbolTypeEnum.Rest;
+export function isSlotRest(slot: StaffSlot): slot is NoteRest {
+  return isNoteRest(slot);
 }
 
-/** 休止符位时值 */
-export function getSlotRestChronaxie(note: NoteSymbol): number {
-  if (note.type === NoteSymbolTypeEnum.Rest) return note.chronaxie ?? 64;
-  return getSlotChronaxie(note);
+export function getSlotRestChronaxie(slot: StaffSlot): number {
+  if (isNoteRest(slot)) return slot.chronaxie;
+  return getSlotChronaxie(slot);
 }
 
 /** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
@@ -93,7 +96,6 @@ function graceWidthRatioForNote(
   skin: StandardStaffSkinPack,
   measureHeight: number,
 ): number {
-  if (note.type !== NoteSymbolTypeEnum.Note) return 0;
   let before = 0;
   let after = 0;
   for (const ni of note.notesInfo) {
@@ -103,19 +105,19 @@ function graceWidthRatioForNote(
   return (before + after) / measureHeight * 4;
 }
 
-function collectNoteSubWidthRatio(
-  note: NoteSymbol,
+function collectSlotSubWidthRatio(
+  slot: StaffSlot,
   skin: StandardStaffSkinPack,
   pick: (item: { widthRatio?: number; widthRatioForMeasure?: number } | undefined, data?: number) => number,
   measureHeight = 45,
 ): number {
   let sub = 0;
-  if (note.clef) {
-    sub += pick(skin[getClefSkinKey(note.clef.clefType, false)], note.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
+  if (slot.clef) {
+    sub += pick(skin[getClefSkinKey(slot.clef.clefType, false)], slot.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
   }
-  if (note.type === NoteSymbolTypeEnum.Note) {
-    sub += graceWidthRatioForNote(note, skin, measureHeight);
-    for (const ni of note.notesInfo) {
+  if (isNoteSymbol(slot)) {
+    sub += graceWidthRatioForNote(slot, skin, measureHeight);
+    for (const ni of slot.notesInfo) {
       if (ni.accidental) {
         sub += pick(skin[getAccidentalSkinKey(ni.accidental.type)], ni.accidental.widthRatio);
       }
@@ -123,50 +125,51 @@ function collectNoteSubWidthRatio(
         sub += pick(skin[getAugmentationDotSkinKey(ni.augmentationDot)], ni.augmentationDot.widthRatio);
       }
     }
-  } else {
-    if (note.augmentationDot) {
-      sub += pick(skin[getAugmentationDotSkinKey(note.augmentationDot)], note.augmentationDot.widthRatio);
-    }
+  } else if (slot.augmentationDot) {
+    sub += pick(skin[getAugmentationDotSkinKey(slot.augmentationDot)], slot.augmentationDot.widthRatio);
   }
   return sub;
 }
 
-/** 音符在小节内的宽度占比 */
+/** 音符 / 休止符在小节内的宽度占比 */
 export function getNoteWidthRatio(
-  note: NoteSymbol,
+  slot: StaffSlot,
   skin: StandardStaffSkinPack,
   measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-  const slotChronaxie = getSlotChronaxie(note);
-  const isRest = isSlotRest(note);
+  const slotChronaxie = getSlotChronaxie(slot);
+  const isRest = isNoteRest(slot);
   const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
-  const slotW = resolveWidthRatio(note.widthRatio, skin[slotSkinKey]?.widthRatio);
+  const slotW = resolveWidthRatio(slot.widthRatio, skin[slotSkinKey]?.widthRatio);
   const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-  const sub = collectNoteSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), measureHeight);
+  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), measureHeight);
   return base + sub;
 }
 
-/** 音符对小节在单谱表内宽度占比的系数 */
+/** 音符 / 休止符对小节在单谱表内宽度占比的系数 */
 export function getNoteWidthRatioForMeasure(
-  note: NoteSymbol,
+  slot: StaffSlot,
   skin: StandardStaffSkinPack,
   measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-  const slotChronaxie = getSlotChronaxie(note);
-  const isRest = isSlotRest(note);
+  const slotChronaxie = getSlotChronaxie(slot);
+  const isRest = isNoteRest(slot);
   const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
-  const slotW = resolveWidthRatio(note.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
+  const slotW = resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
   const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-  const sub = collectNoteSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure), measureHeight);
+  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure), measureHeight);
   return base + sub;
 }
 
-/** 小节的宽度系数 */
+/** 小节的宽度系数（五线谱：仅统计 StaffSlot） */
 export function getMeasureWidthRatio(measure: Measure, skin: StandardStaffSkinPack): number {
   let acc = 0;
   acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[StandardStaffSkinKeyEnum.Measure]?.widthRatioForMeasure);
   for (let i = 0; i < measure.notes.length; i++) {
-    acc += getNoteWidthRatioForMeasure(measure.notes[i] as NoteSymbol, skin);
+    const slot = measure.notes[i];
+    if (isNoteSymbol(slot) || isNoteRest(slot)) {
+      acc += getNoteWidthRatioForMeasure(slot, skin);
+    }
   }
   if (measure.barline_f) {
     acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.barlineType)]?.widthRatioForMeasure);

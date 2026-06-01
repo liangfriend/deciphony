@@ -11,8 +11,7 @@
 
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
-import {NoteSymbol} from "@/types/MusicScoreType";
-import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
+import type {NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
@@ -20,6 +19,7 @@ import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_R
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 import {getVoiceGroupForDirection} from "../utils/note";
+import {isNoteSymbol} from "../utils/staffSlot";
 
 /** 一组连杠成员：一个 NoteSymbol + 该组使用的符干方向 */
 type BeamGroupMember = { note: NoteSymbol; direction: 'up' | 'down' };
@@ -30,7 +30,6 @@ type BeamGroupMember = { note: NoteSymbol; direction: 'up' | 'down' };
  * 符杠连在该声部的符干上。
  */
 function getExtremeNotesInfoId(n: NoteSymbol, direction: 'up' | 'down'): string | undefined {
-  if (n.type !== NoteSymbolTypeEnum.Note) return undefined;
   const group = getVoiceGroupForDirection(n, direction);
   if (!group || group.notesInfo.length === 0) return undefined;
   const directionUp = direction === 'up';
@@ -52,16 +51,21 @@ function getExtremeNotesInfoId(n: NoteSymbol, direction: 'up' | 'down'): string 
  * - OnlyRight：只与右侧连，左侧不延伸符杠；
  * - Combined：左右都连。
  */
-function buildBeamGroups(measure: { notes: NoteSymbol[] }, direction: 'up' | 'down'): BeamGroupMember[][] {
+function buildBeamGroups(measure: { notes: StaffSlot[] }, direction: 'up' | 'down'): BeamGroupMember[][] {
   const groups: BeamGroupMember[][] = [];
   for (let i = 0; i < measure.notes.length; i++) {
-    const note = measure.notes[i];
+    const slot = measure.notes[i];
+    if (!isNoteSymbol(slot)) continue;
+    const note = slot;
     const group = getVoiceGroupForDirection(note, direction);
-    const nextNote = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
+    const nextSlot = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
+    const nextNote = nextSlot && isNoteSymbol(nextSlot) ? nextSlot : undefined;
     const nextGroup = nextNote ? getVoiceGroupForDirection(nextNote, direction) : undefined;
     if (!group || group.notesInfo.length === 0) continue;
     const hasTail = group.chronaxie <= 32;
-    const preGroup = i > 0 ? getVoiceGroupForDirection(measure.notes[i - 1]!, direction) : undefined;
+    const prevSlot = i > 0 ? measure.notes[i - 1] : undefined;
+    const preNote = prevSlot && isNoteSymbol(prevSlot) ? prevSlot : undefined;
+    const preGroup = preNote ? getVoiceGroupForDirection(preNote, direction) : undefined;
     const preHasTail = preGroup && preGroup.chronaxie <= 32;
     const nextHasTail = nextGroup && nextGroup.chronaxie <= 32;
     const canBeamWithNext = nextNote && nextGroup && hasTail && nextHasTail
@@ -81,7 +85,7 @@ function buildBeamGroups(measure: { notes: NoteSymbol[] }, direction: 'up' | 'do
 }
 
 export function processBeam(params: {
-  measure: { notes: NoteSymbol[] };
+  measure: { notes: StaffSlot[] };
   nodeIdMap: NodeIdMap;
   vDoms: VDom[];
   symbolVDomsLength: number;
@@ -101,7 +105,6 @@ export function processBeam(params: {
     // --- 1. 收集符干与符杠的接点（左→右）---
     const stemEnds: Array<{ x: number; y: number }> = [];
     for (const {note, direction: dir} of group) {
-      if (note.type !== NoteSymbolTypeEnum.Note) continue;
       const stemId = getExtremeNotesInfoId(note, dir);
       const stem = stemId ? nodeIdMap.get(stemId)?.noteStem : undefined;
       if (!stem) continue;

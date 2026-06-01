@@ -12,6 +12,7 @@ import type {
   GrandStaff,
   Measure,
   NoteNumber,
+  NoteRest,
   NoteSymbol,
   NotesNumberInfo,
   SingleStaff,
@@ -124,7 +125,7 @@ function createSingleStaff(): SingleStaff {
   }
 }
 
-function createRest(chronaxie: Chronaxie, widthRatio = 6): NoteSymbol {
+function createRest(chronaxie: Chronaxie, widthRatio = 6): NoteRest {
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Rest,
@@ -140,13 +141,15 @@ function createNote(region: number, chronaxie: Chronaxie, widthRatio = 6, direct
   return {
     ...frame,
     type: NoteSymbolTypeEnum.Note,
-    direction,
-    voicePart: {
+    notesInfo: [{
+      ...frame,
+      id: crypto.randomUUID(),
+      region,
+      direction,
       chronaxie,
-      notesInfo: [{ ...frame, id: crypto.randomUUID(), region }],
-      affiliatedSymbols: [],
       beamType: BeamTypeEnum.None,
-    },
+      affiliatedSymbols: [],
+    }],
     widthRatio,
     widthRatioForMeasure: widthRatio,
     id: crypto.randomUUID(),
@@ -229,12 +232,10 @@ function createRestNumber(chronaxie: Chronaxie, widthRatio = 6): NoteNumber {
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: {
-      chronaxie,
-      notesInfo,
-      affiliatedSymbols: [],
-      beamType: BeamTypeEnum.None,
-    },
+    chronaxie,
+    notesInfo,
+    affiliatedSymbols: [],
+    beamType: BeamTypeEnum.None,
     widthRatio,
     widthRatioForMeasure: widthRatio,
   }
@@ -258,12 +259,10 @@ function createNoteNumber(
   return {
     ...frame,
     id: crypto.randomUUID(),
-    voicePart: {
-      chronaxie,
-      notesInfo,
-      affiliatedSymbols: [],
-      beamType: BeamTypeEnum.None,
-    },
+    chronaxie,
+    notesInfo,
+    affiliatedSymbols: [],
+    beamType: BeamTypeEnum.None,
     widthRatio,
     widthRatioForMeasure: widthRatio,
   }

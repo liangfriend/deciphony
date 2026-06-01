@@ -19,6 +19,7 @@ import type {
     Measure,
     MusicScore,
     NotesInfo,
+    NoteRest,
     NoteSymbol,
     TimeSignature
 } from "@/types/MusicScoreType";
@@ -104,11 +105,10 @@ function note(
     return out;
 }
 
-function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteSymbol {
+function rest(chronaxie: Chronaxie = 64, widthRatio = 6): NoteRest {
     return {
         ...frame,
         type: NoteSymbolTypeEnum.Rest,
-        notesInfo: [],
         chronaxie,
         affiliatedSymbols: [],
         widthRatio,
@@ -341,8 +341,10 @@ function augmentationDot(count: 1 | 2 | 3): AugmentationDot {
     };
 }
 
-/** 给音符位加附点（Note 写入各 notesInfo，Rest 写入顶层） */
-function withAugmentationDot(n: NoteSymbol, dot: AugmentationDot): NoteSymbol {
+/** 给音符位加附点（Note 写入各 notesInfo，Rest 写入 NoteRest） */
+function withAugmentationDot(n: NoteSymbol, dot: AugmentationDot): NoteSymbol;
+function withAugmentationDot(n: NoteRest, dot: AugmentationDot): NoteRest;
+function withAugmentationDot(n: NoteSymbol | NoteRest, dot: AugmentationDot): NoteSymbol | NoteRest {
     if (n.type === NoteSymbolTypeEnum.Rest) return {...n, augmentationDot: dot};
     return {...n, notesInfo: n.notesInfo.map((ni) => ({...ni, augmentationDot: dot}))};
 }

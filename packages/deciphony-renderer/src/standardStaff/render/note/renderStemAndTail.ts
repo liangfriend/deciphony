@@ -1,7 +1,6 @@
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
-import {NoteSymbolTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {LINE_SPACING_RATIO, MIN_STEM_HEIGHT_RATIO, STEM_Y_OFFSET} from "../constants";
@@ -85,10 +84,10 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
         isGrace = false,
     } = params;
     const skinNameForNodes = params.skinName ?? 'default';
-    const chronaxie = params.chronaxie ?? (note.type === NoteSymbolTypeEnum.Rest ? note.chronaxie : undefined) ?? 64;
+    const chronaxie = params.chronaxie ?? 64;
     const direction = params.direction ?? 'up';
     const out: VDom[] = [];
-    if (note.type === NoteSymbolTypeEnum.Rest || chronaxie >= 256) return out;
+    if (chronaxie >= 256) return out;
 
     const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
     if (!stemSkin) return out;

@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPlayer 功能测试</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 520px;
+      margin: 24px auto;
+      padding: 16px;
+      background: #1a1a1e;
+      color: #e4e4e7;
+      border-radius: 12px;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 20px; }
+    section { margin-bottom: 20px; }
+    .label { font-size: 0.75rem; color: #a1a1aa; margin-bottom: 4px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #3f3f46;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    button:hover { background: #52525b; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.primary { background: #22c55e; }
+    button.primary:hover { background: #16a34a; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    input[type="number"] {
+      width: 72px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+    }
+    input[type="range"] {
+      width: 120px;
+      accent-color: #22c55e;
+    }
+    .seq-btn { min-width: 100px; }
+    .seq-btn.active { background: #22c55e; }
+    .status { font-size: 0.8rem; color: #71717a; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>NPlayer 功能测试</h1>
+
+  <section>
+    <div class="label">曲目切换</div>
+    <div class="row">
+      <button class="seq-btn active" data-seq="0">曲目 1 - 小星星</button>
+      <button class="seq-btn" data-seq="1">曲目 2 - 简谱</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">播放控制</div>
+    <div class="row" style="gap: 12px;">
+      <button class="primary" id="play">播放</button>
+      <button id="pause">暂停</button>
+      <button class="danger" id="stop">停止</button>
+      <button type="button" id="loopToggle">循环 · 关</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">BPM</div>
+    <div class="row">
+      <input type="number" id="bpm" value="120" min="40" max="240" step="5">
+      <input type="range" id="bpmRange" min="60" max="180" value="120">
+    </div>
+  </section>
+
+  <section>
+    <div class="label">播放速率 (rate)</div>
+    <div class="row">
+      <input type="number" id="rate" value="1" min="0.25" max="2" step="0.25">
+      <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+    </div>
+  </section>
+
+  <section>
+    <div class="label">音量 (volume)</div>
+    <div class="row">
+      <input type="range" id="volumeRange" min="0" max="1" value="1" step="0.01">
+      <span id="volumeValue">1</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">JS 主线程阻塞测试</div>
+    <div class="row">
+      <button id="blockToggle" class="danger">启动定时死循环</button>
+    </div>
+    <div class="status" style="margin-top: 4px" id="blockStatus">未启动</div>
+  </section>
+
+  <div class="status" id="status">点击播放开始 (需先激活音频上下文)</div>
+
+  <script type="module">
+    // 两个 Sequence 示例
+    const SEQUENCE_1 = [
+      [{ midi: 60, duration: 64, toneColor: 'piano' }],
+      [{ midi: 60, duration: 64, toneColor: 'piano' }],
+      [{ midi: 67, duration: 64, toneColor: 'piano' }],
+      [{ midi: 67, duration: 64, toneColor: 'piano' }],
+      [{ midi: 69, duration: 64, toneColor: 'piano' }],
+      [{ midi: 69, duration: 64, toneColor: 'piano' }],
+      [{ midi: 67, duration: 128, toneColor: 'piano' }],
+      [{ midi: 65, duration: 64, toneColor: 'piano' }],
+      [{ midi: 65, duration: 64, toneColor: 'piano' }],
+      [{ midi: 64, duration: 64, toneColor: 'piano' }],
+      [{ midi: 64, duration: 64, toneColor: 'piano' }],
+      [{ midi: 62, duration: 64, toneColor: 'piano' }],
+      [{ midi: 62, duration: 64, toneColor: 'piano' }],
+      [{ midi: 60, duration: 128, toneColor: 'piano' }],
+    ];
+
+    const SEQUENCE_2 = [
+      [{ midi: 60, duration: 64, toneColor: 'volin' }],
+      [{ midi: 64, duration: 64, toneColor: 'volin' }],
+      [{ midi: 67, duration: 64, toneColor: 'volin' }],
+      [{ midi: 72, duration: 128, toneColor: 'volin' }],
+      [{ midi: 67, duration: 64, toneColor: 'volin' }],
+      [{ midi: 72, duration: 128, toneColor: 'volin' }],
+      [{ midi: 67, duration: 128, toneColor: 'volin' }],
+      [{ midi: 64, duration: 64, toneColor: 'volin' }],
+      [{ midi: 60, duration: 64, toneColor: 'volin' }],
+      [{ midi: 60, duration: 128, toneColor: 'volin' }],
+    ];
+    const SEQUENCE_3 = [
+      {
+        "id": "4f0f3ef7-eb2c-48aa-9a5e-faf811c8b633",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 0,
+        "end": false
+      },
+      {
+        "id": "a4bef8aa-09cf-4ee1-b84c-eab9d5c47fbc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 256,
+        "playTime": 0,
+        "end": false
+      },
+      {
+        "id": "090af08c-f644-463d-92ea-84434649c0ff",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 32,
+        "end": false
+      },
+      {
+        "id": "de838dcb-0ff2-4c94-93ad-6de5bd89f3ae",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 64,
+        "end": false
+      },
+      {
+        "id": "8b285a4a-5489-4dc9-bccd-057885f9e19d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 96,
+        "end": false
+      },
+      {
+        "id": "f2ca8915-29f6-4297-b147-168d803482a3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 128,
+        "end": false
+      },
+      {
+        "id": "d254e2a7-db6e-4546-a1bf-cd4ecade959c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 160,
+        "end": false
+      },
+      {
+        "id": "f5bf7f6a-e0b2-4fc1-a52b-fad9d2565111",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 192,
+        "end": false
+      },
+      {
+        "id": "489db1a9-688c-4b5e-8c0a-2c7f5f442f4e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 224,
+        "end": false
+      },
+      {
+        "id": "381965ce-6f17-4a98-8459-4d1004b2310e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 256,
+        "end": false
+      },
+      {
+        "id": "6fc2c69f-b777-4f4a-a676-d08f092b4c25",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 256,
+        "end": false
+      },
+      {
+        "id": "7c363363-089f-46cd-a7fb-beb61814389a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 288,
+        "end": false
+      },
+      {
+        "id": "20b41f5f-bbd9-46de-95f4-691f72b8ae2a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 288,
+        "end": false
+      },
+      {
+        "id": "865a5402-cbca-4e3f-8f39-760b4056cc58",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 288,
+        "end": false
+      },
+      {
+        "id": "272a8d38-afe4-476c-873b-e85861c885ea",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 320,
+        "end": false
+      },
+      {
+        "id": "d5464fcf-e9b5-4582-8679-951a2a95bc32",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 320,
+        "end": false
+      },
+      {
+        "id": "42f27d03-c04f-4b16-9668-1fe988473629",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 320,
+        "end": false
+      },
+      {
+        "id": "bc141cb9-5a81-4338-b61c-8738ecc0a57c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 352,
+        "end": false
+      },
+      {
+        "id": "a04b8a99-fe09-41e8-857a-a3a527844aa2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 352,
+        "end": false
+      },
+      {
+        "id": "c989c8e9-6d4b-4da1-8b49-ab3350a42fa0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 352,
+        "end": false
+      },
+      {
+        "id": "8f6185a8-f4a9-4366-8835-49199613a180",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 384,
+        "end": false
+      },
+      {
+        "id": "bd86a64b-d137-4132-913f-130174649846",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 48,
+        "playTime": 384,
+        "end": false
+      },
+      {
+        "id": "55347e5a-4751-4838-9f82-7eeaccbac4ce",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 48,
+        "playTime": 384,
+        "end": false
+      },
+      {
+        "id": "a158c022-06b4-4475-98c6-05cdb825cb53",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 416,
+        "end": false
+      },
+      {
+        "id": "df046a6f-13f8-44ff-98b8-f15dce96382f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 8,
+        "playTime": 432,
+        "end": false
+      },
+      {
+        "id": "fb38a4f1-e747-4a5c-a224-bfb9dc7d2219",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 8,
+        "playTime": 440,
+        "end": false
+      },
+      {
+        "id": "b43f7192-a5d5-4661-8176-ef93414bdd73",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 448,
+        "end": false
+      },
+      {
+        "id": "4522f17d-7107-48e5-86d3-511764f0fa35",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 448,
+        "end": false
+      },
+      {
+        "id": "74f1659a-33a7-43e1-b1b3-bfa95d967b39",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 480,
+        "end": false
+      },
+      {
+        "id": "13858540-18f3-4df8-ba21-c0f78d942520",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 480,
+        "end": false
+      },
+      {
+        "id": "d580bf4a-0fa4-4d26-9d4c-e6e17340d39b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 512,
+        "end": false
+      },
+      {
+        "id": "9868ac83-3475-44ea-9ed4-5bda260652aa",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 512,
+        "end": false
+      },
+      {
+        "id": "985bd8d5-2326-4a79-a532-f82e78d2cd71",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 544,
+        "end": false
+      },
+      {
+        "id": "3acd7e98-4cde-4fc8-8216-7eec1065ee5f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 544,
+        "end": false
+      },
+      {
+        "id": "1823baf9-b6dd-4b6e-a362-61dad6f77770",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 576,
+        "end": false
+      },
+      {
+        "id": "307ad218-48ce-4155-85e9-2a2aa742a32b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 576,
+        "end": false
+      },
+      {
+        "id": "44af8462-8c5a-47b1-b4b8-8d3c1bf6e591",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 576,
+        "end": false
+      },
+      {
+        "id": "6a759db9-95ab-4495-95dd-61007a4459eb",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 608,
+        "end": false
+      },
+      {
+        "id": "7095aad6-e06d-4135-b121-e9f07fb21d73",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 608,
+        "end": false
+      },
+      {
+        "id": "4ac175e8-9e29-4343-a127-fda2002da99a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 608,
+        "end": false
+      },
+      {
+        "id": "e14e21c1-02e6-456a-9157-19db1a8665e1",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 640,
+        "end": false
+      },
+      {
+        "id": "f0682979-e1a0-4efe-aebe-fd744abf7b27",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 48,
+        "playTime": 640,
+        "end": false
+      },
+      {
+        "id": "76638392-6079-4201-94bb-c6b8ac17924a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 48,
+        "playTime": 640,
+        "end": false
+      },
+      {
+        "id": "b0a248e7-b7e4-4bf4-873d-b06b234abd53",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 672,
+        "end": false
+      },
+      {
+        "id": "2d01ff4b-b898-4408-9fbb-9c0f4266e0ca",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 8,
+        "playTime": 688,
+        "end": false
+      },
+      {
+        "id": "bfea3e73-064c-4088-9561-749c1ec938f2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 8,
+        "playTime": 696,
+        "end": false
+      },
+      {
+        "id": "05925db7-026c-4bd1-b941-f34b7687086a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 704,
+        "end": false
+      },
+      {
+        "id": "6256826a-4aa0-4797-b7a8-dfb974bac876",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 704,
+        "end": false
+      },
+      {
+        "id": "d60220b0-f965-4aa8-8f1a-74b0e6fa07f3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 736,
+        "end": false
+      },
+      {
+        "id": "fb0e09fd-8124-4f2b-918b-5985e733a9a9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 736,
+        "end": false
+      },
+      {
+        "id": "6ea98936-4912-4065-ac13-e484f3ce4cb4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 768,
+        "end": false
+      },
+      {
+        "id": "81a3cc85-8799-45d9-aa57-aa383e39343f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 768,
+        "end": false
+      },
+      {
+        "id": "c8e58fb4-e9f3-4006-b9f4-155b1e7a4150",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 800,
+        "end": false
+      },
+      {
+        "id": "a4de95fd-45b8-4b3f-a69c-be6d392ac38e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 800,
+        "end": false
+      },
+      {
+        "id": "8fac8b83-1ae5-4f5a-8122-ac4c29e6e089",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 832,
+        "end": false
+      },
+      {
+        "id": "4fad95f7-e2fa-491c-9b1e-4cb1402c695e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 832,
+        "end": false
+      },
+      {
+        "id": "028be6fa-259d-42f2-b34e-ff9cb25bf350",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 864,
+        "end": false
+      },
+      {
+        "id": "36d48f4c-83fe-4414-9196-1d6ace953df6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 864,
+        "end": false
+      },
+      {
+        "id": "cab7babb-43b6-49d3-8ff0-1cf89c2197f2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 896,
+        "end": false
+      },
+      {
+        "id": "609cd4a1-4499-4643-8d1c-1551a5e7a7a5",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 896,
+        "end": false
+      },
+      {
+        "id": "79449b0a-ae2a-4362-a431-6fdbb10b0116",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 896,
+        "end": false
+      },
+      {
+        "id": "b31d1177-667d-430a-99e6-a15024bbd0a0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 928,
+        "end": false
+      },
+      {
+        "id": "8f7878eb-27b7-4fc9-b81e-27fca68638d8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 928,
+        "end": false
+      },
+      {
+        "id": "5299e57c-2101-44c4-b8cf-c6f79b512a09",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 960,
+        "end": false
+      },
+      {
+        "id": "42dae68b-2193-455f-b3d5-2b981672d3b2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 960,
+        "end": false
+      },
+      {
+        "id": "9164e28c-94b7-4cdb-8242-0b825db806a9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 976,
+        "end": false
+      },
+      {
+        "id": "8a6e9b1f-68ad-46bf-a583-dd83881162a8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 16,
+        "playTime": 992,
+        "end": false
+      },
+      {
+        "id": "296620ea-f3a7-478b-972e-0d681edf784f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 992,
+        "end": false
+      },
+      {
+        "id": "6809f3d9-abbd-464e-ae83-70718c00d180",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 16,
+        "playTime": 1008,
+        "end": false
+      },
+      {
+        "id": "0831a4b3-7893-406f-b4fe-e871f18c4d64",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 1024,
+        "end": false
+      },
+      {
+        "id": "d4e76c15-dab5-48f5-89b5-127d52d15436",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 1024,
+        "end": false
+      },
+      {
+        "id": "335dcdfc-87cf-4bcc-98c1-7c6e383f342d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1056,
+        "end": false
+      },
+      {
+        "id": "edfe7064-c655-490e-93b4-7e16f782a21b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 1056,
+        "end": false
+      },
+      {
+        "id": "508d2f1d-de04-4b78-acf7-92130df9a6d0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 1088,
+        "end": false
+      },
+      {
+        "id": "f12b59ab-4da3-4d97-b339-ef8eb3582935",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 1088,
+        "end": false
+      },
+      {
+        "id": "308f57ec-d170-41f4-bfcf-ce5f6377ae0c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 1120,
+        "end": false
+      },
+      {
+        "id": "c558305e-7f94-4176-a60e-9efb3c4707f8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 1120,
+        "end": false
+      },
+      {
+        "id": "34a6c811-ac8e-4c64-a096-7116fbe3687d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 1152,
+        "end": false
+      },
+      {
+        "id": "7d0e05a7-8eea-4420-ac47-5d8453049901",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1152,
+        "end": false
+      },
+      {
+        "id": "2f296712-7783-4d0b-ac60-14e4637fc2e5",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 1152,
+        "end": false
+      },
+      {
+        "id": "c66d0428-09c8-4a88-8e72-a7d82cc9e3f1",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 1184,
+        "end": false
+      },
+      {
+        "id": "35035fb6-9497-40f0-b429-235d76543a59",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 1184,
+        "end": false
+      },
+      {
+        "id": "47d5117c-5bc1-4da6-93ed-31e7df6697be",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 1216,
+        "end": false
+      },
+      {
+        "id": "ebbc46e5-ab11-418e-a44b-be2b0d2859ef",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 1216,
+        "end": false
+      },
+      {
+        "id": "e3694250-a6f1-4491-bc86-76fe28269449",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 1232,
+        "end": false
+      },
+      {
+        "id": "d4948066-733a-4b5c-bd15-04891903c8a9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 16,
+        "playTime": 1248,
+        "end": false
+      },
+      {
+        "id": "821313ba-7acc-4bf6-aac2-53a58d658b7b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 1248,
+        "end": false
+      },
+      {
+        "id": "da12e050-1a73-4024-a900-69451e38e8ce",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 16,
+        "playTime": 1264,
+        "end": false
+      },
+      {
+        "id": "a5be26db-bc4f-40cb-84cb-78fa953e03e9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 1280,
+        "end": false
+      },
+      {
+        "id": "c6914bd5-2cf7-404d-85d3-dd1972aecea5",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 57,
+        "duration": 32,
+        "playTime": 1280,
+        "end": false
+      },
+      {
+        "id": "6bf79456-b8bc-4b58-9af2-6e8e736b1c6c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1312,
+        "end": false
+      },
+      {
+        "id": "57638fc3-e2cd-4f6d-ae98-26289af05324",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 64,
+        "duration": 32,
+        "playTime": 1312,
+        "end": false
+      },
+      {
+        "id": "fa4218da-f935-4ed2-b48d-30134e408798",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1344,
+        "end": false
+      },
+      {
+        "id": "4e9ecfb2-b46c-4cb4-9955-a1ea0a7f837a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 62,
+        "duration": 32,
+        "playTime": 1344,
+        "end": false
+      },
+      {
+        "id": "4b162db8-a350-41ae-98f4-ce7bfe112027",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1376,
+        "end": false
+      },
+      {
+        "id": "b37ecfa6-6183-4299-be66-f034bf4fddbc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 64,
+        "duration": 32,
+        "playTime": 1376,
+        "end": false
+      },
+      {
+        "id": "40debc8c-aa36-41e9-a2c9-879b543a039c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1408,
+        "end": false
+      },
+      {
+        "id": "238a06b0-5d94-48c1-a087-83865cc50e9f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 61,
+        "duration": 32,
+        "playTime": 1408,
+        "end": false
+      },
+      {
+        "id": "12e6d5f3-fb0e-4a85-970c-d0f4d43f2007",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 1440,
+        "end": false
+      },
+      {
+        "id": "6e7a60e5-c0b8-4327-b730-8ea0d0549805",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 67,
+        "duration": 32,
+        "playTime": 1440,
+        "end": false
+      },
+      {
+        "id": "2f7cb539-b95f-4c46-9c6d-89a7560f9bee",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 16,
+        "playTime": 1472,
+        "end": false
+      },
+      {
+        "id": "9ee550d2-cce6-44a1-b85d-f26beb86fbc8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 57,
+        "duration": 32,
+        "playTime": 1472,
+        "end": false
+      },
+      {
+        "id": "60a367df-db2a-4f7c-97b8-f1de6e9ef3f3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 79,
+        "duration": 16,
+        "playTime": 1488,
+        "end": false
+      },
+      {
+        "id": "26222541-a5c0-4a74-a439-308a4793a1af",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 77,
+        "duration": 16,
+        "playTime": 1504,
+        "end": false
+      },
+      {
+        "id": "6e11abdf-0ed4-4a99-9995-54fabce4e454",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 67,
+        "duration": 32,
+        "playTime": 1504,
+        "end": false
+      },
+      {
+        "id": "b14336c0-99ad-43d9-be85-a36ff045bb76",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 1520,
+        "end": false
+      },
+      {
+        "id": "c810ad0d-df9f-4d4c-a167-a598f7f8af90",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1536,
+        "end": false
+      },
+      {
+        "id": "24d62f63-38d2-4c4d-bedb-46eeb3f0e41a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 62,
+        "duration": 32,
+        "playTime": 1536,
+        "end": false
+      },
+      {
+        "id": "4132c7ad-e367-428c-ad5b-908c0ff50361",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 1568,
+        "end": false
+      },
+      {
+        "id": "81d1503e-3712-421c-9273-7a96c70aca27",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 64,
+        "playTime": 1568,
+        "end": false
+      },
+      {
+        "id": "99e61a59-d250-4d49-84a2-b3c6debb8d1b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 67,
+        "duration": 32,
+        "playTime": 1600,
+        "end": false
+      },
+      {
+        "id": "0a3468c3-0234-439a-b247-872dde1a49c7",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 70,
+        "duration": 32,
+        "playTime": 1600,
+        "end": false
+      },
+      {
+        "id": "24ec1eb8-f5c1-417c-a3a3-89b580e60b26",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 1632,
+        "end": false
+      },
+      {
+        "id": "ceb30260-fa39-4bd4-9266-6f23c0eeb53f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 77,
+        "duration": 64,
+        "playTime": 1632,
+        "end": false
+      },
+      {
+        "id": "16a8a1cd-499c-47bd-808c-4310a5fbfb63",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 65,
+        "duration": 32,
+        "playTime": 1664,
+        "end": false
+      },
+      {
+        "id": "c63906a8-01b0-498d-8dd1-f6f4de004d47",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 1664,
+        "end": false
+      },
+      {
+        "id": "99bb1c44-50df-4c17-a630-3ed854667b75",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 1696,
+        "end": false
+      },
+      {
+        "id": "c2c0fe1d-26f9-4a67-b719-a4f168215457",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 73,
+        "duration": 64,
+        "playTime": 1696,
+        "end": false
+      },
+      {
+        "id": "aad32e34-5a68-419f-b17a-b861cf4c212b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 64,
+        "duration": 32,
+        "playTime": 1728,
+        "end": false
+      },
+      {
+        "id": "4081498b-0726-481b-b7c4-7d2fe876ab42",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 67,
+        "duration": 32,
+        "playTime": 1728,
+        "end": false
+      },
+      {
+        "id": "7a545136-3560-4605-bfae-541f3a2efd88",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1760,
+        "end": false
+      },
+      {
+        "id": "bb7a9b0e-226d-45a2-bcc8-f3761c253060",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 1760,
+        "end": false
+      },
+      {
+        "id": "8bf6517b-51df-4290-978e-20d026895be0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1792,
+        "end": false
+      },
+      {
+        "id": "6f3a9801-b25c-412c-bdf4-1d152be28a86",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 62,
+        "duration": 32,
+        "playTime": 1792,
+        "end": false
+      },
+      {
+        "id": "ded29671-7af4-4c57-aa9f-e50443cbeb51",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1824,
+        "end": false
+      },
+      {
+        "id": "2ed98d9f-d1a3-4dfe-b7c6-ed475509f4bb",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 65,
+        "duration": 32,
+        "playTime": 1824,
+        "end": false
+      },
+      {
+        "id": "8c5d5bd6-410c-40ae-be13-a1de89d5e580",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1856,
+        "end": false
+      },
+      {
+        "id": "a37a581c-815e-4f75-bd15-9225d339197e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 60,
+        "duration": 32,
+        "playTime": 1856,
+        "end": false
+      },
+      {
+        "id": "7fa7d42b-0b98-469a-b47e-5293011af2fe",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1888,
+        "end": false
+      },
+      {
+        "id": "67043b8e-bd83-4eb5-95a0-59b2a8458fd2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 62,
+        "duration": 32,
+        "playTime": 1888,
+        "end": false
+      },
+      {
+        "id": "fa1c856f-e4d2-47d9-b22d-7083edaef15f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1920,
+        "end": false
+      },
+      {
+        "id": "b9e21fd9-5e30-43e4-9ddb-c24ab690fcf4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 59,
+        "duration": 32,
+        "playTime": 1920,
+        "end": false
+      },
+      {
+        "id": "5c1cb5fc-c616-4a69-a9be-7ef8e6b95aa3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 1952,
+        "end": false
+      },
+      {
+        "id": "8d394dac-e77a-4c53-902b-a8109d6bbfb2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 62,
+        "duration": 32,
+        "playTime": 1952,
+        "end": false
+      },
+      {
+        "id": "ba856b72-1cb7-4bc1-bded-85f612957612",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 79,
+        "duration": 16,
+        "playTime": 1984,
+        "end": false
+      },
+      {
+        "id": "6b0443f3-2eba-4d03-a69a-eea0ffdbded1",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 55,
+        "duration": 32,
+        "playTime": 1984,
+        "end": false
+      },
+      {
+        "id": "aa8d9dae-383d-4681-9ad5-bfdb52d097cc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 77,
+        "duration": 16,
+        "playTime": 2000,
+        "end": false
+      },
+      {
+        "id": "f9447a7a-858f-460f-a73b-52bc7ef72540",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 2016,
+        "end": false
+      },
+      {
+        "id": "f6cbb87b-4ce6-4119-9fca-5c391faeeccd",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 59,
+        "duration": 32,
+        "playTime": 2016,
+        "end": false
+      },
+      {
+        "id": "b9b3c784-2d82-437f-88a3-0b824378fc6d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 2032,
+        "end": false
+      },
+      {
+        "id": "412048a6-14b2-477d-9bd9-96c5a7800500",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2048,
+        "end": false
+      },
+      {
+        "id": "65b26cbc-52c7-4189-b637-d94e7ef70a5c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 57,
+        "duration": 32,
+        "playTime": 2048,
+        "end": false
+      },
+      {
+        "id": "c8bd9fc9-e4ff-4ec7-abdf-a6b2d31142d0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 2080,
+        "end": false
+      },
+      {
+        "id": "d880966f-942f-43f1-8357-05721aebc41a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 60,
+        "duration": 32,
+        "playTime": 2080,
+        "end": false
+      },
+      {
+        "id": "21edd008-3c8d-4802-98ce-a04d20d83e9c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 16,
+        "playTime": 2112,
+        "end": false
+      },
+      {
+        "id": "85288a37-5193-4a93-a0b7-ffc6fc15cf39",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 59,
+        "duration": 32,
+        "playTime": 2112,
+        "end": false
+      },
+      {
+        "id": "a9219030-e67a-4330-ac76-c7775e84e8ce",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 16,
+        "playTime": 2128,
+        "end": false
+      },
+      {
+        "id": "3c5aeea1-e993-40ed-9586-0b17fdeb726e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 2144,
+        "end": false
+      },
+      {
+        "id": "02422785-cfce-4e80-8525-7048e0676342",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 57,
+        "duration": 32,
+        "playTime": 2144,
+        "end": false
+      },
+      {
+        "id": "d8f4dce9-f711-46ae-a792-c83ccdc81e30",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 75,
+        "duration": 16,
+        "playTime": 2160,
+        "end": false
+      },
+      {
+        "id": "495b8dcb-0203-4b1d-b585-d289720b84d0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 2176,
+        "end": false
+      },
+      {
+        "id": "f2254ead-b39d-468c-92cf-e030a5e959ee",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 56,
+        "duration": 32,
+        "playTime": 2176,
+        "end": false
+      },
+      {
+        "id": "ce00bb03-c6c2-4c47-a0d0-593964825893",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 64,
+        "duration": 32,
+        "playTime": 2208,
+        "end": false
+      },
+      {
+        "id": "a6fd1372-f05c-45d4-a7f6-d7db9126e1af",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2208,
+        "end": false
+      },
+      {
+        "id": "66a62d44-f494-491c-b060-70daac91085f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 65,
+        "duration": 16,
+        "playTime": 2240,
+        "end": false
+      },
+      {
+        "id": "9bf4dc95-dcd2-484a-bb58-dfd8d147c12d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 50,
+        "duration": 32,
+        "playTime": 2240,
+        "end": false
+      },
+      {
+        "id": "aaafb5bb-265f-4ca0-bcff-3df9c42ec259",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 66,
+        "duration": 16,
+        "playTime": 2256,
+        "end": false
+      },
+      {
+        "id": "82373ef8-958a-4976-ae03-8f4bb2c6e88f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 67,
+        "duration": 16,
+        "playTime": 2272,
+        "end": false
+      },
+      {
+        "id": "0bab6bc2-6cb2-435a-b76e-40986922d714",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 47,
+        "duration": 32,
+        "playTime": 2272,
+        "end": false
+      },
+      {
+        "id": "e9635a51-f077-4102-abe4-5d027f4e7cd8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 68,
+        "duration": 16,
+        "playTime": 2288,
+        "end": false
+      },
+      {
+        "id": "1c196bca-e8a0-44e2-939d-1a5fa30f7e94",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 2304,
+        "end": false
+      },
+      {
+        "id": "7ec91316-9fac-4813-89e8-af866849fc54",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2304,
+        "end": false
+      },
+      {
+        "id": "d612d924-4281-4235-919a-198f0ac0c2c6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 2336,
+        "end": false
+      },
+      {
+        "id": "cdc44a28-65e0-419e-9001-575fab214f90",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2336,
+        "end": false
+      },
+      {
+        "id": "08e3adfc-a7cb-478a-aac8-f9ea298502bd",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2336,
+        "end": false
+      },
+      {
+        "id": "9fa64128-3456-4793-be64-28b4dbb03dd5",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 2368,
+        "end": false
+      },
+      {
+        "id": "9596a7f0-c1ad-4a48-a026-decec1346475",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2368,
+        "end": false
+      },
+      {
+        "id": "dafc1347-0b11-4026-af0c-9e0f31876fbc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2368,
+        "end": false
+      },
+      {
+        "id": "4bc6a54a-f589-4fe8-b78b-df6ad246ae5c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 2400,
+        "end": false
+      },
+      {
+        "id": "64a04c7d-2401-463c-904c-d4a8d0a21895",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2400,
+        "end": false
+      },
+      {
+        "id": "725870b4-611d-4a76-80dd-738aa1cadd84",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2400,
+        "end": false
+      },
+      {
+        "id": "39fecc60-b6b9-4129-9a0b-e0492e6e9da0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2432,
+        "end": false
+      },
+      {
+        "id": "11927b3b-3d17-4089-aa7a-4a2eb983e86a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 48,
+        "playTime": 2432,
+        "end": false
+      },
+      {
+        "id": "3bf5881b-29a3-45f5-8a70-ca789aa842d6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 48,
+        "playTime": 2432,
+        "end": false
+      },
+      {
+        "id": "825717dc-20b1-4f94-b332-cd3051ad91eb",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2464,
+        "end": false
+      },
+      {
+        "id": "962f91ba-a04a-4db6-9dd9-5071a62fbc7e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 8,
+        "playTime": 2480,
+        "end": false
+      },
+      {
+        "id": "494577a5-c437-4b90-8ef0-48b1080f6396",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 8,
+        "playTime": 2488,
+        "end": false
+      },
+      {
+        "id": "69992ddb-6e3d-4a08-a487-527963afebd8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 2496,
+        "end": false
+      },
+      {
+        "id": "e39f7dde-00a5-473c-b7ae-67df183b5c8c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2496,
+        "end": false
+      },
+      {
+        "id": "b78bad4f-ac97-4f33-98b5-b3f96077e4ea",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2528,
+        "end": false
+      },
+      {
+        "id": "c7f647c1-670b-4b1d-8a80-298cd4de9e8c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2528,
+        "end": false
+      },
+      {
+        "id": "b5dad094-d461-41e3-ad61-b29597eb77ab",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 2560,
+        "end": false
+      },
+      {
+        "id": "ca1d4651-9f66-49e4-a7ee-d8b332392f1f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2560,
+        "end": false
+      },
+      {
+        "id": "6ff42ec9-072a-43b4-853d-5c258f247a39",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 2592,
+        "end": false
+      },
+      {
+        "id": "e8c70fd6-0a7c-46e6-b4b9-d6d30bf96edb",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2592,
+        "end": false
+      },
+      {
+        "id": "1f7a16dd-1e3c-4127-abf7-87966103924a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 2624,
+        "end": false
+      },
+      {
+        "id": "c63cf514-5c22-45b5-a8db-950823818fb7",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 2624,
+        "end": false
+      },
+      {
+        "id": "2467707b-dd15-41ad-9e5a-7c8c1f88a407",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2624,
+        "end": false
+      },
+      {
+        "id": "821086f0-e094-4de8-9904-2af85df4ab05",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 2656,
+        "end": false
+      },
+      {
+        "id": "ed461373-72bb-4748-8bd3-79edd9c66ca8",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 2656,
+        "end": false
+      },
+      {
+        "id": "30af0d01-b6de-4a47-9caf-1d1c86ad4b03",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2656,
+        "end": false
+      },
+      {
+        "id": "a2b230e0-51bb-45e3-9385-13bcfc8727e6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2688,
+        "end": false
+      },
+      {
+        "id": "99cbbe79-b086-41e2-868f-d0c78093f68c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 48,
+        "playTime": 2688,
+        "end": false
+      },
+      {
+        "id": "37b50a43-adef-4fd5-94cc-31b684f1564d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 48,
+        "playTime": 2688,
+        "end": false
+      },
+      {
+        "id": "f2de4048-76f5-4b33-9eaf-d05e6fdecb2f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2720,
+        "end": false
+      },
+      {
+        "id": "5e789f56-382a-491c-97b6-63e9772b351a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 8,
+        "playTime": 2736,
+        "end": false
+      },
+      {
+        "id": "3801447a-5cd6-4076-a4a0-8bbf735ac120",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 8,
+        "playTime": 2744,
+        "end": false
+      },
+      {
+        "id": "4ce69c95-5172-4adc-b756-4996890dbe63",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 2752,
+        "end": false
+      },
+      {
+        "id": "59cac329-bde9-457b-a499-c7a8fc56a45c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2752,
+        "end": false
+      },
+      {
+        "id": "194647e1-9723-4694-9f9a-ccb44ee6679b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 2784,
+        "end": false
+      },
+      {
+        "id": "4fcb885f-509a-49ea-8bc2-e09898e633ae",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2784,
+        "end": false
+      },
+      {
+        "id": "a7fc2e8f-75ad-415e-bd5b-d589a5e183e4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 32,
+        "playTime": 2816,
+        "end": false
+      },
+      {
+        "id": "9e71f1fa-e84f-4434-9bb6-ef6434e2eca3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2816,
+        "end": false
+      },
+      {
+        "id": "54bb6f71-e2fc-4334-95a5-5fffb6f3e214",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 2848,
+        "end": false
+      },
+      {
+        "id": "9bcd44b7-d5ce-474a-91f6-0f1397fab7fc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2848,
+        "end": false
+      },
+      {
+        "id": "4d46726d-c5f0-42c9-a95a-8271db839e2d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 2880,
+        "end": false
+      },
+      {
+        "id": "56d8031c-7267-42b0-88d6-31e9e34e91c0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2880,
+        "end": false
+      },
+      {
+        "id": "22dc2ab1-dc46-42c7-ba9a-d1ab43542286",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 2912,
+        "end": false
+      },
+      {
+        "id": "3aa95774-0264-4ba8-9c29-fc6d907bc419",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2912,
+        "end": false
+      },
+      {
+        "id": "4e7bb1be-d4f3-4588-9735-4c60ae4c1879",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 2944,
+        "end": false
+      },
+      {
+        "id": "fe4f7b34-7a86-41af-8ed4-eb3f020ed9b5",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 2944,
+        "end": false
+      },
+      {
+        "id": "1f8c9f58-c1c6-40dd-a438-d71106ea22da",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 2944,
+        "end": false
+      },
+      {
+        "id": "6192a701-4f15-40c3-b15c-d4e0819e8def",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 2976,
+        "end": false
+      },
+      {
+        "id": "9320b30c-86b0-4041-9710-199331c00c41",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 2976,
+        "end": false
+      },
+      {
+        "id": "c765bad3-5de0-4f06-93de-c903aac0b4de",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 3008,
+        "end": false
+      },
+      {
+        "id": "1837fa80-f126-4b37-b50a-6a40fb8d0868",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3008,
+        "end": false
+      },
+      {
+        "id": "9acabb86-1d63-44e4-b8e7-f9baa4451a3d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 3024,
+        "end": false
+      },
+      {
+        "id": "d11755cb-2169-4f13-be55-de4e0f14c36d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 16,
+        "playTime": 3040,
+        "end": false
+      },
+      {
+        "id": "6b2e82c7-54b4-421e-836b-b83653ce3734",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3040,
+        "end": false
+      },
+      {
+        "id": "ad660872-4a49-41c7-8b78-3a15fcd28ea6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 16,
+        "playTime": 3056,
+        "end": false
+      },
+      {
+        "id": "418febe8-254c-462e-a0c8-113b33587c02",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 3072,
+        "end": false
+      },
+      {
+        "id": "ae3af0f3-d1a0-4ee9-b3a3-989912581a4c",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3072,
+        "end": false
+      },
+      {
+        "id": "d0fa3564-1774-40e9-b0ad-f4fec287b5a6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 3104,
+        "end": false
+      },
+      {
+        "id": "68f20d12-93ce-41b3-94b3-62db8ed7c629",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3104,
+        "end": false
+      },
+      {
+        "id": "bdbb2cd1-b0bf-47f1-a01b-4efeca460400",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 3136,
+        "end": false
+      },
+      {
+        "id": "90adb3a2-4b92-40d2-ac65-babb45a6dea4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3136,
+        "end": false
+      },
+      {
+        "id": "f5e54f45-4d3f-4b91-ab26-1797aafc9d71",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 3168,
+        "end": false
+      },
+      {
+        "id": "dcb6db61-dfc2-4c7f-93cf-f6d5d085c8d2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3168,
+        "end": false
+      },
+      {
+        "id": "e774f6ac-d390-41df-a570-f74ae33cd452",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 3200,
+        "end": false
+      },
+      {
+        "id": "6010c9c6-dd02-4f2e-964b-49f6f9916911",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 3200,
+        "end": false
+      },
+      {
+        "id": "195b1f20-301a-48c4-adfb-9f347876ae36",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3200,
+        "end": false
+      },
+      {
+        "id": "309bffe4-5754-403c-aa61-a2ced56839ad",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 3232,
+        "end": false
+      },
+      {
+        "id": "6ba3d411-816b-463d-b6ba-47cc1c62d5a6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3232,
+        "end": false
+      },
+      {
+        "id": "80bd8e87-a22e-4a26-84bd-c83a5dc0c663",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 16,
+        "playTime": 3264,
+        "end": false
+      },
+      {
+        "id": "9493729a-fb5c-4bbe-93b3-24bf08af0eb2",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3264,
+        "end": false
+      },
+      {
+        "id": "18194836-57ab-4b78-b6c3-5d3e306ce97b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 16,
+        "playTime": 3280,
+        "end": false
+      },
+      {
+        "id": "4c575a1d-c7f6-496f-89d8-9c0f16a6dffb",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 16,
+        "playTime": 3296,
+        "end": false
+      },
+      {
+        "id": "dc20307d-59ee-4c48-81fa-66a107a11839",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3296,
+        "end": false
+      },
+      {
+        "id": "f5545527-570c-4cce-bbcc-8cbb113f3824",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 16,
+        "playTime": 3312,
+        "end": false
+      },
+      {
+        "id": "bb7a1394-b93d-4110-8ef1-ccd38bcbe535",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 3328,
+        "end": false
+      },
+      {
+        "id": "53b02382-2f5c-4acc-ae0c-0cd95199157b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 32,
+        "playTime": 3328,
+        "end": false
+      },
+      {
+        "id": "40ae3bea-1080-4d9c-a97c-46fd4205ccd9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 3360,
+        "end": false
+      },
+      {
+        "id": "88deff32-9caa-487d-b1b7-361ad4abb57a",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 3360,
+        "end": false
+      },
+      {
+        "id": "e6c7d366-d87d-440d-8817-afe64d3ee8f3",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 3392,
+        "end": false
+      },
+      {
+        "id": "57164f74-5067-495d-98c0-c25c00b04133",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 128,
+        "playTime": 3392,
+        "end": false
+      },
+      {
+        "id": "df1bb54d-2c50-4001-92a5-fe24ecbbeb59",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 128,
+        "playTime": 3392,
+        "end": false
+      },
+      {
+        "id": "b303c25a-9579-4024-a571-ac4c11fca6cf",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 3424,
+        "end": false
+      },
+      {
+        "id": "ffbb28d5-2e93-4e56-9ec0-2db0ec795e06",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 3456,
+        "end": false
+      },
+      {
+        "id": "7516aad4-42c9-4dd8-9ccf-acb33f5522b6",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 3488,
+        "end": false
+      },
+      {
+        "id": "a2c4c4ff-ab86-4294-a930-884603aab5d4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 3520,
+        "end": false
+      },
+      {
+        "id": "dad1f2b4-cb7f-408c-bbee-c9ef0240b619",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 64,
+        "playTime": 3520,
+        "end": false
+      },
+      {
+        "id": "5789f087-8052-435d-80c1-552f0e3f9f3b",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 64,
+        "playTime": 3520,
+        "end": false
+      },
+      {
+        "id": "bd8bf4b3-1382-4d16-9979-23204a2f3ec4",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 32,
+        "playTime": 3552,
+        "end": false
+      },
+      {
+        "id": "3b40bc2c-8a5b-4582-b7ad-53ea8ee0c698",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 32,
+        "playTime": 3584,
+        "end": false
+      },
+      {
+        "id": "49e6b0bb-bbb2-416e-9db6-c235f46b5938",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 64,
+        "playTime": 3584,
+        "end": false
+      },
+      {
+        "id": "849787fd-f367-42ab-98d2-a19575bd65ba",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 64,
+        "playTime": 3584,
+        "end": false
+      },
+      {
+        "id": "d94a9d89-b7dd-45d1-bf07-447cbe7858fc",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 64,
+        "playTime": 3616,
+        "end": false
+      },
+      {
+        "id": "8cfcf9ff-ddd0-4da1-a6de-eff4f833ec99",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 76,
+        "duration": 64,
+        "playTime": 3616,
+        "end": false
+      },
+      {
+        "id": "81c6114e-704c-41c2-a852-3ff2ee665ae9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 128,
+        "playTime": 3648,
+        "end": false
+      },
+      {
+        "id": "7f16da51-4bcf-4fbb-873f-1be986d89df0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 128,
+        "playTime": 3648,
+        "end": false
+      },
+      {
+        "id": "c4a0962f-e718-4162-8f3d-e265dc0193f9",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 64,
+        "playTime": 3680,
+        "end": false
+      },
+      {
+        "id": "e15c585e-b23e-4a42-beb7-9f88c1578015",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 64,
+        "playTime": 3680,
+        "end": false
+      },
+      {
+        "id": "840aaf46-f2d2-42d6-9ae9-2e7c8e42fdd7",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 64,
+        "playTime": 3744,
+        "end": false
+      },
+      {
+        "id": "ee98095d-d32a-4492-ab1c-1ee3276f7929",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 64,
+        "playTime": 3744,
+        "end": false
+      },
+      {
+        "id": "172b7024-02b0-451d-868e-0cc147162678",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 64,
+        "playTime": 3776,
+        "end": false
+      },
+      {
+        "id": "c4eb84f7-86ad-46be-92e8-30051a6ca31f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 64,
+        "playTime": 3776,
+        "end": false
+      },
+      {
+        "id": "ea15d0f8-41f0-401a-9716-48c2283e5b64",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 71,
+        "duration": 32,
+        "playTime": 3808,
+        "end": false
+      },
+      {
+        "id": "81b34cbf-0d46-4178-aaa9-4b34afd0c04f",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 69,
+        "duration": 32,
+        "playTime": 3840,
+        "end": false
+      },
+      {
+        "id": "376f4056-4777-41fb-8673-3ead13b065a7",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 32,
+        "playTime": 3840,
+        "end": false
+      },
+      {
+        "id": "fd0ebde5-e35c-4301-9f70-0ea62e4a786e",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 74,
+        "duration": 32,
+        "playTime": 3872,
+        "end": false
+      },
+      {
+        "id": "2f51e0e0-93a6-4a8c-b5ac-af2b4b1a19d0",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 80,
+        "duration": 32,
+        "playTime": 3872,
+        "end": false
+      },
+      {
+        "id": "9723e8b2-a79e-43ec-8c1b-22b67ee00d76",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 52,
+        "duration": 32,
+        "playTime": 3872,
+        "end": false
+      },
+      {
+        "id": "7b28166d-87c8-4745-8241-4e4627a03c07",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 72,
+        "duration": 64,
+        "playTime": 3904,
+        "end": false
+      },
+      {
+        "id": "550892e0-a649-46e0-aed4-79da9e96b18d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 81,
+        "duration": 64,
+        "playTime": 3904,
+        "end": false
+      },
+      {
+        "id": "fb2fa560-6053-4f55-80e0-13903e92fb25",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 45,
+        "duration": 64,
+        "playTime": 3904,
+        "end": false
+      },
+      {
+        "id": "7941db67-f98c-40ee-b5f2-a91b028a2d3d",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 128,
+        "playTime": 3968,
+        "end": false
+      },
+      {
+        "id": "4e1e572d-6cde-402b-8eed-c8920b8b1b75",
+        "velocity": 1,
+        "toneColor": "piano",
+        "midi": 0,
+        "duration": 128,
+        "playTime": 3968,
+        "end": true
+      }
+    ]
+
+    const sequences = [SEQUENCE_1, SEQUENCE_2];
+    let currentSeqIndex = 0;
+
+    const BLOCK_DURATION_MS = 500;
+    const blockDurationLabel = BLOCK_DURATION_MS >= 1000 ? BLOCK_DURATION_MS / 1000 + 's' : BLOCK_DURATION_MS + 'ms';
+
+    let NPlayer;
+    let startJPlayer;
+    let closeJPlayer;
+    let piano;
+    let volin;
+
+    async function init() {
+      try {
+        const [nplayerMod, ctxMod, toneMod] = await Promise.all([
+          import('../src/NPlayer'),
+          import('../src/ContextManager'),
+          import('./toneColor'),
+        ]);
+        NPlayer = nplayerMod.default;
+        startJPlayer = ctxMod.startJPlayer;
+        closeJPlayer = ctxMod.closeJPlayer;
+        piano = toneMod.piano;
+        volin = toneMod.volin;
+
+        await startJPlayer();
+        const player = new NPlayer();
+        await Promise.all([
+          player.addToneColor('piano', piano),
+          player.addToneColor('volin', volin),
+        ]);
+        // player.setSequence(sequences[0]);
+        player.setPlaySequence(SEQUENCE_3)
+        player.bpm = 120;
+        player.rate = 1;
+        player.loop = false;
+        player.onProgress = (data) => console.log('[onProgress]', data);
+        player.onEnd = () => console.log('[onEnd]');
+
+        window._nplayer = player;
+        syncLoopButton();
+        updateStatus('就绪，点击播放');
+        document.getElementById('blockToggle').textContent = '启动定时死循环 (' + blockDurationLabel + ')';
+      } catch (e) {
+        updateStatus('加载失败: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    function updateStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+
+    function getPlayer() {
+      return window._nplayer;
+    }
+
+    function syncLoopButton() {
+      const player = getPlayer();
+      const btn = document.getElementById('loopToggle');
+      if (!player || !btn) return;
+      if (player.loop) {
+        btn.textContent = '循环 · 开';
+        btn.classList.add('primary');
+      } else {
+        btn.textContent = '循环 · 关';
+        btn.classList.remove('primary');
+      }
+    }
+
+    function switchSequence(index) {
+      const player = getPlayer();
+      if (!player) return;
+      currentSeqIndex = index;
+      player.stop();
+      player.setSequence(sequences[index]);
+      document.querySelectorAll('.seq-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+      updateStatus('已切换曲目 ' + (index + 1));
+    }
+
+    document.querySelectorAll('.seq-btn').forEach((btn) => {
+      btn.onclick = () => switchSequence(+btn.dataset.seq);
+    });
+
+    document.getElementById('play').onclick = async () => {
+      const player = getPlayer();
+      if (!player) return;
+      await player.play();
+      updateStatus('播放中 - 曲目 ' + (currentSeqIndex + 1));
+    };
+
+    document.getElementById('pause').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.pause();
+      updateStatus('已暂停');
+    };
+
+    document.getElementById('stop').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.stop();
+      updateStatus('已停止');
+    };
+
+    document.getElementById('loopToggle').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.loop = !player.loop;
+      syncLoopButton();
+      updateStatus(player.loop ? '已开启循环' : '已关闭循环');
+    };
+
+    const bpmInput = document.getElementById('bpm');
+    const bpmRange = document.getElementById('bpmRange');
+    bpmInput.onchange = () => {
+      const v = Math.max(40, Math.min(240, +bpmInput.value));
+      bpmInput.value = v;
+      bpmRange.value = Math.min(180, v);
+      const player = getPlayer();
+      if (player) player.bpm = v;
+    };
+    bpmRange.oninput = () => {
+      const v = +bpmRange.value;
+      bpmInput.value = v;
+      const player = getPlayer();
+      if (player) player.bpm = v;
+    };
+
+    const rateInput = document.getElementById('rate');
+    const rateRange = document.getElementById('rateRange');
+    rateInput.onchange = () => {
+      const v = Math.max(0.25, Math.min(2, +rateInput.value));
+      rateInput.value = v;
+      rateRange.value = v;
+      const player = getPlayer();
+      if (player) player.rate = v;
+    };
+    rateRange.oninput = () => {
+      const v = +rateRange.value;
+      rateInput.value = v.toFixed(2);
+      const player = getPlayer();
+      if (player) player.rate = v;
+    };
+
+    const volumeRange = document.getElementById('volumeRange');
+    const volumeValue = document.getElementById('volumeValue');
+    volumeRange.oninput = () => {
+      const v = +volumeRange.value;
+      volumeValue.textContent = v.toFixed(2);
+      const player = getPlayer();
+      if (player) player.volume = v;
+    };
+
+    let blockRunning = false;
+    document.getElementById('blockToggle').onclick = () => {
+      if (blockRunning) {
+        blockRunning = false;
+        document.getElementById('blockStatus').textContent = '已关闭（下次循环结束后停止）';
+        document.getElementById('blockToggle').textContent = '启动定时死循环 (' + blockDurationLabel + ')';
+        document.getElementById('blockToggle').classList.remove('primary');
+        document.getElementById('blockToggle').classList.add('danger');
+        return;
+      }
+      blockRunning = true;
+      document.getElementById('blockToggle').textContent = '关闭死循环';
+      document.getElementById('blockToggle').classList.remove('danger');
+      document.getElementById('blockToggle').classList.add('primary');
+
+      function runBlock() {
+        if (!blockRunning) return;
+        const start = Date.now();
+        console.log('[死循环开始]', new Date().toISOString(), 'timestamp:', start);
+        document.getElementById('blockStatus').textContent = '运行中... (阻塞 ' + blockDurationLabel + ')';
+        const target = start + BLOCK_DURATION_MS;
+        while (Date.now() < target) {}
+        const duration = Date.now() - start;
+        console.log('[死循环结束]', new Date().toISOString(), 'timestamp:', Date.now());
+        console.log('[死循环持续时间]', duration, 'ms');
+        document.getElementById('blockStatus').textContent = '完成，准备下一次...';
+        setTimeout(runBlock, 500);
+      }
+      runBlock();
+    };
+
+    window.addEventListener('beforeunload', () => {
+      closeJPlayer?.();
+    });
+
+    init();
+  </script>
+</body>
+</html>

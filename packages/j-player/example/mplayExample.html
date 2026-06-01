@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPlayer 节拍器测试</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 520px;
+      margin: 24px auto;
+      padding: 16px;
+      background: #1a1a1e;
+      color: #e4e4e7;
+      border-radius: 12px;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 20px; }
+    section { margin-bottom: 20px; }
+    .label { font-size: 0.75rem; color: #a1a1aa; margin-bottom: 4px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #3f3f46;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    button:hover { background: #52525b; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.primary { background: #22c55e; }
+    button.primary:hover { background: #16a34a; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    input[type="number"] {
+      width: 72px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+    }
+    input[type="range"] {
+      width: 120px;
+      accent-color: #22c55e;
+    }
+    select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+    }
+    .seq-btn { min-width: 100px; }
+    .seq-btn.active { background: #22c55e; }
+    .status { font-size: 0.8rem; color: #71717a; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>MPlayer 节拍器测试</h1>
+
+  <section>
+    <div class="label">音色切换</div>
+    <div class="row">
+      <button class="seq-btn active" data-timbre="normal">常规 (normal)</button>
+      <button class="seq-btn" data-timbre="crisp">清脆 (crisp)</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">拍号</div>
+    <div class="row">
+      <select id="timeSig">
+        <option value="4/4" selected>4/4</option>
+        <option value="3/4">3/4</option>
+        <option value="2/4">2/4</option>
+        <option value="6/8">6/8</option>
+        <option value="9/8">9/8</option>
+      </select>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">播放控制</div>
+    <div class="row" style="gap: 12px;">
+      <button class="primary" id="play">播放</button>
+      <button id="pause">暂停</button>
+      <button class="danger" id="stop">停止</button>
+      <button type="button" id="loopToggle">循环 · 开</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">BPM</div>
+    <div class="row">
+      <input type="number" id="bpm" value="120" min="40" max="240" step="5">
+      <input type="range" id="bpmRange" min="60" max="180" value="120">
+    </div>
+  </section>
+
+  <section>
+    <div class="label">播放速率 (rate)</div>
+    <div class="row">
+      <input type="number" id="rate" value="1" min="0.25" max="2" step="0.25">
+      <input type="range" id="rateRange" min="0.5" max="2" value="1" step="0.1">
+    </div>
+  </section>
+
+  <section>
+    <div class="label">音量 (volume)</div>
+    <div class="row">
+      <input type="range" id="volumeRange" min="0" max="1" value="1" step="0.01">
+      <span id="volumeValue">1</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">JS 主线程阻塞测试</div>
+    <div class="row">
+      <button id="blockToggle" class="danger">启动定时死循环</button>
+    </div>
+    <div class="status" style="margin-top: 4px" id="blockStatus">未启动</div>
+  </section>
+
+  <div class="status" id="status">点击播放开始 (需先激活音频上下文)</div>
+
+  <script type="module">
+    const TIMBRE_NAMES = ['normal', 'crisp'];
+    let currentTimbreIndex = 0;
+
+    const BLOCK_DURATION_MS = 1000;
+    const blockDurationLabel = BLOCK_DURATION_MS >= 1000 ? BLOCK_DURATION_MS / 1000 + 's' : BLOCK_DURATION_MS + 'ms';
+
+    let MPlayer;
+    let startJPlayer;
+    let closeJPlayer;
+
+    async function init() {
+      try {
+        const [mplayerMod, ctxMod, colorMod] = await Promise.all([
+          import('../src/MPlayer'),
+          import('../src/ContextManager'),
+          import('./metronomeColor'),
+        ]);
+        MPlayer = mplayerMod.default;
+        startJPlayer = ctxMod.startJPlayer;
+        closeJPlayer = ctxMod.closeJPlayer;
+        const { normal, crisp } = colorMod;
+
+        await startJPlayer();
+        const player = new MPlayer();
+        await Promise.all([
+          player.addMetronomeColor('normal', normal),
+          player.addMetronomeColor('crisp', crisp),
+        ]);
+        player.metronomeColor = 'normal';
+        player.loop = true;
+        player.bpm = 120;
+        player.rate = 1;
+        player.onProgress = (data) => console.log('[onProgress]', data);
+        player.onEnd = () => console.log('[onEnd] 小节结束（loop 下每小节一次，不中断调度）');
+
+        window._mplayer = player;
+        syncLoopButton();
+        updateStatus('就绪，点击播放 — 音色: normal');
+        document.getElementById('blockToggle').textContent = '启动定时死循环 (' + blockDurationLabel + ')';
+      } catch (e) {
+        updateStatus('加载失败: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    function updateStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+
+    function getPlayer() {
+      return window._mplayer;
+    }
+
+    function syncLoopButton() {
+      const player = getPlayer();
+      const btn = document.getElementById('loopToggle');
+      if (!player || !btn) return;
+      if (player.loop) {
+        btn.textContent = '循环 · 开';
+        btn.classList.add('primary');
+      } else {
+        btn.textContent = '循环 · 关';
+        btn.classList.remove('primary');
+      }
+    }
+
+    function switchTimbre(index) {
+      const player = getPlayer();
+      if (!player) return;
+      currentTimbreIndex = index;
+      const name = TIMBRE_NAMES[index];
+      player.stop();
+      player.metronomeColor = name;
+      document.querySelectorAll('.seq-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+      updateStatus('已切换音色: ' + name + '（已停止，需再点播放）');
+    }
+
+    document.querySelectorAll('.seq-btn').forEach((btn) => {
+      btn.onclick = () => switchTimbre(TIMBRE_NAMES.indexOf(btn.dataset.timbre));
+    });
+
+    document.getElementById('timeSig').onchange = (ev) => {
+      const player = getPlayer();
+      if (!player) return;
+      player.timeSignature = ev.target.value;
+      updateStatus('拍号: ' + ev.target.value);
+    };
+
+    document.getElementById('play').onclick = async () => {
+      const player = getPlayer();
+      if (!player) return;
+      await player.play();
+      updateStatus('播放中 — ' + TIMBRE_NAMES[currentTimbreIndex] + ' · ' + player.timeSignature);
+    };
+
+    document.getElementById('pause').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.pause();
+      updateStatus('已暂停');
+    };
+
+    document.getElementById('stop').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.stop();
+      updateStatus('已停止');
+    };
+
+    document.getElementById('loopToggle').onclick = () => {
+      const player = getPlayer();
+      if (!player) return;
+      player.loop = !player.loop;
+      syncLoopButton();
+      updateStatus(player.loop ? '已开启循环' : '已关闭循环（播完一小节将停）');
+    };
+
+    const bpmInput = document.getElementById('bpm');
+    const bpmRange = document.getElementById('bpmRange');
+    bpmInput.onchange = () => {
+      const v = Math.max(40, Math.min(240, +bpmInput.value));
+      bpmInput.value = v;
+      bpmRange.value = Math.min(180, v);
+      const player = getPlayer();
+      if (player) player.bpm = v;
+    };
+    bpmRange.oninput = () => {
+      const v = +bpmRange.value;
+      bpmInput.value = v;
+      const player = getPlayer();
+      if (player) player.bpm = v;
+    };
+
+    const rateInput = document.getElementById('rate');
+    const rateRange = document.getElementById('rateRange');
+    rateInput.onchange = () => {
+      const v = Math.max(0.25, Math.min(2, +rateInput.value));
+      rateInput.value = v;
+      rateRange.value = v;
+      const player = getPlayer();
+      if (player) player.rate = v;
+    };
+    rateRange.oninput = () => {
+      const v = +rateRange.value;
+      rateInput.value = v.toFixed(2);
+      const player = getPlayer();
+      if (player) player.rate = v;
+    };
+
+    const volumeRange = document.getElementById('volumeRange');
+    const volumeValue = document.getElementById('volumeValue');
+    volumeRange.oninput = () => {
+      const v = +volumeRange.value;
+      volumeValue.textContent = v.toFixed(2);
+      const player = getPlayer();
+      if (player) player.volume = v;
+    };
+
+    let blockRunning = false;
+    document.getElementById('blockToggle').onclick = () => {
+      if (blockRunning) {
+        blockRunning = false;
+        document.getElementById('blockStatus').textContent = '已关闭（下次循环结束后停止）';
+        document.getElementById('blockToggle').textContent = '启动定时死循环 (' + blockDurationLabel + ')';
+        document.getElementById('blockToggle').classList.remove('primary');
+        document.getElementById('blockToggle').classList.add('danger');
+        return;
+      }
+      blockRunning = true;
+      document.getElementById('blockToggle').textContent = '关闭死循环';
+      document.getElementById('blockToggle').classList.remove('danger');
+      document.getElementById('blockToggle').classList.add('primary');
+
+      function runBlock() {
+        if (!blockRunning) return;
+        const start = Date.now();
+        console.log('[死循环开始]', new Date().toISOString(), 'timestamp:', start);
+        document.getElementById('blockStatus').textContent = '运行中... (阻塞 ' + blockDurationLabel + ')';
+        const target = start + BLOCK_DURATION_MS;
+        while (Date.now() < target) {}
+        const duration = Date.now() - start;
+        console.log('[死循环结束]', new Date().toISOString(), 'timestamp:', Date.now());
+        console.log('[死循环持续时间]', duration, 'ms');
+        document.getElementById('blockStatus').textContent = '完成，准备下一次...';
+        setTimeout(runBlock, 500);
+      }
+      runBlock();
+    };
+
+    window.addEventListener('beforeunload', () => {
+      closeJPlayer?.();
+    });
+
+    init();
+  </script>
+</body>
+</html>

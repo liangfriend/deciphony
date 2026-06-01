@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPlayer 单音符 trigger</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 560px;
+      margin: 24px auto;
+      padding: 16px;
+      background: #1a1a1e;
+      color: #e4e4e7;
+      border-radius: 12px;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 8px; }
+    .hint { font-size: 0.8rem; color: #71717a; margin-bottom: 20px; }
+    section { margin-bottom: 20px; }
+    .label { font-size: 0.75rem; color: #a1a1aa; margin-bottom: 6px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #3f3f46;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    button:hover { background: #52525b; }
+    button.primary { background: #22c55e; }
+    button.primary:hover { background: #16a34a; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    button.key-w { min-width: 44px; padding: 14px 8px; }
+    button.key-b {
+      min-width: 28px;
+      padding: 10px 4px;
+      background: #18181b;
+      margin: 0 -14px;
+      z-index: 1;
+      position: relative;
+    }
+    .keyboard { display: flex; align-items: flex-start; gap: 2px; flex-wrap: wrap; padding-top: 8px; }
+    input[type="number"] {
+      width: 80px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #3f3f46;
+      background: #27272a;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+    }
+    input[type="range"] { width: 140px; accent-color: #22c55e; }
+    .mono { font-family: ui-monospace, monospace; font-size: 0.75rem; word-break: break-all; }
+    .status { font-size: 0.8rem; color: #a1a1aa; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>NPlayer 单音符 <code>trigger</code> / <code>release</code></h1>
+  <p class="hint">需先点「激活音频」，再点琴键或下方按钮。音色使用与 nplay 相同的 piano（dataUrl）。</p>
+
+  <section>
+    <div class="label">1. 激活</div>
+    <div class="row">
+      <button class="primary" id="btnInit">激活音频上下文</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">2. 虚拟键盘（C4–B4，piano）</div>
+    <div class="keyboard" id="keyboard"></div>
+  </section>
+
+  <section>
+    <div class="label">3. 参数化触发</div>
+    <div class="row" style="margin-bottom: 8px;">
+      <span>MIDI</span>
+      <input type="number" id="midi" value="60" min="0" max="127" step="1">
+      <span>延迟(s)</span>
+      <input type="number" id="offset" value="0" min="0" max="10" step="0.1">
+      <span>时长(s)</span>
+      <input type="number" id="duration" value="" min="0" max="30" step="0.1" placeholder="空=整段">
+    </div>
+    <div class="row" style="margin-bottom: 8px;">
+      <span>音量</span>
+      <input type="range" id="vol" min="0" max="1" value="0.8" step="0.05">
+      <span id="volVal">0.8</span>
+    </div>
+    <div class="row">
+      <button class="primary" id="btnTrigger">trigger 播放</button>
+      <button id="btnReleaseLast">release 上次 id</button>
+      <button class="danger" id="btnReleaseAll">releaseAll()</button>
+    </div>
+    <div class="label" style="margin-top:10px">上次返回的 id</div>
+    <div class="mono" id="lastId">—</div>
+  </section>
+
+  <div class="status" id="status"></div>
+
+  <script type="module">
+    const KEYS = [
+      { label: 'C', midi: 60, black: false },
+      { label: 'C#', midi: 61, black: true },
+      { label: 'D', midi: 62, black: false },
+      { label: 'D#', midi: 63, black: true },
+      { label: 'E', midi: 64, black: false },
+      { label: 'F', midi: 65, black: false },
+      { label: 'F#', midi: 66, black: true },
+      { label: 'G', midi: 67, black: false },
+      { label: 'G#', midi: 68, black: true },
+      { label: 'A', midi: 69, black: false },
+      { label: 'A#', midi: 70, black: true },
+      { label: 'B', midi: 71, black: false },
+    ];
+
+    let NPlayer;
+    let startJPlayer;
+    let closeJPlayer;
+    let piano;
+    let player;
+    let lastTriggerId = null;
+
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+
+    function getPlayer() {
+      return player;
+    }
+
+    function playMidi(midi) {
+      const p = getPlayer();
+      if (!p) {
+        setStatus('请先激活音频');
+        return;
+      }
+      const id = `key-${midi}-${Date.now()}`;
+      try {
+        p.trigger({
+          id,
+          midi,
+          toneColor: 'piano',
+          volume: parseFloat(document.getElementById('vol').value),
+        });
+        lastTriggerId = id;
+        document.getElementById('lastId').textContent = id;
+        setStatus(`trigger midi ${midi} id=${id}`);
+      } catch (e) {
+        setStatus('错误: ' + e.message);
+        console.error(e);
+      }
+    }
+
+    function buildKeyboard() {
+      const el = document.getElementById('keyboard');
+      for (const k of KEYS) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = k.label;
+        btn.className = k.black ? 'key-b' : 'key-w';
+        btn.title = 'MIDI ' + k.midi;
+        btn.onclick = () => playMidi(k.midi);
+        el.appendChild(btn);
+      }
+    }
+
+    document.getElementById('vol').oninput = () => {
+      document.getElementById('volVal').textContent = document.getElementById('vol').value;
+    };
+
+    document.getElementById('btnInit').onclick = async () => {
+      if (player) {
+        setStatus('已初始化');
+        return;
+      }
+      try {
+        const [nMod, ctxMod, toneMod] = await Promise.all([
+          import('../src/NPlayer'),
+          import('../src/ContextManager'),
+          import('./toneColor'),
+        ]);
+        NPlayer = nMod.default;
+        startJPlayer = ctxMod.startJPlayer;
+        closeJPlayer = ctxMod.closeJPlayer;
+        piano = toneMod.piano;
+        await startJPlayer();
+        player = new NPlayer();
+        await player.addToneColor('piano', piano);
+        setStatus('就绪：可点琴键或 trigger');
+        document.getElementById('btnInit').textContent = '已激活';
+        document.getElementById('btnInit').disabled = true;
+      } catch (e) {
+        setStatus('加载失败: ' + e.message);
+        console.error(e);
+      }
+    };
+
+    document.getElementById('btnTrigger').onclick = () => {
+      const p = getPlayer();
+      if (!p) {
+        setStatus('请先激活音频');
+        return;
+      }
+      const midi = Math.max(0, Math.min(127, parseInt(document.getElementById('midi').value, 10) || 0));
+      const offset = Math.max(0, parseFloat(document.getElementById('offset').value) || 0);
+      const durRaw = document.getElementById('duration').value.trim();
+      const duration = durRaw === '' ? undefined : Math.max(0, parseFloat(durRaw));
+      const volume = parseFloat(document.getElementById('vol').value);
+      const id = `demo-${Date.now()}`;
+      try {
+        const param = {
+          id,
+          midi,
+          toneColor: 'piano',
+          volume,
+          offset,
+        };
+        if (duration !== undefined && !Number.isNaN(duration)) param.duration = duration;
+        const ret = p.trigger(param);
+        lastTriggerId = ret;
+        document.getElementById('lastId').textContent = ret;
+        setStatus('trigger 已调度 ret=' + ret);
+      } catch (e) {
+        setStatus('错误: ' + e.message);
+        console.error(e);
+      }
+    };
+
+    document.getElementById('btnReleaseLast').onclick = () => {
+      const p = getPlayer();
+      if (!p || !lastTriggerId) {
+        setStatus('无上次 id');
+        return;
+      }
+      p.release({ id: lastTriggerId });
+      setStatus('release ' + lastTriggerId);
+    };
+
+    document.getElementById('btnReleaseAll').onclick = () => {
+      const p = getPlayer();
+      if (!p) return;
+      p.releaseAll();
+      lastTriggerId = null;
+      document.getElementById('lastId').textContent = '—';
+      setStatus('已调用 releaseAll()');
+    };
+
+    window.addEventListener('beforeunload', () => closeJPlayer?.());
+
+    buildKeyboard();
+    setStatus('点击「激活音频上下文」开始');
+  </script>
+</body>
+</html>

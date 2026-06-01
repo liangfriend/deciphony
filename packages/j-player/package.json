@@ -1,0 +1,36 @@
+{
+  "name": "@jsh/j-player",
+  "version": "0.0.25",
+  "description": "更高效的播放器",
+  "author": "jsh",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b --clean && tsc && tsc-esm-fix --dir packages/note-player/dist",
+    "dev": "node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postpublish": "npm version patch --no-git-tag-version",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "http://192.168.2.86:4873/"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0"
+  },
+  "keywords": [],
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "tsc-alias": "^1.8.16"
+  }
+}

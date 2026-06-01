@@ -1,5 +1,5 @@
 {
-  "name": "@jsh/j-player",
+  "name": "j-player",
   "version": "0.0.25",
   "description": "更高效的播放器",
   "author": "jsh",
@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b --clean && tsc && tsc-esm-fix --dir packages/note-player/dist",
+    "build": "tsc",
     "dev": "node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postpublish": "npm version patch --no-git-tag-version",

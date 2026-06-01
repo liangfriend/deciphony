@@ -1,9 +1,15 @@
 {
   "name": "deciphony-renderer",
-  "version": "0.0.29",
+  "version": "0.0.34",
   "description": "",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
   "types": "dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.vue"
+  ],
   "files": [
     "dist"
   ],
@@ -18,25 +24,28 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
+    "./types": {
+      "types": "./dist/types-entry.d.ts",
+      "import": "./dist/types.es.js",
+      "require": "./dist/types.cjs.js"
+    },
     "./css": {
       "import": "./dist/deciphony-renderer.css",
       "require": "./dist/deciphony-renderer.css"
     }
   },
-  "dependencies": {
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
     "sass": "^1.83.0",
     "sass-loader": "^16.0.4",
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.4"
-  },
-  "peerDependencies": {
-    "deciphony-core": "0.0.32"
-  },
-  "devDependencies": {
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-static-copy": "^3.1.1",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4",
     "vue-tsc": "^3.0.5"
   },
   "keywords": [],

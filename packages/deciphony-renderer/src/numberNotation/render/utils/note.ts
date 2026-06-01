@@ -64,8 +64,12 @@ function graceWidthRatioForNoteNumber(
   measureHeight: number,
 ): number {
   if (isSlotRest(note)) return 0;
-  const before = graceNoteNumberBeforeWidth(note.graceNotes, skin, measureHeight);
-  const after = graceNoteNumberAfterWidth(note.graceNotesAfter, skin, measureHeight);
+  let before = 0;
+  let after = 0;
+  for (const ni of note.notesInfo) {
+    before = Math.max(before, graceNoteNumberBeforeWidth(ni.graceNotes, note, skin, measureHeight));
+    after = Math.max(after, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
+  }
   return ((before + after) / measureHeight) * 4;
 }
 

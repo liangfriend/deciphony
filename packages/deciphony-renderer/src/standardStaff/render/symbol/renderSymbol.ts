@@ -243,10 +243,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             let graceBeforeW = 0;
             let graceAfterW = 0;
             if (!isRest && isNoteSymbol(slot)) {
-                for (const ni of slot.notesInfo) {
-                    graceBeforeW = Math.max(graceBeforeW, graceBeforeWidth(ni.graceNotes, skin, measureHeight));
-                    graceAfterW = Math.max(graceAfterW, graceAfterWidth(ni.graceNotesAfter, skin, measureHeight));
-                }
+                graceBeforeW = graceBeforeWidth(slot.graceNotes, skin, measureHeight);
+                graceAfterW = graceAfterWidth(slot.graceNotesAfter, skin, measureHeight);
             }
             const headX = slotStartX + (slotW - graceBeforeW - referenceW - graceAfterW) / 2 + graceBeforeW;
             /*
@@ -371,8 +369,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     idMap,
                     out,
                 };
+                renderGraceNotesBefore(note.graceNotes, headX, graceCtx);
                 beat.notesInfo.forEach((n) => {
-                    renderGraceNotesBefore(n.graceNotes, headX, graceCtx);
                     const ny = noteCenterY(n.region) - headItem.h / 2;
                     const hcy = noteCenterY(n.region);
                     if (n.accidental) {
@@ -424,8 +422,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                         measureHeight,
                     });
                     if (!firstHeadVDom) firstHeadVDom = vdom;
-                    renderGraceNotesAfter(n.graceNotesAfter, headX, headItem.w, graceCtx);
                 });
+                renderGraceNotesAfter(note.graceNotesAfter, headX, headItem.w, graceCtx);
                 const groupAugmentationDot = beat.notesInfo.find((n) => n.augmentationDot)?.augmentationDot;
                 if (groupAugmentationDot) {
                     const augSkinKey = getAugmentationDotSkinKey(groupAugmentationDot as AugmentationDot);

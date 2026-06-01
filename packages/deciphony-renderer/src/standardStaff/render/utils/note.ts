@@ -96,12 +96,8 @@ function graceWidthRatioForNote(
   skin: StandardStaffSkinPack,
   measureHeight: number,
 ): number {
-  let before = 0;
-  let after = 0;
-  for (const ni of note.notesInfo) {
-    before = Math.max(before, graceBeforeWidth(ni.graceNotes, skin, measureHeight));
-    after = Math.max(after, graceAfterWidth(ni.graceNotesAfter, skin, measureHeight));
-  }
+  const before = graceBeforeWidth(note.graceNotes, skin, measureHeight);
+  const after = graceAfterWidth(note.graceNotesAfter, skin, measureHeight);
   return (before + after) / measureHeight * 4;
 }
 

@@ -1,6 +1,6 @@
 /**
 
- * 五线谱倚音：NotesInfo 级；VDom.scale 由 group.vue 缩放至 50%
+ * 五线谱倚音：NoteSymbol 级（graceNotes 为 NotesInfo[]）；VDom.scale 由 group.vue 缩放至 50%
 
  */
 

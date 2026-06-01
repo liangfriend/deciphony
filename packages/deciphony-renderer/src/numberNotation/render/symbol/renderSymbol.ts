@@ -247,8 +247,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
       // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
       const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
-      const graceBeforeW = isRestSlot ? 0 : graceNoteNumberBeforeWidth(note.graceNotes, skin, measureHeight);
-      const graceAfterW = isRestSlot ? 0 : graceNoteNumberAfterWidth(note.graceNotesAfter, skin, measureHeight);
+      let graceBeforeW = 0;
+      let graceAfterW = 0;
+      if (!isRestSlot) {
+        for (const ni of note.notesInfo) {
+          graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, note, skin, measureHeight));
+          graceAfterW = Math.max(graceAfterW, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
+        }
+      }
       const headX = slotStartX + (effectiveSlotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, isRest: isRestSlot});
@@ -322,7 +328,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
       } else { // 音符渲染
-        renderGraceNotesNumberBefore(note.graceNotes, headX, graceCtx);
+        for (const gn of allNotes) {
+          renderGraceNotesNumberBefore(gn.graceNotes, note, headX, graceCtx);
+        }
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
@@ -419,7 +427,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             measureHeight,
           });
         }
-        renderGraceNotesNumberAfter(note.graceNotesAfter, headX, referenceW, graceCtx);
+        for (const gn of allNotes) {
+          renderGraceNotesNumberAfter(gn.graceNotesAfter, note, headX, referenceW, graceCtx);
+        }
         // 音符加时线：二分1条、全音符3条，y居中，x等分居中
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {

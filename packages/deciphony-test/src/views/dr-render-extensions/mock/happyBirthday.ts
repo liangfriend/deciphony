@@ -165,7 +165,7 @@ const REST_CHRONAXIES: Chronaxie[] = [256, 128, 64, 32, 16, 8, 4, 2, 1];
 // 祝你生日快乐 旋律 C 大调 3/4
 // 第一句：祝你生日快乐（前四个八分音符连成符杠便于查看效果）
 const noteWithGrace = note(13, 128, 6, 'down', BeamTypeEnum.Combined); // G4 祝 + 前置倚音
-noteWithGrace.notesInfo[0]!.graceNotesAfter = [
+noteWithGrace.graceNotesAfter = [
     {
         ...frame,
         id: crypto.randomUUID(),

@@ -5,12 +5,14 @@ import WebAudioTest from "./views/webAudioTest.vue";
 import ElectronMessage from "./views/electronMessage.vue";
 import UiTest from "./views/uiTest.vue";
 import PlayerTest from "./views/playerTest.vue";
+import RenderPlayTest from "./views/renderPlayTest.vue";
 </script>
 
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <render-test></render-test>
+  <!--  <render-test></render-test>-->
+  <render-play-test></render-play-test>
   <!--  <dr-edit></dr-edit>-->
 
   <!--    <electron-message></ele/ctron-message>-->

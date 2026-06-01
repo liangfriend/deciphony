@@ -2,7 +2,6 @@ import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
 import dts from 'vite-plugin-dts'
-import {viteStaticCopy} from "vite-plugin-static-copy";
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [vue(),
@@ -11,14 +10,6 @@ export default defineConfig({
             cleanVueFileName: true, // 去除 .vue 文件名的冗余
             copyDtsFiles: true,
         }),
-        viteStaticCopy({
-            targets: [
-                {
-                    src: 'src/assets', // 原路径
-                    dest: 'assets'           // 拷贝到 dist/assets
-                }
-            ]
-        })
     ],
     server: {
         port: 12347, // 指定开发服务器端口

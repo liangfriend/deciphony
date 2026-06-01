@@ -1,41 +1,42 @@
 // 虚拟DOM节点类型：供开发者用 tag 区分点击目标，不参与 skin 查找
 import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {MusicScore, GrandStaff, SingleStaff, Measure} from "@/types/MusicScoreType";
 
 /** 按曲谱模式区分的 skinKey 联合类型 */
 export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum;
 
 /** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
 export type VDomTagType =
-    | 'title'          // 标题
-    | 'root'           // 根
-    | 'grandStaff'     // 复谱表
-    | 'singleStaff'    // 单谱表
-    | 'measure'        // 小节
-    | 'noteHead'           // 音符头
-    | 'rest'           // 休止符
-    | 'clef_f'         // 前置谱号
-    | 'clef_b'         // 后置谱号
-    | 'keySignature_f' // 前置调号
-    | 'keySignature_b' // 后置调号
-    | 'timeSignature_f' // 前置拍号
-    | 'timeSignature_b' // 后置拍号
-    | 'barline_f'      // 前置小节线
-    | 'barline_b'      // 后置小节线
-    | 'linked_barline' // 连谱小节线
-    | 'close_line'     // 闭合线（第一小节左侧）
-    | 'linked_close_line' // 连谱闭合线
-    | 'bracket'        // 连谱号（不参与布局，浮于谱表左侧）
-    | 'noteStem'       // 符干
-    | 'noteTail'       // 符尾
-    | 'noteBeam'       // 符杠
-    | 'accidental'     // 变音符号
-    | 'addLine'        // 加线（上下加线）
-    | 'repeat_f'       // 小节前反复符号（Coda / Segno）
-    | 'repeat_b'       // 小节末反复符号（DC / DS / Fine 等）
-    | 'slot'           // 插槽
-    | 'space'          // 空白（边距等）
-    | 'affiliation'    // 附属符号
+  | 'title'          // 标题
+  | 'root'           // 根
+  | 'grandStaff'     // 复谱表
+  | 'singleStaff'    // 单谱表
+  | 'measure'        // 小节
+  | 'noteHead'           // 音符头
+  | 'rest'           // 休止符
+  | 'clef_f'         // 前置谱号
+  | 'clef_b'         // 后置谱号
+  | 'keySignature_f' // 前置调号
+  | 'keySignature_b' // 后置调号
+  | 'timeSignature_f' // 前置拍号
+  | 'timeSignature_b' // 后置拍号
+  | 'barline_f'      // 前置小节线
+  | 'barline_b'      // 后置小节线
+  | 'linked_barline' // 连谱小节线
+  | 'close_line'     // 闭合线（第一小节左侧）
+  | 'linked_close_line' // 连谱闭合线
+  | 'bracket'        // 连谱号（不参与布局，浮于谱表左侧）
+  | 'noteStem'       // 符干
+  | 'noteTail'       // 符尾
+  | 'noteBeam'       // 符杠
+  | 'accidental'     // 变音符号
+  | 'addLine'        // 加线（上下加线）
+  | 'repeat_f'       // 小节前反复符号（Coda / Segno）
+  | 'repeat_b'       // 小节末反复符号（DC / DS / Fine 等）
+  | 'slot'           // 插槽
+  | 'space'          // 空白（边距等）
+  | 'affiliation'    // 附属符号
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
 
@@ -81,17 +82,18 @@ export type VDom = {
 
 /** 插槽返回的数据：g 开头返回 GrandStaff，s 开头返回 SingleStaff，m 开头返回 Measure */
 export type SlotData =
-  | import('@/types/MusicScoreType').GrandStaff
-  | import('@/types/MusicScoreType').SingleStaff
-  | import('@/types/MusicScoreType').Measure;
+  MusicScore
+  | GrandStaff
+  | SingleStaff
+  | Measure;
 
 // 曲谱层面13个插槽名称（不含符号层面 symbol-*）
 export type SlotName =
-    | 'g' | 's'
-    | 'g-l' | 'g-r'
-    | 's-l' | 's-r'
-    | 'm' | 'm-u' | 'm-d' | 's-u'
-    | 's-d' | 'g-u' | 'g-d' | 't' | 'e'
+  | 'g' | 's'
+  | 'g-l' | 'g-r'
+  | 's-l' | 's-r'
+  | 'm' | 'm-u' | 'm-d' | 's-u'
+  | 's-d' | 'g-u' | 'g-d' | 't' | 'e'
 
 // 插槽配置：影响 transfer 布局计算的宽高；zIndex 未配置时 slot 默认 1000，m 插槽默认 1100
 export type SlotConfig = Partial<Record<SlotName, { w?: number; h?: number; zIndex?: number }>>

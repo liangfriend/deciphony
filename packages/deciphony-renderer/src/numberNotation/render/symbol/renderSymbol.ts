@@ -28,7 +28,6 @@ import {
   getAugmentationDotSkinKey,
   getBarlineSkinKey,
   getClefForMeasure,
-  getClefSkinKey,
   getKeySignatureSkinKey,
   getReduceLineSkinKey,
   getSyllableSkinKey,
@@ -81,11 +80,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   };
 
   let prefixW = 0;
-  if (measure.clef_f) {
-    const key = getClefSkinKey(measure.clef_f.clefType, true);
-    const item = skin[key];
-    if (item) prefixW += item.w;
-  }
+  // if (measure.clef_f) {
+  //   const key = getClefSkinKey(measure.clef_f.clefType, true);
+  //   const item = skin[key];
+  //   if (item) prefixW += item.w;
+  // }
   if (measure.keySignature_f) {
     const key = getKeySignatureSkinKey(measure.keySignature_f.type);
     const item = skin[key];
@@ -111,14 +110,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       targetId: measure.barline_b.id ?? '',
     });
   }
-  if (measure.clef_b) {
-    rightParts.push({
-      skinKey: getClefSkinKey(measure.clef_b.clefType, false),
-      tag: 'clef_b',
-      dataComment: '后置谱号',
-      targetId: measure.clef_b.id ?? '',
-    });
-  }
+  // if (measure.clef_b) {
+  //   rightParts.push({
+  //     skinKey: getClefSkinKey(measure.clef_b.clefType, false),
+  //     tag: 'clef_b',
+  //     dataComment: '后置谱号',
+  //     targetId: measure.clef_b.id ?? '',
+  //   });
+  // }
   if (measure.keySignature_b) {
     rightParts.push({
       skinKey: getKeySignatureSkinKey(measure.keySignature_b.type),
@@ -171,12 +170,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   };
 
   let x = measureX;
-  if (measure.clef_f) {
-    const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
-    pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
-    const item = skin[clefKey];
-    if (item) x += item.w;
-  }
+  // if (measure.clef_f) {
+  //   const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
+  //   pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
+  //   const item = skin[clefKey];
+  //   if (item) x += item.w;
+  // }
   if (measure.keySignature_f) {
     const keySigKey = getKeySignatureSkinKey(measure.keySignature_f.type);
     const keySigItem = skin[keySigKey];
@@ -583,10 +582,10 @@ export function getBarlineFXInMeasure(
   skin: import("@/types/common").NumberNotationSkinPack,
 ): number {
   let prefixW = 0;
-  if (measure.clef_f) {
-    const item = skin[getClefSkinKey(measure.clef_f.clefType, true)];
-    if (item) prefixW += item.w;
-  }
+  // if (measure.clef_f) {
+  //   const item = skin[getClefSkinKey(measure.clef_f.clefType, true)];
+  //   if (item) prefixW += item.w;
+  // }
   if (measure.keySignature_f) {
     const item = skin[getKeySignatureSkinKey(measure.keySignature_f.type)];
     if (item) prefixW += item.w;
@@ -605,11 +604,20 @@ export function getBarlineXInMeasure(
   measureWidth: number,
   skin: import("@/types/common").NumberNotationSkinPack,
 ): number {
-  const rightParts: { skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum]; tag: string }[] = [];
-  if (measure.barline_b) rightParts.push({ skinKey: getBarlineSkinKey(measure.barline_b.barlineType), tag: 'barline_b' });
-  if (measure.clef_b) rightParts.push({ skinKey: getClefSkinKey(measure.clef_b.clefType, false), tag: 'clef_b' });
-  if (measure.keySignature_b) rightParts.push({ skinKey: getKeySignatureSkinKey(measure.keySignature_b.type), tag: 'keySignature_b' });
-  if (measure.timeSignature_b) rightParts.push({ skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type), tag: 'timeSignature_b' });
+  const rightParts: {
+    skinKey: typeof NumberNotationSkinKeyEnum[keyof typeof NumberNotationSkinKeyEnum];
+    tag: string
+  }[] = [];
+  if (measure.barline_b) rightParts.push({skinKey: getBarlineSkinKey(measure.barline_b.barlineType), tag: 'barline_b'});
+  // if (measure.clef_b) rightParts.push({ skinKey: getClefSkinKey(measure.clef_b.clefType, false), tag: 'clef_b' });
+  if (measure.keySignature_b) rightParts.push({
+    skinKey: getKeySignatureSkinKey(measure.keySignature_b.type),
+    tag: 'keySignature_b'
+  });
+  if (measure.timeSignature_b) rightParts.push({
+    skinKey: getTimeSignatureSkinKey(measure.timeSignature_b.type),
+    tag: 'timeSignature_b'
+  });
   let suffixW = 0;
   for (const p of rightParts) {
     if (p.tag === 'keySignature_b') continue;

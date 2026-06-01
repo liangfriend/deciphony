@@ -44,27 +44,27 @@ export function getLinkedBarlineSkinKey(barlineType: BarlineTypeEnum): NumberNot
   return map[barlineType] ?? NumberNotationSkinKeyEnum.linked_single_barline;
 }
 
-/** 谱号类型 + 是否前置 */
-export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): NumberNotationSkinKeyEnum {
-  switch (clefType) {
-    case ClefTypeEnum.Treble:
-      return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
-    case ClefTypeEnum.Bass:
-      return isFront ? NumberNotationSkinKeyEnum.Bass_f : NumberNotationSkinKeyEnum.Bass;
-    case ClefTypeEnum.Alto:
-      return isFront ? NumberNotationSkinKeyEnum.Alto_f : NumberNotationSkinKeyEnum.Alto;
-    case ClefTypeEnum.Tenor:
-      return isFront ? NumberNotationSkinKeyEnum.Tenor_f : NumberNotationSkinKeyEnum.Tenor;
-    default:
-      return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
-  }
-}
+/** 谱号类型 + 是否前置 简谱没有谱号*/
+// export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): NumberNotationSkinKeyEnum {
+//   switch (clefType) {
+//     case ClefTypeEnum.Treble:
+//       return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
+//     case ClefTypeEnum.Bass:
+//       return isFront ? NumberNotationSkinKeyEnum.Bass_f : NumberNotationSkinKeyEnum.Bass;
+//     case ClefTypeEnum.Alto:
+//       return isFront ? NumberNotationSkinKeyEnum.Alto_f : NumberNotationSkinKeyEnum.Alto;
+//     case ClefTypeEnum.Tenor:
+//       return isFront ? NumberNotationSkinKeyEnum.Tenor_f : NumberNotationSkinKeyEnum.Tenor;
+//     default:
+//       return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
+//   }
+// }
 
 /** 小节生效谱号：可传 noteIndex 表示该音符位前生效的谱号 */
 export function getClefForMeasure(
-    measures: import("@/types/MusicScoreType").Measure[],
-    measureIndex: number,
-    noteIndex?: number
+  measures: import("@/types/MusicScoreType").Measure[],
+  measureIndex: number,
+  noteIndex?: number
 ): ClefTypeEnum {
   if (measureIndex < 0) return ClefTypeEnum.Treble;
   const m = measures[measureIndex];
@@ -83,24 +83,6 @@ export function getClefForMeasure(
   return getClefForMeasure(measures, prev);
 }
 
-/** 调号 y 偏移：皮肤按 treble 布局，中音/次中音 +5.5，低音 +11 */
-export function getKeySignatureYOffset(
-    clefType: ClefTypeEnum,
-    measureHeight: number,
-    measureLineWidth: number
-): number {
-  const unit = (measureHeight - 5 * measureLineWidth) / 8 + measureLineWidth / 2;
-  switch (clefType) {
-    case ClefTypeEnum.Alto:
-      return unit;
-    case ClefTypeEnum.Tenor:
-      return -unit;
-    case ClefTypeEnum.Bass:
-      return unit * 2;
-    default:
-      return 0;
-  }
-}
 
 export function getKeySignatureSkinKey(type: KeySignatureTypeEnum): NumberNotationSkinKeyEnum {
   return NumberNotationSkinKeyEnum[type];
@@ -118,53 +100,6 @@ export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): NumberNot
     [TimeSignatureTypeEnum['6_8']]: NumberNotationSkinKeyEnum['6_8'],
   };
   return map[type] ?? NumberNotationSkinKeyEnum['4_4'];
-}
-
-/** 时值 chronaxie → 音符头皮肤 */
-export function getNoteHeadSkinKey(chronaxie: number): NumberNotationSkinKeyEnum {
-  if (chronaxie >= 256) return NumberNotationSkinKeyEnum.NoteHead_1;
-  if (chronaxie >= 128) return NumberNotationSkinKeyEnum.NoteHead_2;
-  return NumberNotationSkinKeyEnum.NoteHead_3;
-}
-
-/** 时值 chronaxie → 休止符皮肤 */
-export function getRestSkinKey(chronaxie: number): NumberNotationSkinKeyEnum {
-  const map: Record<number, NumberNotationSkinKeyEnum> = {
-    256: NumberNotationSkinKeyEnum.Rest_1,
-    128: NumberNotationSkinKeyEnum.Rest_2,
-    64: NumberNotationSkinKeyEnum.Rest_3,
-    32: NumberNotationSkinKeyEnum.Rest_4,
-    16: NumberNotationSkinKeyEnum.Rest_5,
-    8: NumberNotationSkinKeyEnum.Rest_6,
-    4: NumberNotationSkinKeyEnum.Rest_7,
-    2: NumberNotationSkinKeyEnum.Rest_8,
-    1: NumberNotationSkinKeyEnum.Rest_9,
-  };
-  return map[chronaxie] ?? NumberNotationSkinKeyEnum.Rest_4;
-}
-
-/** 时值 chronaxie ≤32 → 符尾皮肤；direction 为 down 时用符尾倒（_r） */
-export function getNoteTailSkinKey(chronaxie: number, direction?: 'up' | 'down'): NumberNotationSkinKeyEnum {
-  const map: Record<number, NumberNotationSkinKeyEnum> = {
-    32: NumberNotationSkinKeyEnum.NoteTail_1,
-    16: NumberNotationSkinKeyEnum.NoteTail_2,
-    8: NumberNotationSkinKeyEnum.NoteTail_3,
-    4: NumberNotationSkinKeyEnum.NoteTail_4,
-    2: NumberNotationSkinKeyEnum.NoteTail_5,
-    1: NumberNotationSkinKeyEnum.NoteTail_6,
-  };
-  const rMap: Record<number, NumberNotationSkinKeyEnum> = {
-    32: NumberNotationSkinKeyEnum.NoteTail_1_r,
-    16: NumberNotationSkinKeyEnum.NoteTail_2_r,
-    8: NumberNotationSkinKeyEnum.NoteTail_3_r,
-    4: NumberNotationSkinKeyEnum.NoteTail_4_r,
-    2: NumberNotationSkinKeyEnum.NoteTail_5_r,
-    1: NumberNotationSkinKeyEnum.NoteTail_6_r,
-  };
-  if (direction === 'down') {
-    return rMap[chronaxie] ?? NumberNotationSkinKeyEnum.NoteTail_1_r;
-  }
-  return map[chronaxie] ?? NumberNotationSkinKeyEnum.NoteTail_1;
 }
 
 export function chronaxieToBeamLineCount(chronaxie: number): number {

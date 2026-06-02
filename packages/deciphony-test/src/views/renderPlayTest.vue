@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import musicScoreVue from 'deciphony-renderer'
-import {startJPlayer} from 'j-player'
+import {startJPlayer, NPlayer} from 'j-player'
 import data from './data/其多列'
 import {onMounted} from "vue";
 
 const musicScoreData = data
-
+let nplayer = null
 onMounted(() => {
   startJPlayer()
+  nplayer = new NPlayer({})
+  console.log('chicken', musicScoreData)
 })
 </script>
 

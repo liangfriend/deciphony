@@ -1,4 +1,7 @@
 export type Unit256 = number; // 区分普通number, 这个表示 256=全音符 128=二分 64=四分 32=八分 16=十六分 ...这种形式的单位
+/**
+ * 建议使用PlaySequence, sequene是有缺陷的，会取一维数组里最长的音符结束时间作为下一组数组的开始播放时间，不够灵活
+ * */
 export type SequenceItem = {
   velocity?: number; // 在全局音量基础*velocity=实际音量
   toneColor: string; // 音色名称
@@ -23,7 +26,7 @@ export type PlaySequenceItem = {
   data: any;
   /** 分组音量：总线 → 该 key 的持久 GainNode → 本音符；不传则音符直连总线 */
   gainNodeKey?: string;
-  end: boolean; // 结尾标记
+  end: boolean; // 结尾标记, 这个会起功能性作用，触发end事件等，所以一定要手动写好
 };
 
 export type PlaySequence = PlaySequenceItem[];

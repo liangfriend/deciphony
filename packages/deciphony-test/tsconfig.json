@@ -33,6 +33,9 @@
       "deciphony-renderer": [
         "../deciphony-renderer/src/index.ts"
       ],
+      "j-player": [
+        "../j-player/src/index.ts"
+      ],
       "deciphony-player": [
         "node_modules/deciphony-player/src/index.ts"
       ],

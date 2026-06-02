@@ -109,7 +109,7 @@ function collectSlotSubWidthRatio(
 ): number {
   let sub = 0;
   if (slot.clef) {
-    sub += pick(skin[getClefSkinKey(slot.clef.clefType, false)], slot.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
+    sub += pick(skin[getClefSkinKey(slot.clef.type, false)], slot.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
   }
   if (isNoteSymbol(slot)) {
     sub += graceWidthRatioForNote(slot, skin, measureHeight);
@@ -169,16 +169,16 @@ export function getMeasureWidthRatio(measure: Measure, skin: StandardStaffSkinPa
     }
   }
   if (measure.barline_f) {
-    acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.barlineType)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.type)]?.widthRatioForMeasure);
   }
   if (measure.barline_b) {
-    acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.barlineType)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.type)]?.widthRatioForMeasure);
   }
   if (measure.clef_f) {
-    acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.clefType, true)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.type, true)]?.widthRatioForMeasure);
   }
   if (measure.clef_b) {
-    acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.clefType, false)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.type, false)]?.widthRatioForMeasure);
   }
   if (measure.keySignature_f) {
     acc += resolveWidthRatio(measure.keySignature_f.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure);

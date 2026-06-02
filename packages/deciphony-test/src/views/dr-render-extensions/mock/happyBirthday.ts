@@ -34,14 +34,14 @@ const frame: Frame = {
 
 const clef: Clef = {
     ...frame,
-    clefType: ClefTypeEnum.Treble,
+    type: ClefTypeEnum.Treble,
     widthRatio: 5,
     widthRatioForMeasure: 18,
     id: crypto.randomUUID(),
 };
 const trebleClef: Clef = {
     ...frame,
-    clefType: ClefTypeEnum.Treble,
+    type: ClefTypeEnum.Treble,
     widthRatio: 10,
     widthRatioForMeasure: 18,
     id: crypto.randomUUID(),
@@ -210,7 +210,7 @@ const phrase1Measure1: Measure = {
     clef_b: clef,
     timeSignature_f: time34,
     barline_b: {
-        barlineType: BarlineTypeEnum.Start_end_repeat_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        type: BarlineTypeEnum.Start_end_repeat_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -230,7 +230,7 @@ const phrase1Measure2: Measure = {
     notes: [],
     affiliatedSymbols: [],
     barline_b: {
-        barlineType: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        type: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -252,7 +252,7 @@ const phrase2Measure1: Measure = {
     clef_f: clef,
     timeSignature_f: time34,
     barline_b: {
-        barlineType: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        type: BarlineTypeEnum.Single_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -281,7 +281,7 @@ const phrase2Measure2: Measure = {
     affiliatedSymbols: [],
     barline_b: {
         ...frame,
-        barlineType: BarlineTypeEnum.Single_barline,
+        type: BarlineTypeEnum.Single_barline,
         widthRatio: 4,
         widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
@@ -319,7 +319,7 @@ function barlineMeasure(barlineType: BarlineTypeEnum, isFirst: boolean): Measure
         ...(isFirst ? {clef_f: clef, timeSignature_f: time34} : {}),
         barline_b: {
             ...frame,
-            barlineType,
+            type: barlineType,
             widthRatio: 4,
             widthRatioForMeasure: 4,
             id: crypto.randomUUID(),
@@ -363,7 +363,7 @@ const phrase4Measure1: Measure = {
     clef_b: clef,
     timeSignature_f: time34,
     barline_b: {
-        barlineType: BarlineTypeEnum.Heavy_double_barline, widthRatio: 4, widthRatioForMeasure: 4,
+        type: BarlineTypeEnum.Heavy_double_barline, widthRatio: 4, widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -383,7 +383,7 @@ const phrase4Measure2: Measure = {
     notes: [],
     affiliatedSymbols: [],
     barline_b: {
-        barlineType: BarlineTypeEnum.Final_barline, widthRatio: 6, widthRatioForMeasure: 6,
+        type: BarlineTypeEnum.Final_barline, widthRatio: 6, widthRatioForMeasure: 6,
         id: crypto.randomUUID(),
         relativeH: 0,
         relativeY: 0,
@@ -467,7 +467,7 @@ const phrase5Measure1: Measure = {
     clef_f: clef,
     timeSignature_f: time34,
     barline_b: {
-        barlineType: BarlineTypeEnum.Heavy_double_barline,
+        type: BarlineTypeEnum.Heavy_double_barline,
         widthRatio: 4,
         widthRatioForMeasure: 4,
         id: crypto.randomUUID(),
@@ -490,7 +490,7 @@ const phrase5Measure2: Measure = {
     notes: [],
     affiliatedSymbols: [],
     barline_b: {
-        barlineType: BarlineTypeEnum.Final_barline,
+        type: BarlineTypeEnum.Final_barline,
         widthRatio: 6,
         widthRatioForMeasure: 6,
         id: crypto.randomUUID(),

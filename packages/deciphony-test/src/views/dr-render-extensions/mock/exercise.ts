@@ -22,7 +22,7 @@ const frame: Frame = {
 
 const clef: Clef = {
   ...frame,
-  clefType: ClefTypeEnum.Treble,
+  type: ClefTypeEnum.Treble,
   widthRatio: 5,
   widthRatioForMeasure: 18,
   id: crypto.randomUUID(),
@@ -56,7 +56,7 @@ function note(
 function singleBarline() {
   return {
     ...frame,
-    barlineType: BarlineTypeEnum.Single_barline,
+    type: BarlineTypeEnum.Single_barline,
     widthRatio: 4,
     widthRatioForMeasure: 4,
     id: crypto.randomUUID(),
@@ -100,7 +100,7 @@ const measure4: Measure = {
   notes: [note(2), note(3)],
   barline_b: {
     ...frame,
-    barlineType: BarlineTypeEnum.Final_barline,
+    type: BarlineTypeEnum.Final_barline,
     widthRatio: 6,
     widthRatioForMeasure: 6,
     id: crypto.randomUUID(),

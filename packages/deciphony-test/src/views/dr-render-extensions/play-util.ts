@@ -27,7 +27,7 @@ export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
           curKeySignature = measure.keySignature_f.type
         }
         if (measure.clef_f) {
-          curClef = measure.clef_f.clefType
+          curClef = measure.clef_f.type
         }
 
       }

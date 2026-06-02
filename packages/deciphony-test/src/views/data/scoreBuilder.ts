@@ -228,7 +228,7 @@ export function createClef(
   return {
     ...ZERO_FRAME,
     id: newId(),
-    clefType,
+    type: clefType,
     widthRatio: 10,
     widthRatioForMeasure: 18,
     ...partial,
@@ -242,7 +242,7 @@ export function createBarline(
   return {
     ...ZERO_FRAME,
     id: newId(),
-    barlineType,
+    type: barlineType,
     widthRatio: 4,
     widthRatioForMeasure: 4,
     ...partial,
@@ -444,7 +444,7 @@ export function createEmptyMeasure(partial?: InsertMeasureOptions): Measure {
 function cloneMeasureHeaderFromPrev(prev: Measure): Pick<Measure, 'clef_f' | 'timeSignature_f' | 'keySignature_f'> {
   const header: Pick<Measure, 'clef_f' | 'timeSignature_f' | 'keySignature_f'> = {};
   if (prev.clef_f) {
-    header.clef_f = createClef(prev.clef_f.clefType, {
+    header.clef_f = createClef(prev.clef_f.type, {
       widthRatio: prev.clef_f.widthRatio,
       widthRatioForMeasure: prev.clef_f.widthRatioForMeasure,
     });

@@ -324,7 +324,7 @@ export function musicScoreToVDom(
           const measureWidth = getMeasureW(measure, mi);
           if (measure.barline_f) {
             const barlineFX = getBarlineFXInMeasure(measure, barlineMeasureX, skin);
-            const linkedKeyF = getLinkedBarlineSkinKey(measure.barline_f.barlineType);
+            const linkedKeyF = getLinkedBarlineSkinKey(measure.barline_f.type);
             const itemF = skin[linkedKeyF];
             vDoms.push({
               startPoint: {x: 0, y: 0},
@@ -344,7 +344,7 @@ export function musicScoreToVDom(
           }
           if (measure.barline_b) {
             const barlineX = getBarlineXInMeasure(measure, barlineMeasureX, measureWidth, skin);
-            const linkedKeyB = getLinkedBarlineSkinKey(measure.barline_b.barlineType);
+            const linkedKeyB = getLinkedBarlineSkinKey(measure.barline_b.type);
             const barlineItem = skin[linkedKeyB];
             vDoms.push({
               startPoint: {x: 0, y: 0},

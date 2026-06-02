@@ -71,16 +71,16 @@ export function getClefForMeasure(
     const m = measures[measureIndex];
     if (noteIndex != null && noteIndex >= 0 && m.notes) {
         for (let i = noteIndex; i >= 0; i--) {
-            const note = m.notes[i] as { clef?: { clefType: ClefTypeEnum } };
-            if (note?.clef) return note.clef.clefType;
+            const note = m.notes[i] as { clef?: { type: ClefTypeEnum } };
+            if (note?.clef) return note.clef.type;
         }
     }
-    if (m.clef_f) return m.clef_f.clefType;
+    if (m.clef_f) return m.clef_f.type;
     const prev = measureIndex - 1;
     if (prev < 0) return ClefTypeEnum.Treble;
     const pm = measures[prev];
-    if (pm.clef_b) return pm.clef_b.clefType;
-    if (pm.clef_f) return pm.clef_f.clefType;
+    if (pm.clef_b) return pm.clef_b.type;
+    if (pm.clef_f) return pm.clef_f.type;
     return getClefForMeasure(measures, prev);
 }
 

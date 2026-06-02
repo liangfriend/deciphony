@@ -292,7 +292,7 @@ export type Barline = {
 
   id: string
 
-  barlineType: BarlineTypeEnum
+  type: BarlineTypeEnum
 
   widthRatio?: number // 目前完全无用
 
@@ -306,7 +306,7 @@ export type Clef = {
 
   id: string
 
-  clefType: ClefTypeEnum
+  type: ClefTypeEnum
 
   widthRatio?: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
 

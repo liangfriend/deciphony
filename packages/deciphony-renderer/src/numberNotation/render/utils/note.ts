@@ -111,17 +111,17 @@ export function getMeasureWidthRatio(measure: Measure, skin: NumberNotationSkinP
     acc += getNoteWidthRatioForMeasure(measure.notes[i] as NoteNumber, skin);
   }
   if (measure.barline_f) {
-    acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.barlineType)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.type)]?.widthRatioForMeasure);
   }
   if (measure.barline_b) {
-    acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.barlineType)]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.type)]?.widthRatioForMeasure);
   }
   // 虽然measure保留了这两个属性，但是简谱不应该渲染谱号
   // if (measure.clef_f) {
-  //     acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.clefType, true)]?.widthRatioForMeasure);
+  //     acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.type, true)]?.widthRatioForMeasure);
   // }
   // if (measure.clef_b) {
-  //     acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.clefType, false)]?.widthRatioForMeasure);
+  //     acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.type, false)]?.widthRatioForMeasure);
   // }
   if (measure.keySignature_f) {
     acc += resolveWidthRatio(measure.keySignature_f.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure);

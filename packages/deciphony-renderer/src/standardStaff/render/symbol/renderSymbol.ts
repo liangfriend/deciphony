@@ -73,7 +73,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   * */
   let prefixW = 0;
   if (measure.clef_f) {
-    const key = getClefSkinKey(measure.clef_f.clefType, true);
+    const key = getClefSkinKey(measure.clef_f.type, true);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
@@ -88,7 +88,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) prefixW += item.w;
   }
   if (measure.barline_f) {
-    const key = getBarlineSkinKey(measure.barline_f.barlineType);
+    const key = getBarlineSkinKey(measure.barline_f.type);
     const item = skin[key];
     if (item) prefixW += item.w;
   }
@@ -96,7 +96,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   const rightParts: RightPart[] = [];
   if (measure.barline_b) {
     rightParts.push({
-      skinKey: getBarlineSkinKey(measure.barline_b.barlineType),
+      skinKey: getBarlineSkinKey(measure.barline_b.type),
       tag: 'barline_b',
       dataComment: '后置小节线',
       targetId: measure.barline_b.id ?? '',
@@ -105,7 +105,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   if (measure.clef_b) {
     rightParts.push({
-      skinKey: getClefSkinKey(measure.clef_b.clefType, false),
+      skinKey: getClefSkinKey(measure.clef_b.type, false),
       tag: 'clef_b',
       dataComment: '后置谱号',
       targetId: measure.clef_b.id ?? '',
@@ -167,7 +167,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   * */
   let x = measureX;
   if (measure.clef_f) {
-    const clefKey = getClefSkinKey(measure.clef_f.clefType, true);
+    const clefKey = getClefSkinKey(measure.clef_f.type, true);
     pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
     const item = skin[clefKey];
     if (item) x += item.w;
@@ -185,7 +185,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) x += item.w;
   }
   if (measure.barline_f) {
-    const barlineKey = getBarlineSkinKey(measure.barline_f.barlineType);
+    const barlineKey = getBarlineSkinKey(measure.barline_f.type);
     pushSymbol(x, barlineKey, 'barline_f', '前置小节线', measure.barline_f.id ?? '');
     const item = skin[barlineKey];
     if (item) x += item.w;
@@ -251,7 +251,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       * 渲染音符前谱号
       * */
       if (slot.clef) {
-        const clefKey = getClefSkinKey(slot.clef.clefType, true);
+        const clefKey = getClefSkinKey(slot.clef.type, true);
         const clefItem = skin[clefKey];
         if (clefItem) {
           const clefX = headX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
@@ -501,7 +501,7 @@ export function getBarlineFXInMeasure(
 ): number {
   let prefixW = 0;
   if (measure.clef_f) {
-    const item = skin[getClefSkinKey(measure.clef_f.clefType, true)];
+    const item = skin[getClefSkinKey(measure.clef_f.type, true)];
     if (item) prefixW += item.w;
   }
   if (measure.keySignature_f) {
@@ -523,8 +523,8 @@ export function getBarlineXInMeasure(
   skin: import("@/types/common").StandardStaffSkinPack,
 ): number {
   const rightKeys: typeof StandardStaffSkinKeyEnum[keyof typeof StandardStaffSkinKeyEnum][] = [];
-  if (measure.barline_b) rightKeys.push(getBarlineSkinKey(measure.barline_b.barlineType));
-  if (measure.clef_b) rightKeys.push(getClefSkinKey(measure.clef_b.clefType, false));
+  if (measure.barline_b) rightKeys.push(getBarlineSkinKey(measure.barline_b.type));
+  if (measure.clef_b) rightKeys.push(getClefSkinKey(measure.clef_b.type, false));
   if (measure.keySignature_b) rightKeys.push(getKeySignatureSkinKey(measure.keySignature_b.type));
   if (measure.timeSignature_b) rightKeys.push(getTimeSignatureSkinKey(measure.timeSignature_b.type));
   let suffixW = 0;

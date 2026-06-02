@@ -432,6 +432,7 @@ export function musicScoreToVDom(
           idMap: nodeIdMap,
           skinName: effectiveSkinName,
         });
+        const symbolVDomsStartIdx = vDoms.length;
         vDoms.push(...symbolVDoms);
         vDoms.push(...renderMeasureRepeat({
           measure,
@@ -459,6 +460,7 @@ export function musicScoreToVDom(
           measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
           nodeIdMap,
           vDoms,
+          symbolVDomsStartIdx,
           symbolVDomsLength: symbolVDoms.length,
           skin,
           measureHeight,
@@ -469,6 +471,7 @@ export function musicScoreToVDom(
           measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
           nodeIdMap,
           vDoms,
+          symbolVDomsStartIdx,
           symbolVDomsLength: symbolVDoms.length,
           skin,
           measureHeight,

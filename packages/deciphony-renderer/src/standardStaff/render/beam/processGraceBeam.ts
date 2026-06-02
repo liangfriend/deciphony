@@ -127,13 +127,15 @@ export function processGraceBeam(params: {
     measure: { notes: StaffSlot[] };
     nodeIdMap: NodeIdMap;
     vDoms: VDom[];
+    /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */
+    symbolVDomsStartIdx: number;
     symbolVDomsLength: number;
     skin: StandardStaffSkinPack;
     measureHeight: number;
     measureLineWidth: number;
     skinName?: string;
 }): void {
-    const {measure, nodeIdMap, vDoms, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
+    const {measure, nodeIdMap, vDoms, symbolVDomsStartIdx, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
     const skinNameForNodes = skinName ?? 'default';
     const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth) * GRACE_NOTE_SCALE;
     const beamScale = GRACE_NOTE_SCALE;
@@ -252,8 +254,10 @@ export function processGraceBeam(params: {
 
     // --- 5. 移除被连杠倚音的符尾 ---
     if (beamedGraceIds.size === 0) return;
-    const startIdx = vDoms.length - symbolVDomsLength;
-    for (let i = vDoms.length - 1; i >= startIdx; i--) {
+    // 符号 VDom 区间为 [startIdx, endIdx)，不能用 vDoms.length 反推（其后还 push 了符杠等）。
+    const startIdx = symbolVDomsStartIdx;
+    const endIdx = symbolVDomsStartIdx + symbolVDomsLength;
+    for (let i = endIdx - 1; i >= startIdx; i--) {
         const node = vDoms[i];
         if (node.tag === 'noteTail' && node.targetId && beamedGraceIds.has(node.targetId)) {
             vDoms.splice(i, 1);

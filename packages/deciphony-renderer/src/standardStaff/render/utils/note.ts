@@ -38,16 +38,16 @@ export function getVoiceGroups(note: NoteSymbol): VoiceGroup[] {
     map.set(ni.direction, list);
   }
   return (['up', 'down'] as const)
-    .filter((d) => map.has(d))
-    .map((direction) => {
-      const entries = map.get(direction)!;
-      return {
-        direction,
-        notesInfo: entries,
-        chronaxie: entries[0]!.chronaxie,
-        beamType: entries[0]!.beamType,
-      };
-    });
+  .filter((d) => map.has(d))
+  .map((direction) => {
+    const entries = map.get(direction)!;
+    return {
+      direction,
+      notesInfo: entries,
+      chronaxie: entries[0]!.chronaxie,
+      beamType: entries[0]!.beamType,
+    };
+  });
 }
 
 export function getVoiceGroupForDirection(note: NoteSymbol, direction: 'up' | 'down'): VoiceGroup | undefined {
@@ -151,6 +151,7 @@ export function getNoteWidthRatioForMeasure(
   const slotChronaxie = getSlotChronaxie(slot);
   const isRest = isNoteRest(slot);
   const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
+  // 音符带widthRatio优先用音符的，否则用皮肤包的
   const slotW = resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
   const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
   const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure), measureHeight);

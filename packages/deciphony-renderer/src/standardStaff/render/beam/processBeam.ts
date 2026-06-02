@@ -73,12 +73,12 @@ function buildBeamGroups(measure: { notes: StaffSlot[] }, direction: 'up' | 'dow
     const canBeamWithPre = preGroup && preHasTail && hasTail
       && preGroup.beamType !== BeamTypeEnum.None && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(group.beamType);
     const member: BeamGroupMember = {note, direction};
-  // 能与前一个连 → 并入上一组
+    // 能与前一个连 → 并入上一组
     if (canBeamWithPre && groups.length > 0) {
       groups[groups.length - 1]!.push(member);
       continue;
     }
-  // 能与后一个连 → 开新组
+    // 能与后一个连 → 开新组
     if (canBeamWithNext) groups.push([member]);
   }
   return groups.filter((g) => g.length >= 2);
@@ -88,13 +88,15 @@ export function processBeam(params: {
   measure: { notes: StaffSlot[] };
   nodeIdMap: NodeIdMap;
   vDoms: VDom[];
+  /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */
+  symbolVDomsStartIdx: number;
   symbolVDomsLength: number;
   skin: StandardStaffSkinPack;
   measureHeight: number;
   measureLineWidth: number;
   skinName?: string;
 }): void {
-  const {measure, nodeIdMap, vDoms, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
+  const {measure, nodeIdMap, vDoms, symbolVDomsStartIdx, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
   const skinNameForNodes = skinName ?? 'default';
   const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth);
   const beamGroupsUp = buildBeamGroups(measure, 'up');
@@ -217,11 +219,20 @@ export function processBeam(params: {
 
   // --- 6. 移除被连杠音符的符尾 ---
   const beamedNoteHeadIds = new Set<string>([
-    ...beamGroupsUp.flat().map(({note, direction}) => getExtremeNotesInfoId(note, direction)).filter((id): id is string => id != null),
-    ...beamGroupsDown.flat().map(({note, direction}) => getExtremeNotesInfoId(note, direction)).filter((id): id is string => id != null),
+    ...beamGroupsUp.flat().map(({
+                                  note,
+                                  direction
+                                }) => getExtremeNotesInfoId(note, direction)).filter((id): id is string => id != null),
+    ...beamGroupsDown.flat().map(({
+                                    note,
+                                    direction
+                                  }) => getExtremeNotesInfoId(note, direction)).filter((id): id is string => id != null),
   ]);
-  const startIdx = vDoms.length - symbolVDomsLength;
-  for (let i = vDoms.length - 1; i >= startIdx; i--) {
+  // 符号 VDom 区间为 [startIdx, endIdx)；measureRepeat / 附属符号 / 符杠等都 push 在该区间之后，
+  // 不能用 vDoms.length 反推，否则窗口会越过起始处，导致组内靠前音符（尤其首音）的符尾漏删。
+  const startIdx = symbolVDomsStartIdx;
+  const endIdx = symbolVDomsStartIdx + symbolVDomsLength;
+  for (let i = endIdx - 1; i >= startIdx; i--) {
     const node = vDoms[i];
     if (node.tag === 'noteTail' && node.targetId && beamedNoteHeadIds.has(node.targetId)) {
       vDoms.splice(i, 1);

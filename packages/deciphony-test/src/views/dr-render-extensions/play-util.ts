@@ -117,7 +117,12 @@ export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
         coda: false,
         toCoda: false
     }
-    // 顺序获取所有小节的位置信息，相当于把曲谱按小节平铺了
+    //
+    /**
+     * 顺序获取所有小节的位置信息，相当于把曲谱按小节平铺了,但是只是第一行单谱表
+     * 所以所有反复相关的符号，只有在第一行单谱表上才会生效。
+     * 这个逻辑是正确的，否则会出现不同小节不同反复情况，无法正确生成播放序列
+     */
     const measurePositions = getMeasurePositions(musicScoreData)
     // 永远忽快速查找索引
     const measureIndexMap = new Map(measurePositions.map((item, index) => [item.measure.id, index]))

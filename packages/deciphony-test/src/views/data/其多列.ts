@@ -1,52 +1,52 @@
 import {
-  BarlineTypeEnum,
-  BeamTypeEnum,
-  BracketTypeEnum,
-  ClefTypeEnum,
-  KeySignatureTypeEnum,
-  MusicScore,
-  TimeSignatureTypeEnum
+    BarlineTypeEnum,
+    BeamTypeEnum,
+    BracketTypeEnum,
+    ClefTypeEnum,
+    KeySignatureTypeEnum,
+    MusicScore,
+    TimeSignatureTypeEnum
 } from "deciphony-renderer";
 import {
-  createBarline,
-  createClef,
-  createEmptyMeasure,
-  createGrandStaff,
-  createKeySignature,
-  createMusicScore,
-  createNoteRest,
-  createNoteSymbol,
-  createSingleStaff,
-  createTimeSignature,
+    createBarline,
+    createClef,
+    createEmptyMeasure,
+    createGrandStaff,
+    createKeySignature,
+    createMusicScore,
+    createNoteRest,
+    createNoteSymbol,
+    createSingleStaff,
+    createTimeSignature,
 } from "./scoreBuilder";
 // 曲谱结构
 
 const data: MusicScore = createMusicScore({height: 800, width: 800})
 for (let i = 0; i < 2; i++) {
-  // 复谱表1-单谱表1
-  const grandStaff1 = createGrandStaff()
-  grandStaff1.linkedStaff = true
-  grandStaff1.bracket = {
-    id: crypto.randomUUID(),
-    type: BracketTypeEnum.Brace,
-    startSingleStaffIndex: 0
-  }
-  const measure12 = createEmptyMeasure()
-  const measure13 = createEmptyMeasure()
-  const measure14 = createEmptyMeasure()
-  grandStaff1.staves[0].measures.push(measure12)
-  grandStaff1.staves[0].measures.push(measure13)
-  grandStaff1.staves[0].measures.push(measure14)
-  // 复谱表1-单谱表2
-  const singleStaff2 = createSingleStaff()
-  const measure22 = createEmptyMeasure()
-  const measure23 = createEmptyMeasure()
-  const measure24 = createEmptyMeasure()
-  singleStaff2.measures.push(measure22)
-  singleStaff2.measures.push(measure23)
-  singleStaff2.measures.push(measure24)
-  grandStaff1.staves.push(singleStaff2)
-  data.grandStaffs.push(grandStaff1)
+    // 复谱表1-单谱表1
+    const grandStaff1 = createGrandStaff()
+    grandStaff1.linkedStaff = true
+    grandStaff1.bracket = {
+        id: crypto.randomUUID(),
+        type: BracketTypeEnum.Brace,
+        startSingleStaffIndex: 0
+    }
+    const measure12 = createEmptyMeasure()
+    const measure13 = createEmptyMeasure()
+    const measure14 = createEmptyMeasure()
+    grandStaff1.staves[0].measures.push(measure12)
+    grandStaff1.staves[0].measures.push(measure13)
+    grandStaff1.staves[0].measures.push(measure14)
+    // 复谱表1-单谱表2
+    const singleStaff2 = createSingleStaff()
+    const measure22 = createEmptyMeasure()
+    const measure23 = createEmptyMeasure()
+    const measure24 = createEmptyMeasure()
+    singleStaff2.measures.push(measure22)
+    singleStaff2.measures.push(measure23)
+    singleStaff2.measures.push(measure24)
+    grandStaff1.staves.push(singleStaff2)
+    data.grandStaffs.push(grandStaff1)
 }
 /*
 * 其多列曲谱
@@ -170,7 +170,7 @@ measure11.notes.push(noteSymbol11_3)
 
 // 复谱表2 小节4-符号 高音 |32:1 32:-1 64:-1|
 const measure12_ = data.grandStaffs[1].staves[0].measures[3]
-const barline12 = createBarline(BarlineTypeEnum.Final_barline)
+const barline12 = createBarline(BarlineTypeEnum.EndRepeat_barline)
 const noteSymbol12_1 = createNoteSymbol({region: 1, chronaxie: 32, direction: 'up', beamType: BeamTypeEnum.Combined,})
 const noteSymbol12_2 = createNoteSymbol({region: -1, chronaxie: 32, direction: 'up', beamType: BeamTypeEnum.Combined,})
 const noteSymbol12_3 = createNoteSymbol({region: -1, chronaxie: 64, direction: 'up', beamType: BeamTypeEnum.None,})
@@ -199,10 +199,10 @@ measure13_.notes.push(noteSymbol13_3)
 const measure14_ = data.grandStaffs[1].staves[1].measures[1]
 const noteSymbol14_1 = createNoteSymbol({region: 8, chronaxie: 64, direction: 'down', beamType: BeamTypeEnum.None,})
 const noteSymbol14_2 = createNoteSymbol({
-  notesInfo: [
-    {region: 9, chronaxie: 64, direction: 'down', beamType: BeamTypeEnum.None},
-    {region: 7, chronaxie: 64, direction: 'down', beamType: BeamTypeEnum.None},
-  ]
+    notesInfo: [
+        {region: 9, chronaxie: 64, direction: 'down', beamType: BeamTypeEnum.None},
+        {region: 7, chronaxie: 64, direction: 'down', beamType: BeamTypeEnum.None},
+    ]
 })
 measure14_.notes.push(noteSymbol14_1)
 measure14_.notes.push(noteSymbol14_2)
@@ -212,10 +212,10 @@ const measure15_ = data.grandStaffs[1].staves[1].measures[2]
 
 const noteRest15_1 = createNoteRest({chronaxie: 64})
 const noteSymbol15_2 = createNoteSymbol({
-  notesInfo: [
-    {region: 8, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
-    {region: 7, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
-  ]
+    notesInfo: [
+        {region: 8, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
+        {region: 7, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
+    ]
 })
 const noteSymbol15_3 = createNoteSymbol({region: 4, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 
@@ -225,13 +225,13 @@ measure15_.notes.push(noteSymbol15_3)
 
 // 复谱表2 小节4-符号 低音 |64:rest (32:8 32:6) 32:4|
 const measure16_ = data.grandStaffs[1].staves[1].measures[3]
-const barline2 = createBarline(BarlineTypeEnum.Final_barline)
+const barline2 = createBarline(BarlineTypeEnum.EndRepeat_barline)
 const noteRest16_1 = createNoteRest({chronaxie: 64})
 const noteSymbol16_2 = createNoteSymbol({
-  notesInfo: [
-    {region: 8, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
-    {region: 6, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
-  ]
+    notesInfo: [
+        {region: 8, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
+        {region: 6, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined},
+    ]
 })
 const noteSymbol16_3 = createNoteSymbol({region: 4, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 measure16_.barline_b = barline2

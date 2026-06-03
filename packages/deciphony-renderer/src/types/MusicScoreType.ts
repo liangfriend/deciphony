@@ -1,30 +1,30 @@
 import {
 
-  AccidentalTypeEnum,
+    AccidentalTypeEnum,
 
-  BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
+    BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
 
-  ClefTypeEnum,
+    ClefTypeEnum,
 
-  DoubleMeasureAffiliatedSymbolNameEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
 
-  DoubleNoteAffiliatedSymbolNameEnum,
+    DoubleNoteAffiliatedSymbolNameEnum,
 
-  KeySignatureTypeEnum,
+    KeySignatureTypeEnum,
 
-  MeasureEndRepeatEnum,
+    MeasureEndRepeatEnum,
 
-  MeasureStartRepeatEnum,
+    MeasureStartRepeatEnum,
 
-  MusicScoreTypeEnum,
+    MusicScoreTypeEnum,
 
-  NoteSymbolTypeEnum,
+    NoteSymbolTypeEnum,
 
-  SingleMeasureAffiliatedSymbolNameEnum,
+    SingleMeasureAffiliatedSymbolNameEnum,
 
-  SingleNoteAffiliatedSymbolNameEnum,
+    SingleNoteAffiliatedSymbolNameEnum,
 
-  TimeSignatureTypeEnum
+    TimeSignatureTypeEnum
 
 } from "@/enums/musicScoreEnum";
 
@@ -34,44 +34,43 @@ import {Chronaxie, Frame} from "@/types/common";
 
 export type MusicScore = {
 
-  id: string
+    id: string
 
-  type: MusicScoreTypeEnum,
+    type: MusicScoreTypeEnum,
 
-  grandStaffs: GrandStaff[],
+    grandStaffs: GrandStaff[],
 
-  affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
+    affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
 
-  width: number,
+    width: number,
 
-  height: number,
+    height: number,
 
-  topSpaceHeight: number, // 顶部高度
+    topSpaceHeight: number, // 顶部高度
 
-  title: string // 标题
+    title: string // 标题
 
-  bpm: number // 拍速
+    bpm: number // 拍速
 
 }
 
 export type GrandStaff = {
 
-  id: string
+    id: string
 
-  staves: SingleStaff[],
+    staves: SingleStaff[],
 
-  uSpace: number,  // 复谱表上间距
+    uSpace: number,  // 复谱表上间距
 
-  dSpace: number,  // 复谱表下间距
+    dSpace: number,  // 复谱表下间距
 
-  /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
+    /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
 
-  linkedStaff?: boolean
+    linkedStaff?: boolean
 
-  bracket?: Bracket
+    bracket?: Bracket
 
 } & Frame
-
 
 
 /*
@@ -82,30 +81,29 @@ export type GrandStaff = {
 
 export type Bracket = {
 
-  id: string
+    id: string
 
-  type: BracketTypeEnum,
+    type: BracketTypeEnum,
 
-  startSingleStaffIndex: number // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
+    startSingleStaffIndex: number // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
 
 } & Frame
 
 export type SingleStaff = {
 
-  id: string
+    id: string
 
-  measures: Measure[], // 小节
+    measures: Measure[], // 小节
 
-  uSpaceO: number,  // 单谱表上间距-外
+    uSpaceO: number,  // 单谱表上间距-外
 
-  uSpaceI: number,  // 单谱表上间距-内
+    uSpaceI: number,  // 单谱表上间距-内
 
-  dSpaceI: number,  // 单谱表下间距-内
+    dSpaceI: number,  // 单谱表下间距-内
 
-  dSpaceO: number,  // 单谱表下间距-外
+    dSpaceO: number,  // 单谱表下间距-外
 
 } & Frame
-
 
 
 /** 五线谱小节内的音符位 / 休止符位（简谱为 NoteNumber） */
@@ -113,43 +111,41 @@ export type SingleStaff = {
 export type StaffSlot = NoteSymbol | NoteRest;
 
 
-
 export type Measure = {
 
-  id: string
+    id: string
 
-  notes: (StaffSlot | NoteNumber)[],
+    notes: (StaffSlot | NoteNumber)[],
 
-  barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
+    barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
 
-  barline_b?: Barline, // 后置小节线（音符之后、clef_b 之前）
+    barline_b?: Barline, // 后置小节线（音符之后、clef_b 之前）
 
-  clef_f?: Clef, // 前置谱号
+    clef_f?: Clef, // 前置谱号
 
-  clef_b?: Clef, // 后置谱号
+    clef_b?: Clef, // 后置谱号
 
-  keySignature_f?: KeySignature,
+    keySignature_f?: KeySignature,
 
-  keySignature_b?: KeySignature,
+    keySignature_b?: KeySignature,
 
-  timeSignature_f?: TimeSignature,
+    timeSignature_f?: TimeSignature,
 
-  timeSignature_b?: TimeSignature,
+    timeSignature_b?: TimeSignature,
 
-  /** 小节前反复符号（Coda / Segno，最多一个） */
+    /** 小节前反复符号（Coda / Segno，最多一个） */
 
-  startRepeat?: MeasureStartRepeat,
+    startRepeat?: MeasureStartRepeat,
 
-  /** 小节末反复符号（DC / DS / Fine 等，最多一个） */
+    /** 小节末反复符号（DC / DS / Fine 等，最多一个） */
 
-  endRepeat?: MeasureEndRepeat,
+    endRepeat?: MeasureEndRepeat,
 
-  widthRatioForMeasure?: number,
+    widthRatioForMeasure?: number,
 
-  affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
+    affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
 
 } & Frame
-
 
 
 /*
@@ -160,13 +156,13 @@ export type Measure = {
 
 export type AugmentationDot = {
 
-  id: string
+    id: string
 
-  count: 1 | 2 | 3,
+    count: 1 | 2 | 3,
 
-  widthRatio?: number
+    widthRatio?: number
 
-  widthRatioForMeasure?: number,
+    widthRatioForMeasure?: number,
 
 } & Frame
 
@@ -180,123 +176,116 @@ export type AugmentationDot = {
 
 export type DoubleNoteAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: DoubleNoteAffiliatedSymbolNameEnum,
+    name: DoubleNoteAffiliatedSymbolNameEnum,
 
-  startId: string,
+    startId: string,
 
-  endId: string,
+    endId: string,
 
-  data: {
+    data: {
 
-    slur?: {
+        slur?: {
 
-      relativeStartPoint: { x: number, y: number },
+            relativeStartPoint: { x: number, y: number },
 
-      relativeEndPoint: { x: number, y: number },
+            relativeEndPoint: { x: number, y: number },
 
-      relativeControlPoint: { x: number, y: number },
+            relativeControlPoint: { x: number, y: number },
 
-      thickness: number,
+            thickness: number,
 
-    },
+        },
 
-  }
+    }
 
 } & Frame
-
 
 
 export type DoubleMeasureAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: DoubleMeasureAffiliatedSymbolNameEnum,
+    name: DoubleMeasureAffiliatedSymbolNameEnum,
 
-  startId: string,
+    startId: string,
 
-  endId: string,
+    endId: string,
 
-  data: {
+    data: {
 
-    volta?: {
+        volta?: {
 
-      text: string
+            text: string
+            // [0]表示播放第一遍  [0,1]表示播放第一遍，第二遍，以此类推
+            value:number[] 
+            /** 盒子高度（× measureHeight），默认 0.5 */
 
-      /** 盒子高度（× measureHeight），默认 0.5 */
+            heightRatio?: number
 
-      heightRatio?: number
+        }
 
     }
 
-  }
-
 } & Frame
-
 
 
 export type SingleNoteAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: SingleNoteAffiliatedSymbolNameEnum,
+    name: SingleNoteAffiliatedSymbolNameEnum,
 
-  data: Record<string, never>
+    data: Record<string, never>
 
 } & Frame
-
 
 
 export type SingleMeasureAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: SingleMeasureAffiliatedSymbolNameEnum,
+    name: SingleMeasureAffiliatedSymbolNameEnum,
 
-  data: Record<string, never>
+    data: Record<string, never>
 
 } & Frame
-
 
 
 /** 小节前反复符号 */
 
 export type MeasureStartRepeat = {
 
-  id: string
+    id: string
 
-  type: MeasureStartRepeatEnum
+    type: MeasureStartRepeatEnum
 
 } & Frame
-
 
 
 /** 小节末反复符号 */
 
 export type MeasureEndRepeat = {
 
-  id: string
+    id: string
 
-  type: MeasureEndRepeatEnum
+    type: MeasureEndRepeatEnum
 
 } & Frame
-
-
-
 
 
 // 小节线
 
 export type Barline = {
 
-  id: string
+    id: string
 
-  type: BarlineTypeEnum
+    type: BarlineTypeEnum
 
-  widthRatio?: number // 目前完全无用
+    widthRatio?: number // 目前完全无用
 
-  widthRatioForMeasure?: number
+    widthRatioForMeasure?: number
 
 } & Frame
 
@@ -304,13 +293,13 @@ export type Barline = {
 
 export type Clef = {
 
-  id: string
+    id: string
 
-  type: ClefTypeEnum
+    type: ClefTypeEnum
 
-  widthRatio?: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
+    widthRatio?: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
 
-  widthRatioForMeasure?: number
+    widthRatioForMeasure?: number
 
 } & Frame
 
@@ -318,13 +307,13 @@ export type Clef = {
 
 export type KeySignature = {
 
-  id: string
+    id: string
 
-  type: KeySignatureTypeEnum
+    type: KeySignatureTypeEnum
 
-  widthRatio?: number // 目前完全无用
+    widthRatio?: number // 目前完全无用
 
-  widthRatioForMeasure?: number
+    widthRatioForMeasure?: number
 
 } & Frame
 
@@ -332,145 +321,140 @@ export type KeySignature = {
 
 export type TimeSignature = {
 
-  id: string
+    id: string
 
-  type: TimeSignatureTypeEnum
+    type: TimeSignatureTypeEnum
 
-  widthRatio?: number // 目前完全无用
+    widthRatio?: number // 目前完全无用
 
-  widthRatioForMeasure?: number
+    widthRatioForMeasure?: number
 
 } & Frame
 
 export type Accidental = {
 
-  id: string
+    id: string
 
-  type: AccidentalTypeEnum
+    type: AccidentalTypeEnum
 
-  widthRatio?: number // 目前完全无用
+    widthRatio?: number // 目前完全无用
 
-  widthRatioForMeasure?: number
+    widthRatioForMeasure?: number
 
 } & Frame
 
 // ==========================================线谱================================================
 
 
-
 /** 五线谱音符位：时值 / 附点 / 附属在 NotesInfo 上 */
 
 export type NoteSymbol = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Note
+    type: NoteSymbolTypeEnum.Note
 
-  notesInfo: NotesInfo[]
+    notesInfo: NotesInfo[]
 
-  graceNotes?: NotesInfo[]
+    graceNotes?: NotesInfo[]
 
-  graceNotesAfter?: NotesInfo[]
+    graceNotesAfter?: NotesInfo[]
 
-  clef?: Clef
+    clef?: Clef
 
-  widthRatio?: number
+    widthRatio?: number
 
-  widthRatioForMeasure?: number,
+    widthRatioForMeasure?: number,
 
 } & Frame
-
 
 
 /** 五线谱休止符位 */
 
 export type NoteRest = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Rest
+    type: NoteSymbolTypeEnum.Rest
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
 
-  clef?: Clef
+    clef?: Clef
 
-  widthRatio?: number
+    widthRatio?: number
 
-  widthRatioForMeasure?: number,
+    widthRatioForMeasure?: number,
 
 } & Frame
-
 
 
 export type NotesInfo = {
 
-  id: string
+    id: string
 
-  direction: 'up' | 'down'
+    direction: 'up' | 'down'
 
-  region: number
+    region: number
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  beamType: BeamTypeEnum
+    beamType: BeamTypeEnum
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 
-  accidental?: Accidental
+    accidental?: Accidental
 
 } & Frame
-
 
 
 // ==========================================简谱================================================
 
 export type NotesNumberInfo = {
 
-  id: string
+    id: string
 
-  /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
+    /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
 
-  syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
+    syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
 
-  accidental?: Accidental,
+    accidental?: Accidental,
 
-  /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
+    /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
 
-  octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
+    octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
 
-  graceNotes?: NotesNumberInfo[]
+    graceNotes?: NotesNumberInfo[]
 
-  graceNotesAfter?: NotesNumberInfo[]
+    graceNotesAfter?: NotesNumberInfo[]
 
 }
-
 
 
 // 简谱音乐符号（简谱无谱号概念，无 clef）
 
 export type NoteNumber = {
 
-  id: string
+    id: string
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  notesInfo: NotesNumberInfo[]
+    notesInfo: NotesNumberInfo[]
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 
-  beamType: BeamTypeEnum
+    beamType: BeamTypeEnum
 
-  widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+    widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 
-  widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+    widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
 
 } & Frame
 

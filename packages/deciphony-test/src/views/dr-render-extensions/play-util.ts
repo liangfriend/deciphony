@@ -13,7 +13,9 @@ import {
     StaffSlot
 } from "deciphony-renderer";
 
-
+/**
+ * TODO 目前这个播放函数只针对五线谱
+ * */
 export type Unit256 = number; // 256=whole, 128=half, 64=quarter, 32=eighth, 16=sixteenth.
 type DR_playSequence_item = {
     note_id: string;

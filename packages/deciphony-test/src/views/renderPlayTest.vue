@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import musicScoreVue from 'deciphony-renderer'
 import {startJPlayer, activeContext, NPlayer, PlaySequence} from 'j-player'
-import data from './data/其多列'
+import data from './data/singleNote'
 import piano from '../assets/toneColor/accoustic_grand_piano.json'
 import {onBeforeUnmount, onMounted} from "vue";
 import {getDrPlaySequence} from "./dr-render-extensions/play-util";

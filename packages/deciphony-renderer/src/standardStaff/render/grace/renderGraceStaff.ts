@@ -270,15 +270,15 @@ export function renderGraceNotesInfo(params: RenderGraceStaffParams): void {
 
     if (accSkin) {
 
-      const accX = headAnchorX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w + (ni.accidental.relativeX ?? 0);
+      const accX = headAnchorX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w;
 
       const isFlat = ni.accidental.type === AccidentalTypeEnum.Flat || ni.accidental.type === AccidentalTypeEnum.Double_flat;
 
       const accY = isFlat
 
-        ? (hcy + measureHeight / 8) - accSkin.h + (ni.accidental.relativeY ?? 0)
+        ? (hcy + measureHeight / 8) - accSkin.h
 
-        : hcy - accSkin.h / 2 + (ni.accidental.relativeY ?? 0);
+        : hcy - accSkin.h / 2;
 
       pushGrace(out, {
 

@@ -16,6 +16,7 @@ import {processBeam} from "./beam/processBeam";
 import {processGraceBeam} from "./beam/processGraceBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
+import {collectRelativeFrameMap, applyRelativeFramesToVDomRange} from "@/render/vdomFrame";
 import {BarlineTypeEnum} from "@/enums/musicScoreEnum";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
@@ -43,6 +44,24 @@ export function musicScoreToVDom(
   const measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45;
   const measureLineWidth = skin[StandardStaffSkinKeyEnum.Measure]?.w ?? 1;
   const vDoms: VDom[] = [];
+  /** 曲谱 id → 累计 Frame；子级偏移 = 祖先 relative 之和 + 自身（见 vdomFrame collectRelativeFrameMap） */
+  const relativeFrameMap = collectRelativeFrameMap(musicScore);
+  /**
+   * 为何不只在渲染末尾调用一次 applyRelativeFramesToVDomRange？
+   *
+   * 1) 符杠 / 倚音符杠（processBeam、processGraceBeam）在符号 vDom 生成之后立刻运行：读取 nodeIdMap 里
+   *    noteStem 的 x/y，拉长符干至符杠高度，再 push noteBeam（startPoint/endPoint 由符干接点算出）。
+   *    若符干尚未施加 Frame 偏移，符杠会按「未偏移」的接点绘制，末尾再偏移符干也不会重算符杠，
+   *    noteBeam 又无 targetId，无法靠 frameMap 补正 → 符杠与音符脱节。故阶段一必须在 processBeam 之前。
+   *
+   * 2) 连音线（renderMusicScoreAffiliatedSymbols）锚定 idMap 中 noteHead 的中心；须在音符头已偏移后再
+   *    取锚点（阶段二补扫布局 vDom 之后、阶段三渲染连音线；连音线自身 Frame 在阶段三 apply）。
+   *
+   * 3) 连谱号、小节框、插槽等 vDom 在复谱表循环末尾才 push，阶段一时尚不存在，需阶段二补扫。
+   *
+   * relativeApplied：多阶段对同一 vDom 只偏移一次，阶段二 [0,length) 全扫时跳过阶段一已处理的符号。
+   */
+  const relativeApplied = new WeakSet<VDom>();
 
   const gLW = getSlotW(config, 'g-l');
   const gRW = getSlotW(config, 'g-r');
@@ -453,6 +472,17 @@ export function musicScoreToVDom(
           {VDoms: vDoms, idMap: nodeIdMap, skinName: effectiveSkinName, skin, measureHeight},
         );
         /*
+         * 【阶段一 · 小节符号】必须在 processBeam / processGraceBeam 之前 apply（见文件头「为何不只在末尾 apply」）。
+         * Frame 不参与小节宽度、符干长度等布局公式，只改最终 vDom 几何。
+         *
+         * 本段 vDom：renderSymbol、renderMeasureRepeat、renderSingleMeasureAffiliatedSymbols。
+         * 级联：NoteSymbol → NotesInfo → accidental / augmentationDot / affiliatedSymbols / 倚音链（collectRelativeFrameMap）。
+         *
+         * 符杠依赖符干 vDom：processBeam 用 stem.x、stem.y 定符杠斜率与 noteBeam 端点；符干须先偏移，
+         * 符杠随后生成即与音符对齐（noteBeam 无 targetId，末尾统一 apply 覆盖不到符杠几何重算）。
+         */
+        applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, symbolVDomsStartIdx, vDoms.length, relativeApplied);
+        /*
         * 渲染符杠
         * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
         * */
@@ -649,12 +679,27 @@ export function musicScoreToVDom(
   * 渲染双音符或双小节附属符号
   * slur,volta
   * */
+  /*
+   * 【阶段二 · 布局补扫】不能并入「末尾一次 apply」的原因：① 阶段一必须在符杠前，不能拖到全曲结束；
+   * ② 本段 vDom（连谱号 bracket、插槽、小节 measure 框等）在阶段一之后才 push，当时还不存在。
+   * relativeApplied 跳过阶段一已处理节点，避免重复偏移。
+   * 须在 renderMusicScoreAffiliatedSymbols 之前：连音线通过符干/音符头 vDom 取锚点，需 noteHead 已偏移。
+   */
+  applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, 0, vDoms.length, relativeApplied);
+  const scoreAffiliatedStartIdx = vDoms.length;
   renderMusicScoreAffiliatedSymbols(musicScore, {
     VDoms: vDoms,
     idMap: nodeIdMap,
     skinName: effectiveSkinName,
     skin,
   });
+  /*
+   * 【阶段三 · 曲谱级附属】本批 vDom 在阶段二之后才创建，故单独 apply；不能与前两阶段合并为「曲谱末尾一次」
+   *（阶段一必须早于符杠，阶段二必须早于连音线取锚点）。
+   * slur：锚点来自已偏移 noteHead + data.slur 造型点；再对 sym.id 施加 Frame（平移 startPoint/endPoint）。
+   * volta：基于已偏移 measure 布局，再对 sym.id 施加 Frame（含 relativeW/H）。
+   */
+  applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, scoreAffiliatedStartIdx, vDoms.length, relativeApplied);
   vDoms.sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
   return vDoms;
 }

@@ -377,9 +377,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
             const accSkin = skin[accSkinKey];
             if (accSkin) {
-              const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w + (n.accidental.relativeX ?? 0);
+              const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w;
               const isFlatOrDoubleFlat = n.accidental.type === AccidentalTypeEnum.Flat || n.accidental.type === AccidentalTypeEnum.Double_flat;
-              const accY = isFlatOrDoubleFlat ? (hcy + measureHeight / 8) - accSkin.h + (n.accidental.relativeY ?? 0) : hcy - accSkin.h / 2 + (n.accidental.relativeY ?? 0);
+              const accY = isFlatOrDoubleFlat ? (hcy + measureHeight / 8) - accSkin.h : hcy - accSkin.h / 2;
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},

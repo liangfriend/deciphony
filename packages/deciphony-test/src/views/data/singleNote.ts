@@ -1,25 +1,25 @@
 import {
-    BarlineTypeEnum,
-    BeamTypeEnum,
-    BracketTypeEnum,
-    ClefTypeEnum,
-    KeySignatureTypeEnum,
-    MeasureEndRepeatEnum,
-    MeasureStartRepeatEnum,
-    MusicScore,
-    TimeSignatureTypeEnum
+  BarlineTypeEnum,
+  BeamTypeEnum,
+  BracketTypeEnum,
+  ClefTypeEnum,
+  KeySignatureTypeEnum,
+  MeasureEndRepeatEnum,
+  MeasureStartRepeatEnum,
+  MusicScore,
+  TimeSignatureTypeEnum
 } from "deciphony-renderer";
 import {
-    createBarline,
-    createClef,
-    createEmptyMeasure,
-    createGrandStaff,
-    createKeySignature,
-    createMusicScore,
-    createNoteRest, createNotesInfo,
-    createNoteSymbol,
-    createSingleStaff,
-    createTimeSignature,
+  createBarline,
+  createClef,
+  createEmptyMeasure,
+  createGrandStaff,
+  createKeySignature,
+  createMusicScore,
+  createNoteRest, createNotesInfo,
+  createNoteSymbol,
+  createSingleStaff,
+  createTimeSignature,
 } from "./scoreBuilder";
 // 曲谱结构
 
@@ -43,7 +43,8 @@ data.grandStaffs.push(grandStaff1)
 const measure1 = data.grandStaffs[0].staves[0].measures[0]
 const noteSymbol11 = createNoteSymbol({region: 5, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 noteSymbol11.notesInfo.push(createNotesInfo({region: 6}))
-console.log('chicken', noteSymbol11.relativeX = 10)
+noteSymbol11.relativeX = 0
+noteSymbol11.notesInfo[0].relativeX = 15
 measure1.notes.push(noteSymbol11)
 
 

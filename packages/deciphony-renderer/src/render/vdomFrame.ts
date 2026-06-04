@@ -178,6 +178,18 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
     }
 }
 
+/**
+ * 从曲谱树收集「id → 累计 Frame 偏移」。
+ *
+ * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
+ * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链
+ * - NoteRest：自身 → 附点、单音附属、谱号
+ * - NoteNumber（简谱）：自身 → 各 NotesNumberInfo → 变音号、倚音链
+ * - Measure：自身；小节线 / 谱号 / 调号 / 拍号 / 反复记号 / 单小节附属 仅合并各自对象（不继承 measure 的 relative，除非将来改 registerMeasure）
+ * - GrandStaff / SingleStaff / Bracket：仅各自 id
+ *
+ * 布局用 targetId（如 `g-${grandStaffId}`）与曲谱 id 不一致时，Frame 不会自动作用到插槽 vDom，需改 targetId 或 register 逻辑。
+ */
 export function collectRelativeFrameMap(musicScore: MusicScore): Map<string, RelativeFrame> {
     const map = new Map<string, RelativeFrame>();
     for (const grandStaff of musicScore.grandStaffs) {
@@ -201,6 +213,10 @@ export function applyRelativeFrameToVDom<T extends VDom>(
     frame: Partial<Frame> | RelativeFrame | undefined | null,
 ): T {
     const f = frameOf(frame);
+    if (f.relativeX === 0 && f.relativeY === 0 && f.relativeW === 0 && f.relativeH === 0) {
+        return node;
+    }
+
     node.x += f.relativeX;
     node.y += f.relativeY;
     node.w += f.relativeW;
@@ -217,19 +233,46 @@ export function applyRelativeFrameToVDom<T extends VDom>(
                 y: node.endPoint.y + f.relativeY,
             };
         }
+        if (node.special?.beam) {
+            node.special.beam.centerX += f.relativeX;
+        }
     }
     return node;
 }
 
+/**
+ * 对 vDoms[startIndex, endIndex) 中具备 targetId 的节点，按 frameMap 累计值平移/扩缩几何（x/y/w/h）。
+ * 连音线（special.slur）、符杠（tag noteBeam + special.beam）会同步平移 startPoint/endPoint 与 centerX。
+ * applied：已处理过的节点引用，用于多阶段 apply 时避免对同一 vDom 重复叠加偏移。
+ *
+ * musicScoreToVDom 不在全曲渲染结束后只调用一次本函数，原因见 standardStaff/musicScoreToVDomImpl：
+ * processBeam/processGraceBeam 依赖已偏移的 noteStem 接点生成 noteBeam，且 noteBeam 通常无 targetId；
+ * 连音线在符号偏移后才取 noteHead 锚点；连谱号等布局 vDom 晚于小节符号才创建。
+ */
+export function applyRelativeFramesToVDomRange(
+    nodes: VDom[],
+    frameMap: ReadonlyMap<string, RelativeFrame>,
+    startIndex = 0,
+    endIndex = nodes.length,
+    applied?: WeakSet<VDom>,
+): void {
+    const end = Math.min(endIndex, nodes.length);
+    for (let i = startIndex; i < end; i++) {
+        const node = nodes[i];
+        if (!node?.targetId || applied?.has(node)) continue;
+        const frame = frameMap.get(node.targetId);
+        if (!frame) continue;
+        applyRelativeFrameToVDom(node, frame);
+        applied?.add(node);
+    }
+}
+
+/** 对整棵 vDom 树施加相对偏移；曲谱主流程请用分阶段 apply（见 musicScoreToVDomImpl），勿假定末尾一次即可 */
 export function applyRelativeFramesToVDoms(
     nodes: VDom[],
     frameMap: ReadonlyMap<string, RelativeFrame>,
     startIndex = 0,
+    applied?: WeakSet<VDom>,
 ): void {
-    for (let i = startIndex; i < nodes.length; i++) {
-        const node = nodes[i];
-        if (!node?.targetId) continue;
-        const frame = frameMap.get(node.targetId);
-        if (frame) applyRelativeFrameToVDom(node, frame);
-    }
+    applyRelativeFramesToVDomRange(nodes, frameMap, startIndex, nodes.length, applied);
 }

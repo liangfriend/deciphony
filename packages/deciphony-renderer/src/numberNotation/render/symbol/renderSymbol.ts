@@ -182,8 +182,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const kf = measure.keySignature_f;
     if (keySigItem) {
       pushSymbol(x, keySigKey, 'keySignature_f', '前置调号', kf.id ?? '', undefined, {
-        xOverride: x + KEY_SIGNATURE_F_X_OFFSET * measureHeight + (kf.relativeX ?? 0),
-        yOverride: measureY - keySigItem.h + KEY_SIGNATURE_F_Y_OFFSET * measureHeight + (kf.relativeY ?? 0),
+        xOverride: x + KEY_SIGNATURE_F_X_OFFSET * measureHeight,
+        yOverride: measureY - keySigItem.h + KEY_SIGNATURE_F_Y_OFFSET * measureHeight,
       });
     }
   }
@@ -341,8 +341,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
             const accSkin = skin[accSkinKey];
             if (accSkin) {
-              const accX = headX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w + (n.accidental.relativeX ?? 0);
-              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight + (n.accidental.relativeY ?? 0)
+              const accX = headX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w;
+              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},
@@ -574,8 +574,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (!item) continue;
     const opts = p.tag === 'keySignature_b' && measure.keySignature_b
       ? {
-        xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight + (measure.keySignature_b.relativeX ?? 0),
-        yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight + (measure.keySignature_b.relativeY ?? 0),
+        xOverride: measureX + measureWidth - item.w + KEY_SIGNATURE_B_X_OFFSET * measureHeight,
+        yOverride: measureY - item.h + KEY_SIGNATURE_B_Y_OFFSET * measureHeight,
       }
       : undefined;
     pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, undefined, opts);

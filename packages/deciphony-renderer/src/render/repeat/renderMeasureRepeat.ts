@@ -36,7 +36,6 @@ function pushRepeatMark(
   x: number,
   y: number,
   dataComment: string,
-  relativeX = 0,
 ): void {
   const {skin, skinName, idMap} = params;
   const item = skin[skinKey as keyof typeof skin] as SkinItem;
@@ -45,7 +44,7 @@ function pushRepeatMark(
     startPoint: {x: 0, y: 0},
     endPoint: {x: 0, y: 0},
     special: {},
-    x: x + relativeX,
+    x,
     y,
     w: item.w,
     h: item.h,
@@ -70,8 +69,8 @@ function endRepeatX(measureX: number, measureWidth: number, skinW: number): numb
   return measureX + measureWidth - skinW;
 }
 
-function repeatMarkY(measureY: number, measureHeight: number, skinH: number, relativeY = 0): number {
-  return measureY - skinH - REPEAT_MARK_ABOVE_RATIO * measureHeight + relativeY;
+function repeatMarkY(measureY: number, measureHeight: number, skinH: number): number {
+  return measureY - skinH - REPEAT_MARK_ABOVE_RATIO * measureHeight;
 }
 
 export function renderMeasureRepeat(params: RenderMeasureRepeatParams): VDom[] {
@@ -90,9 +89,8 @@ export function renderMeasureRepeat(params: RenderMeasureRepeatParams): VDom[] {
         skinKey,
         sr.id,
         startRepeatX(measureX, item.w),
-        repeatMarkY(measureY, measureHeight, item.h, sr.relativeY),
+        repeatMarkY(measureY, measureHeight, item.h),
         sr.type === MeasureStartRepeatEnum.Coda ? '反复符号 Coda' : '反复符号 Segno',
-        sr.relativeX,
       );
     }
   }
@@ -109,9 +107,8 @@ export function renderMeasureRepeat(params: RenderMeasureRepeatParams): VDom[] {
         skinKey,
         er.id,
         endRepeatX(measureX, measureWidth, item.w),
-        repeatMarkY(measureY, measureHeight, item.h, er.relativeY),
+        repeatMarkY(measureY, measureHeight, item.h),
         '反复符号',
-        er.relativeX,
       );
     }
   }

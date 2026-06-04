@@ -15,6 +15,7 @@ import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbo
 import {processBeam} from "./beam/processBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
+import {applyRelativeFramesToVDomRange, collectRelativeFrameMap} from "@/render/vdomFrame";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -41,6 +42,14 @@ export function musicScoreToVDom(
   const measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45;
   const measureLineWidth = skin[NumberNotationSkinKeyEnum.Measure]?.w ?? 1;
   const vDoms: VDom[] = [];
+  /** 曲谱 id → 累计 Frame；级联规则见 vdomFrame collectRelativeFrameMap */
+  const relativeFrameMap = collectRelativeFrameMap(musicScore);
+  /**
+   * 为何不只在渲染末尾统一 applyRelativeFramesToVDomRange？—— 五线谱同理，见 standardStaff/musicScoreToVDomImpl
+   * 文件头说明。简谱 processBeam 虽为空，阶段一仍保证音符头等与 Frame 一致；阶段二/三处理晚生成的布局
+   * vDom 与曲谱级连音线。relativeApplied 防止阶段二全量扫时重复偏移小节符号。
+   */
+  const relativeApplied = new WeakSet<VDom>();
 
   const gLW = getSlotW(config, 'g-l');
   const gRW = getSlotW(config, 'g-r');
@@ -425,6 +434,7 @@ export function musicScoreToVDom(
           idMap: nodeIdMap,
           skinName: effectiveSkinName,
         });
+        const symbolVDomsStartIdx = vDoms.length;
         vDoms.push(...symbolVDoms);
         vDoms.push(...renderMeasureRepeat({
           measure,
@@ -444,6 +454,11 @@ export function musicScoreToVDom(
           measureHeight,
           {VDoms: vDoms, idMap: nodeIdMap, skinName: effectiveSkinName, skin, measureHeight},
         );
+        /*
+         * 【阶段一 · 小节符号】五线谱须在 processBeam 前 apply（符杠读符干 vDom）；简谱 processBeam 为空，
+         * 仍保持同一时机，且与末尾单次 apply 方案一致。不能只在全曲末尾 apply：晚生成的布局 vDom、连音线锚点见文件头注释。
+         */
+        applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, symbolVDomsStartIdx, vDoms.length, relativeApplied);
         /*
         * 渲染符杠
         * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
@@ -628,12 +643,17 @@ export function musicScoreToVDom(
   * 渲染双音符或双小节附属符号
   * slur,volta
   * */
+  /* 【阶段二 · 布局补扫】阶段一不能推迟到曲谱末尾（符杠/锚点顺序）；本段 vDom 晚于阶段一才生成。见五线谱注释。 */
+  applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, 0, vDoms.length, relativeApplied);
+  const scoreAffiliatedStartIdx = vDoms.length;
   renderMusicScoreAffiliatedSymbols(musicScore, {
     VDoms: vDoms,
     idMap: nodeIdMap,
     skinName: effectiveSkinName,
     skin,
   });
+  /* 【阶段三 · 曲谱级附属】晚于阶段二新建，单独 apply；不能合并为曲谱末尾一次（见文件头）。见五线谱同段注释。 */
+  applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, scoreAffiliatedStartIdx, vDoms.length, relativeApplied);
   vDoms.sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
   return vDoms;
 }

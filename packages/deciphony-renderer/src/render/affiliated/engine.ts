@@ -91,13 +91,13 @@ function noteAnchorPoint(
     noteHead: VDom,
     rule: AffiliatedOffsetRule,
     measureHeight: number,
-    relativeX = 0,
-    relativeY = 0,
+    extraX = 0,
+    extraY = 0,
 ) {
     const {dx, dy} = offsetPx(rule, measureHeight);
     return {
-        x: noteHead.x + noteHead.w / 2 + dx + relativeX,
-        y: noteHead.y + noteHead.h / 2 + dy + relativeY,
+        x: noteHead.x + noteHead.w / 2 + dx + extraX,
+        y: noteHead.y + noteHead.h / 2 + dy + extraY,
     };
 }
 
@@ -152,12 +152,12 @@ function renderVolta(
     const endMeasure = ctx.idMap.get(sym.endId)?.measure ?? startMeasure;
     if (!startMeasure) return;
     const measureH = startMeasure.h;
-    const startX = startMeasure.x + rule.start.horizontal * measureH + (sym.relativeX ?? 0);
+    const startX = startMeasure.x + rule.start.horizontal * measureH;
     const endX = (endMeasure?.x ?? startMeasure.x) + (endMeasure?.w ?? startMeasure.w)
-        + rule.end.horizontal * measureH + (sym.relativeW ?? 0);
+        + rule.end.horizontal * measureH;
     const voltaW = Math.max(endX - startX, startMeasure.w);
     const heightRatio = sym.data?.volta?.heightRatio ?? 0.5;
-    const voltaH = measureH * heightRatio + (sym.relativeH ?? 0);
+    const voltaH = measureH * heightRatio;
     const spanPx = rule.span * measureH;
     const voltaY = rule.type === 'upper'
         ? startMeasure.y - voltaH - spanPx
@@ -192,7 +192,7 @@ function renderDoubleNoteSkin(
     const measureHeight = ctx.measureHeight ?? startNote.h;
     const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
     if (!size) return;
-    const start = noteAnchorPoint(startNote, rule.start, measureHeight, sym.relativeX, sym.relativeY);
+    const start = noteAnchorPoint(startNote, rule.start, measureHeight);
     const end = noteAnchorPoint(endNote, rule.end, measureHeight);
     const cx = (start.x + end.x) / 2;
     const cy = (start.y + end.y) / 2;
@@ -257,7 +257,7 @@ export function renderSingleNoteAffiliatedSymbols(
         if (rule.kind !== 'skin') continue;
         const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
         if (!size) continue;
-        const anchor = noteAnchorPoint(noteHead, rule, measureHeight, sym.relativeX, sym.relativeY);
+        const anchor = noteAnchorPoint(noteHead, rule, measureHeight);
         pushSkinAffiliated(
             ctx,
             sym.id,
@@ -291,8 +291,8 @@ export function renderSingleMeasureAffiliatedSymbols(
         } else {
             x = rule.align === 'right' ? measureX + measureWidth - size.w : measureX + measureWidth - size.w;
         }
-        x += rule.horizontal * measureHeight + sym.relativeX;
-        const y = measureY - size.h - rule.vertical * measureHeight + sym.relativeY;
+        x += rule.horizontal * measureHeight;
+        const y = measureY - size.h - rule.vertical * measureHeight;
         pushSkinAffiliated(ctx, sym.id, rule.skinKey ?? String(sym.name), x, y, size.w, size.h, String(sym.name));
     }
 }

@@ -221,10 +221,14 @@ export type DoubleMeasureAffiliatedSymbol = {
 
             text: string
             // [0]表示播放第一遍  [0,1]表示播放第一遍，第二遍，以此类推
-            value:number[] 
+            value: number[]
             /** 盒子高度（× measureHeight），默认 0.5 */
 
             heightRatio?: number
+            // 是否开放左侧（是否隐藏左侧竖线）
+            openLeft?: boolean
+            // 是否开放右侧（是否隐藏右侧竖线）
+            openRight?: boolean
 
         }
 

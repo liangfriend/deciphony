@@ -3,9 +3,9 @@ import {
   BarlineTypeEnum,
   Chronaxie,
   ClefTypeEnum,
-    DoubleMeasureAffiliatedSymbolNameEnum,
-    DoubleNoteAffiliatedSymbolNameEnum,
-    KeySignatureTypeEnum,
+  DoubleMeasureAffiliatedSymbolNameEnum,
+  DoubleNoteAffiliatedSymbolNameEnum,
+  KeySignatureTypeEnum,
   Measure,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
@@ -15,7 +15,7 @@ import {
   NoteSymbolTypeEnum,
   NotesInfo,
   StaffSlot
-} from "deciphony-renderer";
+} from "@/index";
 
 /**
  * TODO 目前这个播放函数只针对五线谱
@@ -164,14 +164,14 @@ function applySlurTieRealDuration(
     const tMax = Math.max(startItem.playTime, endItem.playTime)
 
     const inSlur = seq
-      .filter(
-        (it) =>
-          it.midi > 0 &&
-          noteStaveIndex.get(it.note_id) === stave &&
-          it.playTime >= tMin &&
-          it.playTime <= tMax,
-      )
-      .sort((a, b) => a.playTime - b.playTime || a.note_id.localeCompare(b.note_id))
+    .filter(
+      (it) =>
+        it.midi > 0 &&
+        noteStaveIndex.get(it.note_id) === stave &&
+        it.playTime >= tMin &&
+        it.playTime <= tMax,
+    )
+    .sort((a, b) => a.playTime - b.playTime || a.note_id.localeCompare(b.note_id))
 
     if (inSlur.length < 2) continue
 
@@ -577,18 +577,18 @@ function appendMeasureSequence(
       const duration = getDuration(s.chronaxie, s.augmentationDot?.count ?? 0)
       seq.push({note_id: s.id, midi: 0, duration, playTime})
       playTime += duration
-        } else if (s.type === NoteSymbolTypeEnum.Note) {
-            playTime = appendNoteSymbolSequence(
-                seq,
-                s,
-                playTime,
-                state,
-                measureAccidentals,
-                staveIndex,
-                noteStaveIndex,
-            )
-        }
+    } else if (s.type === NoteSymbolTypeEnum.Note) {
+      playTime = appendNoteSymbolSequence(
+        seq,
+        s,
+        playTime,
+        state,
+        measureAccidentals,
+        staveIndex,
+        noteStaveIndex,
+      )
     }
+  }
   // 小节结束前再应用一下后置谱号调号
   applyMeasureClefBack(state, measure)
   applyMeasureKeySignatureBack(state, measure)

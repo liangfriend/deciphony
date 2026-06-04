@@ -1,0 +1,150 @@
+import { AccidentalTypeEnum, BarlineTypeEnum, BracketTypeEnum, ClefTypeEnum, TimeSignatureTypeEnum, } from "@/enums/musicScoreEnum";
+import { NumberNotationSkinKeyEnum } from "@/numberNotation/enums/numberNotationSkinKeyEnum";
+export function getBarlineSkinKey(barlineType) {
+    const map = {
+        [BarlineTypeEnum.Single_barline]: NumberNotationSkinKeyEnum.Single_barline,
+        [BarlineTypeEnum.Double_barline]: NumberNotationSkinKeyEnum.Double_barline,
+        [BarlineTypeEnum.StartRepeat_barline]: NumberNotationSkinKeyEnum.StartRepeat_barline,
+        [BarlineTypeEnum.EndRepeat_barline]: NumberNotationSkinKeyEnum.EndRepeat_barline,
+        [BarlineTypeEnum.Dashed_barline]: NumberNotationSkinKeyEnum.Dashed_barline,
+        [BarlineTypeEnum.Final_barline]: NumberNotationSkinKeyEnum.Final_barline,
+        [BarlineTypeEnum.Start_end_repeat_barline]: NumberNotationSkinKeyEnum.Start_end_repeat_barline,
+        [BarlineTypeEnum.Dotted_barline]: NumberNotationSkinKeyEnum.Dotted_barline,
+        [BarlineTypeEnum.Reverse_barline]: NumberNotationSkinKeyEnum.Reverse_barline,
+        [BarlineTypeEnum.Heavy_barline]: NumberNotationSkinKeyEnum.Heavy_barline,
+        [BarlineTypeEnum.Heavy_double_barline]: NumberNotationSkinKeyEnum.Heavy_double_barline,
+    };
+    return map[barlineType] ?? NumberNotationSkinKeyEnum.Single_barline;
+}
+/** 连谱小节线皮肤 key（BarlineTypeEnum → linked_*） */
+export function getLinkedBarlineSkinKey(barlineType) {
+    const map = {
+        [BarlineTypeEnum.Single_barline]: NumberNotationSkinKeyEnum.linked_single_barline,
+        [BarlineTypeEnum.Double_barline]: NumberNotationSkinKeyEnum.linked_double_barline,
+        [BarlineTypeEnum.StartRepeat_barline]: NumberNotationSkinKeyEnum.linked_startRepeat_barline,
+        [BarlineTypeEnum.EndRepeat_barline]: NumberNotationSkinKeyEnum.linked_endRepeat_barline,
+        [BarlineTypeEnum.Dashed_barline]: NumberNotationSkinKeyEnum.linked_dashed_barline,
+        [BarlineTypeEnum.Final_barline]: NumberNotationSkinKeyEnum.linked_final_barline,
+        [BarlineTypeEnum.Start_end_repeat_barline]: NumberNotationSkinKeyEnum.linked_start_end_repeat_barline,
+        [BarlineTypeEnum.Dotted_barline]: NumberNotationSkinKeyEnum.linked_dotted_barline,
+        [BarlineTypeEnum.Reverse_barline]: NumberNotationSkinKeyEnum.linked_reverse_barline,
+        [BarlineTypeEnum.Heavy_barline]: NumberNotationSkinKeyEnum.linked_heavy_barline,
+        [BarlineTypeEnum.Heavy_double_barline]: NumberNotationSkinKeyEnum.linked_heavy_double_barline,
+    };
+    return map[barlineType] ?? NumberNotationSkinKeyEnum.linked_single_barline;
+}
+/** 谱号类型 + 是否前置 简谱没有谱号*/
+// export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): NumberNotationSkinKeyEnum {
+//   switch (clefType) {
+//     case ClefTypeEnum.Treble:
+//       return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
+//     case ClefTypeEnum.Bass:
+//       return isFront ? NumberNotationSkinKeyEnum.Bass_f : NumberNotationSkinKeyEnum.Bass;
+//     case ClefTypeEnum.Alto:
+//       return isFront ? NumberNotationSkinKeyEnum.Alto_f : NumberNotationSkinKeyEnum.Alto;
+//     case ClefTypeEnum.Tenor:
+//       return isFront ? NumberNotationSkinKeyEnum.Tenor_f : NumberNotationSkinKeyEnum.Tenor;
+//     default:
+//       return isFront ? NumberNotationSkinKeyEnum.Treble_f : NumberNotationSkinKeyEnum.Treble;
+//   }
+// }
+/** 小节生效谱号：可传 noteIndex 表示该音符位前生效的谱号 */
+export function getClefForMeasure(measures, measureIndex, noteIndex) {
+    if (measureIndex < 0)
+        return ClefTypeEnum.Treble;
+    const m = measures[measureIndex];
+    if (noteIndex != null && noteIndex >= 0 && m.notes) {
+        for (let i = noteIndex; i >= 0; i--) {
+            const note = m.notes[i];
+            if (note?.clef)
+                return note.clef.type;
+        }
+    }
+    if (m.clef_f)
+        return m.clef_f.type;
+    const prev = measureIndex - 1;
+    if (prev < 0)
+        return ClefTypeEnum.Treble;
+    const pm = measures[prev];
+    if (pm.clef_b)
+        return pm.clef_b.type;
+    if (pm.clef_f)
+        return pm.clef_f.type;
+    return getClefForMeasure(measures, prev);
+}
+export function getKeySignatureSkinKey(type) {
+    return NumberNotationSkinKeyEnum[type];
+}
+export function getTimeSignatureSkinKey(type) {
+    if (type == null)
+        return NumberNotationSkinKeyEnum['4_4'];
+    const map = {
+        [TimeSignatureTypeEnum['1_1']]: NumberNotationSkinKeyEnum['1_1'],
+        [TimeSignatureTypeEnum['1_4']]: NumberNotationSkinKeyEnum['1_4'],
+        [TimeSignatureTypeEnum['2_4']]: NumberNotationSkinKeyEnum['2_4'],
+        [TimeSignatureTypeEnum['3_4']]: NumberNotationSkinKeyEnum['3_4'],
+        [TimeSignatureTypeEnum['4_4']]: NumberNotationSkinKeyEnum['4_4'],
+        [TimeSignatureTypeEnum['3_8']]: NumberNotationSkinKeyEnum['3_8'],
+        [TimeSignatureTypeEnum['6_8']]: NumberNotationSkinKeyEnum['6_8'],
+    };
+    return map[type] ?? NumberNotationSkinKeyEnum['4_4'];
+}
+export function chronaxieToBeamLineCount(chronaxie) {
+    const map = { 32: 1, 16: 2, 8: 3, 4: 4, 2: 5, 1: 6 };
+    return map[chronaxie] ?? 1;
+}
+export function getAccidentalSkinKey(type) {
+    const map = {
+        [AccidentalTypeEnum.Sharp]: NumberNotationSkinKeyEnum.Sharp,
+        [AccidentalTypeEnum.Flat]: NumberNotationSkinKeyEnum.Flat,
+        [AccidentalTypeEnum.Double_sharp]: NumberNotationSkinKeyEnum.Double_sharp,
+        [AccidentalTypeEnum.Double_flat]: NumberNotationSkinKeyEnum.Double_flat,
+        [AccidentalTypeEnum.Natural]: NumberNotationSkinKeyEnum.Natural,
+    };
+    return map[type] ?? NumberNotationSkinKeyEnum.Natural;
+}
+/** 连谱号类型 → 皮肤 key */
+export function getBracketSkinKey(type) {
+    const map = {
+        [BracketTypeEnum.Bracket]: NumberNotationSkinKeyEnum.Bracket,
+        [BracketTypeEnum.Brace]: NumberNotationSkinKeyEnum.Brace,
+        [BracketTypeEnum.Square]: NumberNotationSkinKeyEnum.Square,
+    };
+    return map[type] ?? NumberNotationSkinKeyEnum.Bracket;
+}
+export function getAugmentationDotSkinKey(augmentationDot) {
+    const map = {
+        [1]: NumberNotationSkinKeyEnum.AugmentationDot_1,
+        [2]: NumberNotationSkinKeyEnum.AugmentationDot_2,
+        [3]: NumberNotationSkinKeyEnum.AugmentationDot_3,
+    };
+    return map[augmentationDot.count];
+}
+/** 简谱 syllable → 数字皮肤 key。0=休止符(Number_0)，1-7=音高，'X'=节奏音符(Number_X) */
+export function getSyllableSkinKey(syllable) {
+    if (syllable === 'X')
+        return NumberNotationSkinKeyEnum.Number_X;
+    const map = {
+        0: NumberNotationSkinKeyEnum.Number_0,
+        1: NumberNotationSkinKeyEnum.Number_1,
+        2: NumberNotationSkinKeyEnum.Number_2,
+        3: NumberNotationSkinKeyEnum.Number_3,
+        4: NumberNotationSkinKeyEnum.Number_4,
+        5: NumberNotationSkinKeyEnum.Number_5,
+        6: NumberNotationSkinKeyEnum.Number_6,
+        7: NumberNotationSkinKeyEnum.Number_7,
+    };
+    return map[syllable] ?? NumberNotationSkinKeyEnum.Number_1;
+}
+/** 时值 chronaxie → 简谱减时线皮肤 key（32→1条线，16→2条…） */
+export function getReduceLineSkinKey(chronaxie) {
+    const map = {
+        32: NumberNotationSkinKeyEnum.ReduceLine_1,
+        16: NumberNotationSkinKeyEnum.ReduceLine_2,
+        8: NumberNotationSkinKeyEnum.ReduceLine_3,
+        4: NumberNotationSkinKeyEnum.ReduceLine_4,
+        2: NumberNotationSkinKeyEnum.ReduceLine_5,
+        1: NumberNotationSkinKeyEnum.ReduceLine_6,
+    };
+    return map[chronaxie] ?? NumberNotationSkinKeyEnum.ReduceLine_1;
+}

@@ -1,16 +1,32 @@
 <template>
   <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
-       preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" @pointerdown="">
+       :style="{touchAction:'none'}"
+       preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <template v-for="node in vDom"
               :key="`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`">
-      <Group v-if="!AFFILIATION_TAGS.has(node.tag)" :node="node" :notation-type="data.type"
-             :skin="skin"/>
       <g
-        v-else-if="AFFILIATION_TAGS.has(node.tag)"
-        :data-comment="node.dataComment"
-        :data-slot-name="node.slotName??''"
-        :data-target-id="node.targetId"
-        :transform="`translate(${node.x}, ${node.y})`"
+          v-if="!AFFILIATION_TAGS.has(node.tag)"
+          @click="onDrClick($event, node)"
+          @pointerdown="onDrDown($event, node)"
+          @pointerenter="onDrEnter($event, node)"
+          @pointerleave="onDrLeave($event, node)"
+          @pointermove="onDrMove($event, node)"
+          @pointerup="onDrUp($event, node)"
+      >
+        <Group :node="node" :notation-type="data.type" :skin="skin"/>
+      </g>
+      <g
+          v-else-if="AFFILIATION_TAGS.has(node.tag)"
+          :data-comment="node.dataComment"
+          :data-slot-name="node.slotName??''"
+          :data-target-id="node.targetId"
+          :transform="`translate(${node.x}, ${node.y})`"
+          @click="onDrClick($event, node)"
+          @pointerdown="onDrDown($event, node)"
+          @pointerenter="onDrEnter($event, node)"
+          @pointerleave="onDrLeave($event, node)"
+          @pointermove="onDrMove($event, node)"
+          @pointerup="onDrUp($event, node)"
       >
         <Slur v-if="node.special?.slur" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
@@ -53,11 +69,11 @@ const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.Numbe
 
 const data = computed(() => props.data)//?? defaultMock.value
 const skin = computed<Skin>(() =>
-    props.skin ?? {
-      default: defaultSkin,
-      red: defaultSkinRed,
-      blue: defaultSkinBlue,
-    }
+        props.skin ?? {
+          default: defaultSkin,
+          red: defaultSkinRed,
+          blue: defaultSkinBlue,
+        }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -69,24 +85,56 @@ const effectiveSkinName = computed(() => {
 
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
 
-const emit = defineEmits<{ renderMusicScore: [vDom: VDom[]] }>()
+const emit = defineEmits<{
+  renderMusicScore: [vDom: VDom[]]
+  'dr-click': [event: MouseEvent, vDom: VDom]
+  'dr-down': [event: PointerEvent, vDom: VDom]
+  'dr-up': [event: PointerEvent, vDom: VDom]
+  'dr-move': [event: PointerEvent, vDom: VDom]
+  'dr-enter': [event: PointerEvent, vDom: VDom]
+  'dr-leave': [event: PointerEvent, vDom: VDom]
+}>()
 const vDom = ref<VDom[]>([])
 
+function onDrClick(event: MouseEvent, node: VDom) {
+  emit('dr-click', event, node)
+}
+
+function onDrDown(event: PointerEvent, node: VDom) {
+  emit('dr-down', event, node)
+}
+
+function onDrUp(event: PointerEvent, node: VDom) {
+  emit('dr-up', event, node)
+}
+
+function onDrMove(event: PointerEvent, node: VDom) {
+  emit('dr-move', event, node)
+}
+
+function onDrEnter(event: PointerEvent, node: VDom) {
+  emit('dr-enter', event, node)
+}
+
+function onDrLeave(event: PointerEvent, node: VDom) {
+  emit('dr-leave', event, node)
+}
+
 const musicScoreToVDom = computed(() =>
-  notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
+    notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
 
 // data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
-  [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
-  ([d, slotConfig]) => {
-    const next = d
-      ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
-      : []
-    vDom.value = diffAndMergeVDom(vDom.value, next)//next//
-    emit('renderMusicScore', vDom.value)
-  },
-  {immediate: true, deep: true}
+    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
+    ([d, slotConfig]) => {
+      const next = d
+          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
+          : []
+      vDom.value = diffAndMergeVDom(vDom.value, next)//next//
+      emit('renderMusicScore', vDom.value)
+    },
+    {immediate: true, deep: true}
 )
 
 /**

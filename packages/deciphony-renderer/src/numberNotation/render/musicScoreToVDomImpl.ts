@@ -2,7 +2,6 @@
  * musicScoreToVDom 实现：宏观布局 + 小节符号 + 符杠 + 附属型符号
  */
 
-import {readonly} from "vue";
 import {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 import {GrandStaff, Measure, MusicScore, NoteNumber, SingleStaff} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
@@ -16,6 +15,12 @@ import {processBeam} from "./beam/processBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
 import {applyRelativeFramesToVDomRange, collectRelativeFrameMap} from "@/render/vdomFrame";
+import {
+  slotDataForGrandStaff,
+  slotDataForMeasure,
+  slotDataForMusicScore,
+  slotDataForSingleStaff,
+} from "@/render/slotData";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -78,7 +83,7 @@ export function musicScoreToVDom(
     tag: 'slot',
     skinName: effectiveSkinName,
     targetId: 't',
-    slotData: readonly(musicScore) as MusicScore,
+    slotData: slotDataForMusicScore(musicScore),
     slotName: 't',
     dataComment: '顶部插槽',
   });
@@ -99,7 +104,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       slotName: 'g-l',
       targetId: `g-l-${grandStaff.id}`,
-      slotData: readonly(grandStaff) as GrandStaff,
+      slotData: slotDataForGrandStaff(musicScore, grandStaff),
       dataComment: '复谱表左侧插槽',
     };
     vDoms.push(glSlot);
@@ -133,7 +138,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       slotName: 'g-r',
       targetId: `g-r-${grandStaff.id}`,
-      slotData: readonly(grandStaff) as GrandStaff,
+      slotData: slotDataForGrandStaff(musicScore, grandStaff),
       dataComment: '复谱表右侧插槽',
     };
     vDoms.push(grSlot);
@@ -159,7 +164,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       slotName: 'g',
       targetId: `g-${grandStaff.id}`,
-      slotData: readonly(grandStaff) as GrandStaff,
+      slotData: slotDataForGrandStaff(musicScore, grandStaff),
       dataComment: '复谱表（含外边距）',
     };
     vDoms.push(gSlot);
@@ -177,7 +182,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       slotName: 'g-u',
       targetId: `g-u-${grandStaff.id}`,
-      slotData: readonly(grandStaff) as GrandStaff,
+      slotData: slotDataForGrandStaff(musicScore, grandStaff),
       dataComment: '复谱表上方插槽',
     });
     grandStaffCurrentY += gUH;
@@ -215,7 +220,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         slotName: 's',
         targetId: `s-${staff.id}`,
-        slotData: readonly(staff) as SingleStaff,
+        slotData: slotDataForSingleStaff(musicScore, grandStaff, staff),
         dataComment: '单谱表（含外边距）',
       };
       vDoms.push(sSlot);
@@ -233,7 +238,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         slotName: 's-l',
         targetId: `s-l-${staff.id}`,
-        slotData: readonly(staff) as SingleStaff,
+        slotData: slotDataForSingleStaff(musicScore, grandStaff, staff),
         dataComment: '单谱表左侧插槽',
       };
       vDoms.push(slSlot);
@@ -250,7 +255,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         slotName: 's-r',
         targetId: `s-r-${staff.id}`,
-        slotData: readonly(staff) as SingleStaff,
+        slotData: slotDataForSingleStaff(musicScore, grandStaff, staff),
         dataComment: '单谱表右侧插槽',
       };
       vDoms.push(srSlot);
@@ -275,7 +280,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         slotName: 's-u',
         targetId: `s-u-${staff.id}`,
-        slotData: readonly(staff) as SingleStaff,
+        slotData: slotDataForSingleStaff(musicScore, grandStaff, staff),
         dataComment: '单谱表上方插槽',
       });
       grandStaffCurrentY += sUH;
@@ -299,7 +304,7 @@ export function musicScoreToVDom(
           skinName: effectiveSkinName,
           slotName: 'm-u',
           targetId: `m-u-${measure.id}`,
-          slotData: readonly(measure) as Measure,
+          slotData: slotDataForMeasure(musicScore, grandStaff, staff, measure),
           dataComment: '小节上方插槽',
         });
         measureCurrentX += measureWidth;
@@ -485,7 +490,7 @@ export function musicScoreToVDom(
           skinName: effectiveSkinName,
           slotName: 'm',
           targetId: `m-${measure.id}`,
-          slotData: readonly(measure) as Measure,
+          slotData: slotDataForMeasure(musicScore, grandStaff, staff, measure),
           dataComment: '小节插槽',
         });
         measureCurrentX += measureWidth;
@@ -518,7 +523,7 @@ export function musicScoreToVDom(
           skinName: effectiveSkinName,
           slotName: 'm-d',
           targetId: `m-d-${measure.id}`,
-          slotData: readonly(measure) as Measure,
+          slotData: slotDataForMeasure(musicScore, grandStaff, staff, measure),
           dataComment: '小节下方插槽',
         });
         measureCurrentX += measureWidth;
@@ -539,7 +544,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         slotName: 's-d',
         targetId: `s-d-${staff.id}`,
-        slotData: readonly(staff) as SingleStaff,
+        slotData: slotDataForSingleStaff(musicScore, grandStaff, staff),
         dataComment: '单谱表下方插槽',
       });
       grandStaffCurrentY += sDH;
@@ -603,7 +608,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       slotName: 'g-d',
       targetId: `g-d-${grandStaff.id}`,
-      slotData: readonly(grandStaff) as GrandStaff,
+      slotData: slotDataForGrandStaff(musicScore, grandStaff),
       dataComment: '复谱表下方插槽',
     });
     grandStaffCurrentY += gDH;
@@ -636,6 +641,7 @@ export function musicScoreToVDom(
       skinName: effectiveSkinName,
       targetId: 'e',
       slotName: 'e',
+      slotData: slotDataForMusicScore(musicScore),
       dataComment: '底部插槽',
     });
   }

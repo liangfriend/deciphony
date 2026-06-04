@@ -308,7 +308,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
       const note = slot;
       const voiceGroups = getVoiceGroups(note);
-      let firstHeadVDom: VDom | null = null;
 
       const addLineSkinD = skin[StandardStaffSkinKeyEnum.AddLine_d];
       const addLineSkinU = skin[StandardStaffSkinKeyEnum.AddLine_u];
@@ -421,7 +420,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             skin,
             measureHeight,
           });
-          if (!firstHeadVDom) firstHeadVDom = vdom;
         });
         renderGraceNotesAfter(note.graceNotesAfter, headX, headItem.w, graceCtx);
         const groupAugmentationDot = beat.notesInfo.find((n) => n.augmentationDot)?.augmentationDot;
@@ -477,8 +475,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       };
 
       for (const group of voiceGroups) drawVoice(group);
-
-      if (firstHeadVDom) setNodeIdMap(idMap, note.id, firstHeadVDom);
     }
   }
 

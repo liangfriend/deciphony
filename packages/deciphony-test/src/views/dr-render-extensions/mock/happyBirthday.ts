@@ -612,8 +612,8 @@ const data: MusicScore = {
     affiliatedSymbols: [{
         id: crypto.randomUUID(),
         name: DoubleNoteAffiliatedSymbolNameEnum.slur,
-        startId: phrase1Measure1.notes[0].id,
-        endId: phrase1Measure1.notes[1].id,
+        startId: phrase1Measure1.notes[0].notesInfo[0]!.id,
+        endId: phrase1Measure1.notes[1].notesInfo[0]!.id,
         relativeH: 0,
         relativeY: 0,
         relativeW: 0,

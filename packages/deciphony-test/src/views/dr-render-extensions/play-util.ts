@@ -3,12 +3,14 @@ import {
   BarlineTypeEnum,
   Chronaxie,
   ClefTypeEnum,
-  DoubleMeasureAffiliatedSymbolNameEnum,
-  KeySignatureTypeEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
+    DoubleNoteAffiliatedSymbolNameEnum,
+    KeySignatureTypeEnum,
   Measure,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
   MusicScore,
+  NoteNumber,
   NoteSymbol,
   NoteSymbolTypeEnum,
   NotesInfo,
@@ -19,13 +21,15 @@ import {
  * TODO 目前这个播放函数只针对五线谱
  * */
 export type Unit256 = number; // 256=whole, 128=half, 64=quarter, 32=eighth, 16=sixteenth.
-type DR_playSequence_item = {
+export type DR_playSequence_item = {
   note_id: string;
   midi: number;
   duration: Unit256;
   playTime: Unit256;
+  /** 延音线（同音高 slur）时：首音=整段时值之和，其余=0；未设置则与 duration 同义 */
+  real_duration?: Unit256;
 }
-type DR_playSequence = Array<DR_playSequence_item>
+export type DR_playSequence = Array<DR_playSequence_item>
 
 enum EndAnchorEnum {
   Barline_final = 'barline_final',
@@ -86,6 +90,102 @@ const DIATONIC_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
  */
 const GRACE_PLAY_DURATION: Unit256 = getDuration(16, 0)
 
+/** slur 端点必须为 NotesInfo.id / NotesNumberInfo.id（倚音同结构） */
+function isSlurNotesInfoEndpoint(musicScore: MusicScore, endpointId: string): boolean {
+  for (const grandStaff of musicScore.grandStaffs) {
+    for (const staff of grandStaff.staves) {
+      for (const measure of staff.measures) {
+        for (const slot of measure.notes) {
+          if (!('type' in slot)) {
+            const note = slot as NoteNumber
+            for (const ni of note.notesInfo) {
+              if (ni.id === endpointId) return true
+            }
+            for (const ni of note.notesInfo) {
+              for (const g of ni.graceNotes ?? []) {
+                if (g.id === endpointId) return true
+              }
+              for (const g of ni.graceNotesAfter ?? []) {
+                if (g.id === endpointId) return true
+              }
+            }
+            continue
+          }
+          if (slot.type !== NoteSymbolTypeEnum.Note) continue
+          for (const ni of slot.notesInfo) {
+            if (ni.id === endpointId) return true
+          }
+          for (const g of slot.graceNotes ?? []) {
+            if (g.id === endpointId) return true
+          }
+          for (const g of slot.graceNotesAfter ?? []) {
+            if (g.id === endpointId) return true
+          }
+        }
+      }
+    }
+  }
+  return false
+}
+
+function findSeqItemBySlurEndpoint(
+  seq: DR_playSequence,
+  endpointId: string,
+): DR_playSequence_item | undefined {
+  if (!endpointId) return undefined
+  return seq.find((it) => it.note_id === endpointId && it.midi > 0)
+}
+
+/**
+ * 同音高 slur 视为延音线：段内首音 real_duration = Σduration，其余为 0。
+ * 段内任一音 midi 不同则整段 slur 不当作延音线。
+ */
+function applySlurTieRealDuration(
+  seq: DR_playSequence,
+  musicScore: MusicScore,
+  noteStaveIndex: Map<string, number>,
+): void {
+  for (const sym of musicScore.affiliatedSymbols ?? []) {
+    if (sym.name !== DoubleNoteAffiliatedSymbolNameEnum.slur) continue
+    if (!('startId' in sym) || !('endId' in sym)) continue
+
+    if (!isSlurNotesInfoEndpoint(musicScore, sym.startId) || !isSlurNotesInfoEndpoint(musicScore, sym.endId)) {
+      continue
+    }
+    const startItem = findSeqItemBySlurEndpoint(seq, sym.startId)
+    const endItem = findSeqItemBySlurEndpoint(seq, sym.endId)
+    if (!startItem || !endItem) continue
+
+    const stave = noteStaveIndex.get(startItem.note_id)
+    const endStave = noteStaveIndex.get(endItem.note_id)
+    if (stave == null || stave !== endStave) continue
+
+    const tMin = Math.min(startItem.playTime, endItem.playTime)
+    const tMax = Math.max(startItem.playTime, endItem.playTime)
+
+    const inSlur = seq
+      .filter(
+        (it) =>
+          it.midi > 0 &&
+          noteStaveIndex.get(it.note_id) === stave &&
+          it.playTime >= tMin &&
+          it.playTime <= tMax,
+      )
+      .sort((a, b) => a.playTime - b.playTime || a.note_id.localeCompare(b.note_id))
+
+    if (inSlur.length < 2) continue
+
+    const midis = new Set(inSlur.map((it) => it.midi))
+    if (midis.size !== 1) continue
+
+    const totalDuration = inSlur.reduce((sum, it) => sum + it.duration, 0)
+    inSlur[0]!.real_duration = totalDuration
+    for (let i = 1; i < inSlur.length; i++) {
+      inSlur[i]!.real_duration = 0
+    }
+  }
+}
+
 /** clef + region → 自然音级（0=C,1=D,…6=B），region 是按线/间逐级递增的“级进”，7 级 = 1 个八度 */
 function getDiatonicDegreeFromC(clef: ClefTypeEnum, region: number): number {
   const {startRegion} = CLEF_ANCHOR[clef]
@@ -102,6 +202,7 @@ function getDiatonicDegreeFromC(clef: ClefTypeEnum, region: number): number {
  * - 调号：keySignature_f / keySignature_b 依次生效，直到下一处调号
  * - 谱号/调号状态按 staveIndex 跨复谱表延续（换行复谱表不回到 C 大调/高音谱号）
  * - 倚音：在主音拍位前/后抢奏，不推进小节时间轴（仅主音 chronaxie 计入 playTime）
+ * - 同音高 slur → 延音线：首音 real_duration 为段内 duration 之和，其余为 0
  */
 export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
   // 结束模式，结尾小节线结束|Fine符号结束  如果最后一小节没有任何反复符号了，肯定会结束
@@ -227,6 +328,7 @@ export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
   }
 
   const seq: DR_playSequence = []
+  const noteStaveIndex = new Map<string, number>()
   /*
    * 谱号/调号按「单谱表行号 staveIndex」在全曲延续，不按复谱表重置。
    * 下一行复谱表同序号单谱表若小节无 clef_f/keySignature_f，继承上一行同序号声部结束时的状态。
@@ -246,12 +348,20 @@ export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
       const measure = grandStaff.staves[staveIndex].measures[measureInGrandStaffIndex]
       if (!measure) continue
       // 按小节为单位操作符号
-      const staveDuration = appendMeasureSequence(seq, measure, globalPlayTime, staffStates[staveIndex])
+      const staveDuration = appendMeasureSequence(
+        seq,
+        measure,
+        globalPlayTime,
+        staffStates[staveIndex],
+        staveIndex,
+        noteStaveIndex,
+      )
       measureDuration = Math.max(measureDuration, staveDuration)
     }
     globalPlayTime += measureDuration
   }
 
+  applySlurTieRealDuration(seq, musicScoreData, noteStaveIndex)
   return seq.sort((a, b) => a.playTime - b.playTime)
 }
 
@@ -309,17 +419,30 @@ function resolveAccidentalInMeasure(
   return getKeySignatureAccidental(clef, keySignature, region)
 }
 
+function pushPitchItem(
+  seq: DR_playSequence,
+  noteStaveIndex: Map<string, number>,
+  staveIndex: number,
+  item: DR_playSequence_item,
+): void {
+  seq.push(item)
+  if (item.midi > 0) {
+    noteStaveIndex.set(item.note_id, staveIndex)
+  }
+}
+
 function appendNotesInfoChord(
   seq: DR_playSequence,
   notesInfo: NotesInfo[],
   playTime: Unit256,
   state: StaffPlayState,
   scope: MeasureAccidentalScope,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): Unit256 {
   const lead = notesInfo[0]
   const duration = lead ? getDuration(lead.chronaxie, lead.augmentationDot?.count ?? 0) : 0
   for (const noteInfo of notesInfo) {
-    // 解析初最终的变音符号
     const accidental = resolveAccidentalInMeasure(
       noteInfo.accidental?.type,
       scope,
@@ -327,9 +450,8 @@ function appendNotesInfoChord(
       state.curKeySignature,
       noteInfo.region,
     )
-    // 获取midi
     const midi = getNoteMidi(state.curClef, noteInfo.region, accidental)
-    seq.push({note_id: noteInfo.id, midi, duration, playTime})
+    pushPitchItem(seq, noteStaveIndex, staveIndex, {note_id: noteInfo.id, midi, duration, playTime})
   }
   return duration
 }
@@ -340,6 +462,8 @@ function pushGraceNote(
   at: Unit256,
   state: StaffPlayState,
   scope: MeasureAccidentalScope,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): void {
   const accidental = resolveAccidentalInMeasure(
     g.accidental?.type,
@@ -349,7 +473,12 @@ function pushGraceNote(
     g.region,
   )
   const midi = getNoteMidi(state.curClef, g.region, accidental)
-  seq.push({note_id: g.id, midi, duration: GRACE_PLAY_DURATION, playTime: at})
+  pushPitchItem(seq, noteStaveIndex, staveIndex, {
+    note_id: g.id,
+    midi,
+    duration: GRACE_PLAY_DURATION,
+    playTime: at,
+  })
 }
 
 /** 前倚音：紧挨主音拍位之前抢奏，不推迟主音 playTime */
@@ -359,12 +488,14 @@ function appendGraceNotesBefore(
   mainPlayTime: Unit256,
   state: StaffPlayState,
   scope: MeasureAccidentalScope,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): void {
   const list = graceNotes ?? []
   if (!list.length) return
   let t = mainPlayTime - list.length * GRACE_PLAY_DURATION
   for (const g of list) {
-    pushGraceNote(seq, g, t, state, scope)
+    pushGraceNote(seq, g, t, state, scope, staveIndex, noteStaveIndex)
     t += GRACE_PLAY_DURATION
   }
 }
@@ -377,13 +508,15 @@ function appendGraceNotesAfter(
   mainDuration: Unit256,
   state: StaffPlayState,
   scope: MeasureAccidentalScope,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): void {
   const list = graceNotes ?? []
   if (!list.length) return
   const steal = Math.min(mainDuration, list.length * GRACE_PLAY_DURATION)
   let t = mainPlayTime + mainDuration - steal
   for (const g of list) {
-    pushGraceNote(seq, g, t, state, scope)
+    pushGraceNote(seq, g, t, state, scope, staveIndex, noteStaveIndex)
     t += GRACE_PLAY_DURATION
   }
 }
@@ -394,15 +527,30 @@ function appendNoteSymbolSequence(
   playTime: Unit256,
   state: StaffPlayState,
   scope: MeasureAccidentalScope,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): Unit256 {
-  // 应用音符前谱号
   applySlotClef(state, note.clef)
-  // 前倚音，这个不会增加主时值
-  appendGraceNotesBefore(seq, note.graceNotes, playTime, state, scope)
-  // 找和弦中第一个音，累加主时值，我觉得这个逻辑可以，以最长/最短时值的音算主时值都不太灵活
-  const chordDuration = appendNotesInfoChord(seq, note.notesInfo, playTime, state, scope)
-  // 后倚音，这个不会增加主时值
-  appendGraceNotesAfter(seq, note.graceNotesAfter, playTime, chordDuration, state, scope)
+  appendGraceNotesBefore(seq, note.graceNotes, playTime, state, scope, staveIndex, noteStaveIndex)
+  const chordDuration = appendNotesInfoChord(
+    seq,
+    note.notesInfo,
+    playTime,
+    state,
+    scope,
+    staveIndex,
+    noteStaveIndex,
+  )
+  appendGraceNotesAfter(
+    seq,
+    note.graceNotesAfter,
+    playTime,
+    chordDuration,
+    state,
+    scope,
+    staveIndex,
+    noteStaveIndex,
+  )
   return playTime + chordDuration
 }
 
@@ -411,6 +559,8 @@ function appendMeasureSequence(
   measure: Measure,
   measureStart: Unit256,
   state: StaffPlayState,
+  staveIndex: number,
+  noteStaveIndex: Map<string, number>,
 ): Unit256 {
   // 记录小节作用域的变音符号
   const measureAccidentals: MeasureAccidentalScope = new Map()
@@ -427,10 +577,18 @@ function appendMeasureSequence(
       const duration = getDuration(s.chronaxie, s.augmentationDot?.count ?? 0)
       seq.push({note_id: s.id, midi: 0, duration, playTime})
       playTime += duration
-    } else if (s.type === NoteSymbolTypeEnum.Note) {
-      playTime = appendNoteSymbolSequence(seq, s, playTime, state, measureAccidentals)
+        } else if (s.type === NoteSymbolTypeEnum.Note) {
+            playTime = appendNoteSymbolSequence(
+                seq,
+                s,
+                playTime,
+                state,
+                measureAccidentals,
+                staveIndex,
+                noteStaveIndex,
+            )
+        }
     }
-  }
   // 小节结束前再应用一下后置谱号调号
   applyMeasureClefBack(state, measure)
   applyMeasureKeySignatureBack(state, measure)

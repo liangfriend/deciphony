@@ -180,8 +180,10 @@ export type DoubleNoteAffiliatedSymbol = {
 
     name: DoubleNoteAffiliatedSymbolNameEnum,
 
+    /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
     startId: string,
 
+    /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
     endId: string,
 
     data: {

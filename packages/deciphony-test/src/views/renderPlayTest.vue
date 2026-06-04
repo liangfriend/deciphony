@@ -25,7 +25,7 @@ function toPlaySequence(): PlaySequence {
   return drSeq.map((it, i) => ({
     id: it.note_id,
     midi: it.midi,
-    duration: it.duration,
+    duration: it.real_duration != null ? it.real_duration : it.duration,
     playTime: it.playTime,
     toneColor: 'piano',
     data: {note_id: it.note_id},

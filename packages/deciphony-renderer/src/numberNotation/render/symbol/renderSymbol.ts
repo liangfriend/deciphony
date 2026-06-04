@@ -490,7 +490,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
       }
 
-      if (firstHeadVDom) setNodeIdMap(idMap, note.id, firstHeadVDom);
     }
 
     // 第二遍：渲染减时线（slots 已完整，可正确计算连接）

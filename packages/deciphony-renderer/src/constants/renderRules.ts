@@ -69,7 +69,7 @@ export const SingleMeasureAffiliatedSymbolRenderRule: Partial<
     Record<SingleMeasureAffiliatedSymbolNameEnum, SingleMeasureAffiliatedRule>
 > = {};
 
-/** 双音符附属：起点/终点锚定 startId/endId 音符头 */
+/** 双音符附属：startId/endId 为 NotesInfo.id（五线谱）或 NotesNumberInfo.id（简谱），与 noteHead.targetId 一致 */
 export const DoubleNoteAffiliatedSymbolRenderRule: Partial<
     Record<DoubleNoteAffiliatedSymbolNameEnum, DoubleNoteAffiliatedRule>
 > = {

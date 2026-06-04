@@ -87,6 +87,11 @@ function resolveSkinSize(
     return {w: item.w, h: item.h || notationFallbackH};
 }
 
+/** slur 端点必须为 NotesInfo.id / NotesNumberInfo.id（与 noteHead VDom.targetId 一致），不得使用 NoteSymbol/NoteNumber 位 id */
+function resolveNoteHeadByNotesInfoId(map: NodeIdMap, notesInfoId: string): VDom | undefined {
+    return map.get(notesInfoId)?.noteHead;
+}
+
 function noteAnchorPoint(
     noteHead: VDom,
     rule: AffiliatedOffsetRule,
@@ -107,8 +112,8 @@ function renderSlur(
     rule = DoubleNoteAffiliatedSymbolRenderRule[sym.name],
 ): void {
     if (rule?.kind !== 'slur') return;
-    const startNote = ctx.idMap.get(sym.startId)?.noteHead;
-    const endNote = ctx.idMap.get(sym.endId)?.noteHead;
+    const startNote = resolveNoteHeadByNotesInfoId(ctx.idMap, sym.startId);
+    const endNote = resolveNoteHeadByNotesInfoId(ctx.idMap, sym.endId);
     if (!startNote || !endNote) return;
     const measureHeight = ctx.measureHeight ?? startNote.h;
     const slurData = sym.data?.slur;
@@ -186,8 +191,8 @@ function renderDoubleNoteSkin(
     rule = DoubleNoteAffiliatedSymbolRenderRule[sym.name],
 ): void {
     if (rule?.kind !== 'skin') return;
-    const startNote = ctx.idMap.get(sym.startId)?.noteHead;
-    const endNote = ctx.idMap.get(sym.endId)?.noteHead;
+    const startNote = resolveNoteHeadByNotesInfoId(ctx.idMap, sym.startId);
+    const endNote = resolveNoteHeadByNotesInfoId(ctx.idMap, sym.endId);
     if (!startNote || !endNote) return;
     const measureHeight = ctx.measureHeight ?? startNote.h;
     const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
@@ -237,7 +242,7 @@ export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: R
             continue;
         }
         const noteRule = DoubleNoteAffiliatedSymbolRenderRule[sym.name as DoubleNoteAffiliatedSymbolNameEnum];
-        if (noteRule && ctx.idMap.get(sym.startId)?.noteHead) {
+        if (noteRule && resolveNoteHeadByNotesInfoId(ctx.idMap, sym.startId)) {
             renderDoubleNoteAffiliated(sym as DoubleNoteAffiliatedSymbol, ctx);
         }
     }

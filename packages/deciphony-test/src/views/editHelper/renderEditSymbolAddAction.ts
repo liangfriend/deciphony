@@ -246,9 +246,8 @@ export function resolveGhostNotePreview(params: ResolveGhostNoteParams): GhostNo
     if (!measureNode || !isPointerInMeasureAddRange(svgX, svgY, measureNode)) {
         return null
     }
-
     const relativeX = svgX - measureNode.x
-    const relativeY = svgY - measureNode.y
+    const relativeY = svgY - measureNode.y - PER_REGION_HEIGHT / 2
     const anchors = collectSlotAnchors(vDomList, measure, measureNode.x)
     const snapPoints = computeSnapPoints(measureNode.w, anchors)
     const snap = nearestSnapPoint(relativeX, snapPoints)

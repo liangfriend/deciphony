@@ -1,6 +1,14 @@
 import type {MusicScore, SlotData, VDom} from 'deciphony-renderer'
-import {computed, onBeforeUnmount, ref} from 'vue'
-import {EXCLUDED_INTERACTION_TAGS} from './constants'
+import {
+  findElementByVdomDomId,
+  findVDomBySelectionKey,
+  vdomDomId,
+  vdomSelectionKey,
+} from 'deciphony-renderer'
+import type {Ref} from 'vue'
+import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {DEFAULT_ADD_NOTE_STATE, type AddNoteState} from './renderEditAddNoteState'
+import {EXCLUDED_INTERACTION_TAGS, HIGHLIGHT_CLASS} from './constants'
 import {createEditHighlight} from './renderEditHighlight'
 import {
   createNoteHeadDragSession,
@@ -8,16 +16,26 @@ import {
   type NoteHeadDragSession,
 } from './renderEditNoteHeadDrag'
 import {resolveInteractionTarget, resolveSvgFromEvent} from './renderEditPointer'
+import {resolvePropertyPanelKind} from './renderEditPropertyPanel'
 import {slotDataFromVDom} from './renderEditSelection'
 import {
   applyMeasureAddAction,
   findNoteHeadElement,
   isMeasureAddMode,
+  isPointerInMeasureAddRange,
   pointerToSvg,
+  measureBoundsFromVDom,
   resolveGhostNotePreview,
-  resolveMeasureBounds,
+  findMeasureSlotVDom,
+  resolveMeasureSlotAtPointer,
   type GhostNotePreview,
 } from './renderEditSymbolAddAction'
+
+export type MusicScoreComponentExpose = {
+  vdomDomId: typeof vdomDomId
+  vdomSelectionKey: typeof vdomSelectionKey
+  findElementByVDom: (node: VDom) => SVGElement | null
+}
 
 /**
  * 标准五线谱「点击选中 + 小节加音 + 音符头拖 region」编辑控制器。
@@ -27,18 +45,26 @@ import {
  * - editHelper（本模块）：与具体页面无关的选中态、指针、ghost、拖拽编排
  * - 页面（如 renderEditTest.vue）：插槽按钮样式、侧栏、快捷键等某一种产品形态
  */
-export function useRenderEdit(musicScore: MusicScore) {
+export function useRenderEdit(
+  musicScore: MusicScore,
+  options?: { musicScoreRef?: Ref<MusicScoreComponentExpose | null> },
+) {
   const scoreRootRef = ref<HTMLElement | null>(null)
   const highlightedEl = ref<SVGElement | null>(null)
   const selectedEl = ref<SVGElement | null>(null)
   const selectedItem = ref<SlotData | null>(null)
+  const selectedVdomKey = ref<string | null>(null)
   const ghostNotePreview = ref<GhostNotePreview | null>(null)
   const noteHeadDragSession = ref<NoteHeadDragSession | null>(null)
   const vDomList = ref<VDom[]>([])
+  /** 持续选中的添加状态：决定 ghost 与插入的音符/休止符 */
+  const addNoteState = ref<AddNoteState>({...DEFAULT_ADD_NOTE_STATE})
+  const lastTopPointer = ref<{ clientX: number; clientY: number } | null>(null)
 
   const highlight = createEditHighlight({highlightedEl, selectedEl, selectedItem})
 
   const isMeasureSelected = computed(() => isMeasureAddMode(selectedItem.value))
+  const propertyPanelKind = computed(() => resolvePropertyPanelKind(selectedItem.value))
 
   const activeGhostPreview = computed((): GhostNotePreview | null => {
     const preview = ghostNotePreview.value
@@ -47,54 +73,134 @@ export function useRenderEdit(musicScore: MusicScore) {
     return preview
   })
 
-  function refreshSelectedNoteHeadHighlight(notesInfoId: string) {
-    const root = scoreRootRef.value
-    const el = root ? findNoteHeadElement(root, notesInfoId) : null
-    if (!el) return
+  function resolveSelectionElement(vdom: VDom): SVGElement | null {
+    return (
+      options?.musicScoreRef?.value?.findElementByVDom(vdom)
+      ?? (scoreRootRef.value ? findElementByVdomDomId(scoreRootRef.value, vdom) : null)
+    )
+  }
+
+  /** 小节选中态统一绑定到 m 插槽顶层 g（与模板 measure-selection-frame 一致） */
+  function normalizeMeasureSelectionVdom(vdom: VDom): VDom {
+    if (vdom.tag === 'slot' && vdom.slotName === 'm') return vdom
+    if (vdom.tag === 'measure' && vdom.targetId) {
+      const slotVdom = findMeasureSlotVDom(vDomList.value, vdom.targetId)
+      if (slotVdom) return slotVdom
+    }
+    const measureId = selectedItem.value?.measure?.id
+    if (measureId) {
+      const slotVdom = findMeasureSlotVDom(vDomList.value, measureId)
+      if (slotVdom) return slotVdom
+    }
+    return vdom
+  }
+
+  function applySelectionDom(el: SVGElement | null) {
     if (selectedEl.value && selectedEl.value !== el) {
-      selectedEl.value.classList.remove('dr-selected-highlight')
+      selectedEl.value.classList.remove(HIGHLIGHT_CLASS.selected)
     }
     selectedEl.value = el
-    highlight.applySelectedHighlight(el)
+    if (el) highlight.applySelectedHighlight(el)
+  }
+
+  function bindSelectionVdom(vdom: VDom, slot?: SlotData | null) {
+    const resolvedSlot = slot ?? resolveSlotFromVDom(vdom)
+    const bindingVdom = resolvedSlot && isMeasureAddMode(resolvedSlot)
+      ? normalizeMeasureSelectionVdom(vdom)
+      : vdom
+    selectedVdomKey.value = vdomSelectionKey(bindingVdom)
+    if (resolvedSlot) selectedItem.value = resolvedSlot
+    applySelectionDom(resolveSelectionElement(bindingVdom))
+  }
+
+  /** 重渲染后按 domId 找回 vDom / SlotData / DOM，避免旧节点引用残留高亮 */
+  function rebindSelectionAfterRender(list: VDom[]) {
+    const session = noteHeadDragSession.value
+    let vdom: VDom | undefined
+
+    if (session) {
+      vdom = list.find((node) => node.tag === 'noteHead' && node.targetId === session.notesInfoId)
+    } else {
+      const key = selectedVdomKey.value
+      if (!key) return
+      vdom = findVDomBySelectionKey(list, key)
+    }
+
+    if (!vdom) return
+    bindSelectionVdom(vdom)
+  }
+
+  function selectMeasureSlot(slot: SlotData) {
+    highlight.clearHoverHighlight()
+    const measureId = slot.measure?.id
+    const vdom = measureId ? findMeasureSlotVDom(vDomList.value, measureId) : undefined
+    if (vdom) {
+      bindSelectionVdom(vdom, vdom.slotData ?? slot)
+    } else {
+      selectedVdomKey.value = null
+      applySelectionDom(null)
+      selectedItem.value = slot
+    }
+    ghostNotePreview.value = null
   }
 
   function selectNoteHeadSlot(slot: SlotData, notesInfoId: string) {
     highlight.clearHoverHighlight()
-    if (selectedEl.value) {
-      selectedEl.value.classList.remove('dr-selected-highlight')
+    const vdom = vDomList.value.find(
+      (node) => node.tag === 'noteHead' && node.targetId === notesInfoId,
+    )
+    if (vdom) {
+      bindSelectionVdom(vdom, slot)
+    } else {
+      selectedVdomKey.value = null
+      const root = scoreRootRef.value
+      const el = root ? findNoteHeadElement(root, notesInfoId) : null
+      applySelectionDom(el)
+      selectedItem.value = slot
     }
-    const root = scoreRootRef.value
-    const el = root ? findNoteHeadElement(root, notesInfoId) : null
-    selectedEl.value = el
-    selectedItem.value = slot
     ghostNotePreview.value = null
-    if (el) highlight.applySelectedHighlight(el)
   }
 
-  function updateGhostNoteFromTopEvent(event: PointerEvent) {
-    if (!isMeasureSelected.value || !selectedEl.value) {
+  function updateGhostNoteFromPointer(clientX: number, clientY: number) {
+    if (!isMeasureSelected.value) {
       ghostNotePreview.value = null
       return
     }
-    const svg = resolveSvgFromEvent(event)
-    const root = scoreRootRef.value
-    if (!svg || !root) return
+    const svg = scoreRootRef.value?.querySelector('svg')
+    if (!(svg instanceof SVGSVGElement)) return
     const measureId = selectedItem.value?.measure?.id
     if (!measureId) return
-    const bounds = resolveMeasureBounds(root, measureId, vDomList.value, selectedEl.value)
+    // 用 vDom 布局坐标，避免 ghost 画在 m 插槽内时 getBBox 随 ghost 移动而抖动
+    const bounds = measureBoundsFromVDom(vDomList.value, measureId)
     if (!bounds) {
       ghostNotePreview.value = null
       return
     }
-    const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+    const {x, y} = pointerToSvg(svg, clientX, clientY)
     ghostNotePreview.value = resolveGhostNotePreview({
       selected: selectedItem.value,
       vDomList: vDomList.value,
       svgX: x,
       svgY: y,
       measureBounds: bounds,
+      addNoteState: addNoteState.value,
     })
   }
+
+  function updateGhostNoteFromTopEvent(event: PointerEvent) {
+    lastTopPointer.value = {clientX: event.clientX, clientY: event.clientY}
+    updateGhostNoteFromPointer(event.clientX, event.clientY)
+  }
+
+  function refreshGhostFromLastPointer() {
+    const pointer = lastTopPointer.value
+    if (!pointer) return
+    updateGhostNoteFromPointer(pointer.clientX, pointer.clientY)
+  }
+
+  watch(addNoteState, () => {
+    refreshGhostFromLastPointer()
+  }, {deep: true})
 
   function updateNoteHeadDragFromEvent(event: PointerEvent) {
     const session = noteHeadDragSession.value
@@ -111,7 +217,7 @@ export function useRenderEdit(musicScore: MusicScore) {
       event.clientY,
     )
     if (changed != null) {
-      refreshSelectedNoteHeadHighlight(session.notesInfoId)
+      rebindSelectionAfterRender(vDomList.value)
     }
   }
 
@@ -122,6 +228,16 @@ export function useRenderEdit(musicScore: MusicScore) {
   }
 
   function tryMeasureAddAtEvent(event: PointerEvent) {
+    const measureId = selectedItem.value?.measure?.id
+    if (!measureId) return
+    const bounds = measureBoundsFromVDom(vDomList.value, measureId)
+    const svg = resolveSvgFromEvent(event)
+    if (!bounds || !svg) return
+    const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+    if (!isPointerInMeasureAddRange(x, y, bounds)) {
+      ghostNotePreview.value = null
+      return
+    }
     updateGhostNoteFromTopEvent(event)
     const preview = ghostNotePreview.value
     const measureSlot = selectedItem.value
@@ -139,24 +255,24 @@ export function useRenderEdit(musicScore: MusicScore) {
     }
   }
 
+  function resolveSlotFromVDom(vdom: VDom): SlotData | null {
+    if (vdom.slotData) return vdom.slotData
+    return slotDataFromVDom(musicScore, vdom)
+  }
+
   // —— dr 事件 ——
 
   function handleDrClick(event: MouseEvent, vdom: VDom) {
     if (EXCLUDED_INTERACTION_TAGS.has(vdom.tag)) return
     const el = resolveInteractionTarget(event)
     if (!el) return
-    const slot = slotDataFromVDom(musicScore, vdom)
+    const slot = resolveSlotFromVDom(vdom)
     if (!slot) return
 
     highlight.clearHoverHighlight()
-    if (selectedEl.value === el) return
+    if (selectedEl.value === el && selectedVdomKey.value === vdomSelectionKey(vdom)) return
 
-    if (selectedEl.value && selectedEl.value !== el) {
-      selectedEl.value.classList.remove('dr-selected-highlight')
-    }
-    selectedEl.value = el
-    selectedItem.value = slot
-    highlight.applySelectedHighlight(el)
+    bindSelectionVdom(vdom, slot)
     if (!isMeasureAddMode(slot)) {
       ghostNotePreview.value = null
     }
@@ -192,10 +308,7 @@ export function useRenderEdit(musicScore: MusicScore) {
 
     highlight.clearHoverHighlight()
     if (selectedItem.value?.info?.id !== slot.info.id) {
-      selectedEl.value?.classList.remove('dr-selected-highlight')
-      selectedEl.value = el
-      selectedItem.value = slot
-      highlight.applySelectedHighlight(el)
+      bindSelectionVdom(vdom, slot)
       ghostNotePreview.value = null
     }
 
@@ -227,21 +340,56 @@ export function useRenderEdit(musicScore: MusicScore) {
     }
   }
 
+  /** top-up 可穿透：空白、五线谱底 measure；小节已选中时仅允许这两者触发 */
+  function canProceedMeasureTopUp(vdom: VDom | null): boolean {
+    if (vdom == null) return true
+    if (vdom.tag === 'measure') return true
+    return false
+  }
+
   function handleTopUp(event: PointerEvent, vdom: VDom | null) {
     const wasDragging = noteHeadDragSession.value?.pointerId === event.pointerId
     endNoteHeadDrag(event)
     if (wasDragging) return
-    if (!isMeasureAddMode(selectedItem.value)) return
     if (vdom?.tag === 'noteHead') return
-    tryMeasureAddAtEvent(event)
+    if (!canProceedMeasureTopUp(vdom)) return
+
+    const svg = resolveSvgFromEvent(event)
+    if (!svg) return
+    const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+    const slotData = resolveMeasureSlotAtPointer(vDomList.value, x, y)
+
+    if (isMeasureAddMode(selectedItem.value)) {
+      const selectedId = selectedItem.value?.measure?.id
+      const selectedBounds = selectedId
+        ? measureBoundsFromVDom(vDomList.value, selectedId)
+        : null
+      const inSelectedAddRange = selectedBounds != null
+        && isPointerInMeasureAddRange(x, y, selectedBounds)
+
+      if (inSelectedAddRange && selectedId) {
+        const hitSelected = !slotData?.measure || slotData.measure.id === selectedId
+        if (hitSelected) {
+          tryMeasureAddAtEvent(event)
+          return
+        }
+      }
+      if (slotData?.measure) {
+        selectMeasureSlot(slotData)
+      } else {
+        ghostNotePreview.value = null
+      }
+      return
+    }
+
+    if (!slotData?.measure) return
+    selectMeasureSlot(slotData)
   }
 
   function handleRenderMusicScore(list: VDom[]) {
     vDomList.value = list
-    const session = noteHeadDragSession.value
-    if (session) {
-      refreshSelectedNoteHeadHighlight(session.notesInfoId)
-    }
+    rebindSelectionAfterRender(list)
+    refreshGhostFromLastPointer()
   }
 
   onBeforeUnmount(() => {
@@ -255,8 +403,10 @@ export function useRenderEdit(musicScore: MusicScore) {
     scoreRootRef,
     selectedItem,
     selectedEl,
+    addNoteState,
     activeGhostPreview,
     isMeasureSelected,
+    propertyPanelKind,
     handleDrClick,
     handleDrEnter,
     handleDrLeave,

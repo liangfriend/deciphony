@@ -1,21 +1,27 @@
 <script lang="ts" setup>
 import musicScoreVue from 'deciphony-renderer'
 import type {MusicScore} from 'deciphony-renderer'
-import {reactive} from 'vue'
+import {reactive, ref} from 'vue'
+import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/singleNote'
 import {
   AddGrandStaffButton,
+  AddNoteStatePanel,
   EditSlotSdButtons,
   GhostNotePreview,
+  PropertyPanel,
   useRenderEdit,
 } from './editHelper'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
+const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
 
 const {
   scoreRootRef,
   selectedItem,
+  addNoteState,
   activeGhostPreview,
+  propertyPanelKind,
   handleDrClick,
   handleDrEnter,
   handleDrLeave,
@@ -24,13 +30,16 @@ const {
   handleTopMove,
   handleTopUp,
   handleRenderMusicScore,
-} = useRenderEdit(musicScoreData)
+} = useRenderEdit(musicScoreData, {musicScoreRef})
 </script>
 
 <template>
   <div class="play-test">
-    <div ref="scoreRootRef" class="play-test__score">
+    <div class="play-test__main">
+      <AddNoteStatePanel v-model="addNoteState"/>
+      <div ref="scoreRootRef" class="play-test__score">
       <musicScoreVue
+        ref="musicScoreRef"
         :data="musicScoreData"
         :slot-config="{'g-r':{w:50},'g-l':{w:50},'g-d':{h:40},'s-d':{h:20}}"
         skin-name="default"
@@ -50,6 +59,15 @@ const {
           <EditSlotSdButtons :node="node"/>
         </template>
         <template #m="{ node }">
+          <rect
+            v-if="selectedItem?.measure?.id === node.slotData?.measure?.id"
+            class="measure-selection-frame dr-selected-highlight"
+            :height="node.h"
+            :width="node.w"
+            fill="white"
+            fill-opacity="0.01"
+            pointer-events="none"
+          />
           <GhostNotePreview
             :measure-id="selectedItem?.measure?.id"
             :node="node"
@@ -57,7 +75,9 @@ const {
           />
         </template>
       </musicScoreVue>
+      </div>
     </div>
+    <PropertyPanel :kind="propertyPanelKind" :selected="selectedItem"/>
   </div>
 </template>
 
@@ -67,6 +87,14 @@ const {
   align-items: flex-start;
   height: 100%;
   gap: 16px;
+}
+
+.play-test__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .play-test__score {

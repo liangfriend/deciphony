@@ -1,7 +1,8 @@
 import {isNoteRest, isNoteSymbol} from 'deciphony-renderer'
 import type {Chronaxie, Measure, MusicScore, NoteSymbol, NotesInfo, SlotData, VDom} from 'deciphony-renderer'
-import {createNoteSymbol, createNotesInfo} from '../dr-extensions/dr-edit/score-builder/factories'
-import {noteSymbolSvg} from './noteSvg'
+import {createNoteRest, createNoteSymbol, createNotesInfo} from '../dr-extensions/dr-edit/score-builder/factories'
+import {DEFAULT_ADD_NOTE_STATE, type AddNoteSlotKind, type AddNoteState} from './renderEditAddNoteState'
+import {noteSymbolSvg, rest as restSymbolSvg} from './noteSvg'
 
 /** 占位音符头高度 */
 export const NOTE_HEAD_HEIGHT = 10.49
@@ -49,6 +50,7 @@ export type SnapPoint =
 export type GhostNotePreview = {
     visible: true
     measureId: string
+    slotKind: AddNoteSlotKind
     /** 相对小节插槽左上角 */
     x: number
     y: number
@@ -117,10 +119,64 @@ export function previewSvgHtml(chronaxie: Chronaxie, direction: 'up' | 'down'): 
     return noteSymbolSvg[direction][key]
 }
 
+const REST_PREVIEW_HEIGHT: Partial<Record<Chronaxie, number>> = {
+    256: 6,
+    128: 6,
+    64: 10,
+    32: 8,
+    16: 8,
+    8: 8,
+    4: 8,
+    2: 8,
+}
+
+const REST_PREVIEW_WIDTH: Partial<Record<Chronaxie, number>> = {
+    256: 10,
+    128: 10,
+    64: 8,
+    32: 8,
+    16: 8,
+    8: 8,
+    4: 8,
+    2: 14,
+}
+
+/** 与 renderer 休止符纵向布局一致（相对小节插槽左上角） */
+export function restYFromChronaxie(chronaxie: Chronaxie): number {
+    const h = REST_PREVIEW_HEIGHT[chronaxie] ?? 8
+    if (chronaxie === 256) return MEASURE_HEIGHT / 4
+    if (chronaxie === 128) return MEASURE_HEIGHT / 2 - h
+    return (MEASURE_HEIGHT - h) / 2
+}
+
+export function restPreviewWidth(chronaxie: Chronaxie): number {
+    return REST_PREVIEW_WIDTH[chronaxie] ?? 8
+}
+
+export function previewRestSvgHtml(chronaxie: Chronaxie): string {
+    return restSymbolSvg[chronaxie] ?? restSymbolSvg[64]
+}
+
 export function findMeasureSlotVDom(vDomList: VDom[], measureId: string): VDom | undefined {
     return vDomList.find(
         (node) => node.tag === 'slot' && node.slotName === 'm' && node.slotData?.measure?.id === measureId,
     )
+}
+
+/** 按 svg 坐标命中 m 插槽（含上下 MEASURE_ADD_HOVER_RANGE 加音区） */
+export function resolveMeasureSlotAtPointer(
+    vDomList: VDom[],
+    svgX: number,
+    svgY: number,
+): SlotData | null {
+    for (const node of vDomList) {
+        if (node.tag !== 'slot' || node.slotName !== 'm' || !node.slotData?.measure) continue
+        const bounds = {x: node.x, y: node.y, w: node.w, h: node.h}
+        if (isPointerInMeasureAddRange(svgX, svgY, bounds)) {
+            return node.slotData
+        }
+    }
+    return null
 }
 
 /** 按小节顺序收集各音符/休止符锚点 x（相对小节左上角，取符号中心） */
@@ -323,12 +379,12 @@ export type ResolveGhostNoteParams = {
     svgX: number
     svgY: number
     measureBounds: MeasureBounds
-    chronaxie?: Chronaxie
+    addNoteState?: AddNoteState
 }
 
-/** 根据指针位置计算占位音符；不在小节标定范围时返回 null */
+/** 根据指针位置与持续添加状态计算占位符号；不在小节标定范围时返回 null */
 export function resolveGhostNotePreview(params: ResolveGhostNoteParams): GhostNotePreview | null {
-    const {selected, vDomList, svgX, svgY, measureBounds, chronaxie = 64} = params
+    const {selected, vDomList, svgX, svgY, measureBounds, addNoteState = DEFAULT_ADD_NOTE_STATE} = params
     if (!isMeasureAddMode(selected)) return null
 
     const measure = selected.measure
@@ -339,21 +395,40 @@ export function resolveGhostNotePreview(params: ResolveGhostNoteParams): GhostNo
     const relativeX = svgX - measureNode.x
     const anchors = collectSlotAnchors(vDomList, measure, measureNode.x)
     const snapPoints = computeSnapPoints(measureNode.w, anchors)
-    const snap = nearestSnapPoint(relativeX, snapPoints)
-    const region = regionFromSvgY(svgY, measureBounds)
-    const direction = defaultDirection(region)
-    let effectiveChronaxie = chronaxie
-    if (snap.kind === 'onNote') {
-        const note = measure.notes[snap.noteIndex]
-        if (isNoteSymbol(note)) {
-            effectiveChronaxie = note.notesInfo[0]?.chronaxie ?? chronaxie
+    let snap = nearestSnapPoint(relativeX, snapPoints)
+    if (addNoteState.kind === 'rest') {
+        const insertPoints = snapPoints.filter((point) => point.kind === 'insert')
+        if (insertPoints.length > 0) {
+            snap = nearestSnapPoint(relativeX, insertPoints)
         }
     }
+
+    const effectiveChronaxie = addNoteState.chronaxie
+
+    if (addNoteState.kind === 'rest') {
+        const restW = restPreviewWidth(effectiveChronaxie)
+        return {
+            visible: true,
+            measureId: measure.id,
+            slotKind: 'rest',
+            x: snap.x - restW / 2,
+            y: restYFromChronaxie(effectiveChronaxie),
+            region: 0,
+            direction: 'up',
+            chronaxie: effectiveChronaxie,
+            svgHtml: previewRestSvgHtml(effectiveChronaxie),
+            snap,
+        }
+    }
+
+    const region = regionFromSvgY(svgY, measureBounds)
+    const direction = defaultDirection(region)
     const headW = noteHeadWidth(effectiveChronaxie)
 
     return {
         visible: true,
         measureId: measure.id,
+        slotKind: 'note',
         x: snap.x - headW / 2,
         y: yFromRegion(region),
         region,
@@ -364,7 +439,7 @@ export function resolveGhostNotePreview(params: ResolveGhostNoteParams): GhostNo
     }
 }
 
-/** 小节添加模式点击：插入音符 / 追加 noteInfo / 切换为音符头选中 */
+/** 小节添加模式点击：插入音符/休止符 / 追加 noteInfo / 切换为音符头选中 */
 export function applyMeasureAddAction(
     slot: SlotData & { measure: Measure },
     preview: GhostNotePreview,
@@ -373,15 +448,22 @@ export function applyMeasureAddAction(
     const measure = slot.measure
 
     if (preview.snap.kind === 'insert') {
+        const at = Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
+        if (preview.slotKind === 'rest') {
+            const rest = createNoteRest({chronaxie: preview.chronaxie})
+            measure.notes.splice(at, 0, rest)
+            return {type: 'inserted'}
+        }
         const note = createNoteSymbol({
             region: preview.region,
             chronaxie: preview.chronaxie,
             direction: preview.direction,
         })
-        const at = Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
         measure.notes.splice(at, 0, note)
         return {type: 'inserted'}
     }
+
+    if (preview.slotKind === 'rest') return null
 
     const note = measure.notes[preview.snap.noteIndex]
     if (!note || !isNoteSymbol(note)) return null

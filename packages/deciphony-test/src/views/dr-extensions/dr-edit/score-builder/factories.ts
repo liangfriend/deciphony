@@ -3,6 +3,7 @@ import {
     BarlineTypeEnum,
     BeamTypeEnum,
     ClefTypeEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
     MeasureEndRepeatEnum,
@@ -17,6 +18,7 @@ import type {
     Barline,
     Bracket,
     Clef,
+    DoubleMeasureAffiliatedSymbol,
     DoubleNoteAffiliatedSymbol,
     GrandStaff,
     KeySignature,
@@ -48,7 +50,7 @@ import type {
 } from './types';
 
 function defaultDirection(region: number): 'up' | 'down' {
-  return region > 4 ? 'up' : 'down';
+  return region > 4 ? 'down' : 'up';
 }
 
 function resolveAccidental(
@@ -386,6 +388,34 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber {
 }
 
 // —— 曲谱级附属 ——
+
+export type CreateVoltaOptions = {
+    startId: string;
+    endId: string;
+    text?: string;
+    value?: number[];
+    partial?: Partial<DoubleMeasureAffiliatedSymbol> & FramePartial;
+};
+
+/** 反复房子 volta：startId / endId 为小节 id */
+export function createVolta(options: CreateVoltaOptions): DoubleMeasureAffiliatedSymbol {
+    const {startId, endId, text = '1.', value = [0], partial} = options;
+    return {
+        ...ZERO_FRAME,
+        id: newId(),
+        name: DoubleMeasureAffiliatedSymbolNameEnum.volta,
+        startId,
+        endId,
+        data: {
+            volta: {
+                text,
+                value,
+                ...partial?.data?.volta,
+            },
+        },
+        ...partial,
+    };
+}
 
 /** 连音线 / 延音线：startId、endId 必须为 NotesInfo.id */
 export function createSlur(options: CreateSlurOptions): DoubleNoteAffiliatedSymbol {

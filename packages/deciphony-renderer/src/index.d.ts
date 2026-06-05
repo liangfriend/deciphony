@@ -1,5 +1,9 @@
 import MusicScoreVue from './components/musicScore.vue';
 export default MusicScoreVue;
+/** 曲谱数据结构（MusicScore、Measure、NoteSymbol 等） */
+export type * from './types/MusicScoreType';
+/** 渲染通用类型（VDom、Skin、Frame 等） */
+export type * from './types/common';
 /** 曲谱相关枚举 */
 export * from './enums/musicScoreEnum';
 /** 五线谱 / 简谱皮肤 key 枚举 */

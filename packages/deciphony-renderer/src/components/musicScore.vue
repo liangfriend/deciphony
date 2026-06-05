@@ -7,11 +7,13 @@
        @pointerenter="onTopSvgEnter"
        @pointerleave="onTopSvgLeave"
        @pointermove="onTopMove"
-       @pointerup="onTopUp">
-    <template v-for="node in vDom"
+       @pointerup="onTopUp"
+       ref="svgRef">
+    <template v-for="(node, domIndex) in vDom"
               :key="`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`">
       <g
           v-if="!AFFILIATION_TAGS.has(node.tag)"
+          :id="vdomDomId(node, domIndex)"
           @click="onDrClick($event, node)"
           @pointerdown="onDrDown($event, node)"
           @pointerenter="onDrEnter($event, node)"
@@ -23,6 +25,7 @@
       </g>
       <g
           v-else-if="AFFILIATION_TAGS.has(node.tag)"
+          :id="vdomDomId(node, domIndex)"
           :data-comment="node.dataComment"
           :data-slot-name="node.slotName??''"
           :data-target-id="node.targetId"
@@ -58,6 +61,7 @@ import Slur from './slur.vue'
 import Volta from './volta.vue'
 import Beam from './beam.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
+import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
 import type {MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, VDom} from '@/types/common'
 
@@ -109,7 +113,13 @@ const emit = defineEmits<{
   'top-leave': [event: PointerEvent, vDom: VDom]
 }>()
 const vDom = ref<VDom[]>([])
+const svgRef = ref<SVGSVGElement | null>(null)
 const topHoverVDom = ref<VDom | null>(null)
+
+function findElementByVDom(node: VDom): SVGElement | null {
+  const root = svgRef.value
+  return root ? findElementByVdomDomId(root, node) : null
+}
 
 function onDrClick(event: MouseEvent, node: VDom) {
   emit('dr-click', event, node)
@@ -201,7 +211,12 @@ function updateVDomHandler(updater: (vDom: VDom[]) => VDom[]) {
   vDom.value = applyVDomUpdate(vDom.value, updater)
 }
 
-defineExpose({updateVDom: updateVDomHandler})
+defineExpose({
+  updateVDom: updateVDomHandler,
+  vdomDomId,
+  vdomSelectionKey,
+  findElementByVDom,
+})
 </script>
 <style scoped>
 svg {

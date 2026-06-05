@@ -21,4 +21,13 @@ export {isNoteRest, isNoteSymbol, isStaffSlot} from './standardStaff/render/util
 /** 顶层 svg 事件：由 DOM 命中解析 VDom */
 export {getHitElement, resolveVDomFromEvent} from './render/resolveVDomFromEvent'
 
+/** VDom 顶层 g 的语义键 / DOM id 与查找 */
+export {
+  findElementByVdomDomId,
+  findVDomByDomId,
+  findVDomBySelectionKey,
+  vdomDomId,
+  vdomSelectionKey,
+} from './render/vdomDomId'
+
 

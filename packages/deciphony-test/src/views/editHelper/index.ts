@@ -49,8 +49,25 @@ export {
   updateNoteHeadDragFromPointer,
   type NoteHeadDragSession,
 } from './renderEditNoteHeadDrag'
+export {resolvePropertyPanelKind, type PropertyPanelKind} from './renderEditPropertyPanel'
+export {
+  ADD_NOTE_KIND_OPTIONS,
+  CHRONAXIE_OPTIONS,
+  DEFAULT_ADD_NOTE_STATE,
+  type AddNoteSlotKind,
+  type AddNoteState,
+} from './renderEditAddNoteState'
+export {
+  addVoltaEndingAtMeasure,
+  findVoltaEndingAt,
+  insertMeasureAfter,
+  insertMeasureBefore,
+} from './renderEditMeasureProperties'
 export {useRenderEdit} from './useRenderEdit'
 
+export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'
+export {default as PropertyPanel} from './components/PropertyPanel.vue'
+export {default as MeasurePropertyPanel} from './components/MeasurePropertyPanel.vue'
 export {default as AddGrandStaffButton} from './components/AddGrandStaffButton.vue'
 export {default as AddSingleStaffButton} from './components/AddSingleStaffButton.vue'
 export {default as AddMeasureButton} from './components/AddMeasureButton.vue'

@@ -305,7 +305,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         // 休止符加时线：二分1条、全音符3条
         const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
-          const addLineSkin = skin[NumberNotationSkinKeyEnum.addLine];
+          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
@@ -322,7 +322,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 tag: 'addLine',
                 skinName: skinNameForNodes,
                 targetId: note.id,
-                skinKey: NumberNotationSkinKeyEnum.addLine,
+                skinKey: NumberNotationSkinKeyEnum.Addline,
                 dataComment: '加时线',
               });
             }
@@ -445,7 +445,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         // 音符加时线：二分1条、全音符3条，y居中，x等分居中
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
-          const addLineSkin = skin[NumberNotationSkinKeyEnum.addLine];
+          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
@@ -462,7 +462,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 tag: 'addLine',
                 skinName: skinNameForNodes,
                 targetId: note.id,
-                skinKey: NumberNotationSkinKeyEnum.addLine,
+                skinKey: NumberNotationSkinKeyEnum.Addline,
                 dataComment: '加时线',
               });
             }

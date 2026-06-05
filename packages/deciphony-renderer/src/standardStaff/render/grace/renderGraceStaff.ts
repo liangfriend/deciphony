@@ -238,10 +238,10 @@ export function renderGraceNotesInfo(params: RenderGraceStaffParams): void {
       const lineY = noteCenterY(line);
       const box = addLineBoxAt(lineY, ledgerCenterX, addLineSkinD);
       pushGrace(out, {
-        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {ledgerLine: line},
         ...box,
         zIndex,
-        tag: 'addLine', skinName, targetId: ni.id,
+        tag: 'addLine_g', skinName, targetId: ni.id,
         skinKey: StandardStaffSkinKeyEnum.AddLine_d, dataComment: '倚音下加线',
       });
     }
@@ -251,10 +251,10 @@ export function renderGraceNotesInfo(params: RenderGraceStaffParams): void {
       const lineY = noteCenterY(line);
       const box = addLineBoxAt(lineY, ledgerCenterX, addLineSkinU);
       pushGrace(out, {
-        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {ledgerLine: line},
         ...box,
         zIndex,
-        tag: 'addLine', skinName, targetId: ni.id,
+        tag: 'addLine_u', skinName, targetId: ni.id,
         skinKey: StandardStaffSkinKeyEnum.AddLine_u, dataComment: '倚音上加线',
       });
     }

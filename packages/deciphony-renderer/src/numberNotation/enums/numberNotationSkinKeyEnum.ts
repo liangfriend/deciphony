@@ -78,7 +78,7 @@ export enum NumberNotationSkinKeyEnum {
     ReduceLine_4 = 'reduceLine_4',
     ReduceLine_5 = 'reduceLine_5',
     ReduceLine_6 = 'reduceLine_6',
-    addLine = 'addLine', // 简谱高/低音点下方的横线
+    Addline = 'addline', // 简谱加时线
     /** 八度点：音符上方=高八度，下方=低八度，每点表示一个八度 */
     OctaveDot = 'octaveDot',
     // 连谱号

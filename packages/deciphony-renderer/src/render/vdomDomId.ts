@@ -2,10 +2,14 @@ import type {VDom} from '@/types/common'
 
 /**
  * 选中态 / DOM 绑定的稳定语义键（不含 skinName、skinKey，换肤后不变）。
- * 格式：tag:targetId:slotName
+ * 格式：tag:targetId:slotName[:ledgerLine]
  */
 export function vdomSelectionKey(node: VDom): string {
-  return `${node.tag}:${node.targetId ?? ''}:${node.slotName ?? ''}`
+  const ledger =
+    (node.tag === 'addLine_u' || node.tag === 'addLine_g') && node.special?.ledgerLine != null
+      ? `:${node.special.ledgerLine}`
+      : ''
+  return `${node.tag}:${node.targetId ?? ''}:${node.slotName ?? ''}${ledger}`
 }
 
 /**

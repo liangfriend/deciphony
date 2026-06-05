@@ -364,20 +364,20 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (addLineSkinD && r < -1) for (let line = -2; line >= r; line -= 2) {
           const box = addLineBoxAt(noteCenterY(line), ledgerCenterX, addLineSkinD);
           out.push({
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {ledgerLine: line},
             ...box,
             zIndex: z,
-            tag: 'addLine', skinName: skinNameForNodes, targetId: n.id,
+            tag: 'addLine_g', skinName: skinNameForNodes, targetId: n.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_d, dataComment: '下加线',
           });
         }
         if (addLineSkinU && r > 9) for (let line = 10; line <= r; line += 2) {
           const box = addLineBoxAt(noteCenterY(line), ledgerCenterX, addLineSkinU);
           out.push({
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {ledgerLine: line},
             ...box,
             zIndex: z,
-            tag: 'addLine', skinName: skinNameForNodes, targetId: n.id,
+            tag: 'addLine_u', skinName: skinNameForNodes, targetId: n.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_u, dataComment: '上加线',
           });
         }

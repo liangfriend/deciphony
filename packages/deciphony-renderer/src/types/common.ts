@@ -39,7 +39,9 @@ export type VDomTagType =
     | 'noteTail'       // 符尾
     | 'noteBeam'       // 符杠
     | 'accidental'     // 变音符号
-    | 'addLine'        // 加线（上下加线）
+    | 'addLine'        // 简谱加时线
+    | 'addLine_u'      // 五线谱上加线
+    | 'addLine_g'      // 五线谱下加线
     | 'repeat_f'       // 小节前反复符号（Coda / Segno）
     | 'repeat_b'       // 小节末反复符号（DC / DS / Fine 等）
     | 'slot'           // 插槽
@@ -85,6 +87,8 @@ export type VDom = {
             thickness: number;
             direction: 'up' | 'down';
         };
+        /** 五线谱加线：ledger 线号（上：10,12,…；下：-2,-4,…），同 NotesInfo 多条加线须区分 */
+        ledgerLine?: number;
     }
 }
 

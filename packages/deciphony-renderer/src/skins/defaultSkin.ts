@@ -2150,11 +2150,11 @@ const numberNotationSkin: NumberNotationSkinPack = {
         h: 24,
         skinKey: NumberNotationSkinKeyEnum.ReduceLine_6
     },
-    [NumberNotationSkinKeyEnum.addLine]: {
+    [NumberNotationSkinKeyEnum.Addline]: {
         content: `<rect x="0" y="0" width="10" height="4" fill="black"/>`,
         w: 10,
         h: 4,
-        skinKey: NumberNotationSkinKeyEnum.addLine
+        skinKey: NumberNotationSkinKeyEnum.Addline
     },
     [NumberNotationSkinKeyEnum.OctaveDot]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/>`,

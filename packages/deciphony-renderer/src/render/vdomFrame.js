@@ -158,12 +158,11 @@ export function collectRelativeFrameMap(musicScore) {
 export function applyRelativeFrameToVDom(node, frame) {
     const f = frameOf(frame);
     /**
-     * 五线谱上下加线（skinKey addLine_u / addLine_d）较特殊：Y 由小节内 region 布局（跟随小节），
+     * 五线谱上下加线（tag addLine_u / addLine_g）较特殊：Y 由小节内 region 布局（跟随小节），
      * X 与音符头水平对齐；故级联 Frame 只施加 relativeX，忽略 relativeY / relativeW / relativeH。
-     * 简谱无上下加线，其加时线等 tag=addLine 的 vDom 走常规模板。
+     * 简谱无上下加线，其加时线 tag=addLine 的 vDom 走常规模板。
      */
-    if (node.tag === 'addLine'
-        && (node.skinKey === 'addLine_u' || node.skinKey === 'addLine_d')) {
+    if (node.tag === 'addLine_u' || node.tag === 'addLine_g') {
         if (f.relativeX === 0)
             return node;
         node.x += f.relativeX;

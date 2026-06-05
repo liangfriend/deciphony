@@ -1,8 +1,15 @@
 import type {VDom} from '@/types/common'
 
+function ledgerLineSuffix(node: VDom): string {
+  if ((node.tag === 'addLine_u' || node.tag === 'addLine_g') && node.special?.ledgerLine != null) {
+    return `|L${node.special.ledgerLine}`
+  }
+  return ''
+}
+
 /** 用于匹配同一渲染节点的稳定键 */
 export function vdomNodeKey(node: VDom): string {
-  return `${node.targetId ?? ''}|${node.tag}|${node.skinKey ?? ''}|${node.skinName ?? 'default'}`
+  return `${node.targetId ?? ''}|${node.tag}|${node.skinKey ?? ''}|${node.skinName ?? 'default'}${ledgerLineSuffix(node)}`
 }
 
 function isPointEqual(

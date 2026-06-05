@@ -10,7 +10,7 @@
        @pointerup="onTopUp"
        ref="svgRef">
     <template v-for="(node, domIndex) in vDom"
-              :key="`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`">
+              :key="vdomDomId(node, domIndex)">
       <g
           v-if="!AFFILIATION_TAGS.has(node.tag)"
           :id="vdomDomId(node, domIndex)"

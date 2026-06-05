@@ -223,7 +223,10 @@ export type DoubleMeasureAffiliatedSymbol = {
             // [0]表示播放第一遍  [0,1]表示播放第一遍，第二遍，以此类推
             value: number[]
             /** 盒子高度（× measureHeight），默认 0.5 */
-
+            relativeX?: number
+            relativeY?: number
+            relativeW?: number
+            relativeH?: number
             heightRatio?: number
             // 是否开放左侧（是否隐藏左侧竖线）
             openLeft?: boolean

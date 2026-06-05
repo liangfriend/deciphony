@@ -160,21 +160,26 @@ function renderVolta(
     const startX = startMeasure.x + rule.start.horizontal * measureH;
     const endX = (endMeasure?.x ?? startMeasure.x) + (endMeasure?.w ?? startMeasure.w)
         + rule.end.horizontal * measureH;
-    const voltaW = Math.max(endX - startX, startMeasure.w);
-    const heightRatio = sym.data?.volta?.heightRatio ?? 0.5;
-    const voltaH = measureH * heightRatio;
+    const voltaData = sym.data?.volta;
+    const relX = voltaData?.relativeX ?? 0;
+    const relY = voltaData?.relativeY ?? 0;
+    const relW = voltaData?.relativeW ?? 0;
+    const relH = voltaData?.relativeH ?? 0;
+    const baseW = Math.max(endX - startX, startMeasure.w);
+    const heightRatio = voltaData?.heightRatio ?? 0.5;
+    const baseH = measureH * heightRatio;
     const spanPx = rule.span * measureH;
-    const voltaY = rule.type === 'upper'
-        ? startMeasure.y - voltaH - spanPx
+    const baseY = rule.type === 'upper'
+        ? startMeasure.y - baseH - spanPx
         : startMeasure.y + startMeasure.h + spanPx;
     const vdom: VDom = {
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
-        special: {volta: sym.data?.volta ?? {}},
-        x: startX,
-        y: voltaY,
-        w: voltaW,
-        h: voltaH,
+        special: {volta: voltaData ?? {}},
+        x: startX + relX,
+        y: baseY + relY,
+        w: baseW + relW,
+        h: baseH + relH,
         zIndex: AFFILIATED_Z,
         tag: 'affiliation',
         skinName: ctx.skinName ?? 'default',

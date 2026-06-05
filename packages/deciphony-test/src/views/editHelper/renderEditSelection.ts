@@ -106,6 +106,20 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
     const id = vdom.targetId
     if (!id) return null
 
+    if (vdom.tag === 'affiliation' && vdom.special?.slur) {
+        const sym = findAffiliatedSymbolById(musicScore, id)
+        if (sym) {
+            return buildSlotData(musicScore, {self: sym as SlotData['self']})
+        }
+    }
+
+    if (vdom.tag === 'affiliation' && vdom.special?.volta != null) {
+        const sym = findAffiliatedSymbolById(musicScore, id)
+        if (sym) {
+            return buildSlotData(musicScore, {self: sym as SlotData['self']})
+        }
+    }
+
     if (vdom.tag === 'noteHead' || vdom.tag === 'noteStem' || vdom.tag === 'noteTail') {
         const located = locateNotesInfoById(musicScore, id)
         if (located) {

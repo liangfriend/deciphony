@@ -163,6 +163,11 @@ export function findMeasureSlotVDom(vDomList: VDom[], measureId: string): VDom |
     )
 }
 
+/** 小节背景 vDom（tag=measure，targetId 为小节 id） */
+export function findMeasureVDom(vDomList: VDom[], measureId: string): VDom | undefined {
+    return vDomList.find((node) => node.tag === 'measure' && node.targetId === measureId)
+}
+
 /** 按 svg 坐标命中 m 插槽（含上下 MEASURE_ADD_HOVER_RANGE 加音区） */
 export function resolveMeasureSlotAtPointer(
     vDomList: VDom[],

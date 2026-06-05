@@ -3,6 +3,7 @@ import type {SlotData} from 'deciphony-renderer'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
 import NoteHeadPropertyPanel from './NoteHeadPropertyPanel.vue'
+import VoltaPropertyPanel from './VoltaPropertyPanel.vue'
 
 defineProps<{
   kind: PropertyPanelKind
@@ -30,6 +31,10 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
       />
       <NoteHeadPropertyPanel
         v-else-if="kind === 'noteHead' && selected.info && selected.note && selected.measure"
+        :edit-slot="selected"
+      />
+      <VoltaPropertyPanel
+        v-else-if="kind === 'volta'"
         :edit-slot="selected"
       />
     </div>

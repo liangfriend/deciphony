@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// props 传入 VDom，volta 的 x/y/w/h 已在父级 translate 中应用，此处在 0,0 为原点的局部坐标系内绘制
+// props 传入 VDom；x/y/w/h 已在 renderVolta 中叠加 data.volta.relativeX/Y/W/H，父级 translate 定位，局部 (0,0) 绘制
 import {computed} from 'vue';
 import type {VDom} from '@/types/common';
 
@@ -14,6 +14,7 @@ const voltaData = computed(() => props.vDom.special?.volta ?? {});
 /** openLeft/openRight 为 true 时隐藏对应侧竖线（开放该侧） */
 const openLeft = computed(() => Boolean(voltaData.value.openLeft));
 const openRight = computed(() => Boolean(voltaData.value.openRight));
+const labelText = computed(() => String(voltaData.value.text ?? ''));
 </script>
 
 <template>
@@ -23,14 +24,14 @@ const openRight = computed(() => Boolean(voltaData.value.openRight));
   <line :x1="0" :x2="w" :y1="0.5" :y2="0.5" stroke="currentColor" stroke-width="1"/>
   <!-- 右侧竖线 -->
   <line v-if="!openRight" :x1="w-0.5" :x2="w-0.5" :y1="0" :y2="h" stroke="currentColor" stroke-width="1"/>
-  <!-- 可选：序号文字，可由 data.volta 扩展传入 label -->
   <text
+      v-if="labelText"
       :y="h - 10"
       dominant-baseline="auto"
       fill="currentColor"
       font-size="10"
       x="6"
-  >1.
+  >{{ labelText }}
   </text>
 </template>
 

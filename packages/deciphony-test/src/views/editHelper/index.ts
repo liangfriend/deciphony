@@ -64,12 +64,36 @@ export {
   insertMeasureBefore,
 } from './renderEditMeasureProperties'
 export {SLUR_SPAN_OPTIONS, tryAddSlurFromNoteHead, type SlurSpan} from './renderEditSlurAdd'
+export {
+  computeSlurHandlePoints,
+  createSlurDragSession,
+  isSlurSelected,
+  isSlurVDom,
+  updateSlurDragFromPointer,
+  type SlurDragSession,
+  type SlurHandleKind,
+  type SlurHandlePoints,
+} from './renderEditSlurDrag'
+export {
+  computeVoltaHandlePoints,
+  createVoltaDragSession,
+  isVoltaSelected,
+  isVoltaVDom,
+  resolveVoltaMeasureIds,
+  updateVoltaDragFromPointer,
+  type VoltaDragSession,
+  type VoltaHandleKind,
+  type VoltaHandlePoints,
+} from './renderEditVoltaDrag'
 export {useRenderEdit} from './useRenderEdit'
 
 export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'
 export {default as PropertyPanel} from './components/PropertyPanel.vue'
 export {default as MeasurePropertyPanel} from './components/MeasurePropertyPanel.vue'
 export {default as NoteHeadPropertyPanel} from './components/NoteHeadPropertyPanel.vue'
+export {default as VoltaPropertyPanel} from './components/VoltaPropertyPanel.vue'
+export {default as VoltaDragHandles} from './components/VoltaDragHandles.vue'
+export {default as SlurDragHandles} from './components/SlurDragHandles.vue'
 export {default as AddGrandStaffButton} from './components/AddGrandStaffButton.vue'
 export {default as AddSingleStaffButton} from './components/AddSingleStaffButton.vue'
 export {default as AddMeasureButton} from './components/AddMeasureButton.vue'

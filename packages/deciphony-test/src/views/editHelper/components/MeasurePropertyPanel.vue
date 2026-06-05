@@ -224,7 +224,7 @@ function onVoltaValueInput() {
         <el-input
           v-model="voltaValueText"
           class="measure-props__input"
-          placeholder="播放轮次，如 0 或 0,1"
+          placeholder="播放轮次，如 1 或 1, 2"
           size="small"
           @change="onVoltaValueInput"
         />

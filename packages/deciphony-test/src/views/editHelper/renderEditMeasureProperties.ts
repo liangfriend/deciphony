@@ -211,12 +211,28 @@ export function removeVolta(musicScore: MusicScore, voltaId: string): void {
   if (idx >= 0) musicScore.affiliatedSymbols.splice(idx, 1)
 }
 
+/** 内部存储（0 起）→ 用户展示（1 起） */
+export function voltaValueToDisplay(values: number[]): number[] {
+  return values.map((v) => v + 1)
+}
+
+/** 用户输入（1 起）→ 内部存储（0 起） */
+export function voltaValueFromDisplay(values: number[]): number[] {
+  const nums = values
+    .map((v) => Math.trunc(v) - 1)
+    .filter((n) => Number.isFinite(n) && n >= 0)
+  const unique = [...new Set(nums)].sort((a, b) => a - b)
+  return unique.length > 0 ? unique : [0]
+}
+
 export function parseVoltaValueText(text: string): number[] {
   const parts = text.split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean)
-  const nums = parts.map((p) => Number.parseInt(p, 10)).filter((n) => Number.isFinite(n) && n >= 0)
-  return nums.length > 0 ? nums : [0]
+  const displayNums = parts
+    .map((p) => Number.parseInt(p, 10))
+    .filter((n) => Number.isFinite(n) && n >= 1)
+  return voltaValueFromDisplay(displayNums)
 }
 
 export function formatVoltaValue(value: number[]): string {
-  return value.join(', ')
+  return voltaValueToDisplay(value).join(', ')
 }

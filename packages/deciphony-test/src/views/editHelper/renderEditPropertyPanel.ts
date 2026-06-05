@@ -1,5 +1,7 @@
 import type {SlotData} from 'deciphony-renderer'
 import {isNoteHeadSelected} from './renderEditNoteHeadDrag'
+import {isSlurSelected} from './renderEditSlurDrag'
+import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isMeasureAddMode} from './renderEditSymbolAddAction'
 
 /** 右侧属性栏种类；null 表示关闭 */
@@ -12,5 +14,7 @@ export type PropertyPanelKind = 'measure' | 'noteHead' | 'volta' | null
 export function resolvePropertyPanelKind(selected: SlotData | null): PropertyPanelKind {
   if (isMeasureAddMode(selected)) return 'measure'
   if (isNoteHeadSelected(selected)) return 'noteHead'
+  if (isVoltaSelected(selected)) return 'volta'
+  if (isSlurSelected(selected)) return null
   return null
 }

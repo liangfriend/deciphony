@@ -108,6 +108,7 @@ function registerStandardGraceNotes(
 
 function registerNoteSymbol(map: Map<string, RelativeFrame>, note: NoteSymbol): void {
     registerFrame(map, note.id, note);
+    // 上下加线 targetId 为 NotesInfo.id（见 registerNotesInfo），apply 时仅施加 relativeX
     if (note.clef) {
         registerFrame(map, note.clef.id, note, note.clef);
     }
@@ -182,7 +183,9 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
  * 从曲谱树收集「id → 累计 Frame 偏移」。
  *
  * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
- * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链
+ * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链；
+ *   上下加线（vDom addLine，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
+ *   apply 时仅 relativeX（Y 随小节 region 布局，X 随音符头）
  * - NoteRest：自身 → 附点、单音附属、谱号
  * - NoteNumber（简谱）：自身 → 各 NotesNumberInfo → 变音号、倚音链
  * - Measure：自身；小节线 / 谱号 / 调号 / 拍号 / 反复记号 / 单小节附属 仅合并各自对象（不继承 measure 的 relative，除非将来改 registerMeasure）
@@ -213,6 +216,20 @@ export function applyRelativeFrameToVDom<T extends VDom>(
     frame: Partial<Frame> | RelativeFrame | undefined | null,
 ): T {
     const f = frameOf(frame);
+    /**
+     * 五线谱上下加线（skinKey addLine_u / addLine_d）较特殊：Y 由小节内 region 布局（跟随小节），
+     * X 与音符头水平对齐；故级联 Frame 只施加 relativeX，忽略 relativeY / relativeW / relativeH。
+     * 简谱无上下加线，其加时线等 tag=addLine 的 vDom 走常规模板。
+     */
+    if (
+        node.tag === 'addLine'
+        && (node.skinKey === 'addLine_u' || node.skinKey === 'addLine_d')
+    ) {
+        if (f.relativeX === 0) return node;
+        node.x += f.relativeX;
+        return node;
+    }
+
     if (f.relativeX === 0 && f.relativeY === 0 && f.relativeW === 0 && f.relativeH === 0) {
         return node;
     }

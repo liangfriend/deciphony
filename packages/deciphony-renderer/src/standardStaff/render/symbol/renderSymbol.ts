@@ -4,7 +4,7 @@
 
 import {VDom} from "@/types/common";
 import type {AugmentationDot} from "@/types/MusicScoreType";
-import type {NoteRest, NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
+import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
 import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
@@ -22,7 +22,7 @@ import {
   getRestSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getNoteWidthRatio, getSlotRestChronaxie, getVoiceGroups, isSlotRest, type VoiceGroup} from "../utils/note";
+import {getNoteWidthRatio, getSlotRestChronaxie, getVoiceGroups, isSlotRest} from "../utils/note";
 import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 import {
@@ -40,6 +40,16 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     map.set(id, obj);
   }
   obj[vdom.tag] = vdom;
+}
+
+/**
+ * relativeX 参与合并（相同才合并，见合并键），但 relativeY/W/H 偏移会破坏符干的垂直/宽度贴合，
+ * 带这类偏移的音符独立渲染符干符尾，不参与合并。
+ */
+function hasNonXRelativeOffset(n: NotesInfo): boolean {
+  return (n.relativeY ?? 0) !== 0
+    || (n.relativeW ?? 0) !== 0
+    || (n.relativeH ?? 0) !== 0;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -246,7 +256,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         graceBeforeW = graceBeforeWidth(slot.graceNotes, skin, measureHeight);
         graceAfterW = graceAfterWidth(slot.graceNotesAfter, skin, measureHeight);
       }
-      const headX = slotStartX + (slotW - graceBeforeW - referenceW - graceAfterW) / 2 + graceBeforeW;
+      /** 槽位内布局锚点 x（未叠加 Frame）；谱号、倚音区等与 slot 对齐的符号用此值 */
+      const slotX = slotStartX + (slotW - graceBeforeW - referenceW - graceAfterW) / 2 + graceBeforeW;
       /*
       * 渲染音符前谱号
       * */
@@ -254,7 +265,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const clefKey = getClefSkinKey(slot.clef.type, true);
         const clefItem = skin[clefKey];
         if (clefItem) {
-          const clefX = headX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
+          const clefX = slotX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
           const clefY = measureY - (clefItem.h - measureHeight) / 2;
           const clefVDom: VDom = {
             startPoint: {x: 0, y: 0},
@@ -283,7 +294,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
           special: {},
-          x: headX,
+          x: slotX,
           y: ny,
           w: restItem.w,
           h: restItem.h,
@@ -307,165 +318,191 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       }
 
       const note = slot;
-      const voiceGroups = getVoiceGroups(note);
+      const allNotesInfo = note.notesInfo;
 
       const addLineSkinD = skin[StandardStaffSkinKeyEnum.AddLine_d];
       const addLineSkinU = skin[StandardStaffSkinKeyEnum.AddLine_u];
 
-      const drawVoice = (group: VoiceGroup) => {
-        const directionUp = group.direction === 'up';
-        const beat = group;
-        const regions = beat.notesInfo.map((n) => n.region);
-        const headKey = getNoteHeadSkinKey(beat.chronaxie);
+      // 1) 音符头：每个 NotesInfo 一个，x=slotX（相对 Frame 由小节级 apply 平移），皮肤按各自时值
+      allNotesInfo.forEach((n) => {
+        const headKey = getNoteHeadSkinKey(n.chronaxie);
         const headItem = skin[headKey];
         if (!headItem) return;
-        const minRegion = Math.min(...regions);
-        const maxRegion = Math.max(...regions);
-        const ledgerCenterX = headX + headItem.w / 2;
-        const extremeRegion = directionUp ? maxRegion : minRegion;
-        const extremeHeadY = noteCenterY(extremeRegion) - headItem.h / 2;
-        const extremeHeadCenterY = extremeHeadY + headItem.h / 2;
-        const otherExtremeHeadCenterY = directionUp ? noteCenterY(minRegion) : noteCenterY(maxRegion);
-        const extremeNotesInfo = beat.notesInfo.find((n) => n.region === extremeRegion);
-        const needLower = new Set<number>();
-        const needUpper = new Set<number>();
-        for (const r of regions) {
-          if (r < -1) for (let line = -2; line >= r; line -= 2) needLower.add(line);
-          if (r > 9) for (let line = 10; line <= r; line += 2) needUpper.add(line);
-        }
-        if (addLineSkinD) for (const lineRegion of needLower) {
-          const lineY = noteCenterY(lineRegion);
-          const box = addLineBoxAt(lineY, ledgerCenterX, addLineSkinD);
+        const ny = noteCenterY(n.region) - headItem.h / 2;
+        const vdom: VDom = {
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: slotX,
+          y: ny,
+          w: headItem.w,
+          h: headItem.h,
+          zIndex: z,
+          tag: 'noteHead',
+          skinName: skinNameForNodes,
+          targetId: n.id,
+          skinKey: headKey,
+          dataComment: '音符头',
+        };
+        out.push(vdom);
+        setNodeIdMap(idMap, n.id, vdom);
+        renderSingleNoteAffiliatedSymbols(n.affiliatedSymbols, vdom, {
+          VDoms: out,
+          idMap,
+          skinName: skinNameForNodes,
+          skin,
+          measureHeight,
+        });
+      });
+
+      // 2) 上下加线：每个音符头独立渲染（按各自 headX 居中、region 计算），互相重叠无妨
+      allNotesInfo.forEach((n) => {
+        const headVDom = idMap.get(n.id)?.noteHead;
+        if (!headVDom) return;
+        const ledgerCenterX = headVDom.x + headVDom.w / 2;
+        const r = n.region;
+        if (addLineSkinD && r < -1) for (let line = -2; line >= r; line -= 2) {
+          const box = addLineBoxAt(noteCenterY(line), ledgerCenterX, addLineSkinD);
           out.push({
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             ...box,
             zIndex: z,
-            tag: 'addLine', skinName: skinNameForNodes, targetId: note.id,
+            tag: 'addLine', skinName: skinNameForNodes, targetId: n.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_d, dataComment: '下加线',
           });
         }
-        if (addLineSkinU) for (const lineRegion of needUpper) {
-          const lineY = noteCenterY(lineRegion);
-          const box = addLineBoxAt(lineY, ledgerCenterX, addLineSkinU);
+        if (addLineSkinU && r > 9) for (let line = 10; line <= r; line += 2) {
+          const box = addLineBoxAt(noteCenterY(line), ledgerCenterX, addLineSkinU);
           out.push({
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             ...box,
             zIndex: z,
-            tag: 'addLine', skinName: skinNameForNodes, targetId: note.id,
+            tag: 'addLine', skinName: skinNameForNodes, targetId: n.id,
             skinKey: StandardStaffSkinKeyEnum.AddLine_u, dataComment: '上加线',
           });
         }
-        const graceCtx = {
-          noteCenterY,
-          measureY,
-          measureHeight,
-          measureLineWidth,
-          measureWidth,
-          skin,
-          skinName: skinNameForNodes,
+      });
+
+      // 倚音/附点的参考音符头（首个 NotesInfo）
+      const primaryHead = allNotesInfo[0] ? idMap.get(allNotesInfo[0].id)?.noteHead : undefined;
+      const primaryHeadX = primaryHead?.x ?? slotX;
+      const primaryHeadW = primaryHead?.w ?? (skin[getNoteHeadSkinKey(allNotesInfo[0]?.chronaxie ?? 64)]?.w ?? 0);
+
+      const graceCtx = {
+        noteCenterY,
+        measureY,
+        measureHeight,
+        measureLineWidth,
+        measureWidth,
+        skin,
+        skinName: skinNameForNodes,
+        zIndex: z,
+        note,
+        idMap,
+        out,
+      };
+
+      // 3) 前倚音
+      renderGraceNotesBefore(note.graceNotes, primaryHeadX, graceCtx);
+
+      // 4) 变音号：每个音符头用自己的 headX
+      allNotesInfo.forEach((n) => {
+        if (!n.accidental) return;
+        const headVDom = idMap.get(n.id)?.noteHead;
+        const noteHeadX = headVDom?.x ?? slotX;
+        const hcy = noteCenterY(n.region);
+        const accSkinKey = getAccidentalSkinKey(n.accidental.type);
+        const accSkin = skin[accSkinKey];
+        if (!accSkin) return;
+        const accX = noteHeadX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w;
+        const isFlatOrDoubleFlat = n.accidental.type === AccidentalTypeEnum.Flat || n.accidental.type === AccidentalTypeEnum.Double_flat;
+        const accY = isFlatOrDoubleFlat ? (hcy + measureHeight / 8) - accSkin.h : hcy - accSkin.h / 2;
+        out.push({
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: accX,
+          y: accY,
+          w: accSkin.w,
+          h: accSkin.h,
           zIndex: z,
-          note,
-          idMap,
-          out,
-        };
-        renderGraceNotesBefore(note.graceNotes, headX, graceCtx);
-        beat.notesInfo.forEach((n) => {
-          const ny = noteCenterY(n.region) - headItem.h / 2;
-          const hcy = noteCenterY(n.region);
-          if (n.accidental) {
-            const accSkinKey = getAccidentalSkinKey(n.accidental.type);
-            const accSkin = skin[accSkinKey];
-            if (accSkin) {
-              const accX = headX - ACCIDENTAL_NOTE_GAP * measureHeight - accSkin.w;
-              const isFlatOrDoubleFlat = n.accidental.type === AccidentalTypeEnum.Flat || n.accidental.type === AccidentalTypeEnum.Double_flat;
-              const accY = isFlatOrDoubleFlat ? (hcy + measureHeight / 8) - accSkin.h : hcy - accSkin.h / 2;
-              out.push({
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: accX,
-                y: accY,
-                w: accSkin.w,
-                h: accSkin.h,
-                zIndex: z,
-                tag: 'accidental',
-                skinName: skinNameForNodes,
-                targetId: n.accidental.id ?? n.id,
-                skinKey: accSkinKey,
-                dataComment: '变音符号',
-              });
-            }
-          }
-          const vdom: VDom = {
-            startPoint: {x: 0, y: 0},
-            endPoint: {x: 0, y: 0},
-            special: {},
-            x: headX,
-            y: ny,
-            w: headItem.w,
-            h: headItem.h,
-            zIndex: z,
-            tag: 'noteHead',
-            skinName: skinNameForNodes,
-            targetId: n.id,
-            skinKey: headKey,
-            dataComment: '音符头',
-          };
-          out.push(vdom);
-          setNodeIdMap(idMap, n.id, vdom);
-          renderSingleNoteAffiliatedSymbols(n.affiliatedSymbols, vdom, {
-            VDoms: out,
-            idMap,
-            skinName: skinNameForNodes,
-            skin,
-            measureHeight,
-          });
+          tag: 'accidental',
+          skinName: skinNameForNodes,
+          targetId: n.accidental.id ?? n.id,
+          skinKey: accSkinKey,
+          dataComment: '变音符号',
         });
-        renderGraceNotesAfter(note.graceNotesAfter, headX, headItem.w, graceCtx);
-        const groupAugmentationDot = beat.notesInfo.find((n) => n.augmentationDot)?.augmentationDot;
-        if (groupAugmentationDot) {
-          const augSkinKey = getAugmentationDotSkinKey(groupAugmentationDot as AugmentationDot);
-          const augSkin = skin[augSkinKey];
-          if (augSkin) {
-            const augX = headX + headItem.w + AUGMENTATION_DOT_GAP * measureHeight;
-            beat.notesInfo.forEach((n) => {
-              let augY = noteCenterY(n.region) - augSkin.h / 2;
-              if (n.region % 2 === 0) augY -= measureHeight / 8;
-              out.push({
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: augX,
-                y: augY,
-                w: augSkin.w,
-                h: augSkin.h,
-                zIndex: z,
-                tag: 'accidental',
-                skinName: skinNameForNodes,
-                targetId: groupAugmentationDot.id,
-                skinKey: augSkinKey,
-                dataComment: '附点符号',
-              });
+      });
+
+      // 5) 后倚音
+      renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
+
+      // 6) 附点：首个带附点的 NotesInfo 提供皮肤，每个音符头一个点
+      const noteAugmentationDot = allNotesInfo.find((n) => n.augmentationDot)?.augmentationDot;
+      if (noteAugmentationDot) {
+        const augSkinKey = getAugmentationDotSkinKey(noteAugmentationDot as AugmentationDot);
+        const augSkin = skin[augSkinKey];
+        if (augSkin) {
+          const augX = primaryHeadX + primaryHeadW + AUGMENTATION_DOT_GAP * measureHeight;
+          allNotesInfo.forEach((n) => {
+            let augY = noteCenterY(n.region) - augSkin.h / 2;
+            if (n.region % 2 === 0) augY -= measureHeight / 8;
+            out.push({
+              startPoint: {x: 0, y: 0},
+              endPoint: {x: 0, y: 0},
+              special: {},
+              x: augX,
+              y: augY,
+              w: augSkin.w,
+              h: augSkin.h,
+              zIndex: z,
+              tag: 'accidental',
+              skinName: skinNameForNodes,
+              targetId: noteAugmentationDot.id,
+              skinKey: augSkinKey,
+              dataComment: '附点符号',
             });
-          }
+          });
         }
-        if (!extremeNotesInfo) return;
+      }
+
+      /**
+       * 7) 符干符尾：每个音符独立渲染，避免共用一条符干导致偏移的音符头不贴合。
+       * 合并键：direction + chronaxie + relativeX；三者相同的音符合并为一条 extreme 符干，
+       * 由 extreme 符干延长覆盖整组（chordSpan）。
+       * relativeX 相同才合并（共用同一水平锚点）；relativeY/W/H 偏移的音符不参与合并，各自独立。
+       */
+      const renderStemForSubgroup = (subNotes: NotesInfo[], subChronaxie: number, directionUp: boolean) => {
+        if (subNotes.length === 0) return;
+        const subRegions = subNotes.map((n) => n.region);
+        const subMin = Math.min(...subRegions);
+        const subMax = Math.max(...subRegions);
+        const subExtremeRegion = directionUp ? subMax : subMin;
+        const subExtreme = subNotes.find((n) => n.region === subExtremeRegion);
+        if (!subExtreme) return;
+        const headItem = skin[getNoteHeadSkinKey(subChronaxie)];
+        const subHeadVDom = idMap.get(subExtreme.id)?.noteHead;
+        const subHeadX = subHeadVDom?.x ?? slotX;
+        const subHeadY = subHeadVDom?.y ?? (noteCenterY(subExtremeRegion) - (headItem?.h ?? 0) / 2);
+        const subHeadW = subHeadVDom?.w ?? headItem?.w ?? 0;
+        const subHeadH = subHeadVDom?.h ?? headItem?.h ?? 0;
+        const subOtherCenterY = directionUp ? noteCenterY(subMin) : noteCenterY(subMax);
         const stemTailVDoms = renderStemAndTail({
           note,
-          headX: headX,
-          headY: extremeHeadY,
-          headW: headItem.w,
-          headH: headItem.h,
+          headX: subHeadX,
+          headY: subHeadY,
+          headW: subHeadW,
+          headH: subHeadH,
           measureY,
           measureHeight,
           measureWidth,
           skin,
           zIndex: z,
           idMap,
-          chronaxie: beat.chronaxie,
+          chronaxie: subChronaxie,
           direction: directionUp ? 'up' : 'down',
-          stemTargetId: extremeNotesInfo.id,
-          headCenterYOther: otherExtremeHeadCenterY,
+          stemTargetId: subExtreme.id,
+          headCenterYOther: subOtherCenterY,
           skinName: skinNameForNodes,
         });
         for (const v of stemTailVDoms) {
@@ -474,7 +511,20 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
       };
 
-      for (const group of voiceGroups) drawVoice(group);
+      const mergeBuckets = new Map<string, NotesInfo[]>();
+      for (const n of allNotesInfo) {
+        if (hasNonXRelativeOffset(n)) {
+          renderStemForSubgroup([n], n.chronaxie, n.direction === 'up');
+        } else {
+          const key = `${n.direction}|${n.chronaxie}|${n.relativeX ?? 0}`;
+          const list = mergeBuckets.get(key) ?? [];
+          list.push(n);
+          mergeBuckets.set(key, list);
+        }
+      }
+      for (const subNotes of mergeBuckets.values()) {
+        renderStemForSubgroup(subNotes, subNotes[0].chronaxie, subNotes[0].direction === 'up');
+      }
     }
   }
 

@@ -44,7 +44,7 @@ const measure1 = data.grandStaffs[0].staves[0].measures[0]
 const noteSymbol11 = createNoteSymbol({region: 5, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 noteSymbol11.notesInfo.push(createNotesInfo({region: 6}))
 noteSymbol11.relativeX = 0
-noteSymbol11.notesInfo[0].relativeX = 15
+noteSymbol11.notesInfo[0].relativeX = 30
 measure1.notes.push(noteSymbol11)
 
 

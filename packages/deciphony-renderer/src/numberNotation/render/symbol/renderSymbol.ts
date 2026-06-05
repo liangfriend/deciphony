@@ -210,7 +210,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     i: number;
     slotStartX: number;
     slotW: number;
-    headX: number;
+    /** 槽位布局锚点 x（未叠 Frame）；减时线等 note 层级符号用此值 */
+    slotX: number;
     refW: number;
     isRest: boolean;
   };
@@ -255,9 +256,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           graceAfterW = Math.max(graceAfterW, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
         }
       }
-      const headX = slotStartX + (effectiveSlotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
+      const slotX = slotStartX + (effectiveSlotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
-      slots.push({note, i, slotStartX, slotW, headX, refW: referenceW, isRest: isRestSlot});
+      slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
       let firstHeadVDom: VDom | null = null;
       const allNotes = note.notesInfo.slice();
@@ -288,7 +289,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
           special: {},
-          x: headX,
+          x: slotX,
           y: ny,
           w: num0Item.w,
           h: num0Item.h,
@@ -328,6 +329,28 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
       } else { // 音符渲染
+        // 先渲染音符头（slotX）；变音/八度点/附点等 NotesNumberInfo 符号再从音符头 vDom 取 headX
+        for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
+          const n = allNotes[stackIdx];
+          const numKey = getSyllableSkinKey(n.syllable);
+          const numItem = skin[numKey];
+          if (!numItem) continue;
+          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h, octaveDotYOffsets[stackIdx]);
+          const ny = hcy - numItem.h / 2;
+          const vdom: VDom = {
+            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+            x: slotX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
+            tag: 'noteHead', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
+            dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
+          };
+          out.push(vdom);
+          setNodeIdMap(idMap, n.id, vdom);
+          if (!firstHeadVDom) firstHeadVDom = vdom;
+        }
+
+        const primaryHeadVDom = allNotes[0] ? idMap.get(allNotes[0].id)?.noteHead : undefined;
+        const headX = primaryHeadVDom?.x ?? slotX;
+
         for (const gn of allNotes) {
           renderGraceNotesNumberBefore(gn.graceNotes, note, headX, graceCtx);
         }
@@ -335,14 +358,17 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
           const numItem = skin[numKey];
+          const headVDom = idMap.get(n.id)?.noteHead;
+          const noteHeadX = headVDom?.x ?? slotX;
+          const noteHeadW = headVDom?.w ?? numItem?.w ?? referenceW;
           const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem?.h ?? measureHeight, octaveDotYOffsets[stackIdx]);
 
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
             const accSkin = skin[accSkinKey];
             if (accSkin) {
-              const accX = headX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w;
-              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight
+              const accX = noteHeadX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w;
+              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight;
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},
@@ -361,27 +387,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
           }
 
-
           if (!numItem) continue;
+          const ny = headVDom?.y ?? (hcy - numItem.h / 2);
 
-          const ny = hcy - numItem.h / 2;
-          const vdom: VDom = {
-            startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-            x: headX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
-            tag: 'noteHead', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
-            dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
-          };
-          out.push(vdom);
-          setNodeIdMap(idMap, n.id, vdom);
-          if (!firstHeadVDom) firstHeadVDom = vdom;
-
-          // 八度点：休止符与节奏音符不渲染
           if ((n.syllable === 0 || n.syllable === 'X') || (n.octaveDot ?? 0) === 0) continue;
           if (!octaveDotSkin) continue;
           const dotCount = Math.abs(n.octaveDot!);
-          const dotX = headX + (numItem.w - octaveDotSkin.w) / 2;
+          const dotX = noteHeadX + (noteHeadW - octaveDotSkin.w) / 2;
           if (n.octaveDot! > 0) {
-            // 上方八度点：从音符顶部向上排列
             let dotY = ny - fOff - octaveDotSkin.h;
             for (let k = 0; k < dotCount; k++) {
               out.push({
@@ -393,7 +406,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               dotY -= octaveDotSkin.h + spacing;
             }
           } else {
-            // 下方八度点：仅最下方音符（stackIdx 0）有减时线时贴着减时线下缘，其它音符贴着自身下缘
             let baseBottom: number;
             if (stackIdx === 0 && note.chronaxie <= 32) {
               const reduceLineKey = getReduceLineSkinKey(note.chronaxie);
@@ -463,7 +475,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const augSkin = skin[augSkinKey];
         const numItem = skin[NumberNotationSkinKeyEnum.Number_1];
         if (augSkin && numItem) {
-          const augX = headX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
+          const augHeadX = idMap.get(allNotes[0]?.id)?.noteHead?.x ?? slotX;
+          const augX = augHeadX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
           allNotes.forEach((n, stackIdx) => {
             if (n.syllable === 0 || n.syllable === 'X') return;
             const numKey = getSyllableSkinKey(n.syllable);
@@ -538,12 +551,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.note.chronaxie) : Infinity;
       const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.note.chronaxie) : Infinity;
       // 减时线少的向多的一方延伸；相等时延长左侧（myCount <= rightCount 时向右延伸）
+      const slotHeadX = slot.slotX;
+      const leftHeadX = leftSlot ? leftSlot.slotX : slotHeadX;
+      const rightHeadX = rightSlot ? rightSlot.slotX : slotHeadX;
       const lineX = myCount < leftCount && leftSlot
-        ? leftSlot.headX + leftSlot.refW
-        : slot.headX;
+        ? leftHeadX + leftSlot.refW
+        : slotHeadX;
       const lineEnd = myCount <= rightCount && rightSlot
-        ? rightSlot.headX + rightSlot.refW
-        : slot.headX + slot.refW;
+        ? rightHeadX + rightSlot.refW
+        : slotHeadX + slot.refW;
       const lineW = Math.max(lineEnd - lineX, slot.refW);
       const lowestNote = allNotes[0];
       const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
@@ -560,7 +576,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         zIndex: z,
         tag: 'accidental',
         skinName: skinNameForNodes,
-        targetId: slot.note.notesInfo[0]?.id ?? slot.note.id,
+        // 减时线属于 note（NoteNumber）层级，跨槽位连接，相对 Frame 跟随音符本身而非单个 notesNumberInfo
+        targetId: slot.note.id,
         skinKey: reduceLineKey,
         dataComment: '减时线',
       });

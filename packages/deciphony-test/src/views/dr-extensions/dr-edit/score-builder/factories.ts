@@ -403,7 +403,7 @@ export function createVolta(options: CreateVoltaOptions): DoubleMeasureAffiliate
     return {
         ...ZERO_FRAME,
         id: newId(),
-        name: DoubleMeasureAffiliatedSymbolNameEnum.volta,
+        name: DoubleMeasureAffiliatedSymbolNameEnum.Volta,
         startId,
         endId,
         data: {
@@ -423,7 +423,7 @@ export function createSlur(options: CreateSlurOptions): DoubleNoteAffiliatedSymb
     return {
         ...ZERO_FRAME,
         id: partial?.id ?? newId(),
-        name: DoubleNoteAffiliatedSymbolNameEnum.slur,
+        name: DoubleNoteAffiliatedSymbolNameEnum.Slur,
         startId,
         endId,
         data: {

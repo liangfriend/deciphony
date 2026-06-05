@@ -29,7 +29,7 @@ export function isSlurSelected(
   return (
     self != null
     && 'name' in self
-    && self.name === DoubleNoteAffiliatedSymbolNameEnum.slur
+    && self.name === DoubleNoteAffiliatedSymbolNameEnum.Slur
     && 'startId' in self
   )
 }
@@ -39,7 +39,7 @@ export function findSlurSymbol(
   slurId: string,
 ): DoubleNoteAffiliatedSymbol | null {
   const sym = musicScore.affiliatedSymbols.find((item) => item.id === slurId)
-  if (!sym || sym.name !== DoubleNoteAffiliatedSymbolNameEnum.slur) return null
+  if (!sym || sym.name !== DoubleNoteAffiliatedSymbolNameEnum.Slur) return null
   return sym
 }
 

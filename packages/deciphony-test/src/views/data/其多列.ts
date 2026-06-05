@@ -95,7 +95,7 @@ measure3.notes.push(noteSymbol33)
 // 复谱表1-单谱表1-小节2：前两个音符连音线（端点为 notesInfo.id）
 data.affiliatedSymbols.push({
   id: crypto.randomUUID(),
-  name: DoubleNoteAffiliatedSymbolNameEnum.slur,
+  name: DoubleNoteAffiliatedSymbolNameEnum.Slur,
   startId: noteSymbol32.notesInfo[0]!.id,
   endId: noteSymbol33.notesInfo[0]!.id,
   relativeX: 0,

@@ -187,7 +187,7 @@ export function findVoltaEndingAt(
 ): DoubleMeasureAffiliatedSymbol | undefined {
   return musicScore.affiliatedSymbols.find(
     (sym) =>
-      sym.name === DoubleMeasureAffiliatedSymbolNameEnum.volta
+      sym.name === DoubleMeasureAffiliatedSymbolNameEnum.Volta
       && sym.endId === measureId
       && sym.data?.volta,
   ) as DoubleMeasureAffiliatedSymbol | undefined

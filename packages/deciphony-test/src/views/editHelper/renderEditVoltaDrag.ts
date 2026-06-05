@@ -31,7 +31,7 @@ export function isVoltaSelected(
   return (
     self != null
     && 'name' in self
-    && self.name === DoubleMeasureAffiliatedSymbolNameEnum.volta
+    && self.name === DoubleMeasureAffiliatedSymbolNameEnum.Volta
     && 'startId' in self
   )
 }
@@ -41,7 +41,7 @@ export function findVoltaSymbol(
   voltaId: string,
 ): DoubleMeasureAffiliatedSymbol | null {
   const sym = musicScore.affiliatedSymbols.find((item) => item.id === voltaId)
-  if (!sym || sym.name !== DoubleMeasureAffiliatedSymbolNameEnum.volta) return null
+  if (!sym || sym.name !== DoubleMeasureAffiliatedSymbolNameEnum.Volta) return null
   return sym
 }
 

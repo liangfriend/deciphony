@@ -41,6 +41,7 @@ import {resolvePropertyPanelKind} from './renderEditPropertyPanel'
 import {slotDataFromVDom} from './renderEditSelection'
 import {
     applyMeasureAddAction,
+    findMeasureElement,
     findNoteHeadElement,
     isMeasureAddMode,
     isPointerInMeasureAddRange,
@@ -149,6 +150,11 @@ export function useRenderEdit(
     }
 
     function resolveMeasureElement(measureId: string): SVGElement | null {
+        const root = scoreRootRef.value
+        if (root) {
+            const fromDom = findMeasureElement(root, measureId)
+            if (fromDom) return fromDom
+        }
         const vdom = findMeasureVDom(vDomList.value, measureId)
         return vdom ? resolveSelectionElement(vdom) : null
     }
@@ -169,18 +175,18 @@ export function useRenderEdit(
     function syncRelatedHighlights(slot: SlotData | null | undefined) {
         clearRelatedHighlights()
         if (!slot) return
+        if (isVoltaSelected(slot)) {
+            for (const measureId of resolveVoltaMeasureIds(musicScore, slot.self)) {
+                const el = resolveMeasureElement(measureId)
+                if (el) addRelatedHighlight(el)
+            }
+            return
+        }
         if (isSlurSelected(slot)) {
             const {startId, endId} = slot.self
             const ids = startId === endId ? [startId] : [startId, endId]
             for (const id of ids) {
                 const el = resolveNoteHeadElement(id)
-                if (el) addRelatedHighlight(el)
-            }
-            return
-        }
-        if (isVoltaSelected(slot)) {
-            for (const measureId of resolveVoltaMeasureIds(musicScore, slot.self)) {
-                const el = resolveMeasureElement(measureId)
                 if (el) addRelatedHighlight(el)
             }
         }

@@ -18,7 +18,7 @@ export const SingleNoteAffiliatedSymbolRenderRule = {
 export const SingleMeasureAffiliatedSymbolRenderRule = {};
 /** 双音符附属：startId/endId 为 NotesInfo.id（五线谱）或 NotesNumberInfo.id（简谱），与 noteHead.targetId 一致 */
 export const DoubleNoteAffiliatedSymbolRenderRule = {
-    [DoubleNoteAffiliatedSymbolNameEnum.slur]: {
+    [DoubleNoteAffiliatedSymbolNameEnum.Slur]: {
         kind: 'slur',
         start: { vertical: 0, horizontal: 0 },
         end: { vertical: 0, horizontal: 0 },
@@ -33,7 +33,7 @@ export const DoubleNoteAffiliatedSymbolRenderRule = {
 };
 /** 双小节附属：锚定起止小节 */
 export const DoubleMeasureAffiliatedSymbolRenderRule = {
-    [DoubleMeasureAffiliatedSymbolNameEnum.volta]: {
+    [DoubleMeasureAffiliatedSymbolNameEnum.Volta]: {
         kind: 'volta',
         type: 'upper',
         span: 0,

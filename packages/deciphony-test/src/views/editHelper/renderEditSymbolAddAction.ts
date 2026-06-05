@@ -168,6 +168,12 @@ export function findMeasureVDom(vDomList: VDom[], measureId: string): VDom | und
     return vDomList.find((node) => node.tag === 'measure' && node.targetId === measureId)
 }
 
+/** 小节背景 DOM（Group 层 g，与 noteHead 查找方式一致） */
+export function findMeasureElement(root: ParentNode, measureId: string): SVGElement | null {
+    const el = root.querySelector(`[data-target-id="${measureId}"][data-tag="measure"]`)
+    return el instanceof SVGElement ? el : null
+}
+
 /** 按 svg 坐标命中 m 插槽（含上下 MEASURE_ADD_HOVER_RANGE 加音区） */
 export function resolveMeasureSlotAtPointer(
     vDomList: VDom[],

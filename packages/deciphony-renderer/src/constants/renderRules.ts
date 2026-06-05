@@ -73,7 +73,7 @@ export const SingleMeasureAffiliatedSymbolRenderRule: Partial<
 export const DoubleNoteAffiliatedSymbolRenderRule: Partial<
     Record<DoubleNoteAffiliatedSymbolNameEnum, DoubleNoteAffiliatedRule>
 > = {
-    [DoubleNoteAffiliatedSymbolNameEnum.slur]: {
+    [DoubleNoteAffiliatedSymbolNameEnum.Slur]: {
         kind: 'slur',
         start: {vertical: 0, horizontal: 0},
         end: {vertical: 0, horizontal: 0},
@@ -91,7 +91,7 @@ export const DoubleNoteAffiliatedSymbolRenderRule: Partial<
 export const DoubleMeasureAffiliatedSymbolRenderRule: Partial<
     Record<DoubleMeasureAffiliatedSymbolNameEnum, DoubleMeasureAffiliatedRule>
 > = {
-    [DoubleMeasureAffiliatedSymbolNameEnum.volta]: {
+    [DoubleMeasureAffiliatedSymbolNameEnum.Volta]: {
         kind: 'volta',
         type: 'upper',
         span: 0,

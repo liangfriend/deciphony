@@ -146,7 +146,7 @@ function applySlurTieRealDuration(
   noteStaveIndex: Map<string, number>,
 ): void {
   for (const sym of musicScore.affiliatedSymbols ?? []) {
-    if (sym.name !== DoubleNoteAffiliatedSymbolNameEnum.slur) continue
+    if (sym.name !== DoubleNoteAffiliatedSymbolNameEnum.Slur) continue
     if (!('startId' in sym) || !('endId' in sym)) continue
 
     if (!isSlurNotesInfoEndpoint(musicScore, sym.startId) || !isSlurNotesInfoEndpoint(musicScore, sym.endId)) {
@@ -619,7 +619,7 @@ function getVoltaList(
 ): VoltaInfo[] {
   return musicScoreData.affiliatedSymbols
   .flatMap(symbol => {
-    if (symbol.name !== DoubleMeasureAffiliatedSymbolNameEnum.volta || !('volta' in symbol.data) || !symbol.data.volta) {
+    if (symbol.name !== DoubleMeasureAffiliatedSymbolNameEnum.Volta || !('volta' in symbol.data) || !symbol.data.volta) {
       return []
     }
     const startIndex = measureIndexMap.get(symbol.startId)

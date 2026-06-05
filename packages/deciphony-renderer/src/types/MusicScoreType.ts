@@ -431,6 +431,8 @@ export type NotesNumberInfo = {
 
     accidental?: Accidental,
 
+    augmentationDot?: AugmentationDot,
+
     /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
 
     octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6

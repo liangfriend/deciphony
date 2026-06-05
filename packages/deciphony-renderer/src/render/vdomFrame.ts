@@ -136,6 +136,7 @@ function registerNotesNumberInfo(
     const frame = mergeFrames(...parents);
     registerFrame(map, info.id, frame);
     registerAccidental(map, info.accidental, frame);
+    registerAugmentationDot(map, info.augmentationDot, frame);
     for (const grace of info.graceNotes ?? []) {
         registerNotesNumberInfo(map, grace, frame);
     }
@@ -146,7 +147,10 @@ function registerNotesNumberInfo(
 
 function registerNoteNumber(map: Map<string, RelativeFrame>, note: NoteNumber): void {
     registerFrame(map, note.id, note);
-    registerAugmentationDot(map, note.augmentationDot, note);
+    const hasPerInfoAugDot = note.notesInfo.some((n) => n.augmentationDot);
+    if (note.augmentationDot && !hasPerInfoAugDot) {
+        registerAugmentationDot(map, note.augmentationDot, note);
+    }
     registerSingleNoteAffiliatedSymbols(map, note.affiliatedSymbols, note);
     for (const info of note.notesInfo) {
         registerNotesNumberInfo(map, info, note);

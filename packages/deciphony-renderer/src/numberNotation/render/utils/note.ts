@@ -51,8 +51,11 @@ function collectSubWidthRatio(
     if (n.accidental) {
       sub += pick(skin[getAccidentalSkinKey(n.accidental.type)], n.accidental.widthRatio);
     }
+    if (n.augmentationDot) {
+      sub += pick(skin[getAugmentationDotSkinKey(n.augmentationDot)], n.augmentationDot.widthRatio);
+    }
   }
-  if (note.augmentationDot) {
+  if (note.augmentationDot && !note.notesInfo.some((n) => n.augmentationDot)) {
     sub += pick(skin[getAugmentationDotSkinKey(note.augmentationDot)], note.augmentationDot.widthRatio);
   }
   return sub;

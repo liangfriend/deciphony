@@ -2,23 +2,34 @@
 import type {SlotData} from 'deciphony-renderer'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
+import NoteHeadPropertyPanel from './NoteHeadPropertyPanel.vue'
 
 defineProps<{
   kind: PropertyPanelKind
   selected: SlotData | null
 }>()
+
+const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
+  measure: '小节属性',
+  noteHead: '音符头属性',
+  volta: 'Volta 属性',
+}
 </script>
 
 <template>
   <aside v-if="kind && selected" class="property-panel">
     <header class="property-panel__header">
       <h3 class="property-panel__title">
-        {{ kind === 'measure' ? '小节属性' : '属性' }}
+        {{ panelTitle[kind] }}
       </h3>
     </header>
     <div class="property-panel__body">
       <MeasurePropertyPanel
         v-if="kind === 'measure' && selected.measure && selected.singleStaff"
+        :edit-slot="selected"
+      />
+      <NoteHeadPropertyPanel
+        v-else-if="kind === 'noteHead' && selected.info && selected.note && selected.measure"
         :edit-slot="selected"
       />
     </div>

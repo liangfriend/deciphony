@@ -388,7 +388,6 @@ export function useRenderEdit(
 
     function handleRenderMusicScore(list: VDom[]) {
         vDomList.value = list
-        console.log('chicken', list.filter(e => e.tag === 'addLine'))
         rebindSelectionAfterRender(list)
         refreshGhostFromLastPointer()
     }

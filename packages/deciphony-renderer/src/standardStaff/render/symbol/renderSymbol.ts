@@ -3,7 +3,6 @@
  */
 
 import {VDom} from "@/types/common";
-import type {AugmentationDot} from "@/types/MusicScoreType";
 import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
 import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
@@ -307,6 +306,29 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         };
         out.push(vdom);
         setNodeIdMap(idMap, rest.id, vdom);
+        if (rest.augmentationDot) {
+          const augSkinKey = getAugmentationDotSkinKey(rest.augmentationDot);
+          const augSkin = skin[augSkinKey];
+          if (augSkin) {
+            const augX = slotX + restItem.w + AUGMENTATION_DOT_GAP * measureHeight;
+            const augY = ny + restItem.h / 2 - augSkin.h / 2;
+            out.push({
+              startPoint: {x: 0, y: 0},
+              endPoint: {x: 0, y: 0},
+              special: {},
+              x: augX,
+              y: augY,
+              w: augSkin.w,
+              h: augSkin.h,
+              zIndex: z,
+              tag: 'accidental',
+              skinName: skinNameForNodes,
+              targetId: rest.augmentationDot.id,
+              skinKey: augSkinKey,
+              dataComment: '休止符附点',
+            });
+          }
+        }
         renderSingleNoteAffiliatedSymbols(rest.affiliatedSymbols ?? [], vdom, {
           VDoms: out,
           idMap,
@@ -437,34 +459,34 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       // 5) 后倚音
       renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
 
-      // 6) 附点：首个带附点的 NotesInfo 提供皮肤，每个音符头一个点
-      const noteAugmentationDot = allNotesInfo.find((n) => n.augmentationDot)?.augmentationDot;
-      if (noteAugmentationDot) {
-        const augSkinKey = getAugmentationDotSkinKey(noteAugmentationDot as AugmentationDot);
+      // 6) 附点：每个带附点的 NotesInfo 独立渲染（与变音号一致）
+      allNotesInfo.forEach((n) => {
+        if (!n.augmentationDot) return;
+        const headVDom = idMap.get(n.id)?.noteHead;
+        const noteHeadX = headVDom?.x ?? slotX;
+        const noteHeadW = headVDom?.w ?? (skin[getNoteHeadSkinKey(n.chronaxie)]?.w ?? 0);
+        const augSkinKey = getAugmentationDotSkinKey(n.augmentationDot);
         const augSkin = skin[augSkinKey];
-        if (augSkin) {
-          const augX = primaryHeadX + primaryHeadW + AUGMENTATION_DOT_GAP * measureHeight;
-          allNotesInfo.forEach((n) => {
-            let augY = noteCenterY(n.region) - augSkin.h / 2;
-            if (n.region % 2 === 0) augY -= measureHeight / 8;
-            out.push({
-              startPoint: {x: 0, y: 0},
-              endPoint: {x: 0, y: 0},
-              special: {},
-              x: augX,
-              y: augY,
-              w: augSkin.w,
-              h: augSkin.h,
-              zIndex: z,
-              tag: 'accidental',
-              skinName: skinNameForNodes,
-              targetId: noteAugmentationDot.id,
-              skinKey: augSkinKey,
-              dataComment: '附点符号',
-            });
-          });
-        }
-      }
+        if (!augSkin) return;
+        const augX = noteHeadX + noteHeadW + AUGMENTATION_DOT_GAP * measureHeight;
+        let augY = noteCenterY(n.region) - augSkin.h / 2;
+        if (n.region % 2 === 0) augY -= measureHeight / 8;
+        out.push({
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: augX,
+          y: augY,
+          w: augSkin.w,
+          h: augSkin.h,
+          zIndex: z,
+          tag: 'accidental',
+          skinName: skinNameForNodes,
+          targetId: n.augmentationDot.id,
+          skinKey: augSkinKey,
+          dataComment: '附点符号',
+        });
+      });
 
       /**
        * 7) 符干符尾：每个音符独立渲染，避免共用一条符干导致偏移的音符头不贴合。

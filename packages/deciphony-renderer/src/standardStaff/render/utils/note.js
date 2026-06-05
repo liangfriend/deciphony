@@ -1,0 +1,158 @@
+import { resolveWidthRatio } from "@/utils/widthRatio";
+import { CLEF_NOTE_GAP_RATIO } from "../constants";
+import { getAccidentalSkinKey, getAugmentationDotSkinKey, getBarlineSkinKey, getClefSkinKey, getKeySignatureSkinKey, getNoteHeadSkinKey, getRestSkinKey, getTimeSignatureSkinKey, } from "./skinKey";
+import { StandardStaffSkinKeyEnum } from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import { graceAfterWidth, graceBeforeWidth, } from "@/standardStaff/render/grace/renderGraceStaff";
+import { isNoteRest, isNoteSymbol } from "./staffSlot";
+/** 按符干方向分组：同方向多条 notesInfo 视为和弦 */
+export function getVoiceGroups(note) {
+    if (note.notesInfo.length === 0)
+        return [];
+    const map = new Map();
+    for (const ni of note.notesInfo) {
+        const list = map.get(ni.direction) ?? [];
+        list.push(ni);
+        map.set(ni.direction, list);
+    }
+    return ['up', 'down']
+        .filter((d) => map.has(d))
+        .map((direction) => {
+        const entries = map.get(direction);
+        return {
+            direction,
+            notesInfo: entries,
+            chronaxie: entries[0].chronaxie,
+            beamType: entries[0].beamType,
+        };
+    });
+}
+export function getVoiceGroupForDirection(note, direction) {
+    return getVoiceGroups(note).find((g) => g.direction === direction);
+}
+export function getRestChronaxie(rest) {
+    return rest.chronaxie;
+}
+/** 音符 / 休止符位的时值（用于宽度与皮肤） */
+export function getSlotChronaxie(slot) {
+    if (isNoteRest(slot))
+        return slot.chronaxie;
+    let max = 64;
+    for (const ni of slot.notesInfo) {
+        if (ni.chronaxie > max)
+            max = ni.chronaxie;
+    }
+    return max;
+}
+export function isSlotRest(slot) {
+    return isNoteRest(slot);
+}
+export function getSlotRestChronaxie(slot) {
+    if (isNoteRest(slot))
+        return slot.chronaxie;
+    return getSlotChronaxie(slot);
+}
+/** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
+export function getChronaxieWidthCoefficient(chronaxie) {
+    if (chronaxie === 256)
+        return 1.5;
+    if (chronaxie === 128)
+        return 1.3;
+    if (chronaxie === 64)
+        return 1;
+    if (chronaxie === 32)
+        return 0.8;
+    if (chronaxie === 16)
+        return 0.7;
+    if (chronaxie === 8)
+        return 0.6;
+    if (chronaxie === 4)
+        return 0.55;
+    if (chronaxie === 2)
+        return 0.5;
+    if (chronaxie === 1)
+        return 0.45;
+    return 1;
+}
+function graceWidthRatioForNote(note, skin, measureHeight) {
+    const before = graceBeforeWidth(note.graceNotes, skin, measureHeight);
+    const after = graceAfterWidth(note.graceNotesAfter, skin, measureHeight);
+    return (before + after) / measureHeight * 4;
+}
+function collectSlotSubWidthRatio(slot, skin, pick, measureHeight = 45) {
+    let sub = 0;
+    if (slot.clef) {
+        sub += pick(skin[getClefSkinKey(slot.clef.type, false)], slot.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
+    }
+    if (isNoteSymbol(slot)) {
+        sub += graceWidthRatioForNote(slot, skin, measureHeight);
+        for (const ni of slot.notesInfo) {
+            if (ni.accidental) {
+                sub += pick(skin[getAccidentalSkinKey(ni.accidental.type)], ni.accidental.widthRatio);
+            }
+            if (ni.augmentationDot) {
+                sub += pick(skin[getAugmentationDotSkinKey(ni.augmentationDot)], ni.augmentationDot.widthRatio);
+            }
+        }
+    }
+    else if (slot.augmentationDot) {
+        sub += pick(skin[getAugmentationDotSkinKey(slot.augmentationDot)], slot.augmentationDot.widthRatio);
+    }
+    return sub;
+}
+/** 音符 / 休止符在小节内的宽度占比 */
+export function getNoteWidthRatio(slot, skin, measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45) {
+    const slotChronaxie = getSlotChronaxie(slot);
+    const isRest = isNoteRest(slot);
+    const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
+    const slotW = resolveWidthRatio(slot.widthRatio, skin[slotSkinKey]?.widthRatio);
+    const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
+    const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), measureHeight);
+    return base + sub;
+}
+/** 音符 / 休止符对小节在单谱表内宽度占比的系数 */
+export function getNoteWidthRatioForMeasure(slot, skin, measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45) {
+    const slotChronaxie = getSlotChronaxie(slot);
+    const isRest = isNoteRest(slot);
+    const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
+    // 音符带widthRatio优先用音符的，否则用皮肤包的
+    const slotW = resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
+    const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
+    const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure), measureHeight);
+    return base + sub;
+}
+/** 小节的宽度系数（五线谱：仅统计 StaffSlot） */
+export function getMeasureWidthRatio(measure, skin) {
+    let acc = 0;
+    acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[StandardStaffSkinKeyEnum.Measure]?.widthRatioForMeasure);
+    for (let i = 0; i < measure.notes.length; i++) {
+        const slot = measure.notes[i];
+        if (isNoteSymbol(slot) || isNoteRest(slot)) {
+            acc += getNoteWidthRatioForMeasure(slot, skin);
+        }
+    }
+    if (measure.barline_f) {
+        acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.type)]?.widthRatioForMeasure);
+    }
+    if (measure.barline_b) {
+        acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.type)]?.widthRatioForMeasure);
+    }
+    if (measure.clef_f) {
+        acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.type, true)]?.widthRatioForMeasure);
+    }
+    if (measure.clef_b) {
+        acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.type, false)]?.widthRatioForMeasure);
+    }
+    if (measure.keySignature_f) {
+        acc += resolveWidthRatio(measure.keySignature_f.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure);
+    }
+    if (measure.keySignature_b) {
+        acc += resolveWidthRatio(measure.keySignature_b.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_b.type)]?.widthRatioForMeasure);
+    }
+    if (measure.timeSignature_f) {
+        acc += resolveWidthRatio(measure.timeSignature_f.widthRatioForMeasure, skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)]?.widthRatioForMeasure);
+    }
+    if (measure.timeSignature_b) {
+        acc += resolveWidthRatio(measure.timeSignature_b.widthRatioForMeasure, skin[getTimeSignatureSkinKey(measure.timeSignature_b.type)]?.widthRatioForMeasure);
+    }
+    return acc;
+}

@@ -9,6 +9,7 @@ import Slur from './slur.vue';
 import Volta from './volta.vue';
 import Beam from './beam.vue';
 import { resolveVDomFromEvent } from '@/render/resolveVDomFromEvent';
+import { findElementByVdomDomId, vdomDomId, vdomSelectionKey } from '@/render/vdomDomId';
 const AFFILIATION_TAGS = new Set(['slot', 'affiliation', 'beam', 'noteBeam']);
 const props = defineProps();
 // 测试：更改谱子类型
@@ -28,7 +29,12 @@ const effectiveSkinName = computed(() => {
 const skinPackForLayout = computed(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin);
 const emit = defineEmits();
 const vDom = ref([]);
+const svgRef = ref(null);
 const topHoverVDom = ref(null);
+function findElementByVDom(node) {
+    const root = svgRef.value;
+    return root ? findElementByVdomDomId(root, node) : null;
+}
 function onDrClick(event, node) {
     emit('dr-click', event, node);
 }
@@ -100,7 +106,12 @@ watch([data, () => props.slotConfig, skinPackForLayout, effectiveSkinName], ([d,
 function updateVDomHandler(updater) {
     vDom.value = applyVDomUpdate(vDom.value, updater);
 }
-const __VLS_exposed = { updateVDom: updateVDomHandler };
+const __VLS_exposed = {
+    updateVDom: updateVDomHandler,
+    vdomDomId,
+    vdomSelectionKey,
+    findElementByVDom,
+};
 defineExpose(__VLS_exposed);
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
@@ -121,9 +132,11 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.svg, __VLS_intrinsicElements.s
     ...{ style: ({ touchAction: 'none' }) },
     preserveAspectRatio: "none",
     xmlns: "http://www.w3.org/2000/svg",
+    ref: "svgRef",
 });
-for (const [node] of __VLS_getVForSourceType((__VLS_ctx.vDom))) {
-    (`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`);
+/** @type {typeof __VLS_ctx.svgRef} */ ;
+for (const [node, domIndex] of __VLS_getVForSourceType((__VLS_ctx.vDom))) {
+    (__VLS_ctx.vdomDomId(node, domIndex));
     if (!__VLS_ctx.AFFILIATION_TAGS.has(node.tag)) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.g, __VLS_intrinsicElements.g)({
             ...{ onClick: (...[$event]) => {
@@ -156,6 +169,7 @@ for (const [node] of __VLS_getVForSourceType((__VLS_ctx.vDom))) {
                         return;
                     __VLS_ctx.onDrUp($event, node);
                 } },
+            id: (__VLS_ctx.vdomDomId(node, domIndex)),
         });
         /** @type {[typeof Group, ]} */ ;
         // @ts-ignore
@@ -214,6 +228,7 @@ for (const [node] of __VLS_getVForSourceType((__VLS_ctx.vDom))) {
                         return;
                     __VLS_ctx.onDrUp($event, node);
                 } },
+            id: (__VLS_ctx.vdomDomId(node, domIndex)),
             'data-comment': (node.dataComment),
             'data-slot-name': (node.slotName ?? ''),
             'data-target-id': (node.targetId),
@@ -281,10 +296,12 @@ const __VLS_self = (await import('vue')).defineComponent({
             Slur: Slur,
             Volta: Volta,
             Beam: Beam,
+            vdomDomId: vdomDomId,
             AFFILIATION_TAGS: AFFILIATION_TAGS,
             data: data,
             skin: skin,
             vDom: vDom,
+            svgRef: svgRef,
             onDrClick: onDrClick,
             onDrDown: onDrDown,
             onDrUp: onDrUp,

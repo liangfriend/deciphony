@@ -6,7 +6,7 @@ export type RelativeFrame = Pick<Frame, 'relativeX' | 'relativeY' | 'relativeW' 
  *
  * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
  * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链；
- *   上下加线（vDom addLine，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
+ *   上下加线（vDom addLine_u / addLine_g，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
  *   apply 时仅 relativeX（Y 随小节 region 布局，X 随音符头）
  * - NoteRest：自身 → 附点、单音附属、谱号
  * - NoteNumber（简谱）：自身 → 各 NotesNumberInfo → 变音号、倚音链

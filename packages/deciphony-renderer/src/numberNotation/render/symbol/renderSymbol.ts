@@ -4,8 +4,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {AugmentationDot} from "@/types/MusicScoreType";
-import {NoteNumber} from "@/types/MusicScoreType";
+import type {NoteNumber} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {
@@ -302,6 +301,29 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         };
         out.push(vdom);
         setNodeIdMap(idMap, note.id, vdom);
+        if (note.augmentationDot) {
+          const augSkinKey = getAugmentationDotSkinKey(note.augmentationDot);
+          const augSkin = skin[augSkinKey];
+          if (augSkin) {
+            const augX = slotX + num0Item.w + AUGMENTATION_DOT_X_GAP * measureHeight;
+            const augY = ny + num0Item.h / 2 + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
+            out.push({
+              startPoint: {x: 0, y: 0},
+              endPoint: {x: 0, y: 0},
+              special: {},
+              x: augX,
+              y: augY,
+              w: augSkin.w,
+              h: augSkin.h,
+              zIndex: z,
+              tag: 'accidental',
+              skinName: skinNameForNodes,
+              targetId: note.augmentationDot.id,
+              skinKey: augSkinKey,
+              dataComment: '休止符附点',
+            });
+          }
+        }
         // 休止符加时线：二分1条、全音符3条
         const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
@@ -354,6 +376,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         for (const gn of allNotes) {
           renderGraceNotesNumberBefore(gn.graceNotes, note, headX, graceCtx);
         }
+        const legacySlotAugDot = allNotes.some((ni) => ni.augmentationDot) ? undefined : note.augmentationDot;
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
@@ -383,6 +406,31 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 targetId: n.accidental.id ?? n.id,
                 skinKey: accSkinKey,
                 dataComment: '变音符号',
+              });
+            }
+          }
+
+          const augDot = n.augmentationDot ?? (stackIdx === 0 ? legacySlotAugDot : undefined);
+          if (augDot) {
+            const augSkinKey = getAugmentationDotSkinKey(augDot);
+            const augSkin = skin[augSkinKey];
+            if (augSkin) {
+              const augX = noteHeadX + noteHeadW + AUGMENTATION_DOT_X_GAP * measureHeight;
+              const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
+              out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: augX,
+                y: augY,
+                w: augSkin.w,
+                h: augSkin.h,
+                zIndex: z,
+                tag: 'accidental',
+                skinName: skinNameForNodes,
+                targetId: augDot.id,
+                skinKey: augSkinKey,
+                dataComment: '附点',
               });
             }
           }
@@ -467,39 +515,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               });
             }
           }
-        }
-      }
-
-      if (note.augmentationDot) {
-        const augSkinKey = getAugmentationDotSkinKey(note.augmentationDot as AugmentationDot);
-        const augSkin = skin[augSkinKey];
-        const numItem = skin[NumberNotationSkinKeyEnum.Number_1];
-        if (augSkin && numItem) {
-          const augHeadX = idMap.get(allNotes[0]?.id)?.noteHead?.x ?? slotX;
-          const augX = augHeadX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
-          allNotes.forEach((n, stackIdx) => {
-            if (n.syllable === 0 || n.syllable === 'X') return;
-            const numKey = getSyllableSkinKey(n.syllable);
-            const numItemN = skin[numKey];
-            if (!numItemN) return;
-            const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItemN.h, octaveDotYOffsets[stackIdx]);
-            const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
-            out.push({
-              startPoint: {x: 0, y: 0},
-              endPoint: {x: 0, y: 0},
-              special: {},
-              x: augX,
-              y: augY,
-              w: augSkin.w,
-              h: augSkin.h,
-              zIndex: z,
-              tag: 'accidental',
-              skinName: skinNameForNodes,
-              targetId: note.augmentationDot!.id,
-              skinKey: augSkinKey,
-              dataComment: '附点',
-            });
-          });
         }
       }
 

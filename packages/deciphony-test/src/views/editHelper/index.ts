@@ -63,6 +63,7 @@ export {
   insertMeasureAfter,
   insertMeasureBefore,
 } from './renderEditMeasureProperties'
+export {SLUR_SPAN_OPTIONS, tryAddSlurFromNoteHead, type SlurSpan} from './renderEditSlurAdd'
 export {useRenderEdit} from './useRenderEdit'
 
 export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'

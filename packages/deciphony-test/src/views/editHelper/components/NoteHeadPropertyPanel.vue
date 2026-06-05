@@ -13,6 +13,7 @@ import {
   setNotesInfoChronaxie,
   type NoteHeadEditSlot,
 } from '../renderEditNoteHeadProperties'
+import {SLUR_SPAN_OPTIONS, tryAddSlurFromNoteHead, type SlurSpan} from '../renderEditSlurAdd'
 
 const props = defineProps<{
   editSlot: NoteHeadEditSlot
@@ -40,6 +41,10 @@ const augmentationDot = computed({
   get: (): 0 | 1 | 2 | 3 => notesInfo.value.augmentationDot?.count ?? 0,
   set: (v: 0 | 1 | 2 | 3) => setNotesInfoAugmentationDot(notesInfo.value, v),
 })
+
+function onAddSlur(span: SlurSpan) {
+  tryAddSlurFromNoteHead(props.editSlot, span)
+}
 </script>
 
 <template>
@@ -98,6 +103,20 @@ const augmentationDot = computed({
         </el-radio-button>
       </el-radio-group>
     </section>
+
+    <section class="note-head-props__section">
+      <div class="note-head-props__label">连音线</div>
+      <div class="note-head-props__row">
+        <el-button
+          v-for="span in SLUR_SPAN_OPTIONS"
+          :key="span"
+          size="small"
+          @click="onAddSlur(span)"
+        >
+          {{ span }}
+        </el-button>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -120,5 +139,10 @@ const augmentationDot = computed({
 
 .note-head-props__select {
   width: 100%;
+}
+
+.note-head-props__row {
+  display: flex;
+  gap: 8px;
 }
 </style>

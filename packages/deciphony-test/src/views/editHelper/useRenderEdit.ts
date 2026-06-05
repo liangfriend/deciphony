@@ -35,7 +35,7 @@ import {
     type VoltaDragSession,
     type VoltaHandleKind,
 } from './renderEditVoltaDrag'
-import {removeVolta} from './renderEditMeasureProperties'
+import {deleteSelectedItem} from './renderEditDelete'
 import {resolveInteractionTarget, resolveSvgFromEvent} from './renderEditPointer'
 import {resolvePropertyPanelKind} from './renderEditPropertyPanel'
 import {slotDataFromVDom} from './renderEditSelection'
@@ -447,12 +447,10 @@ export function useRenderEdit(
 
     function deleteSelected(): boolean {
         const selected = selectedItem.value
-        if (isVoltaSelected(selected)) {
-            removeVolta(musicScore, selected.self.id)
-            clearSelection()
-            return true
-        }
-        return false
+        if (!selected) return false
+        if (!deleteSelectedItem(musicScore, selected)) return false
+        clearSelection()
+        return true
     }
 
     function tryMeasureAddAtEvent(event: PointerEvent) {

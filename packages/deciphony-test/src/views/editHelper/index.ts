@@ -49,6 +49,7 @@ export {
   updateNoteHeadDragFromPointer,
   type NoteHeadDragSession,
 } from './renderEditNoteHeadDrag'
+export {deleteSelectedItem, isRestSelected} from './renderEditDelete'
 export {resolvePropertyPanelKind, type PropertyPanelKind} from './renderEditPropertyPanel'
 export {
   ADD_NOTE_KIND_OPTIONS,

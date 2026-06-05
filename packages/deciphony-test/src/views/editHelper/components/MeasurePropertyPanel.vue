@@ -3,11 +3,10 @@ import type {Measure, SlotData} from 'deciphony-renderer'
 import {BarlineTypeEnum} from 'deciphony-renderer'
 import {computed, ref, watch} from 'vue'
 import {
-  addVoltaEndingAtMeasure,
   BARLINE_OPTIONS,
   CLEF_OPTIONS,
   END_REPEAT_OPTIONS,
-  findVoltaEndingAt,
+  findVoltaAtMeasure,
   formatVoltaValue,
   insertMeasureAfter,
   insertMeasureBefore,
@@ -25,6 +24,7 @@ import {
   TIME_SIGNATURE_OPTIONS,
   type MeasureEditSlot,
 } from '../renderEditMeasureProperties'
+import {VOLTA_SPAN_OPTIONS, tryAddVoltaFromMeasure, type VoltaSpan} from '../renderEditVoltaAdd'
 
 const props = defineProps<{
   editSlot: SlotData
@@ -69,7 +69,7 @@ const endRepeat = computed({
   set: (v) => setMeasureEndRepeat(measure.value, v === '' ? null : v),
 })
 
-const voltaAtMeasure = computed(() => findVoltaEndingAt(musicScore.value, measure.value.id))
+const voltaAtMeasure = computed(() => findVoltaAtMeasure(musicScore.value, measure.value.id))
 const voltaText = ref('')
 const voltaValueText = ref('')
 
@@ -90,10 +90,12 @@ function onInsertAfter() {
   insertMeasureAfter(measureEditSlot.value)
 }
 
-function onAddVolta() {
-  const volta = addVoltaEndingAtMeasure(musicScore.value, measure.value)
-  voltaText.value = volta.data.volta?.text ?? '1.'
-  voltaValueText.value = formatVoltaValue(volta.data.volta?.value ?? [0])
+function onAddVolta(span: VoltaSpan) {
+  if (!tryAddVoltaFromMeasure(measureEditSlot.value, span)) return
+  const volta = findVoltaAtMeasure(musicScore.value, measure.value.id)
+  if (!volta?.data?.volta) return
+  voltaText.value = volta.data.volta.text
+  voltaValueText.value = formatVoltaValue(volta.data.volta.value)
 }
 
 function onRemoveVolta() {
@@ -232,9 +234,16 @@ function onVoltaValueInput() {
           移除 Volta
         </el-button>
       </template>
-      <el-button v-else class="measure-props__btn-block" size="small" type="primary" @click="onAddVolta">
-        添加 Volta
-      </el-button>
+      <div v-else class="measure-props__row">
+        <el-button
+          v-for="span in VOLTA_SPAN_OPTIONS"
+          :key="span"
+          size="small"
+          @click="onAddVolta(span)"
+        >
+          {{ span }}
+        </el-button>
+      </div>
     </section>
   </div>
 </template>

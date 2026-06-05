@@ -58,9 +58,9 @@ export {
   type AddNoteSlotKind,
   type AddNoteState,
 } from './renderEditAddNoteState'
+export {findVoltaAtMeasure, findVoltaAtMeasure as findVoltaEndingAt} from './renderEditVoltaAdd'
+export {VOLTA_SPAN_OPTIONS, tryAddVoltaFromMeasure, type VoltaSpan} from './renderEditVoltaAdd'
 export {
-  addVoltaEndingAtMeasure,
-  findVoltaEndingAt,
   insertMeasureAfter,
   insertMeasureBefore,
 } from './renderEditMeasureProperties'

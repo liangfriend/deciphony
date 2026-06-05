@@ -1,5 +1,4 @@
 import type {
-  DoubleMeasureAffiliatedSymbol,
   Measure,
   MusicScore,
   SingleStaff,
@@ -8,7 +7,6 @@ import type {
 import {
   BarlineTypeEnum,
   ClefTypeEnum,
-  DoubleMeasureAffiliatedSymbolNameEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
@@ -22,7 +20,6 @@ import {
   createMeasureEndRepeat,
   createMeasureStartRepeat,
   createTimeSignature,
-  createVolta,
 } from '../dr-extensions/dr-edit/score-builder'
 
 export type MeasureEditSlot = SlotData & {measure: Measure; singleStaff: SingleStaff}
@@ -180,31 +177,8 @@ export function setMeasureEndRepeat(measure: Measure, type: MeasureEndRepeatEnum
   }
 }
 
-/** 以当前小节为终点查找 volta（endId 匹配） */
-export function findVoltaEndingAt(
-  musicScore: MusicScore,
-  measureId: string,
-): DoubleMeasureAffiliatedSymbol | undefined {
-  return musicScore.affiliatedSymbols.find(
-    (sym) =>
-      sym.name === DoubleMeasureAffiliatedSymbolNameEnum.Volta
-      && sym.endId === measureId
-      && sym.data?.volta,
-  ) as DoubleMeasureAffiliatedSymbol | undefined
-}
-
-export function addVoltaEndingAtMeasure(musicScore: MusicScore, measure: Measure): DoubleMeasureAffiliatedSymbol {
-  const existing = findVoltaEndingAt(musicScore, measure.id)
-  if (existing) return existing
-  const volta = createVolta({
-    startId: measure.id,
-    endId: measure.id,
-    text: '1.',
-    value: [0],
-  })
-  musicScore.affiliatedSymbols.push(volta)
-  return volta
-}
+/** @deprecated 使用 findVoltaAtMeasure；保留别名兼容旧引用 */
+export {findVoltaAtMeasure, findVoltaAtMeasure as findVoltaEndingAt} from './renderEditVoltaAdd'
 
 export function removeVolta(musicScore: MusicScore, voltaId: string): void {
   const idx = musicScore.affiliatedSymbols.findIndex((sym) => sym.id === voltaId)

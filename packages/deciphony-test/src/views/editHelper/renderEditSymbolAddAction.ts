@@ -75,8 +75,9 @@ export function isMeasureAddMode(selected: SlotData | null): selected is SlotDat
     return selected?.measure != null && selected.self === selected.measure
 }
 
+/** region > 4 符干向下，region ≤ 4 符干向上 */
 export function defaultDirection(region: number): 'up' | 'down' {
-    return region >= 2 ? 'up' : 'down'
+    return region > 4 ? 'down' : 'up'
 }
 
 export function yFromRegion(region: number): number {

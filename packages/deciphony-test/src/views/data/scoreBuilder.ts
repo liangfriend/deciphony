@@ -216,7 +216,7 @@ export function isNoteNumber(note: StaffSlot | NoteNumber): note is NoteNumber {
 }
 
 function defaultDirection(region: number): 'up' | 'down' {
-  return region >= 2 ? 'up' : 'down';
+  return region > 4 ?'down' : 'up';
 }
 
 // —— 工厂（可单独用于 measure 字段赋值） ——

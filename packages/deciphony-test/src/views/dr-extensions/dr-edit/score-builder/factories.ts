@@ -48,7 +48,7 @@ import type {
 } from './types';
 
 function defaultDirection(region: number): 'up' | 'down' {
-    return region >= 2 ? 'up' : 'down';
+  return region > 4 ? 'up' : 'down';
 }
 
 function resolveAccidental(

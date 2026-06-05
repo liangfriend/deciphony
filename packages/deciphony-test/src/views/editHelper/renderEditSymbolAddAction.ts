@@ -40,6 +40,8 @@ const CHRONAXIE_TO_SVG_KEY: Record<Chronaxie, keyof typeof noteSymbolSvg.up> = {
     1: 256,
 }
 
+export type MeasureBounds = { x: number; y: number; w: number; h: number }
+
 export type SnapPoint =
     | { kind: 'insert'; x: number; insertIndex: number }
     | { kind: 'onNote'; x: number; noteIndex: number }
@@ -81,9 +83,28 @@ export function yFromRegion(region: number): number {
     return BASE_OFFSET + (7 - region) * PER_REGION_HEIGHT
 }
 
+/** 与 renderer noteCenterY 同网格；不限制在 0–7，支持加线区 region */
 export function regionFromRelativeY(relativeY: number): number {
     const raw = 7 - (relativeY - BASE_OFFSET) / PER_REGION_HEIGHT
-    return Math.max(0, Math.min(7, Math.round(raw)))
+    return Math.round(raw)
+}
+
+export function relativeYFromSvgY(svgY: number, bounds: MeasureBounds): number {
+    return svgY - bounds.y - PER_REGION_HEIGHT / 2
+}
+
+export function regionFromSvgY(svgY: number, bounds: MeasureBounds): number {
+    return regionFromRelativeY(relativeYFromSvgY(svgY, bounds))
+}
+
+/** 修改 notesInfo.region；同和弦已有相同 region 时不改 */
+export function setNotesInfoRegion(note: NoteSymbol, info: NotesInfo, region: number): boolean {
+    if (info.region === region) return false
+    const conflict = note.notesInfo.some((ni) => ni !== info && ni.region === region)
+    if (conflict) return false
+    info.region = region
+    info.direction = defaultDirection(region)
+    return true
 }
 
 export function noteHeadWidth(chronaxie: Chronaxie): number {
@@ -183,20 +204,87 @@ export function nearestSnapPoint(relativeX: number, snapPoints: SnapPoint[]): Sn
     return best
 }
 
+export function findMeasureSlotElement(root: ParentNode, measureId: string): SVGGraphicsElement | null {
+    const el = root.querySelector(`[data-target-id="m-${measureId}"]`)
+    return el instanceof SVGGraphicsElement ? el : null
+}
+
+/**
+ * getBBox 是元素**局部**坐标；乘 getCTM 得到根 svg **用户坐标系**（viewBox 单位，与 vDom.x/y 同一套）。
+ * 只用 svg 内部变换链，不涉及屏幕/CSS。
+ */
+export function getGraphicsBoundsInSvg(el: SVGGraphicsElement): MeasureBounds {
+    const bbox = el.getBBox()
+    const ctm = el.getCTM()
+    const toUser = (localX: number, localY: number) => {
+        if (!ctm) return {x: localX, y: localY}
+        const p = new DOMPoint(localX, localY).matrixTransform(ctm)
+        return {x: p.x, y: p.y}
+    }
+    const corners = [
+        toUser(bbox.x, bbox.y),
+        toUser(bbox.x + bbox.width, bbox.y),
+        toUser(bbox.x, bbox.y + bbox.height),
+        toUser(bbox.x + bbox.width, bbox.y + bbox.height),
+    ]
+    const xs = corners.map((c) => c.x)
+    const ys = corners.map((c) => c.y)
+    const minX = Math.min(...xs)
+    const maxX = Math.max(...xs)
+    const minY = Math.min(...ys)
+    const maxY = Math.max(...ys)
+    return {x: minX, y: minY, w: maxX - minX, h: maxY - minY}
+}
+
+export function measureBoundsFromVDom(vDomList: VDom[], measureId: string): MeasureBounds | null {
+    const measureNode = findMeasureSlotVDom(vDomList, measureId)
+    if (!measureNode) return null
+    return {x: measureNode.x, y: measureNode.y, w: measureNode.w, h: measureNode.h}
+}
+
+/**
+ * 小节在谱面上的范围。优先用选中 g 的 getBBox（局部→getCTM→用户坐标）；
+ * 与 vDom 布局一致时二者等价，DOM 不可用时回退 vDom。
+ */
+export function resolveMeasureBounds(
+    root: ParentNode,
+    measureId: string,
+    vDomList: VDom[],
+    preferredEl?: Element | null,
+): MeasureBounds | null {
+    const candidates: (SVGGraphicsElement | null | undefined)[] = [
+        preferredEl instanceof SVGGraphicsElement ? preferredEl : null,
+        findMeasureSlotElement(root, measureId),
+    ]
+    for (const el of candidates) {
+        if (!el) continue
+        try {
+            return getGraphicsBoundsInSvg(el)
+        } catch {
+            /* 未挂载时回退 vDom */
+        }
+    }
+    return measureBoundsFromVDom(vDomList, measureId)
+}
+
 export function isPointerInMeasureAddRange(
     svgX: number,
     svgY: number,
-    measureNode: VDom,
+    bounds: MeasureBounds,
     hoverRange = MEASURE_ADD_HOVER_RANGE,
 ): boolean {
     return (
-        svgX >= measureNode.x
-        && svgX <= measureNode.x + measureNode.w
-        && svgY >= measureNode.y - hoverRange
-        && svgY <= measureNode.y + measureNode.h + hoverRange
+        svgX >= bounds.x
+        && svgX <= bounds.x + bounds.w
+        && svgY >= bounds.y - hoverRange
+        && svgY <= bounds.y + bounds.h + hoverRange
     )
 }
 
+/**
+ * 指针事件的 clientX/Y 是浏览器视口像素，不是谱面坐标。
+ * 经逆 CTM 映射到 svg 用户坐标系（viewBox，与 vDom 相同）；滚动/缩放会更新 CTM，映射结果仍对准鼠标下的谱面点。
+ */
 export function pointerToSvg(svg: SVGSVGElement, clientX: number, clientY: number): { x: number; y: number } {
     const pt = svg.createSVGPoint()
     pt.x = clientX
@@ -233,25 +321,25 @@ export type ResolveGhostNoteParams = {
     vDomList: VDom[]
     svgX: number
     svgY: number
+    measureBounds: MeasureBounds
     chronaxie?: Chronaxie
 }
 
-/** 根据指针位置计算占位音符；不在标定范围时返回 null */
+/** 根据指针位置计算占位音符；不在小节标定范围时返回 null */
 export function resolveGhostNotePreview(params: ResolveGhostNoteParams): GhostNotePreview | null {
-    const {selected, vDomList, svgX, svgY, chronaxie = 64} = params
+    const {selected, vDomList, svgX, svgY, measureBounds, chronaxie = 64} = params
     if (!isMeasureAddMode(selected)) return null
 
     const measure = selected.measure
     const measureNode = findMeasureSlotVDom(vDomList, measure.id)
-    if (!measureNode || !isPointerInMeasureAddRange(svgX, svgY, measureNode)) {
+    if (!measureNode || !isPointerInMeasureAddRange(svgX, svgY, measureBounds)) {
         return null
     }
     const relativeX = svgX - measureNode.x
-    const relativeY = svgY - measureNode.y - PER_REGION_HEIGHT / 2
     const anchors = collectSlotAnchors(vDomList, measure, measureNode.x)
     const snapPoints = computeSnapPoints(measureNode.w, anchors)
     const snap = nearestSnapPoint(relativeX, snapPoints)
-    const region = regionFromRelativeY(relativeY)
+    const region = regionFromSvgY(svgY, measureBounds)
     const direction = defaultDirection(region)
     let effectiveChronaxie = chronaxie
     if (snap.kind === 'onNote') {

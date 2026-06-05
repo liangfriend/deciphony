@@ -1,7 +1,7 @@
 /**
- * renderEditTest 插槽按钮专用：复谱表/单谱表/小节的默认小节数策略仅在此实现，不污染 dr-edit。
+ * 插槽按钮 → dr-edit 的桥接：默认小节数等产品策略放 editHelper，不污染 dr-edit 底层 API。
  */
-import type {GrandStaff, SingleStaff, SlotData} from '@/index';
+import type {GrandStaff, SingleStaff, SlotData} from 'deciphony-renderer'
 import {
     addGrandStaff,
     addMeasure,

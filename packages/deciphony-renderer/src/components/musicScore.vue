@@ -1,7 +1,13 @@
 <template>
   <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
        :style="{touchAction:'none'}"
-       preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+       preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+       @click="onTopClick"
+       @pointerdown="onTopDown"
+       @pointerenter="onTopSvgEnter"
+       @pointerleave="onTopSvgLeave"
+       @pointermove="onTopMove"
+       @pointerup="onTopUp">
     <template v-for="node in vDom"
               :key="`${node.targetId ?? ''}-${node.tag}-${node.skinKey ?? ''}-${node.skinName ?? 'default'}`">
       <g
@@ -51,6 +57,7 @@ import Group from './group.vue'
 import Slur from './slur.vue'
 import Volta from './volta.vue'
 import Beam from './beam.vue'
+import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import type {MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, VDom} from '@/types/common'
 
@@ -93,8 +100,16 @@ const emit = defineEmits<{
   'dr-move': [event: PointerEvent, vDom: VDom]
   'dr-enter': [event: PointerEvent, vDom: VDom]
   'dr-leave': [event: PointerEvent, vDom: VDom]
+  /** 绑定在顶层 svg：命中解析为 vDom，空白区域 vDom 为 null */
+  'top-click': [event: MouseEvent, vDom: VDom | null]
+  'top-down': [event: PointerEvent, vDom: VDom | null]
+  'top-up': [event: PointerEvent, vDom: VDom | null]
+  'top-move': [event: PointerEvent, vDom: VDom | null]
+  'top-enter': [event: PointerEvent, vDom: VDom]
+  'top-leave': [event: PointerEvent, vDom: VDom]
 }>()
 const vDom = ref<VDom[]>([])
+const topHoverVDom = ref<VDom | null>(null)
 
 function onDrClick(event: MouseEvent, node: VDom) {
   emit('dr-click', event, node)
@@ -118,6 +133,47 @@ function onDrEnter(event: PointerEvent, node: VDom) {
 
 function onDrLeave(event: PointerEvent, node: VDom) {
   emit('dr-leave', event, node)
+}
+
+function resolveTopVDom(event: Event): VDom | null {
+  return resolveVDomFromEvent(event, vDom.value)
+}
+
+function syncTopHover(event: PointerEvent) {
+  const node = resolveTopVDom(event)
+  const prev = topHoverVDom.value
+  if (prev === node) return
+  if (prev) emit('top-leave', event, prev)
+  if (node) emit('top-enter', event, node)
+  topHoverVDom.value = node
+}
+
+function onTopClick(event: MouseEvent) {
+  emit('top-click', event, resolveTopVDom(event))
+}
+
+function onTopDown(event: PointerEvent) {
+  syncTopHover(event)
+  emit('top-down', event, resolveTopVDom(event))
+}
+
+function onTopUp(event: PointerEvent) {
+  emit('top-up', event, resolveTopVDom(event))
+}
+
+function onTopMove(event: PointerEvent) {
+  syncTopHover(event)
+  emit('top-move', event, resolveTopVDom(event))
+}
+
+function onTopSvgEnter(event: PointerEvent) {
+  syncTopHover(event)
+}
+
+function onTopSvgLeave(event: PointerEvent) {
+  const prev = topHoverVDom.value
+  if (prev) emit('top-leave', event, prev)
+  topHoverVDom.value = null
 }
 
 const musicScoreToVDom = computed(() =>

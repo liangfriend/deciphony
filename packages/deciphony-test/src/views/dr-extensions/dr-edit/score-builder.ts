@@ -1,5 +1,5 @@
 /**
- * 曲谱结构构建：工厂 + 按索引插入/删除 + 引用定位。
- * 供 edit-util 使用；对外尽量无 options，复杂参数留在 factories 内部。
+ * dr-edit 底层：曲谱结构构建（工厂 + 插入/删除 + 定位）。
+ * 不绑定 UI；editHelper 或自定义扩展在此之上编排交互。
  */
 export * from './score-builder/index';

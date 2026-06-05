@@ -18,4 +18,7 @@ export {NumberNotationSkinKeyEnum} from './numberNotation/enums/numberNotationSk
 /** 五线谱音符位 / 休止符位判别 */
 export {isNoteRest, isNoteSymbol, isStaffSlot} from './standardStaff/render/utils/staffSlot'
 
+/** 顶层 svg 事件：由 DOM 命中解析 VDom */
+export {getHitElement, resolveVDomFromEvent} from './render/resolveVDomFromEvent'
+
 

@@ -1,3 +1,7 @@
+/**
+ * dr-edit 对外 API：按锚点增删复谱表/单谱表/小节（纯数据，无 UI）。
+ * 自定义编辑形态可直接使用；标准交互见 editHelper/useRenderEdit。
+ */
 import type {GrandStaff, Measure, MusicScore, SingleStaff} from 'deciphony-renderer';
 import {
   indexOfGrandStaff,

@@ -1,8 +1,10 @@
 import type {Measure, NoteSymbol, NotesInfo, SlotData, VDom} from 'deciphony-renderer'
 import {
-    defaultDirection,
-    findMeasureSlotVDom,
-    regionFromRelativeY,
+    type MeasureBounds,
+    pointerToSvg,
+    regionFromSvgY,
+    resolveMeasureBounds,
+    setNotesInfoRegion,
 } from './renderEditSymbolAddAction'
 
 /** 当前选中项是否为「音符头选中」模式 */
@@ -33,33 +35,30 @@ export function createNoteHeadDragSession(
     }
 }
 
-export function regionFromPointerInMeasure(
-    vDomList: VDom[],
-    measureId: string,
-    svgY: number,
-): number | null {
-    const measureNode = findMeasureSlotVDom(vDomList, measureId)
-    if (!measureNode) return null
-    return regionFromRelativeY(svgY - measureNode.y)
-}
-
-/** 修改 notesInfo.region；同和弦已有相同 region 时不改 */
-export function setNotesInfoRegion(note: NoteSymbol, info: NotesInfo, region: number): boolean {
-    if (info.region === region) return false
-    const conflict = note.notesInfo.some((ni) => ni !== info && ni.region === region)
-    if (conflict) return false
-    info.region = region
-    info.direction = defaultDirection(region)
-    return true
-}
-
 /** 拖拽过程中按指针 y 更新 region，返回新 region（未变化则为 null） */
 export function updateNoteHeadRegionByPointerY(
     session: NoteHeadDragSession,
-    vDomList: VDom[],
+    bounds: MeasureBounds,
     svgY: number,
 ): number | null {
-    const region = regionFromPointerInMeasure(vDomList, session.measureId, svgY)
-    if (region == null) return null
+    const region = regionFromSvgY(svgY, bounds)
     return setNotesInfoRegion(session.note, session.info, region) ? region : null
+}
+
+/**
+ * 在顶层 svg 上跟踪指针（top-move），按小节 bounds 换算 region。
+ * 不依赖音符头 g 的 dr-move，鼠标略超出音符头范围仍可拖拽。
+ */
+export function updateNoteHeadDragFromPointer(
+    session: NoteHeadDragSession,
+    svg: SVGSVGElement,
+    root: ParentNode,
+    vDomList: VDom[],
+    clientX: number,
+    clientY: number,
+): number | null {
+    const bounds = resolveMeasureBounds(root, session.measureId, vDomList)
+    if (!bounds) return null
+    const {y} = pointerToSvg(svg, clientX, clientY)
+    return updateNoteHeadRegionByPointerY(session, bounds, y)
 }

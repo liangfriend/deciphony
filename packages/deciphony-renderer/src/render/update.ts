@@ -63,7 +63,10 @@ export function diffAndMergeVDom(current: VDom[], next: VDom[]): VDom[] {
     const idx = candidates.findIndex((old) => isVDomRenderEqual(old, newNode))
     if (idx < 0) return newNode
     const [reused] = candidates.splice(idx, 1)
-    return reused
+    // slotData 是指向 musicScore 数据的引用，不参与渲染相等比较；复用旧节点对象（让 Group 跳过更新）的同时，
+    // 必须同步为最新 slotData，否则整体替换为深拷贝相同数据时，复用节点仍持有旧数据引用。
+    reused!.slotData = newNode.slotData
+    return reused!
   })
 }
 

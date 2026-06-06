@@ -45,6 +45,7 @@ import {
     findNoteHeadElement,
     isMeasureAddMode,
     isPointerInMeasureAddRange,
+    isPointerInMeasureBounds,
     pointerToSvg,
     measureBoundsFromVDom,
     resolveGhostNotePreview,
@@ -495,6 +496,16 @@ export function useRenderEdit(
         const slot = resolveSlotFromVDom(vdom)
         if (!slot) return
 
+        if (isMeasureAddMode(slot)) {
+            const measureId = slot.measure?.id
+            if (!measureId) return
+            const svg = resolveSvgFromEvent(event)
+            const bounds = measureBoundsFromVDom(vDomList.value, measureId)
+            if (!svg || !bounds) return
+            const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+            if (!isPointerInMeasureBounds(x, y, bounds)) return
+        }
+
         highlight.clearHoverHighlight()
         if (selectedEl.value === el && selectedVdomKey.value === vdomSelectionKey(vdom)) return
 
@@ -597,7 +608,7 @@ export function useRenderEdit(
         const svg = resolveSvgFromEvent(event)
         if (!svg) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
-        const slotData = resolveMeasureSlotAtPointer(vDomList.value, x, y)
+        const slotData = resolveMeasureSlotAtPointer(vDomList.value, x, y, {forSelection: true})
 
         if (isMeasureAddMode(selectedItem.value)) {
             const selectedId = selectedItem.value?.measure?.id

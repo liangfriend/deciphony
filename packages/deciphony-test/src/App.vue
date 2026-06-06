@@ -7,6 +7,7 @@ import UiTest from "./views/uiTest.vue";
 import PlayerTest from "./views/playerTest.vue";
 import RenderPlayTest from "./views/renderPlayTest.vue";
 import RenderEditTest from "./views/renderEditTest.vue";
+import RenderTitleTest from "./views/renderTitleTest.vue";
 </script>
 
 <template>
@@ -15,6 +16,7 @@ import RenderEditTest from "./views/renderEditTest.vue";
   <!--  <render-test></render-test>-->
   <!--  <render-play-test></render-play-test>-->
   <render-edit-test></render-edit-test>
+  <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->
 
   <!--    <electron-message></ele/ctron-message>-->

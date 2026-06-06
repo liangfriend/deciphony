@@ -174,16 +174,18 @@ export function findMeasureElement(root: ParentNode, measureId: string): SVGElem
     return el instanceof SVGElement ? el : null
 }
 
-/** 按 svg 坐标命中 m 插槽（含上下 MEASURE_ADD_HOVER_RANGE 加音区） */
+/** 按 svg 坐标命中 m 插槽；`forSelection` 时仅小节矩形内，否则含上下加音扩展区 */
 export function resolveMeasureSlotAtPointer(
     vDomList: VDom[],
     svgX: number,
     svgY: number,
+    options?: { forSelection?: boolean },
 ): SlotData | null {
+    const hoverRange = options?.forSelection ? 0 : MEASURE_ADD_HOVER_RANGE
     for (const node of vDomList) {
         if (node.tag !== 'slot' || node.slotName !== 'm' || !node.slotData?.measure) continue
         const bounds = {x: node.x, y: node.y, w: node.w, h: node.h}
-        if (isPointerInMeasureAddRange(svgX, svgY, bounds)) {
+        if (isPointerInMeasureAddRange(svgX, svgY, bounds, hoverRange)) {
             return node.slotData
         }
     }
@@ -333,6 +335,19 @@ export function resolveMeasureBounds(
         }
     }
     return measureBoundsFromVDom(vDomList, measureId)
+}
+
+export function isPointerInMeasureBounds(
+    svgX: number,
+    svgY: number,
+    bounds: MeasureBounds,
+): boolean {
+    return (
+        svgX >= bounds.x
+        && svgX <= bounds.x + bounds.w
+        && svgY >= bounds.y
+        && svgY <= bounds.y + bounds.h
+    )
 }
 
 export function isPointerInMeasureAddRange(

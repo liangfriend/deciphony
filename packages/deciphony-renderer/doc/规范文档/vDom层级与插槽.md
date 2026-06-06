@@ -58,7 +58,7 @@
 
 | slotName | targetId 格式 | slotData | 说明 |
 |----------|---------------|----------|------|
-| t | `t` | 无 | 顶部插槽，h = topSpaceHeight |
+| t | `t` | MusicScore | 顶部插槽，h = slotConfig.t.h |
 | g | `g-{grandStaffId}` | GrandStaff | 复谱表（含外边距） |
 | g-l | `g-l-{grandStaffId}` | GrandStaff | 复谱表左侧 |
 | g-r | `g-r-{grandStaffId}` | GrandStaff | 复谱表右侧 |

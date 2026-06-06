@@ -46,11 +46,17 @@ export type MusicScore = {
 
     height: number,
 
-    topSpaceHeight: number, // 顶部高度
+    topSpaceHeight: number, // 顶部留白（space，在 t 插槽之上）
 
-    title: string // 标题
+    title?: string // 标题
 
-    bpm: number // 拍速
+    subTitle?: string // 副标题
+
+    author?: string // 作者
+
+    description: string // 描述
+
+    bpm?: number // 拍速
 
 }
 

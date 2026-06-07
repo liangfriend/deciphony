@@ -16,6 +16,11 @@ import {
   NotesInfo,
   StaffSlot
 } from "@/index";
+import {
+  getKeySignatureAccidental,
+  getNoteMidi,
+  type AlteredAccidental,
+} from "../scoreUtil";
 
 /**
  * TODO 目前这个播放函数只针对五线谱
@@ -57,9 +62,7 @@ type StaffPlayState = {
 }
 
 /** 小节内变音号记忆：region → 已生效的变音（null=本小节曾出现还原号，该级自然） */
-type MeasureAccidentalScope = Map<number, Exclude<AccidentalTypeEnum, AccidentalTypeEnum.Natural> | null>
-
-type AlteredAccidental = Exclude<AccidentalTypeEnum, AccidentalTypeEnum.Natural>
+type MeasureAccidentalScope = Map<number, AlteredAccidental | null>
 
 type RepeatState = {
   barLine: boolean
@@ -73,16 +76,6 @@ type RepeatState = {
   coda: boolean
   toCoda: boolean
 }
-// 各谱号锚点：startRegion 对应某个 C（do），startMidi 为该 C 的 midi
-const CLEF_ANCHOR: Record<ClefTypeEnum, { startRegion: number; startMidi: number }> = {
-  [ClefTypeEnum.Treble]: {startRegion: -2, startMidi: 60}, // 第一线下方 C4
-  [ClefTypeEnum.Bass]: {startRegion: -4, startMidi: 36},   // 第一线下方 C2
-  [ClefTypeEnum.Alto]: {startRegion: -3, startMidi: 48},   // 第一线下方 C3
-  [ClefTypeEnum.Tenor]: {startRegion: -1, startMidi: 48},  // 第一线下方 C3
-}
-
-// 以 C=do 为 0 的七个自然音级字母
-const DIATONIC_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
 
 /**
  * 倚音播放时值：不占小节拍位，不累加 playTime；从主音时值中抢奏。
@@ -184,13 +177,6 @@ function applySlurTieRealDuration(
       inSlur[i]!.real_duration = 0
     }
   }
-}
-
-/** clef + region → 自然音级（0=C,1=D,…6=B），region 是按线/间逐级递增的“级进”，7 级 = 1 个八度 */
-function getDiatonicDegreeFromC(clef: ClefTypeEnum, region: number): number {
-  const {startRegion} = CLEF_ANCHOR[clef]
-  const steps = region - startRegion
-  return ((steps % 7) + 7) % 7
 }
 
 /**
@@ -751,55 +737,4 @@ function getDuration(chronaxie: Chronaxie, dotCount: number): Unit256 {
     total += add
   }
   return total
-}
-
-const SHARP_ORDER = ['F', 'C', 'G', 'D', 'A', 'E', 'B'] as const
-const FLAT_ORDER = ['B', 'E', 'A', 'D', 'G', 'C', 'F'] as const
-
-const KEY_ALTERATION: Record<KeySignatureTypeEnum, { kind: 'sharp' | 'flat'; count: number }> = {
-  [KeySignatureTypeEnum.C]: {kind: 'sharp', count: 0},
-  [KeySignatureTypeEnum.G]: {kind: 'sharp', count: 1},
-  [KeySignatureTypeEnum.D]: {kind: 'sharp', count: 2},
-  [KeySignatureTypeEnum.A]: {kind: 'sharp', count: 3},
-  [KeySignatureTypeEnum.E]: {kind: 'sharp', count: 4},
-  [KeySignatureTypeEnum.B]: {kind: 'sharp', count: 5},
-  [KeySignatureTypeEnum.F_sharp]: {kind: 'sharp', count: 6},
-  [KeySignatureTypeEnum.C_sharp]: {kind: 'sharp', count: 7},
-  [KeySignatureTypeEnum.F]: {kind: 'flat', count: 1},
-  [KeySignatureTypeEnum.B_flat]: {kind: 'flat', count: 2},
-  [KeySignatureTypeEnum.E_flat]: {kind: 'flat', count: 3},
-  [KeySignatureTypeEnum.A_flat]: {kind: 'flat', count: 4},
-  [KeySignatureTypeEnum.D_flat]: {kind: 'flat', count: 5},
-  [KeySignatureTypeEnum.G_flat]: {kind: 'flat', count: 6},
-  [KeySignatureTypeEnum.C_flat]: {kind: 'flat', count: 7},
-}
-
-export function getKeySignatureAccidental(
-  clef: ClefTypeEnum,
-  keySignature: KeySignatureTypeEnum,
-  region: number,
-): Exclude<AccidentalTypeEnum, AccidentalTypeEnum.Natural> | null {
-  const alteration = KEY_ALTERATION[keySignature]
-  if (!alteration || alteration.count === 0) return null
-  const letter = DIATONIC_LETTERS[getDiatonicDegreeFromC(clef, region)]
-  const order = alteration.kind === 'sharp' ? SHARP_ORDER : FLAT_ORDER
-  const altered = order.slice(0, alteration.count) as readonly string[]
-  if (!altered.includes(letter)) return null
-  return alteration.kind === 'sharp' ? AccidentalTypeEnum.Sharp : AccidentalTypeEnum.Flat
-}
-
-function getNoteMidi(clef: ClefTypeEnum, region: number, accidental: Exclude<AccidentalTypeEnum, AccidentalTypeEnum.Natural> | null = null): number {
-  const rule = [0, 2, 4, 5, 7, 9, 11]
-  const acc_offset_map: Record<Exclude<AccidentalTypeEnum, AccidentalTypeEnum.Natural>, number> = {
-    [AccidentalTypeEnum.Flat]: -1,
-    [AccidentalTypeEnum.Sharp]: 1,
-    [AccidentalTypeEnum.Double_flat]: -2,
-    [AccidentalTypeEnum.Double_sharp]: 2,
-  }
-  const {startRegion, startMidi} = CLEF_ANCHOR[clef]
-  const steps = region - startRegion
-  const multiple = Math.floor(steps / 7)
-  const remain = ((steps % 7) + 7) % 7
-  const accOffset = accidental ? acc_offset_map[accidental] : 0
-  return multiple * 12 + rule[remain] + accOffset + startMidi
 }

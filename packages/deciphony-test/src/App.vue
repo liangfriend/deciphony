@@ -3,7 +3,7 @@ import RenderTest from "./views/renderTest.vue";
 import DrEdit from "./views/dr-render-extensions/dr-edit/index.vue";
 import WebAudioTest from "./views/webAudioTest.vue";
 import ElectronMessage from "./views/electronMessage.vue";
-import UiTest from "./views/uiTest.vue";
+
 import PlayerTest from "./views/playerTest.vue";
 import RenderPlayTest from "./views/renderPlayTest.vue";
 import RenderEditTest from "./views/renderEditTest.vue";
@@ -12,7 +12,7 @@ import RenderTitleTest from "./views/renderTitleTest.vue";
 
 <template>
 
-  <!--  <ui-test></ui-test>-->
+  <ui-test></ui-test>
   <!--  <render-test></render-test>-->
   <!--  <render-play-test></render-play-test>-->
   <render-edit-test></render-edit-test>

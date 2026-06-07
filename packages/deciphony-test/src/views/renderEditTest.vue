@@ -5,8 +5,8 @@ import {onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/singleNote'
 import {
-  AddGrandStaffButton,
   AddNoteStatePanel,
+  EditSlotGdButtons,
   EditSlotSdButtons,
   GhostNotePreview,
   PropertyPanel,
@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
         @top-up="handleTopUp"
       >
         <template #g-d="{ node }">
-          <AddGrandStaffButton :node="node"/>
+          <EditSlotGdButtons :node="node"/>
         </template>
         <template #s-d="{ node }">
           <EditSlotSdButtons :node="node"/>

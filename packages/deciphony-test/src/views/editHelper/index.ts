@@ -17,6 +17,8 @@ export {
   addGrandStaffFromSlot,
   addMeasureFromSlot,
   addSingleStaffFromSlot,
+  deleteGrandStaffFromSlot,
+  deleteSingleStaffFromSlot,
 } from './renderEditSlotActions'
 export {
   ADD_GRAND_STAFF_BTN_H,
@@ -25,12 +27,21 @@ export {
   ADD_MEASURE_BTN_W,
   ADD_SINGLE_STAFF_BTN_H,
   ADD_SINGLE_STAFF_BTN_W,
+  DELETE_GRAND_STAFF_BTN_H,
+  DELETE_GRAND_STAFF_BTN_W,
+  DELETE_SINGLE_STAFF_BTN_H,
+  DELETE_SINGLE_STAFF_BTN_W,
+  SLOT_BTN_GAP,
   addGrandStaffBtnX,
   addGrandStaffBtnY,
   addMeasureBtnX,
   addMeasureBtnY,
   addSingleStaffBtnX,
   addSingleStaffBtnY,
+  deleteGrandStaffBtnX,
+  deleteGrandStaffBtnY,
+  deleteSingleStaffBtnX,
+  deleteSingleStaffBtnY,
 } from './renderEditSlotLayout'
 export {
   applyMeasureAddAction,
@@ -96,7 +107,10 @@ export {default as VoltaPropertyPanel} from './components/VoltaPropertyPanel.vue
 export {default as VoltaDragHandles} from './components/VoltaDragHandles.vue'
 export {default as SlurDragHandles} from './components/SlurDragHandles.vue'
 export {default as AddGrandStaffButton} from './components/AddGrandStaffButton.vue'
+export {default as DeleteGrandStaffButton} from './components/DeleteGrandStaffButton.vue'
+export {default as EditSlotGdButtons} from './components/EditSlotGdButtons.vue'
 export {default as AddSingleStaffButton} from './components/AddSingleStaffButton.vue'
+export {default as DeleteSingleStaffButton} from './components/DeleteSingleStaffButton.vue'
 export {default as AddMeasureButton} from './components/AddMeasureButton.vue'
 export {default as EditSlotSdButtons} from './components/EditSlotSdButtons.vue'
 export {default as GhostNotePreview} from './components/GhostNotePreview.vue'

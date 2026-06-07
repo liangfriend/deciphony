@@ -35,13 +35,13 @@ function onClick() {
     <rect
         :height="DELETE_SINGLE_STAFF_BTN_H"
         :width="DELETE_SINGLE_STAFF_BTN_W"
-        fill="#A8C8FF"
+        fill="#FFBDBD"
         rx="10"
         ry="10"
-        stroke="#7A9EEF"
+        stroke="#F56C6C"
         stroke-width="1.2"
     />
-    <line stroke="#4A6FC0" stroke-linecap="round" stroke-width="1.6" x1="6" x2="14" y1="10" y2="10"/>
+    <line stroke="#C45656" stroke-linecap="round" stroke-width="1.6" x1="6" x2="14" y1="10" y2="10"/>
   </g>
 </template>
 

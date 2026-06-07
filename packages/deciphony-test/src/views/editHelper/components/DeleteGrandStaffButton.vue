@@ -35,17 +35,17 @@ function onClick() {
     <rect
       :height="DELETE_GRAND_STAFF_BTN_H"
       :width="DELETE_GRAND_STAFF_BTN_W"
-      fill="#FFC4CE"
+      fill="#FFBDBD"
       rx="18"
       ry="18"
-      stroke="#F08FA3"
+      stroke="#F56C6C"
       stroke-width="1.5"
     />
     <circle cx="22" cy="18" fill="#fff" opacity="0.92" r="10"/>
-    <line stroke="#F08FA3" stroke-linecap="round" stroke-width="2" x1="17" x2="27" y1="18" y2="18"/>
+    <line stroke="#F56C6C" stroke-linecap="round" stroke-width="2" x1="17" x2="27" y1="18" y2="18"/>
     <text
       dominant-baseline="middle"
-      fill="#7A4455"
+      fill="#8B3333"
       font-size="13"
       font-weight="500"
       text-anchor="middle"
@@ -63,7 +63,7 @@ function onClick() {
 }
 
 .delete-grand-staff-btn:hover {
-  filter: brightness(1.06) drop-shadow(0 2px 5px rgba(240, 143, 163, 0.45));
+  filter: brightness(1.06) drop-shadow(0 2px 5px rgba(245, 108, 108, 0.45));
 }
 
 .delete-grand-staff-btn--disabled {

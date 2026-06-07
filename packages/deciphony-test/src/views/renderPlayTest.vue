@@ -17,9 +17,9 @@ const {
   handlePlaybackPause,
 } = usePlayHighlight({
   musicScoreRef,
-  getBpm: () => nplayer?.bpm ?? 120,
-  getBeatUnit: () => nplayer?.beatUnit ?? 4,
-  getRate: () => nplayer?.rate ?? 1,
+  getBpm: () => 120,
+  getBeatUnit: () => 4,
+  getRate: () => 1,
 })
 
 let nplayer: NPlayer | null = null
@@ -53,7 +53,7 @@ function toPlaySequence(): PlaySequence {
       end: false,
     }
   })
-  playSeq[playSeq.length-1].end = true
+  playSeq[playSeq.length - 1].end = true
   return playSeq
 }
 

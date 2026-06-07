@@ -40,36 +40,67 @@ export type PlayHighlightSchedulerDeps = {
 export function createPlayHighlightScheduler(deps: PlayHighlightSchedulerDeps) {
     let currentBatch: HighlightBatch | null = null
     const pendingTimers = new Set<ReturnType<typeof setTimeout>>()
+    let currentBpm = Math.max(1, deps.getBpm())
+    /** 最近一次 onProgressStart 的曲谱 playTime，用于 BPM 变更后重算剩余高亮 */
+    let progressPlayTime = 0
+
+    type PendingClearJob = {
+        noteId: string
+        clearAtPlayTime: number
+    }
+    const pendingClearJobs = new Map<string, PendingClearJob>()
 
     function unit256ToMs(dur: number): number {
-        const bpm = Math.max(1, deps.getBpm())
         const beatUnit = deps.getBeatUnit?.() ?? 4
         const rate = Math.max(0.001, deps.getRate?.() ?? 1)
-        return (toSeconds(dur, bpm, beatUnit) * 1000) / rate
+        return (toSeconds(dur, currentBpm, beatUnit) * 1000) / rate
     }
 
-    function scheduleNoteClear(note: HighlightNote, nextPlayTime: number) {
-        const delay256 = note.duration - (nextPlayTime - note.playTime)
+    function cancelPendingTimers() {
+        for (const timer of pendingTimers) clearTimeout(timer)
+        pendingTimers.clear()
+    }
+
+    function armClearTimer(job: PendingClearJob) {
+        const delay256 = job.clearAtPlayTime - progressPlayTime
         if (delay256 <= 0) {
-            deps.removeNoteHighlight(note.noteId)
+            pendingClearJobs.delete(job.noteId)
+            deps.removeNoteHighlight(job.noteId)
             return
         }
         const timer = setTimeout(() => {
             pendingTimers.delete(timer)
-            deps.removeNoteHighlight(note.noteId)
+            pendingClearJobs.delete(job.noteId)
+            deps.removeNoteHighlight(job.noteId)
         }, unit256ToMs(delay256))
         pendingTimers.add(timer)
+    }
+
+    function reschedulePendingClears() {
+        cancelPendingTimers()
+        for (const job of pendingClearJobs.values()) {
+            armClearTimer(job)
+        }
+    }
+
+    /** 播放过程中 BPM 变化时同步高亮清除节奏 */
+    function setBpm(bpm: number) {
+        currentBpm = Math.max(1, bpm)
+        reschedulePendingClears()
+    }
+
+    function scheduleNoteClear(note: HighlightNote, nextPlayTime: number) {
+        const delay256 = note.duration - (nextPlayTime - note.playTime)
+        const clearAtPlayTime = nextPlayTime + delay256
+        const job: PendingClearJob = {noteId: note.noteId, clearAtPlayTime}
+        pendingClearJobs.set(note.noteId, job)
+        armClearTimer(job)
     }
 
     function scheduleBatchClear(batch: HighlightBatch, nextPlayTime: number) {
         for (const note of batch.notes) {
             scheduleNoteClear(note, nextPlayTime)
         }
-    }
-
-    function cancelPendingClears() {
-        for (const timer of pendingTimers) clearTimeout(timer)
-        pendingTimers.clear()
     }
 
     function toHighlightNote(data: PlayHighlightProgressData, noteId: string): HighlightNote {
@@ -81,6 +112,8 @@ export function createPlayHighlightScheduler(deps: PlayHighlightSchedulerDeps) {
     }
 
     function handleProgressStart(data: PlayHighlightProgressData) {
+        progressPlayTime = data.playTime
+
         const noteId = data.note_id?.trim()
         if (!noteId) return
 
@@ -114,14 +147,15 @@ export function createPlayHighlightScheduler(deps: PlayHighlightSchedulerDeps) {
     }
 
     function handlePlaybackStop() {
-        cancelPendingClears()
+        cancelPendingTimers()
+        pendingClearJobs.clear()
         deps.clearHighlight()
         currentBatch = null
     }
 
     /** 暂停时取消待执行的清除 timer，避免暂停期间高亮被误清 */
     function handlePlaybackPause() {
-        cancelPendingClears()
+        cancelPendingTimers()
     }
 
     return {
@@ -129,6 +163,7 @@ export function createPlayHighlightScheduler(deps: PlayHighlightSchedulerDeps) {
         handlePlaybackEnd,
         handlePlaybackStop,
         handlePlaybackPause,
-        cancelPendingClears,
+        setBpm,
+        cancelPendingClears: cancelPendingTimers,
     }
 }

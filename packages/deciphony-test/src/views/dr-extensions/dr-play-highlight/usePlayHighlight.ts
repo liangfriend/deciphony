@@ -51,6 +51,7 @@ export function usePlayHighlight(options: UsePlayHighlightOptions) {
         handlePlaybackEnd: scheduler.handlePlaybackEnd,
         handlePlaybackStop: scheduler.handlePlaybackStop,
         handlePlaybackPause: scheduler.handlePlaybackPause,
+        setBpm: scheduler.setBpm,
         ...playHighlight,
     }
 }

@@ -1,0 +1,4 @@
+/** 播放高亮：加在符头/符干等顶层 g 上，用 filter 着色以兼容换肤 */
+.dr-play-highlight {
+  filter: drop-shadow(0 0 4px rgba(255, 64, 64, 0.95)) brightness(1.18) saturate(1.35);
+}

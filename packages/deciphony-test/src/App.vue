@@ -12,10 +12,10 @@ import RenderTitleTest from "./views/renderTitleTest.vue";
 
 <template>
 
-  <ui-test></ui-test>
+  <!--  <ui-test></ui-test>-->
   <!--  <render-test></render-test>-->
-  <!--  <render-play-test></render-play-test>-->
-  <render-edit-test></render-edit-test>
+  <render-play-test></render-play-test>
+  <!--  <render-edit-test></render-edit-test>-->
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->
 

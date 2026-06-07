@@ -1,12 +1,21 @@
 <script lang="ts" setup>
 import musicScoreVue from 'deciphony-renderer'
-import {startJPlayer, activeContext, NPlayer, PlaySequence} from 'j-player'
+import {startJPlayer, activeContext, NPlayer, PlaySequence} from 'deciphony-player'
 import data from './data/其多列'
 import piano from '../assets/toneColor/accoustic_grand_piano.json'
-import {onBeforeUnmount, onMounted} from "vue";
+import {onBeforeUnmount, onMounted, ref} from "vue";
 import {getDrPlaySequence} from "./dr-extensions/dr-play/play-util";
+import {usePlayHighlight, type MusicScoreHighlightExpose} from './dr-extensions/dr-play-highlight'
 
 const musicScoreData = data
+const musicScoreRef = ref<MusicScoreHighlightExpose | null>(null)
+const {
+  handleRenderMusicScore,
+  addNoteHighlight,
+  removeNoteHighlight,
+  clearHighlight,
+} = usePlayHighlight({musicScoreRef})
+
 let nplayer: NPlayer | null = null
 
 /** DR 播放序列 → NPlayer 播放序列 */
@@ -24,11 +33,13 @@ function toPlaySequence(): PlaySequence {
   })
   return drSeq.map((it, i) => ({
     id: it.note_id,
-    midi: it.midi,
-    duration: it.real_duration != null ? it.real_duration : it.duration,
+    // real_duration为0时虽然高亮，但不应该发声
+    midi: it.real_duration === 0 ? 0 : it.midi,
+    // real_duration为0时也应该让其以正常情况高亮
+    duration: it.real_duration ? it.real_duration : it.duration,
     playTime: it.playTime,
     toneColor: 'piano',
-    data: {note_id: it.note_id},
+    data: {note_id: it.note_id, duration: it.duration, realDuration: it.real_duration},
     end: i === endIdx,
   }))
 }
@@ -38,6 +49,14 @@ onMounted(async () => {
   nplayer = new NPlayer({checkTime: 50, checkDuration: 500})
   await nplayer.addToneColor('piano', piano)
   nplayer.setPlaySequence(toPlaySequence())
+  nplayer.onProgressStart = (_progress, data) => {
+    const noteId = data?.note_id as string | undefined
+    if (noteId) addNoteHighlight(noteId)
+  }
+  nplayer.onProgressEnd = (_progress, data) => {
+    const noteId = data?.note_id as string | undefined
+    if (noteId) removeNoteHighlight(noteId)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -58,14 +77,19 @@ function handlePause() {
 
 function handleStop() {
   nplayer?.stop()
+  clearHighlight()
 }
 </script>
 
 <template>
   <div class="play-test">
     <div class="play-test__score">
-      <musicScoreVue :data="musicScoreData" :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
-                     skin-name="default"
+      <musicScoreVue
+          ref="musicScoreRef"
+          :data="musicScoreData"
+          :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
+          skin-name="default"
+          @renderMusicScore="handleRenderMusicScore"
       />
     </div>
     <div class="play-test__panel">
@@ -122,5 +146,9 @@ function handleStop() {
 
 .play-test__btn:active {
   background: #e6e6e6;
+}
+
+:deep(.dr-play-highlight) {
+  filter: drop-shadow(0 0 4px rgba(255, 64, 64, 0.95)) brightness(1.18) saturate(1.35);
 }
 </style>

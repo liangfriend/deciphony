@@ -1,12 +1,14 @@
 import {
-  AccidentalTypeEnum,
-  ClefTypeEnum,
-  KeySignatureTypeEnum,
-  Measure,
-  NotesInfo,
-  NoteSymbolTypeEnum,
-  StaffSlot,
-} from '@/index'
+    AccidentalTypeEnum,
+    ClefTypeEnum,
+    KeySignatureTypeEnum,
+    Measure,
+    TimeSignatureTypeEnum,
+    NotesInfo,
+    NoteSymbolTypeEnum,
+    StaffSlot,
+    MusicScore,
+} from 'deciphony-renderer'
 import {createAccidental} from './dr-edit/score-builder'
 
 /**
@@ -115,9 +117,9 @@ export function getNoteRegion(
     const baseMidi = midi - accOffset - startMidi
     const octave = Math.floor(baseMidi / 12)
     const semitone = baseMidi - octave * 12
-  const remain = DIATONIC_SEMITONES.indexOf(semitone)
-  if (remain < 0) return null
-  return startRegion + octave * 7 + remain
+    const remain = DIATONIC_SEMITONES.indexOf(semitone)
+    if (remain < 0) return null
+    return startRegion + octave * 7 + remain
 }
 
 /**
@@ -128,18 +130,19 @@ export function getNoteRegion(
  * - priority = Flat：记为「上方自然音 + 降号」
  */
 export function getNoteRegionAndAccidental(
-  clef: ClefTypeEnum,
-  midi: number,
-  priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat = AccidentalTypeEnum.Sharp,
+    clef: ClefTypeEnum,
+    midi: number,
+    priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat = AccidentalTypeEnum.Sharp,
 ): { region: number; accidental: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat | null } {
-  const naturalRegion = getNoteRegion(clef, midi, null)
-  if (naturalRegion !== null) {
-    return {region: naturalRegion, accidental: null}
-  }
-  // 黑键：扣除 priority 偏移后即为对应自然音位置
-  const region = getNoteRegion(clef, midi, priority)!
-  return {region, accidental: priority}
+    const naturalRegion = getNoteRegion(clef, midi, null)
+    if (naturalRegion !== null) {
+        return {region: naturalRegion, accidental: null}
+    }
+    // 黑键：扣除 priority 偏移后即为对应自然音位置
+    const region = getNoteRegion(clef, midi, priority)!
+    return {region, accidental: priority}
 }
+
 /**
  * 小节音符变调函数
  * 传入小节, 当前调号，目标调号，返回音符变调后的小节（原地修改）
@@ -157,66 +160,114 @@ export function getNoteRegionAndAccidental(
  *   也可能去掉已不再需要的还原号（如变到 C 调后该还原号多余）。
  */
 export function changeMeasureNotesKeySignature(
-  measure: Measure,
-  curKeySignature: KeySignatureTypeEnum,
-  targetKeySignature: KeySignatureTypeEnum,
+    measure: Measure,
+    curKeySignature: KeySignatureTypeEnum,
+    targetKeySignature: KeySignatureTypeEnum,
 ): Measure {
-  if (curKeySignature === targetKeySignature) return measure
+    if (curKeySignature === targetKeySignature) return measure
 
-  let currentClef = measure.clef_f?.type ?? ClefTypeEnum.Treble
-  /** region → 旧调号读谱时的实际变音（null=自然/还原） */
-  const oldScope = new Map<number, AlteredAccidental | null>()
-  /** region → 新调号写谱后实际生效的变音（null=自然/还原） */
-  const newScope = new Map<number, AlteredAccidental | null>()
+    let currentClef = measure.clef_f?.type ?? ClefTypeEnum.Treble
+    /** region → 旧调号读谱时的实际变音（null=自然/还原） */
+    const oldScope = new Map<number, AlteredAccidental | null>()
+    /** region → 新调号写谱后实际生效的变音（null=自然/还原） */
+    const newScope = new Map<number, AlteredAccidental | null>()
 
-  const transformInfo = (info: NotesInfo) => {
-    const region = info.region
-    const explicit = info.accidental?.type
+    const transformInfo = (info: NotesInfo) => {
+        const region = info.region
+        const explicit = info.accidental?.type
 
-    // 1) 旧调号下该音符的实际音高变音（兼顾小节作用域）
-    let oldEffective: AlteredAccidental | null
-    if (explicit != null) {
-      oldEffective = explicit === AccidentalTypeEnum.Natural ? null : (explicit as AlteredAccidental)
-      oldScope.set(region, oldEffective)
-    } else if (oldScope.has(region)) {
-      oldEffective = oldScope.get(region) ?? null
-    } else {
-      oldEffective = getKeySignatureAccidental(currentClef, curKeySignature, region)
+        // 1) 旧调号下该音符的实际音高变音（兼顾小节作用域）
+        let oldEffective: AlteredAccidental | null
+        if (explicit != null) {
+            oldEffective = explicit === AccidentalTypeEnum.Natural ? null : (explicit as AlteredAccidental)
+            oldScope.set(region, oldEffective)
+        } else if (oldScope.has(region)) {
+            oldEffective = oldScope.get(region) ?? null
+        } else {
+            oldEffective = getKeySignatureAccidental(currentClef, curKeySignature, region)
+        }
+
+        // 2) 显式升/降号：真实变化音，保留不动；同步新作用域
+        if (explicit != null && explicit !== AccidentalTypeEnum.Natural) {
+            newScope.set(region, oldEffective)
+            return
+        }
+
+        // 3) 还原号 / 无记号：在新调号下写出能保持音高的「最简记号」
+        const newImplied = newScope.has(region)
+            ? (newScope.get(region) ?? null)
+            : getKeySignatureAccidental(currentClef, targetKeySignature, region)
+
+        if (newImplied === oldEffective) {
+            // 新调号默认/作用域已等价 → 去掉多余记号（修复：变到 C 调后多余的还原号）
+            if (info.accidental) delete info.accidental
+        } else {
+            // oldEffective 为 null → 需还原号；否则补旧调号的升/降号
+            const writeType: AccidentalTypeEnum = oldEffective ?? AccidentalTypeEnum.Natural
+            if (info.accidental) info.accidental.type = writeType
+            else info.accidental = createAccidental(writeType)
+            newScope.set(region, oldEffective)
+        }
     }
 
-    // 2) 显式升/降号：真实变化音，保留不动；同步新作用域
-    if (explicit != null && explicit !== AccidentalTypeEnum.Natural) {
-      newScope.set(region, oldEffective)
-      return
+    for (const slot of measure.notes) {
+        const s = slot as StaffSlot
+        // 音符 / 休止符上的 clef 会改变后续音名解析
+        if (s.clef) currentClef = s.clef.type
+        if (s.type !== NoteSymbolTypeEnum.Note) continue
+        // 与播放顺序一致：前倚音 → 主音和弦 → 后倚音，共享小节作用域
+        for (const g of s.graceNotes ?? []) transformInfo(g)
+        for (const ni of s.notesInfo) transformInfo(ni)
+        for (const g of s.graceNotesAfter ?? []) transformInfo(g)
     }
 
-    // 3) 还原号 / 无记号：在新调号下写出能保持音高的「最简记号」
-    const newImplied = newScope.has(region)
-      ? (newScope.get(region) ?? null)
-      : getKeySignatureAccidental(currentClef, targetKeySignature, region)
+    return measure
+}
 
-    if (newImplied === oldEffective) {
-      // 新调号默认/作用域已等价 → 去掉多余记号（修复：变到 C 调后多余的还原号）
-      if (info.accidental) delete info.accidental
-    } else {
-      // oldEffective 为 null → 需还原号；否则补旧调号的升/降号
-      const writeType: AccidentalTypeEnum = oldEffective ?? AccidentalTypeEnum.Natural
-      if (info.accidental) info.accidental.type = writeType
-      else info.accidental = createAccidental(writeType)
-      newScope.set(region, oldEffective)
+/** 去掉与上一保留值相同的前置谱号/调号/拍号（连续重复只保留第一次） */
+function dedupeMeasureFrontSymbols(measures: Measure[]) {
+    let prevClef: ClefTypeEnum | undefined
+    let prevKey: KeySignatureTypeEnum | undefined
+    let prevTime: TimeSignatureTypeEnum | undefined
+
+    for (const measure of measures) {
+        if (measure.clef_f) {
+            if (measure.clef_f.type === prevClef) delete measure.clef_f
+            else prevClef = measure.clef_f.type
+        }
+        if (measure.keySignature_f) {
+            if (measure.keySignature_f.type === prevKey) delete measure.keySignature_f
+            else prevKey = measure.keySignature_f.type
+        }
+        if (measure.timeSignature_f) {
+            if (measure.timeSignature_f.type === prevTime) delete measure.timeSignature_f
+            else prevTime = measure.timeSignature_f.type
+        }
     }
-  }
+}
 
-  for (const slot of measure.notes) {
-    const s = slot as StaffSlot
-    // 音符 / 休止符上的 clef 会改变后续音名解析
-    if (s.clef) currentClef = s.clef.type
-    if (s.type !== NoteSymbolTypeEnum.Note) continue
-    // 与播放顺序一致：前倚音 → 主音和弦 → 后倚音，共享小节作用域
-    for (const g of s.graceNotes ?? []) transformInfo(g)
-    for (const ni of s.notesInfo) transformInfo(ni)
-    for (const g of s.graceNotesAfter ?? []) transformInfo(g)
-  }
+/**
+ * 曲谱转换为单个复谱表模式
+ */
+export function mergeGrandStaff(musicScore: MusicScore): MusicScore {
+    if (musicScore.grandStaffs.length === 0) return musicScore
 
-  return measure
+    const staffCounts = musicScore.grandStaffs.map((gs) => gs.staves.length)
+    const expectedCount = staffCounts[0]!
+    if (staffCounts.some((count) => count !== expectedCount)) {
+        throw new Error('单谱表数量不一致，无法转换')
+    }
+
+    const mergedGrandStaff = musicScore.grandStaffs[0]!
+    for (let staffIndex = 0; staffIndex < expectedCount; staffIndex++) {
+        const measures: Measure[] = []
+        for (const grandStaff of musicScore.grandStaffs) {
+            measures.push(...grandStaff.staves[staffIndex]!.measures)
+        }
+        mergedGrandStaff.staves[staffIndex]!.measures = measures
+        dedupeMeasureFrontSymbols(measures)
+    }
+
+    musicScore.grandStaffs = [mergedGrandStaff]
+    return musicScore
 }

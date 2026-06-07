@@ -11,37 +11,50 @@ const musicScoreData = data
 const musicScoreRef = ref<MusicScoreHighlightExpose | null>(null)
 const {
   handleRenderMusicScore,
-  addNoteHighlight,
-  removeNoteHighlight,
-  clearHighlight,
-} = usePlayHighlight({musicScoreRef})
+  handleProgressStart,
+  handlePlaybackEnd,
+  handlePlaybackStop,
+  handlePlaybackPause,
+} = usePlayHighlight({
+  musicScoreRef,
+  getBpm: () => nplayer?.bpm ?? 120,
+  getBeatUnit: () => nplayer?.beatUnit ?? 4,
+  getRate: () => nplayer?.rate ?? 1,
+})
 
 let nplayer: NPlayer | null = null
 
 /** DR 播放序列 → NPlayer 播放序列 */
 function toPlaySequence(): PlaySequence {
   const drSeq = getDrPlaySequence(musicScoreData)
-  // 结束标记打在结束时间（playTime + duration）最大的那一项
-  let endIdx = -1
-  let maxEnd = -1
-  drSeq.forEach((it, i) => {
-    const end = it.playTime + it.duration
-    if (end > maxEnd) {
-      maxEnd = end
-      endIdx = i
+
+  let curPlayTime = -Infinity
+  const playSeq = drSeq.map((it, i) => {
+    let start = false
+    if (curPlayTime !== it.playTime) {
+      start = true
+      curPlayTime = it.playTime
+    }
+    return {
+      id: it.note_id,
+      // real_duration为0时虽然高亮，但不应该发声
+      midi: it.real_duration === 0 ? 0 : it.midi,
+      // real_duration为0时也应该让其以正常情况高亮
+      duration: it.real_duration ? it.real_duration : it.duration,
+      playTime: it.playTime,
+      toneColor: 'piano',
+      data: {
+        note_id: it.note_id,
+        duration: it.duration,
+        realDuration: it.real_duration,
+        playTime: it.playTime,
+        start,
+      },
+      end: false,
     }
   })
-  return drSeq.map((it, i) => ({
-    id: it.note_id,
-    // real_duration为0时虽然高亮，但不应该发声
-    midi: it.real_duration === 0 ? 0 : it.midi,
-    // real_duration为0时也应该让其以正常情况高亮
-    duration: it.real_duration ? it.real_duration : it.duration,
-    playTime: it.playTime,
-    toneColor: 'piano',
-    data: {note_id: it.note_id, duration: it.duration, realDuration: it.real_duration},
-    end: i === endIdx,
-  }))
+  playSeq[playSeq.length-1].end = true
+  return playSeq
 }
 
 onMounted(async () => {
@@ -50,12 +63,10 @@ onMounted(async () => {
   await nplayer.addToneColor('piano', piano)
   nplayer.setPlaySequence(toPlaySequence())
   nplayer.onProgressStart = (_progress, data) => {
-    const noteId = data?.note_id as string | undefined
-    if (noteId) addNoteHighlight(noteId)
+    handleProgressStart(data)
   }
-  nplayer.onProgressEnd = (_progress, data) => {
-    const noteId = data?.note_id as string | undefined
-    if (noteId) removeNoteHighlight(noteId)
+  nplayer.onEnd = () => {
+    handlePlaybackEnd()
   }
 })
 
@@ -73,11 +84,12 @@ async function handlePlay() {
 
 function handlePause() {
   nplayer?.pause()
+  handlePlaybackPause()
 }
 
 function handleStop() {
   nplayer?.stop()
-  clearHighlight()
+  handlePlaybackStop()
 }
 </script>
 

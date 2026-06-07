@@ -4,4 +4,9 @@ export {
     type PlayHighlightDeps,
     type PlayHighlightTarget,
 } from './playHighlight'
-export {usePlayHighlight, type MusicScoreHighlightExpose} from './usePlayHighlight'
+export {
+    createPlayHighlightScheduler,
+    type PlayHighlightProgressData,
+    type PlayHighlightSchedulerDeps,
+} from './playHighlightScheduler'
+export {usePlayHighlight, type MusicScoreHighlightExpose, type UsePlayHighlightOptions} from './usePlayHighlight'

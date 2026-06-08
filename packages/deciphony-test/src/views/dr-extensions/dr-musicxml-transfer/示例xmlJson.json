@@ -1,0 +1,23784 @@
+[
+{
+"score-partwise": [
+{
+"work": [
+{
+"work-title": [
+{
+"#text": "Abc"
+}
+]
+}
+]
+},
+{
+"identification": [
+{
+"creator": [
+{
+"#text": "Transcribed by Oemer"
+}
+],
+":@": {
+"@_type": "composer"
+}
+}
+]
+},
+{
+"part-list": [
+{
+"score-part": [
+{
+"part-name": [
+{
+"#text": "Piano"
+}
+]
+},
+{
+"score-instrument": [
+{
+"instrument-name": [
+{
+"#text": "Piano"
+}
+]
+},
+{
+"instrument-sound": [
+{
+"#text": "keyboard.piano"
+}
+]
+}
+],
+":@": {
+"@_id": "P1-I1"
+}
+},
+{
+"midi-instrument": [
+{
+"midi-channel": [
+{
+"#text": 1
+}
+]
+},
+{
+"midi-program": [
+{
+"#text": 1
+}
+]
+},
+{
+"volume": [
+{
+"#text": 80
+}
+]
+},
+{
+"pan": [
+{
+"#text": 0
+}
+]
+}
+],
+":@": {
+"@_id": "P1-I1"
+}
+}
+],
+":@": {
+"@_id": "P1"
+}
+}
+]
+},
+{
+"part": [
+{
+"sound": [],
+":@": {
+"@_tempo": "90"
+}
+},
+{
+"measure": [
+{
+"attributes": [
+{
+"divisions": [
+{
+"#text": 16
+}
+]
+},
+{
+"key": [
+{
+"fifths": [
+{
+"#text": -4
+}
+]
+}
+]
+},
+{
+"staves": [
+{
+"#text": 2
+}
+]
+},
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+},
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"chord": []
+},
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 6
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "3"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"chord": []
+},
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 6
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"dot": []
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 6
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "4"
+}
+},
+{
+"measure": [
+{
+"print": [],
+":@": {
+"@_new-system": "yes"
+}
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "5"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "6"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "7"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 32
+}
+]
+},
+{
+"type": [
+{
+"#text": "half"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "8"
+}
+},
+{
+"measure": [
+{
+"print": [],
+":@": {
+"@_new-system": "yes"
+}
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "9"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "10"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "11"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 6
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"dot": []
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 6
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "12"
+}
+},
+{
+"measure": [
+{
+"print": [],
+":@": {
+"@_new-system": "yes"
+}
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 24
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"dot": []
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "12"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "13"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "B"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "G"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "14"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "D"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "15"
+}
+},
+{
+"measure": [
+{
+"print": [],
+":@": {
+"@_new-system": "yes"
+}
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+},
+{
+"attributes": [
+{
+"key": [
+{
+"fifths": [
+{
+"#text": -3
+}
+]
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "16"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "17"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "18"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 32
+}
+]
+},
+{
+"type": [
+{
+"#text": "half"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "19"
+}
+},
+{
+"measure": [
+{
+"print": [],
+":@": {
+"@_new-system": "yes"
+}
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "1"
+}
+}
+]
+},
+{
+"attributes": [
+{
+"key": [
+{
+"fifths": [
+{
+"#text": -4
+}
+]
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "G"
+}
+]
+},
+{
+"line": [
+{
+"#text": 2
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "20"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 8
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 8
+}
+]
+},
+{
+"type": [
+{
+"#text": "eighth"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 5
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"attributes": [
+{
+"clef": [
+{
+"sign": [
+{
+"#text": "F"
+}
+]
+},
+{
+"line": [
+{
+"#text": 4
+}
+]
+}
+],
+":@": {
+"@_number": "2"
+}
+}
+]
+}
+],
+":@": {
+"@_number": "21"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "E"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "C"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 3
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 4
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "A"
+}
+]
+},
+{
+"alter": [
+{
+"#text": -1
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 4
+}
+]
+},
+{
+"type": [
+{
+"#text": "16th"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "down"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "22"
+}
+},
+{
+"measure": [
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 2
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+},
+{
+"backup": [
+{
+"duration": [
+{
+"#text": 16
+}
+]
+}
+]
+},
+{
+"note": [
+{
+"pitch": [
+{
+"step": [
+{
+"#text": "F"
+}
+]
+},
+{
+"alter": [
+{
+"#text": 0
+}
+]
+},
+{
+"octave": [
+{
+"#text": 2
+}
+]
+}
+]
+},
+{
+"duration": [
+{
+"#text": 16
+}
+]
+},
+{
+"type": [
+{
+"#text": "quarter"
+}
+]
+},
+{
+"stem": [
+{
+"#text": "up"
+}
+]
+},
+{
+"staff": [
+{
+"#text": 1
+}
+]
+},
+{
+"voice": [
+{
+"#text": 1
+}
+]
+}
+]
+}
+],
+":@": {
+"@_number": "23"
+}
+}
+],
+":@": {
+"@_id": "P1"
+}
+}
+],
+":@": {
+"@_version": "4.0"
+}
+}
+]

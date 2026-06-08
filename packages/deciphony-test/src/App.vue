@@ -8,13 +8,15 @@ import PlayerTest from "./views/playerTest.vue";
 import RenderPlayTest from "./views/renderPlayTest.vue";
 import RenderEditTest from "./views/renderEditTest.vue";
 import RenderTitleTest from "./views/renderTitleTest.vue";
+import RenderXmlTest from "./views/renderXmlTest.vue";
 </script>
 
 <template>
 
   <!--  <ui-test></ui-test>-->
   <!--  <render-test></render-test>-->
-  <render-play-test></render-play-test>
+  <!--  <render-play-test></render-play-test>-->
+  <render-xml-test></render-xml-test>
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->

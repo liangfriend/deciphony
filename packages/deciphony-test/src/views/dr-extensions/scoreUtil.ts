@@ -3,17 +3,21 @@ import {
   BarlineTypeEnum,
   ClefTypeEnum,
   DoubleMeasureAffiliatedSymbolNameEnum,
+  DoubleNoteAffiliatedSymbolNameEnum,
+  GrandStaff,
   KeySignatureTypeEnum,
   Measure,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
+  NoteNumber,
+  NotesNumberInfo,
   TimeSignatureTypeEnum,
   NotesInfo,
   NoteSymbolTypeEnum,
   StaffSlot,
   MusicScore,
 } from 'deciphony-renderer'
-import {createAccidental} from './dr-edit/score-builder'
+import {createAccidental, newId} from './dr-edit/score-builder'
 
 /**
  * 乐理基础工具（与播放无关）：region ↔ midi 换算、调号变音、谱号锚点等。
@@ -326,7 +330,7 @@ function getRepeatJumpIndex(
   currentRepeatStartIndex: number,
   firstSegnoIndex: number,
   firstCodaIndex: number,
-  isCurrentVoltaRoundEnd: boolean,
+  hasNextVoltaRound: boolean,
   actived: Set<string>,
   reapeatState: RepeatState,
   activateFine: () => void,
@@ -403,7 +407,8 @@ function getRepeatJumpIndex(
 
   if (reapeatState.barLine && isEndRepeatBarline(measure.barline_b?.type)) {
     const barlineId = measure.barline_b?.id ?? `barline:${measureIndex}`
-    if (!actived.has(barlineId) || isCurrentVoltaRoundEnd) {
+    if (!actived.has(barlineId) || hasNextVoltaRound) {
+      console.log('chicken', hasNextVoltaRound)
       actived.add(barlineId)
       increaseVoltaRound()
       return currentRepeatStartIndex
@@ -518,7 +523,7 @@ export function getPlayMeasureIndexes(musicScoreData: MusicScore): number[] {
       currentRepeatStartIndex,
       firstSegnoIndex,
       firstCodaIndex,
-      voltaByEndIndex.get(measureCursor)?.value.includes(voltaRound) ?? false,
+      voltaByEndIndex.get(measureCursor)?.value.includes(voltaRound + 1) ?? false,
       actived,
       reapeatState,
       () => {
@@ -593,17 +598,213 @@ function stripMeasureRepeatSymbols(measure: Measure): void {
   }
 }
 
-function removeVoltaAffiliatedSymbols(musicScore: MusicScore): void {
-  musicScore.affiliatedSymbols = musicScore.affiliatedSymbols.filter(
-    (sym) => sym.name !== DoubleMeasureAffiliatedSymbolNameEnum.Volta,
-  )
+type NoteLocation = {
+  staffIndex: number
+  measureIndex: number
+}
+
+type SpanAffiliatedSymbol = MusicScore['affiliatedSymbols'][number] & {
+  startId: string
+  endId: string
+}
+
+const DOUBLE_MEASURE_AFFILIATED_NAMES = new Set<string>(
+  Object.values(DoubleMeasureAffiliatedSymbolNameEnum),
+)
+const DOUBLE_NOTE_AFFILIATED_NAMES = new Set<string>(
+  Object.values(DoubleNoteAffiliatedSymbolNameEnum),
+)
+
+/** 深度遍历，为子树内每个带 id 的对象生成新 id，返回 oldId → newId（单次克隆作用域） */
+function regenerateIdsInSubtree(root: unknown): Map<string, string> {
+  const idMap = new Map<string, string>()
+
+  const walk = (node: unknown): void => {
+    if (node == null || typeof node !== 'object') return
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item)
+      return
+    }
+    const obj = node as Record<string, unknown>
+    if (typeof obj.id === 'string') {
+      const freshId = newId()
+      idMap.set(obj.id, freshId)
+      obj.id = freshId
+    }
+    for (const key of Object.keys(obj)) {
+      if (key === 'id') continue
+      walk(obj[key])
+    }
+  }
+
+  walk(root)
+  return idMap
+}
+
+function regenerateScoreStructureIds(musicScore: MusicScore): void {
+  musicScore.id = newId()
+  for (const grandStaff of musicScore.grandStaffs) {
+    grandStaff.id = newId()
+    if (grandStaff.bracket) grandStaff.bracket.id = newId()
+    for (const staff of grandStaff.staves) {
+      staff.id = newId()
+    }
+  }
+}
+
+function forEachNoteEndpointId(measure: Measure, visit: (id: string) => void): void {
+  const visitNotesInfo = (ni: NotesInfo) => {
+    visit(ni.id)
+  }
+  const visitNotesNumberInfo = (ni: NotesNumberInfo) => {
+    visit(ni.id)
+    for (const g of ni.graceNotes ?? []) visitNotesNumberInfo(g)
+    for (const g of ni.graceNotesAfter ?? []) visitNotesNumberInfo(g)
+  }
+
+  for (const slot of measure.notes) {
+    if ('type' in slot) {
+      if (slot.type !== NoteSymbolTypeEnum.Note) continue
+      for (const ni of slot.notesInfo) visitNotesInfo(ni)
+      for (const g of slot.graceNotes ?? []) visitNotesInfo(g)
+      for (const g of slot.graceNotesAfter ?? []) visitNotesInfo(g)
+    } else {
+      const nn = slot as NoteNumber
+      for (const ni of nn.notesInfo) visitNotesNumberInfo(ni)
+    }
+  }
+}
+
+function collectMeasureLocations(grandStaff: GrandStaff): Map<string, number> {
+  const map = new Map<string, number>()
+  const conductorStave = grandStaff.staves[0]
+  if (!conductorStave) return map
+  conductorStave.measures.forEach((measure, measureIndex) => {
+    map.set(measure.id, measureIndex)
+  })
+  return map
+}
+
+function collectNoteLocations(grandStaff: GrandStaff): Map<string, NoteLocation> {
+  const map = new Map<string, NoteLocation>()
+  grandStaff.staves.forEach((staff, staffIndex) => {
+    staff.measures.forEach((measure, measureIndex) => {
+      forEachNoteEndpointId(measure, (noteId) => {
+        map.set(noteId, {staffIndex, measureIndex})
+      })
+    })
+  })
+  return map
+}
+
+function findExpandedEndIndex(
+  startExp: number,
+  endSourceIndex: number,
+  startSourceIndex: number,
+  playMeasureIndexes: number[],
+): number | null {
+  if (startSourceIndex === endSourceIndex) return startExp
+  for (let exp = startExp + 1; exp < playMeasureIndexes.length; exp++) {
+    if (playMeasureIndexes[exp] === endSourceIndex) return exp
+  }
+  return null
+}
+
+function remapSpanAffiliatedInstances(
+  sym: SpanAffiliatedSymbol,
+  playMeasureIndexes: number[],
+  startSourceIndex: number,
+  endSourceIndex: number,
+  staffIndex: number,
+  idMapsByStaff: Map<string, string>[][],
+): SpanAffiliatedSymbol[] {
+  const staffIdMaps = idMapsByStaff[staffIndex]
+  if (!staffIdMaps) return []
+
+  const instances: SpanAffiliatedSymbol[] = []
+  for (let startExp = 0; startExp < playMeasureIndexes.length; startExp++) {
+    if (playMeasureIndexes[startExp] !== startSourceIndex) continue
+    const endExp = findExpandedEndIndex(
+      startExp,
+      endSourceIndex,
+      startSourceIndex,
+      playMeasureIndexes,
+    )
+    if (endExp == null) continue
+
+    const newStartId = staffIdMaps[startExp]?.get(sym.startId)
+    const newEndId = staffIdMaps[endExp]?.get(sym.endId)
+    if (!newStartId || !newEndId) continue
+
+    instances.push({
+      ...sym,
+      id: newId(),
+      startId: newStartId,
+      endId: newEndId,
+    })
+  }
+  return instances
+}
+
+/**
+ * 展平后双小节 / 双音符附属符号按演奏实例复制，并重绑 startId/endId。
+ * volta 展平后删除，其余类型统一处理（含未来新增符号）。
+ */
+function remapAffiliatedSymbols(
+  affiliatedSymbols: MusicScore['affiliatedSymbols'],
+  playMeasureIndexes: number[],
+  measureLocations: Map<string, number>,
+  noteLocations: Map<string, NoteLocation>,
+  idMapsByStaff: Map<string, string>[][],
+): MusicScore['affiliatedSymbols'] {
+  const result: MusicScore['affiliatedSymbols'] = []
+
+  for (const sym of affiliatedSymbols) {
+    if (sym.name === DoubleMeasureAffiliatedSymbolNameEnum.Volta) continue
+    if (!('startId' in sym) || !('endId' in sym)) continue
+
+    const spanSym = sym as SpanAffiliatedSymbol
+
+    if (DOUBLE_MEASURE_AFFILIATED_NAMES.has(sym.name)) {
+      const startSourceIndex = measureLocations.get(spanSym.startId)
+      const endSourceIndex = measureLocations.get(spanSym.endId)
+      if (startSourceIndex == null || endSourceIndex == null) continue
+      result.push(...remapSpanAffiliatedInstances(
+        spanSym,
+        playMeasureIndexes,
+        startSourceIndex,
+        endSourceIndex,
+        0,
+        idMapsByStaff,
+      ))
+      continue
+    }
+
+    if (DOUBLE_NOTE_AFFILIATED_NAMES.has(sym.name)) {
+      const startLoc = noteLocations.get(spanSym.startId)
+      const endLoc = noteLocations.get(spanSym.endId)
+      if (!startLoc || !endLoc || startLoc.staffIndex !== endLoc.staffIndex) continue
+      result.push(...remapSpanAffiliatedInstances(
+        spanSym,
+        playMeasureIndexes,
+        startLoc.measureIndex,
+        endLoc.measureIndex,
+        startLoc.staffIndex,
+        idMapsByStaff,
+      ))
+    }
+  }
+
+  return result
 }
 
 function expandMeasuresByPlayIndexes(
   sourceMeasures: Measure[],
   playMeasureIndexes: number[],
-): Measure[] {
-  return playMeasureIndexes.map((sourceIndex, expandedIndex) => {
+): {measures: Measure[]; idMaps: Map<string, string>[]} {
+  const idMaps: Map<string, string>[] = []
+
+  const measures = playMeasureIndexes.map((sourceIndex, expandedIndex) => {
     const measure = cloneMeasure(sourceMeasures[sourceIndex]!)
     stripMeasureRepeatSymbols(measure)
     if (
@@ -612,8 +813,11 @@ function expandMeasuresByPlayIndexes(
     ) {
       measure.barline_b.type = BarlineTypeEnum.Single_barline
     }
+    idMaps.push(regenerateIdsInSubtree(measure))
     return measure
   })
+
+  return {measures, idMaps}
 }
 
 /**
@@ -639,14 +843,26 @@ export function mergeGrandStaff(musicScore: MusicScore): MusicScore {
 
   musicScore.grandStaffs = [mergedGrandStaff]
 
+  const measureLocations = collectMeasureLocations(mergedGrandStaff)
+  const noteLocations = collectNoteLocations(mergedGrandStaff)
   const playMeasureIndexes = getPlayMeasureIndexes(musicScore)
+  const idMapsByStaff: Map<string, string>[][] = []
+
   for (let staffIndex = 0; staffIndex < expectedCount; staffIndex++) {
     const sourceMeasures = mergedGrandStaff.staves[staffIndex]!.measures
-    const expanded = expandMeasuresByPlayIndexes(sourceMeasures, playMeasureIndexes)
+    const {measures: expanded, idMaps} = expandMeasuresByPlayIndexes(sourceMeasures, playMeasureIndexes)
     mergedGrandStaff.staves[staffIndex]!.measures = expanded
     dedupeMeasureFrontSymbols(expanded)
+    idMapsByStaff[staffIndex] = idMaps
   }
 
-  removeVoltaAffiliatedSymbols(musicScore)
+  musicScore.affiliatedSymbols = remapAffiliatedSymbols(
+    musicScore.affiliatedSymbols,
+    playMeasureIndexes,
+    measureLocations,
+    noteLocations,
+    idMapsByStaff,
+  )
+  regenerateScoreStructureIds(musicScore)
   return musicScore
 }

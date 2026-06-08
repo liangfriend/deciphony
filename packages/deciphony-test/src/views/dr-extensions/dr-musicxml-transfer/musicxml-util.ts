@@ -1,6 +1,39 @@
 import {XMLParser} from 'fast-xml-parser'
-import {MusicScore, MusicScoreTypeEnum} from 'deciphony-renderer'
-import {createGrandStaff, createMeasure, createMusicScore, createSingleStaff} from '../dr-edit/score-builder'
+import {
+    AccidentalTypeEnum,
+    BeamTypeEnum,
+    ClefTypeEnum,
+    KeySignatureTypeEnum,
+    MusicScore,
+    MusicScoreTypeEnum,
+    NoteSymbolTypeEnum,
+    TimeSignatureTypeEnum,
+    type NoteSymbol,
+} from 'deciphony-renderer'
+import {
+    createAugmentationDot,
+    createClef,
+    createGrandStaff,
+    createKeySignature,
+    createMeasure,
+    createMusicScore,
+    createNoteRest,
+    createNoteSymbol,
+    createNotesInfo,
+    createSingleStaff,
+    createTimeSignature,
+    newId,
+} from '../dr-edit/score-builder'
+import {getNoteRegionAndAccidental} from '../scoreUtil'
+import {
+    parseXmlNoteBlock,
+    pitchToMidi,
+    xmlAccidentalToPriority,
+    xmlClefToType,
+    xmlDurationToChronaxie,
+    xmlKeyToType,
+    xmlTimeToType,
+} from './xmlSymbolParse'
 
 /**
  * 使用fast-xml-parser解析musicxml文件成json数据
@@ -44,7 +77,13 @@ function xmlDataFor(data: any[], cb: Function) {
  */
 export function xmlToMusicScore(xmlData: any): MusicScore {
     const root = xmlData[0]['score-partwise'];
-
+    // 每行谱表当前信息
+    const staffStates = Array.from({length: 10}, (_, i) => ({
+        curClef: i === 0 ? ClefTypeEnum.Treble : ClefTypeEnum.Bass,
+        curKeySignature: KeySignatureTypeEnum.C,
+        curTimeSignature: TimeSignatureTypeEnum['4_4'],
+        divisions: 4,
+    }))
     /** 第零步：创建空 musicScore，并加入一个空复谱表（单谱表后续按 staff 数量再补） */
     const musicScore = createMusicScore({
         type: MusicScoreTypeEnum.StandardStaff,
@@ -90,12 +129,258 @@ export function xmlToMusicScore(xmlData: any): MusicScore {
      * 如果索引最后一项是attributes, 保存divisions, 解析key为所有该索引小节后置调号，解析time为所有该索引小节后置拍号，解析clef为小节后置谱号，clef用number属性判断属于哪个单谱表的该索引小节
      * 加三个辅助函数，解析xml中谱号，调号，拍号
      */
+    let divisions = 1
+    const grandStaff = musicScore.grandStaffs[0]
+    const pendingNoteClef: (ClefTypeEnum | undefined)[] = Array(10).fill(undefined)
+    if (firstPart) {
+        let measureIndex = 0
+        for (const partItem of firstPart) {
+            if (!partItem.measure) continue
 
+            const measureBlock = partItem.measure
 
+            const updateStaffStates = (attributesBlock: any[]) => {
+                for (const attrItem of attributesBlock) {
+                    if (attrItem.divisions) {
+                        divisions = Number(attrItem.divisions[0]?.['#text'] ?? divisions)
+                        for (const state of staffStates) state.divisions = divisions
+                    }
+                    if (attrItem.key) {
+                        const keyType = xmlKeyToType(attrItem)
+                        const staffNum = attrItem[':@']?.['@_number']
+                        if (staffNum != null) {
+                            staffStates[Number(staffNum) - 1].curKeySignature = keyType
+                        } else {
+                            for (const state of staffStates) state.curKeySignature = keyType
+                        }
+                    }
+                    if (attrItem.time) {
+                        const timeType = xmlTimeToType(attrItem)
+                        if (!timeType) continue
+                        const staffNum = attrItem[':@']?.['@_number']
+                        if (staffNum != null) {
+                            staffStates[Number(staffNum) - 1].curTimeSignature = timeType
+                        } else {
+                            for (const state of staffStates) state.curTimeSignature = timeType
+                        }
+                    }
+                    if (attrItem.clef) {
+                        const clefType = xmlClefToType(attrItem)
+                        const staffIdx = Number(attrItem[':@']?.['@_number'] ?? 1) - 1
+                        staffStates[staffIdx].curClef = clefType
+                    }
+                }
+            }
 
-    // xmlDataFor(root, (rootData) => {
-    //     rootSwitch(rootData, musicScore);
-    // });
+            const applyMeasureAttributes = (attributesBlock: any[], slot: 'f' | 'b') => {
+                for (const attrItem of attributesBlock) {
+                    if (attrItem.key) {
+                        const keySig = createKeySignature(xmlKeyToType(attrItem))
+                        const staffNum = attrItem[':@']?.['@_number']
+                        const staffList = staffNum != null
+                            ? [grandStaff.staves[Number(staffNum) - 1]]
+                            : grandStaff.staves
+                        for (const staff of staffList) {
+                            const measure = staff?.measures[measureIndex]
+                            if (!measure) continue
+                            if (slot === 'f') measure.keySignature_f = keySig
+                            else measure.keySignature_b = keySig
+                        }
+                    }
+                    if (attrItem.time) {
+                        const timeType = xmlTimeToType(attrItem)
+                        if (!timeType) continue
+                        const timeSig = createTimeSignature(timeType)
+                        const staffNum = attrItem[':@']?.['@_number']
+                        const staffList = staffNum != null
+                            ? [grandStaff.staves[Number(staffNum) - 1]]
+                            : grandStaff.staves
+                        for (const staff of staffList) {
+                            const measure = staff?.measures[measureIndex]
+                            if (!measure) continue
+                            if (slot === 'f') measure.timeSignature_f = timeSig
+                            else measure.timeSignature_b = timeSig
+                        }
+                    }
+                    if (attrItem.clef) {
+                        const clef = createClef(xmlClefToType(attrItem))
+                        const staffNum = Number(attrItem[':@']?.['@_number'] ?? 1)
+                        const measure = grandStaff.staves[staffNum - 1]?.measures[measureIndex]
+                        if (!measure) continue
+                        if (slot === 'f') measure.clef_f = clef
+                        else measure.clef_b = clef
+                    }
+                }
+            }
+
+            let currentTime = 0
+            const staffWrittenDivisions = Array(10).fill(0)
+
+            const appendRestGaps = (staffIdx: number, targetTime: number) => {
+                const measure = grandStaff.staves[staffIdx]?.measures[measureIndex]
+                if (!measure) return
+                const div = staffStates[staffIdx].divisions
+                while (staffWrittenDivisions[staffIdx] < targetTime) {
+                    const gap = targetTime - staffWrittenDivisions[staffIdx]
+                    const chronaxie = xmlDurationToChronaxie(gap, div)
+                    const span = (chronaxie / 64) * div
+                    measure.notes.push(createNoteRest({chronaxie}))
+                    staffWrittenDivisions[staffIdx] += span
+                    if (span <= 0) break
+                }
+            }
+
+            const applyPendingClef = (slot: {clef?: ReturnType<typeof createClef>}, staffIdx: number) => {
+                const pendingClef = pendingNoteClef[staffIdx]
+                if (pendingClef != null) {
+                    slot.clef = createClef(pendingClef)
+                    pendingNoteClef[staffIdx] = undefined
+                }
+            }
+
+            for (let i = 0; i < measureBlock.length; i++) {
+                const measureItem = measureBlock[i]
+                const itemKey = Object.keys(measureItem).find((k) => k !== ':@')
+
+                if (itemKey === 'backup') {
+                    for (const item of measureItem.backup as any[]) {
+                        if (item.duration) {
+                            const backupDuration = Number(item.duration[0]?.['#text'] ?? 0)
+                            currentTime = Math.max(0, currentTime - backupDuration)
+                        }
+                    }
+                    continue
+                }
+
+                if (itemKey === 'attributes') {
+                    const attributesBlock = measureItem.attributes
+                    updateStaffStates(attributesBlock)
+                    if (i === 0) {
+                        applyMeasureAttributes(attributesBlock, 'f')
+                    } else if (i === measureBlock.length - 1) {
+                        applyMeasureAttributes(attributesBlock, 'b')
+                    } else {
+                        for (const attrItem of attributesBlock) {
+                            if (attrItem.clef) {
+                                const staffIdx = Number(attrItem[':@']?.['@_number'] ?? 1) - 1
+                                pendingNoteClef[staffIdx] = xmlClefToType(attrItem)
+                            }
+                        }
+                    }
+                    continue
+                }
+
+                if (itemKey !== 'note') continue
+
+                const parsed = parseXmlNoteBlock(measureItem.note, divisions)
+                const staffIdx = parsed.staffNum - 1
+                const state = staffStates[staffIdx]
+                const measure = grandStaff.staves[staffIdx]?.measures[measureIndex]
+                if (!measure) continue
+
+                if (parsed.isRest) {
+                    if (parsed.isChord) continue
+                    appendRestGaps(staffIdx, currentTime)
+                    const rest = createNoteRest({
+                        chronaxie: parsed.chronaxie,
+                        ...(parsed.dotCount > 0
+                            ? {augmentationDot: createAugmentationDot(Math.min(parsed.dotCount, 3) as 1 | 2 | 3)}
+                            : {}),
+                    })
+                    applyPendingClef(rest, staffIdx)
+                    measure.notes.push(rest)
+                    if (parsed.duration > 0) {
+                        staffWrittenDivisions[staffIdx] = currentTime + parsed.duration
+                        currentTime += parsed.duration
+                    }
+                    continue
+                }
+
+                if (!parsed.pitchBlock) continue
+                const midi = pitchToMidi(parsed.pitchBlock)
+                if (midi == null) continue
+
+                if (!parsed.isChord) appendRestGaps(staffIdx, currentTime)
+
+                const priority = parsed.accidentalText
+                    ? xmlAccidentalToPriority(parsed.accidentalText)
+                    : AccidentalTypeEnum.Sharp
+                const {region, accidental} = getNoteRegionAndAccidental(
+                    state.curClef,
+                    midi,
+                    state.curKeySignature,
+                    priority,
+                )
+                const beamType = parsed.hasBeam ? BeamTypeEnum.Combined : BeamTypeEnum.None
+                const notesInfoOpts = {
+                    region,
+                    chronaxie: parsed.chronaxie,
+                    beamType,
+                    ...(parsed.stem ? {direction: parsed.stem} : {}),
+                    ...(accidental ? {accidental} : {}),
+                    ...(parsed.dotCount > 0
+                        ? {augmentationDot: createAugmentationDot(Math.min(parsed.dotCount, 3) as 1 | 2 | 3)}
+                        : {}),
+                }
+
+                if (parsed.isChord && measure.notes.length) {
+                    const last = measure.notes[measure.notes.length - 1]!
+                    if ('notesInfo' in last) {
+                        (last as NoteSymbol).notesInfo.push(createNotesInfo(notesInfoOpts))
+                        continue
+                    }
+                }
+
+                const note = createNoteSymbol({notesInfo: [notesInfoOpts]})
+                applyPendingClef(note, staffIdx)
+                measure.notes.push(note)
+                if (!parsed.isChord && parsed.duration > 0) {
+                    staffWrittenDivisions[staffIdx] = currentTime + parsed.duration
+                    currentTime += parsed.duration
+                }
+            }
+
+            measureIndex++
+        }
+    }
+
+    /**
+     * 第四步
+     * 遍历单谱表，如果遍历到最后一个音符或rest都没有，删除该单谱表
+     */
+    grandStaff.staves = grandStaff.staves.filter((singleStaff) =>
+        singleStaff.measures.some((measure) =>
+            measure.notes.some(
+                (slot) =>
+                    'type' in slot
+                    && (slot.type === NoteSymbolTypeEnum.Note || slot.type === NoteSymbolTypeEnum.Rest),
+            ),
+        ),
+    )
+    /**
+     * 第五步
+     * 每隔四个小节分割，放到新的复谱表
+     */
+    const measureCount = grandStaff.staves[0]?.measures.length ?? 0
+    if (measureCount > 0) {
+        const splitGrandStaffs = []
+        for (let start = 0; start < measureCount; start += 4) {
+            const newGrandStaff = createGrandStaff({withDefaultStaff: false})
+            newGrandStaff.uSpace = grandStaff.uSpace
+            newGrandStaff.dSpace = grandStaff.dSpace
+            if (grandStaff.linkedStaff) newGrandStaff.linkedStaff = true
+            if (grandStaff.bracket) {
+                newGrandStaff.bracket = {...grandStaff.bracket, id: newId()}
+            }
+            for (const sourceStaff of grandStaff.staves) {
+                const newStaff = createSingleStaff({withDefaultMeasure: false})
+                newStaff.measures = sourceStaff.measures.slice(start, start + 4)
+                newGrandStaff.staves.push(newStaff)
+            }
+            splitGrandStaffs.push(newGrandStaff)
+        }
+        musicScore.grandStaffs = splitGrandStaffs
+    }
 
     return musicScore
 }

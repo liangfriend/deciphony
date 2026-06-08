@@ -1,14 +1,10 @@
 import {
   AccidentalTypeEnum,
-  BarlineTypeEnum,
   Chronaxie,
   ClefTypeEnum,
-  DoubleMeasureAffiliatedSymbolNameEnum,
   DoubleNoteAffiliatedSymbolNameEnum,
   KeySignatureTypeEnum,
   Measure,
-  MeasureEndRepeatEnum,
-  MeasureStartRepeatEnum,
   MusicScore,
   NoteNumber,
   NoteSymbol,
@@ -18,7 +14,9 @@ import {
 } from "@/index";
 import {
   getKeySignatureAccidental,
+  getMeasurePositions,
   getNoteMidi,
+  getPlayMeasureIndexes,
   type AlteredAccidental,
 } from "../scoreUtil";
 
@@ -36,24 +34,6 @@ export type DR_playSequence_item = {
 }
 export type DR_playSequence = Array<DR_playSequence_item>
 
-enum EndAnchorEnum {
-  Barline_final = 'barline_final',
-  Fine_sign = 'fine_sign',
-}
-
-type MeasurePosition = {
-  grandStaffIndex: number
-  measureIndex: number
-  measure: Measure
-}
-
-type VoltaInfo = {
-  id: string
-  startIndex: number
-  endIndex: number
-  value: number[]
-}
-
 type StaffPlayState = {
   /** 自最近一次 keySignature_f / keySignature_b / 音符级（无）起生效，直到下一处调号 */
   curKeySignature: KeySignatureTypeEnum
@@ -63,19 +43,6 @@ type StaffPlayState = {
 
 /** 小节内变音号记忆：region → 已生效的变音（null=本小节曾出现还原号，该级自然） */
 type MeasureAccidentalScope = Map<number, AlteredAccidental | null>
-
-type RepeatState = {
-  barLine: boolean
-  dc: boolean
-  dc_al_fine: boolean
-  dc_al_coda: boolean
-  ds: boolean
-  ds_al_fine: boolean
-  ds_al_coda: boolean
-  segno: boolean
-  coda: boolean
-  toCoda: boolean
-}
 
 /**
  * 倚音播放时值：不占小节拍位，不累加 playTime；从主音时值中抢奏。
@@ -191,127 +158,8 @@ function applySlurTieRealDuration(
  * - 同音高 slur → 延音线：首音 real_duration 为段内 duration 之和，其余为 0
  */
 export function getDrPlaySequence(musicScoreData: MusicScore): DR_playSequence {
-  // 结束模式，结尾小节线结束|Fine符号结束  如果最后一小节没有任何反复符号了，肯定会结束
-  let endAnchor = EndAnchorEnum.Barline_final as EndAnchorEnum
-  // 当前volta轮次, 反复小节线反复后，轮次加1，不属于当前volta的小节不播放， 没有volta覆盖的小节肯定会播放
-  let voltaRound = 0
-  /**
-   * 已激活符号id表,  所有触发一次的符号都要把id加入这个表中
-   * volta优先级大于反复小节线但是小于repeatState，即使反复小节线被激活过了，但是有volta且volta.value包含voltaRound+1，则还是会触发反复小节线。前提是反复小节线状态还是激活的
-   *
-   */
-  const actived = new Set<string>()
-  /**
-   *  已激活反复模式，只有被激活的反复模式可以反复
-   *  触发barline反复时，其余状态不变。
-   *  触发dc,dc、dc_al_fine、dc_al_code状态改为false(理论上不应该有多个dc),barline状态改为false
-   *  触发dc_al_fine, fine激活，dc相关的全部false, barline改为false, endAnchor改为Fine
-   *  触发dc_al_coda，coda激活，dc相关的全部false, barline改为false
-   *  触发ds,segno激活，barline状态改为false
-   *  触发ds_al_fine,segno激活, barline改为false, endAnchor改为Fine
-   *  触发ds_al_coda,coda激活, barline改为false,
-   *  触发segno, segno改为false
-   *  触发coda, 激活toCoda, coda改为false
-   */
-  const reapeatState: RepeatState = {
-    barLine: true,
-    dc: true,
-    dc_al_fine: true,
-    dc_al_coda: true,
-    ds: true,
-    ds_al_fine: true,
-    ds_al_coda: true,
-    segno: false,
-    coda: false,
-    toCoda: false
-  }
-  //
-  /**
-   * 顺序获取所有小节的位置信息，相当于把曲谱按小节平铺了,但是只是第一行单谱表
-   * 所以所有反复相关的符号，只有在第一行单谱表上才会生效。
-   * 这个逻辑是正确的，否则会出现不同小节不同反复情况，无法正确生成播放序列
-   */
   const measurePositions = getMeasurePositions(musicScoreData)
-  // 永远忽快速查找索引
-  const measureIndexMap = new Map(measurePositions.map((item, index) => [item.measure.id, index]))
-  // volta开始和结束符号id存储
-  const voltaByStartIndex = new Map<number, VoltaInfo>()
-  const voltaByEndIndex = new Map<number, VoltaInfo>()
-  for (const volta of getVoltaList(musicScoreData, measureIndexMap, measurePositions)) {
-    voltaByStartIndex.set(volta.startIndex, volta)
-    voltaByEndIndex.set(volta.endIndex, volta)
-  }
-  // 第一个segno
-  const firstSegnoIndex = measurePositions.findIndex(({measure}) => measure.startRepeat?.type === MeasureStartRepeatEnum.Segno)
-  // 第一个coda
-  const firstCodaIndex = measurePositions.findIndex(({measure}) => measure.startRepeat?.type === MeasureStartRepeatEnum.Coda)
-  // 待播放小节索引列表，直接通过这个生成播放序列
-  const playMeasureIndexes: number[] = []
-  // 指向当前操作的小节的指针
-  let measureCursor = 0
-  let currentRepeatStartIndex = 0
-  // 记录当前循环次数
-  let loopGuard = 0
-  // 防止死循环
-  const maxRepeatSteps = Math.max(measurePositions.length * 32, 256)
-
-  while (measureCursor >= 0 && measureCursor < measurePositions.length && loopGuard < maxRepeatSteps) {
-    // 循环次数加1
-    loopGuard += 1
-    // 如果小节有volta, 且不存在当前volta轮次，跳过
-    const volta = voltaByStartIndex.get(measureCursor)
-    if (volta && !volta.value.includes(voltaRound)) {
-      measureCursor = volta.endIndex + 1
-      continue
-    }
-    // 获取小节
-    const measure = measurePositions[measureCursor].measure
-    // 推入待播放小节索引列表
-    playMeasureIndexes.push(measureCursor)
-    // 标记当前小节索引为反复开始小节索引
-    if (isStartRepeatBarline(measure.barline_f?.type)) {
-      currentRepeatStartIndex = measureCursor
-    }
-    // 遇到segno和coda直接变成false
-    if (measure.startRepeat?.type === MeasureStartRepeatEnum.Segno && reapeatState.segno) {
-      reapeatState.segno = false
-    }
-    if (measure.startRepeat?.type === MeasureStartRepeatEnum.Coda && reapeatState.coda) {
-      reapeatState.toCoda = true
-      reapeatState.coda = false
-    }
-    // 如果当前停止模式是Fine且当前小节有FIne,跳出循环
-    if (endAnchor === EndAnchorEnum.Fine_sign && measure.endRepeat?.type === MeasureEndRepeatEnum.Fine) {
-      break
-    }
-    // 判断小节的endRepeat是否生效，执行反复
-    const jumpIndex = getRepeatJumpIndex(
-      measure,
-      measureCursor,
-      currentRepeatStartIndex,
-      firstSegnoIndex,
-      firstCodaIndex,
-      voltaByEndIndex.get(measureCursor)?.value.includes(voltaRound) ?? false,
-      actived,
-      reapeatState,
-      () => {
-        endAnchor = EndAnchorEnum.Fine_sign
-      },
-      () => {
-        voltaRound += 1
-      },
-    )
-    // 存在跳转索引，跳转
-    if (jumpIndex != null) {
-      measureCursor = jumpIndex
-      continue
-    }
-    // 如果当前停止模式是Final_barline且当前小节有Final_barline,跳出循环
-    if (measure.barline_b?.type === BarlineTypeEnum.Final_barline && endAnchor === EndAnchorEnum.Barline_final) {
-      break
-    }
-    measureCursor += 1
-  }
+  const playMeasureIndexes = getPlayMeasureIndexes(musicScoreData)
 
   const seq: DR_playSequence = []
   const noteStaveIndex = new Map<string, number>()
@@ -579,154 +427,6 @@ function appendMeasureSequence(
   applyMeasureClefBack(state, measure)
   applyMeasureKeySignatureBack(state, measure)
   return playTime - measureStart
-}
-
-function getMeasurePositions(musicScoreData: MusicScore): MeasurePosition[] {
-  const positions: MeasurePosition[] = []
-  for (let grandStaffIndex = 0; grandStaffIndex < musicScoreData.grandStaffs.length; grandStaffIndex++) {
-    const grandStaff = musicScoreData.grandStaffs[grandStaffIndex]
-    const conductorStave = grandStaff.staves[0]
-    if (!conductorStave) continue
-    for (let measureIndex = 0; measureIndex < conductorStave.measures.length; measureIndex++) {
-      positions.push({
-        grandStaffIndex,
-        measureIndex,
-        measure: conductorStave.measures[measureIndex],
-      })
-    }
-  }
-  return positions
-}
-
-function getVoltaList(
-  musicScoreData: MusicScore,
-  measureIndexMap: Map<string, number>,
-  measurePositions: MeasurePosition[],
-): VoltaInfo[] {
-  return musicScoreData.affiliatedSymbols
-  .flatMap(symbol => {
-    if (symbol.name !== DoubleMeasureAffiliatedSymbolNameEnum.Volta || !('volta' in symbol.data) || !symbol.data.volta) {
-      return []
-    }
-    const startIndex = measureIndexMap.get(symbol.startId)
-    const endIndex = measureIndexMap.get(symbol.endId)
-    if (startIndex == null || endIndex == null) return []
-    const endMeasure = measurePositions[endIndex]?.measure
-    if (!isEndRepeatBarline(endMeasure?.barline_b?.type)) return []
-    return [{
-      id: symbol.id,
-      startIndex,
-      endIndex,
-      value: symbol.data.volta.value,
-    }]
-  })
-}
-
-function getRepeatJumpIndex(
-  measure: Measure,
-  measureIndex: number,
-  currentRepeatStartIndex: number,
-  firstSegnoIndex: number,
-  firstCodaIndex: number,
-  isCurrentVoltaRoundEnd: boolean,
-  actived: Set<string>,
-  reapeatState: RepeatState,
-  activateFine: () => void,
-  increaseVoltaRound: () => void,
-): number | null {
-  const endRepeat = measure.endRepeat
-  if (endRepeat) {
-    switch (endRepeat.type) {
-      case MeasureEndRepeatEnum.To_coda:
-        if ((reapeatState.toCoda || reapeatState.coda) && firstCodaIndex >= 0) {
-          reapeatState.toCoda = false
-          reapeatState.coda = false
-          actived.add(endRepeat.id)
-          return firstCodaIndex
-        }
-        break
-      case MeasureEndRepeatEnum.DC:
-        if (reapeatState.dc && !actived.has(endRepeat.id)) {
-          disableDcState(reapeatState)
-          reapeatState.barLine = false
-          actived.add(endRepeat.id)
-          return 0
-        }
-        break
-      case MeasureEndRepeatEnum.DC_al_fine:
-        if (reapeatState.dc_al_fine && !actived.has(endRepeat.id)) {
-          disableDcState(reapeatState)
-          reapeatState.barLine = false
-          activateFine()
-          actived.add(endRepeat.id)
-          return 0
-        }
-        break
-      case MeasureEndRepeatEnum.DC_al_coda:
-        if (reapeatState.dc_al_coda && !actived.has(endRepeat.id)) {
-          disableDcState(reapeatState)
-          reapeatState.barLine = false
-          reapeatState.coda = true
-          actived.add(endRepeat.id)
-          return 0
-        }
-        break
-      case MeasureEndRepeatEnum.DS:
-        if (reapeatState.ds && !actived.has(endRepeat.id) && firstSegnoIndex >= 0) {
-          reapeatState.ds = false
-          reapeatState.barLine = false
-          reapeatState.segno = true
-          actived.add(endRepeat.id)
-          return firstSegnoIndex
-        }
-        break
-      case MeasureEndRepeatEnum.DS_al_fine:
-        if (reapeatState.ds_al_fine && !actived.has(endRepeat.id) && firstSegnoIndex >= 0) {
-          reapeatState.ds_al_fine = false
-          reapeatState.barLine = false
-          reapeatState.segno = true
-          activateFine()
-          actived.add(endRepeat.id)
-          return firstSegnoIndex
-        }
-        break
-      case MeasureEndRepeatEnum.DS_al_coda:
-        if (reapeatState.ds_al_coda && !actived.has(endRepeat.id) && firstSegnoIndex >= 0) {
-          reapeatState.ds_al_coda = false
-          reapeatState.barLine = false
-          reapeatState.segno = true
-          reapeatState.coda = true
-          actived.add(endRepeat.id)
-          return firstSegnoIndex
-        }
-        break
-    }
-  }
-
-  if (reapeatState.barLine && isEndRepeatBarline(measure.barline_b?.type)) {
-    const barlineId = measure.barline_b?.id ?? `barline:${measureIndex}`
-    if (!actived.has(barlineId) || isCurrentVoltaRoundEnd) {
-      actived.add(barlineId)
-      increaseVoltaRound()
-      return currentRepeatStartIndex
-    }
-  }
-
-  return null
-}
-
-function disableDcState(reapeatState: RepeatState): void {
-  reapeatState.dc = false
-  reapeatState.dc_al_fine = false
-  reapeatState.dc_al_coda = false
-}
-
-function isStartRepeatBarline(type: BarlineTypeEnum | undefined): boolean {
-  return type === BarlineTypeEnum.StartRepeat_barline || type === BarlineTypeEnum.Start_end_repeat_barline
-}
-
-function isEndRepeatBarline(type: BarlineTypeEnum | undefined): boolean {
-  return type === BarlineTypeEnum.EndRepeat_barline || type === BarlineTypeEnum.Start_end_repeat_barline
 }
 
 function getDuration(chronaxie: Chronaxie, dotCount: number): Unit256 {

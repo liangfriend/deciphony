@@ -96,6 +96,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.2
+      xmlbuilder:
+        specifier: ^15.1.1
+        version: 15.1.1
     devDependencies:
       tsc-alias:
         specifier: ^1.8.16
@@ -188,6 +191,9 @@ importers:
       vue:
         specifier: ^3.5.17
         version: 3.5.18(typescript@5.9.2)
+      xmlbuilder:
+        specifier: ^15.1.1
+        version: 15.1.1
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^6.0.0
@@ -2885,6 +2891,10 @@ packages:
     resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
     engines: {node: '>=16.0.0'}
 
+  xmlbuilder@15.1.1:
+    resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
+    engines: {node: '>=8.0'}
+
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
@@ -5501,6 +5511,8 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xml-naming@0.1.0: {}
+
+  xmlbuilder@15.1.1: {}
 
   xmlchars@2.2.0: {}
 

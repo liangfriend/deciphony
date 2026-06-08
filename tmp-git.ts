@@ -34,7 +34,6 @@ import {
     xmlKeyToType,
     xmlTimeToType,
 } from './xmlSymbolParse'
-import {buildMusicScoreToXml} from './musicScoreToXml'
 
 /**
  * 使用fast-xml-parser解析musicxml文件成json数据
@@ -390,7 +389,7 @@ export function xmlToMusicScore(xmlData: any): MusicScore {
  * musicScore转musicXml
  */
 export function musicScoreToXml(musicScore: MusicScore): File {
-    return buildMusicScoreToXml(musicScore)
+
 }
 
 function rootSwitch(rootData, musicScore: MusicScore) {

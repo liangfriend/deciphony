@@ -1,0 +1,12 @@
+1: import {XMLParser} from 'fast-xml-parser'
+41: const xmlParser = new XMLParser({
+60:         throw new Error('内容不是 XML 文本（应以 < 开头）。')
+76:  * musicXml转musicScore
+87:     /** 第零步：创建空 musicScore，并加入一个空复谱表（单谱表后续按 staff 数量再补） */
+95:      * 第一步
+104:      * 第二步
+125:      * 第三步，
+348:      * 第四步
+361:      * 第五步
+389:  * musicScore转musicXml
+557:             // // 在 staves 之前出现的 key（未带 number）默认仅写入了 0 号，这里同步到剩余单谱表

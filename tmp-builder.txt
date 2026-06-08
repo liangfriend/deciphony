@@ -1,0 +1,8 @@
+' * MusicXML score-partwise 文档构建器。'
+' * 供 dr-musicxml-transfer 的 musicScoreToXml 逐步接入。'
+'  /** 开始一个小节 */'
+'  /** 写入小节 attributes（谱号 / 调号 / 拍号 / divisions） */'
+'  /** 写入音符或休止符 */'
+'  /** 声部切换前写入 backup */'
+"      throw new Error('MusicXmlBuilder: 请先调用 beginMeasure()')"
+'/** 生成最小可解析的 score-partwise 骨架（便于联调导入/导出） */'

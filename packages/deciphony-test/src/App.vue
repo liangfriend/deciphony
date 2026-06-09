@@ -15,8 +15,8 @@ import RenderXmlTest from "./views/renderXmlTest.vue";
 
   <!--  <ui-test></ui-test>-->
   <!--  <render-test></render-test>-->
-  <!--  <render-play-test></render-play-test>-->
-  <render-xml-test></render-xml-test>
+  <render-play-test></render-play-test>
+  <!--  <render-xml-test></render-xml-test>-->
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->

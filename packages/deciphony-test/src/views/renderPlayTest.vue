@@ -6,6 +6,10 @@ import piano from '../assets/toneColor/accoustic_grand_piano.json'
 import {onBeforeUnmount, onMounted, ref} from "vue";
 import {getDrPlaySequence} from "./dr-extensions/dr-play/play-util";
 import {usePlayHighlight, type MusicScoreHighlightExpose} from './dr-extensions/dr-play-highlight'
+import {bambooForestSkin, glacierSkin} from '../skins'
+
+const skinName = ref<'default' | 'bambooForest' | 'glacier'>('bambooForest')
+const customSkins = {bambooForest: bambooForestSkin, glacier: glacierSkin}
 
 const musicScoreData = data
 const musicScoreRef = ref<MusicScoreHighlightExpose | null>(null)
@@ -68,6 +72,7 @@ onMounted(async () => {
   nplayer.onEnd = () => {
     handlePlaybackEnd()
   }
+  console.log('chicken', customSkins)
 })
 
 onBeforeUnmount(() => {
@@ -100,11 +105,22 @@ function handleStop() {
           ref="musicScoreRef"
           :data="musicScoreData"
           :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
-          skin-name="default"
+          :skin="skinName === 'default' ? undefined : customSkins"
+          :skin-name="skinName"
           @renderMusicScore="handleRenderMusicScore"
       />
     </div>
     <div class="play-test__panel">
+      <h3 class="play-test__title">皮肤</h3>
+      <div class="play-test__skins">
+        <button class="play-test__btn" :class="{active: skinName === 'default'}" @click="skinName = 'default'">默认
+        </button>
+        <button class="play-test__btn" :class="{active: skinName === 'bambooForest'}"
+                @click="skinName = 'bambooForest'">竹林
+        </button>
+        <button class="play-test__btn" :class="{active: skinName === 'glacier'}" @click="skinName = 'glacier'">冰川
+        </button>
+      </div>
       <h3 class="play-test__title">播放控制</h3>
       <button class="play-test__btn" @click="handlePlay">播放</button>
       <button class="play-test__btn" @click="handlePause">暂停</button>
@@ -158,6 +174,17 @@ function handleStop() {
 
 .play-test__btn:active {
   background: #e6e6e6;
+}
+
+.play-test__skins {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.play-test__btn.active {
+  border-color: #40916c;
+  background: #f0faf4;
 }
 
 :deep(.dr-play-highlight) {

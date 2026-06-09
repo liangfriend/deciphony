@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, ref, watch} from 'vue'
+import {computed, ref, watch, onMounted} from 'vue'
 import {musicScoreToVDom as musicScoreToVDomNumber} from '@/numberNotation/render/musicScoreToVDom'
 import {musicScoreToVDom as musicScoreToVDomStandard} from '@/standardStaff/render/musicScoreToVDom'
 import {applyVDomUpdate, diffAndMergeVDom} from '@/render/update'
@@ -93,7 +93,9 @@ const effectiveSkinName = computed(() => {
   const s = skin.value
   return sn && s && sn in s ? sn : 'default'
 })
-
+onMounted(() => {
+  console.log('chicken', defaultSkin)
+})
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
 
 const emit = defineEmits<{

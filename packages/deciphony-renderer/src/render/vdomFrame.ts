@@ -106,12 +106,30 @@ function registerStandardGraceNotes(
     }
 }
 
+/** 音符前谱号：水平跟随首个 NotesInfo（音符头 targetId），不继承其 relativeY（谱号按小节行垂直居中） */
+function registerNoteClef(
+    map: Map<string, RelativeFrame>,
+    note: NoteSymbol,
+): void {
+    if (!note.clef) return;
+    const primaryInfo = note.notesInfo[0];
+    const parents: Array<Partial<Frame> | RelativeFrame | undefined | null> = [note];
+    if (primaryInfo) {
+        parents.push({
+            relativeX: primaryInfo.relativeX ?? 0,
+            relativeY: 0,
+            relativeW: 0,
+            relativeH: 0,
+        });
+    }
+    parents.push(note.clef);
+    registerFrame(map, note.clef.id, ...parents);
+}
+
 function registerNoteSymbol(map: Map<string, RelativeFrame>, note: NoteSymbol): void {
     registerFrame(map, note.id, note);
     // 上下加线 targetId 为 NotesInfo.id（见 registerNotesInfo），apply 时仅施加 relativeX
-    if (note.clef) {
-        registerFrame(map, note.clef.id, note, note.clef);
-    }
+    registerNoteClef(map, note);
     for (const info of note.notesInfo) {
         registerNotesInfo(map, info, note);
     }
@@ -188,6 +206,7 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
  *
  * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
  * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链；
+ *   音符前谱号（slot.clef，vDom tag=clef_f）继承 NoteSymbol + 首个 NotesInfo 的 relativeX + 自身 clef；
  *   上下加线（vDom addLine_u / addLine_g，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
  *   apply 时仅 relativeX（Y 随小节 region 布局，X 随音符头）
  * - NoteRest：自身 → 附点、单音附属、谱号

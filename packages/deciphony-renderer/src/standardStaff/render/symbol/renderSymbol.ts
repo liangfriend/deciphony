@@ -261,11 +261,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       * 渲染音符前谱号
       * */
       if (slot.clef) {
-        const clefKey = getClefSkinKey(slot.clef.type, true);
+        // 音符前谱号与后置谱号同尺寸（后置皮肤）；widthRatio 计算亦用后置皮肤
+        const clefKey = getClefSkinKey(slot.clef.type, false);
         const clefItem = skin[clefKey];
         if (clefItem) {
           const clefX = slotX - CLEF_NOTE_GAP_RATIO * measureHeight - clefItem.w;
-          const clefY = measureY - (clefItem.h - measureHeight) / 2;
+          const clefY = measureY + (measureHeight - clefItem.h) / 2;
           const clefVDom: VDom = {
             startPoint: {x: 0, y: 0},
             endPoint: {x: 0, y: 0},

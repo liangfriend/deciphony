@@ -40,6 +40,11 @@ import type {
   TimeSignature,
 } from '@/types/MusicScoreType';
 import {isNoteRest, isNoteSymbol} from '@/standardStaff/render/utils/staffSlot';
+import {
+  getDiatonicDegreeFromC,
+  getKeySignatureAccidental,
+  getNoteMidi,
+} from '../dr-extensions/scoreUtil';
 
 // —— 常量 ——
 
@@ -748,4 +753,134 @@ export function getNote(score: MusicScore, path: NotePath): NoteSymbol {
 
 export function getRest(score: MusicScore, path: NotePath): NoteRest {
   return resolveRest(score, path);
+}
+
+// —— 五线谱 → 简谱 ——
+
+/** 各调号 do 所在自然音级（相对 C=0） */
+const TONIC_DEGREE_FROM_C: Record<KeySignatureTypeEnum, number> = {
+  [KeySignatureTypeEnum.C]: 0,
+  [KeySignatureTypeEnum.G]: 4,
+  [KeySignatureTypeEnum.D]: 1,
+  [KeySignatureTypeEnum.A]: 5,
+  [KeySignatureTypeEnum.E]: 2,
+  [KeySignatureTypeEnum.B]: 6,
+  [KeySignatureTypeEnum.F_sharp]: 3,
+  [KeySignatureTypeEnum.C_sharp]: 3,
+  [KeySignatureTypeEnum.F]: 3,
+  [KeySignatureTypeEnum.B_flat]: 6,
+  [KeySignatureTypeEnum.E_flat]: 2,
+  [KeySignatureTypeEnum.A_flat]: 5,
+  [KeySignatureTypeEnum.D_flat]: 1,
+  [KeySignatureTypeEnum.G_flat]: 4,
+  [KeySignatureTypeEnum.C_flat]: 0,
+};
+
+function syllableFromRegion(
+  clef: ClefTypeEnum,
+  region: number,
+  keySignature: KeySignatureTypeEnum,
+): NotesNumberInfo['syllable'] {
+  const degree = getDiatonicDegreeFromC(clef, region);
+  const tonic = TONIC_DEGREE_FROM_C[keySignature] ?? 0;
+  return ((((degree - tonic) % 7) + 7) % 7 + 1) as NotesNumberInfo['syllable'];
+}
+
+function octaveDotFromRegion(
+  clef: ClefTypeEnum,
+  region: number,
+  keySignature: KeySignatureTypeEnum,
+): NotesNumberInfo['octaveDot'] {
+  const accidental = getKeySignatureAccidental(clef, keySignature, region);
+  const midi = getNoteMidi(clef, region, accidental);
+  return (Math.floor(midi / 12) - 5) as NotesNumberInfo['octaveDot'];
+}
+
+/** 五线谱 region → 简谱音级（保留 notesInfo.id 以维持连音线等绑定） */
+export function notesInfoToNotesNumberInfo(
+  info: NotesInfo,
+  clef: ClefTypeEnum,
+  keySignature: KeySignatureTypeEnum,
+): NotesNumberInfo {
+  return {
+    id: info.id,
+    syllable: syllableFromRegion(clef, info.region, keySignature),
+    octaveDot: octaveDotFromRegion(clef, info.region, keySignature),
+    ...(info.accidental ? {accidental: info.accidental} : {}),
+    ...(info.augmentationDot ? {augmentationDot: info.augmentationDot} : {}),
+  };
+}
+
+function convertNoteSymbolToNoteNumber(
+  note: NoteSymbol,
+  clef: ClefTypeEnum,
+  keySignature: KeySignatureTypeEnum,
+): NoteNumber {
+  const lead = note.notesInfo[0]!;
+  return {
+    id: note.id,
+    relativeX: note.relativeX,
+    relativeY: note.relativeY,
+    relativeW: note.relativeW,
+    relativeH: note.relativeH,
+    chronaxie: lead.chronaxie,
+    notesInfo: note.notesInfo.map((ni) => notesInfoToNotesNumberInfo(ni, clef, keySignature)),
+    beamType: lead.beamType ?? BeamTypeEnum.None,
+    affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
+    widthRatio: note.widthRatio,
+    widthRatioForMeasure: note.widthRatioForMeasure,
+  };
+}
+
+function convertRestToNoteNumber(rest: NoteRest): NoteNumber {
+  return createNoteNumber({
+    syllable: 0,
+    chronaxie: rest.chronaxie,
+    beamType: BeamTypeEnum.None,
+    widthRatio: rest.widthRatio,
+    widthRatioForMeasure: rest.widthRatioForMeasure,
+    ...(rest.augmentationDot ? {augmentationDot: rest.augmentationDot} : {}),
+  });
+}
+
+function resolveMeasureKeySignature(
+  measure: Measure,
+  fallback: KeySignatureTypeEnum,
+): KeySignatureTypeEnum {
+  return measure.keySignature_f?.type ?? measure.keySignature_b?.type ?? fallback;
+}
+
+/** 将五线谱曲谱转为简谱（深拷贝，不修改原数据） */
+export function convertStandardStaffToNumberNotation(
+  score: MusicScore,
+  keySignatureFallback: KeySignatureTypeEnum = KeySignatureTypeEnum.C,
+): MusicScore {
+  const out = JSON.parse(JSON.stringify(score)) as MusicScore;
+  out.type = MusicScoreTypeEnum.NumberNotation;
+
+  for (const grandStaff of out.grandStaffs) {
+    for (const staff of grandStaff.staves) {
+      let clef = staff.measures[0]?.clef_f?.type ?? ClefTypeEnum.Treble;
+      let keySignature = resolveMeasureKeySignature(staff.measures[0] ?? {}, keySignatureFallback);
+
+      for (const measure of staff.measures) {
+        if (measure.clef_f?.type) clef = measure.clef_f.type;
+        keySignature = resolveMeasureKeySignature(measure, keySignature);
+        delete measure.clef_f;
+        delete measure.clef_b;
+
+        measure.notes = measure.notes.map((slot) => {
+          if (isNoteSymbol(slot)) {
+            return convertNoteSymbolToNoteNumber(slot, clef, keySignature);
+          }
+          if (isNoteRest(slot)) {
+            return convertRestToNoteNumber(slot);
+          }
+          return slot;
+        });
+      }
+    }
+  }
+
+  return out;
 }

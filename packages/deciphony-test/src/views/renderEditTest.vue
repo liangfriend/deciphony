@@ -3,7 +3,7 @@ import musicScoreVue from 'deciphony-renderer'
 import type {MusicScore} from 'deciphony-renderer'
 import {onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
-import initialData from './data/singleNote'
+import initialData from './data/其多列简谱'
 import {
   AddNoteStatePanel,
   EditSlotGdButtons,

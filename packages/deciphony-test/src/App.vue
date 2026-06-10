@@ -9,6 +9,7 @@ import RenderPlayTest from "./views/renderPlayTest.vue";
 import RenderEditTest from "./views/renderEditTest.vue";
 import RenderTitleTest from "./views/renderTitleTest.vue";
 import RenderXmlTest from "./views/renderXmlTest.vue";
+import TransferTest from "./views/transferTest.vue";
 </script>
 
 <template>
@@ -17,7 +18,8 @@ import RenderXmlTest from "./views/renderXmlTest.vue";
   <!--  <render-test></render-test>-->
   <!--  <render-play-test></render-play-test>-->
   <!--  <render-xml-test></render-xml-test>-->
-  <render-edit-test></render-edit-test>
+  <!--  <render-edit-test></render-edit-test>-->
+  <transfer-test></transfer-test>
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->
 

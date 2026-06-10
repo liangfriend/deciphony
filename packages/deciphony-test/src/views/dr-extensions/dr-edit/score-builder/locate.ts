@@ -1,15 +1,17 @@
 import {isNoteRest, isNoteSymbol} from 'deciphony-renderer';
-import type {MusicScore, NoteNumber, NotesInfo, NoteSymbol, StaffSlot} from 'deciphony-renderer';
+import type {MusicScore, NoteNumber, NotesInfo, NotesNumberInfo, NoteSymbol, StaffSlot} from 'deciphony-renderer';
 import type {
   GrandStaffPath,
   LocatedGrandStaff,
   LocatedMeasure,
   LocatedNoteSlot,
   LocatedNotesInfo,
+  LocatedNotesNumberInfo,
   LocatedSingleStaff,
   MeasurePath,
   NotePath,
   NotesInfoPath,
+  NotesNumberInfoPath,
   SingleStaffPath,
 } from './types';
 import {assertIndex} from './id';
@@ -71,6 +73,12 @@ export function resolveNotesInfo(score: MusicScore, path: NotesInfoPath): NotesI
   const note = resolveNoteSymbol(score, path);
   assertIndex('notesInfoIndex', path.notesInfoIndex, note.notesInfo.length);
   return note.notesInfo[path.notesInfoIndex]!;
+}
+
+export function resolveNotesNumberInfo(score: MusicScore, path: NotesNumberInfoPath): NotesNumberInfo {
+  const note = resolveNoteNumber(score, path);
+  assertIndex('notesNumberInfoIndex', path.notesNumberInfoIndex, note.notesInfo.length);
+  return note.notesInfo[path.notesNumberInfoIndex]!;
 }
 
 // —— 按引用定位（编辑 UI 锚点）——
@@ -153,6 +161,38 @@ export function locateNoteSlot(
           const located = locateMeasure(score, measure);
           if (!located) continue;
           return {...located, noteIndex, slot: target};
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/** 按 NotesNumberInfo.id 查找（简谱 slur 端点等） */
+export function locateNotesNumberInfoById(
+  score: MusicScore,
+  notesNumberInfoId: string,
+): LocatedNotesNumberInfo | null {
+  for (const gs of score.grandStaffs) {
+    for (const staff of gs.staves) {
+      for (const measure of staff.measures) {
+        for (let noteIndex = 0; noteIndex < measure.notes.length; noteIndex++) {
+          const slot = measure.notes[noteIndex]!;
+          if (!isNoteNumberSlot(slot)) continue;
+          const idx = slot.notesInfo.findIndex((ni) => ni.id === notesNumberInfoId);
+          if (idx < 0) continue;
+          return {
+            grandStaffIndex: indexOfGrandStaff(score, gs),
+            singleStaffIndex: indexOfSingleStaff(gs, staff),
+            measureIndex: indexOfMeasure(staff, measure),
+            noteIndex,
+            notesNumberInfoIndex: idx,
+            grandStaff: gs,
+            singleStaff: staff,
+            measure,
+            note: slot,
+            notesNumberInfo: slot.notesInfo[idx]!,
+          };
         }
       }
     }

@@ -2,7 +2,7 @@
 import type {Chronaxie} from 'deciphony-renderer'
 import {AccidentalTypeEnum, BeamTypeEnum} from 'deciphony-renderer'
 import {computed} from 'vue'
-import {CHRONAXIE_OPTIONS} from '../renderEditAddNoteState'
+import {CHRONAXIE_OPTIONS} from '../../renderEditAddNoteState'
 import {
   ACCIDENTAL_SELECT_OPTIONS,
   AUGMENTATION_DOT_OPTIONS,

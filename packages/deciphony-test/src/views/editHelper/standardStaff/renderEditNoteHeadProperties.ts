@@ -1,6 +1,6 @@
 import type {Chronaxie, Measure, NoteSymbol, NotesInfo, SlotData} from 'deciphony-renderer'
 import {AccidentalTypeEnum, BeamTypeEnum} from 'deciphony-renderer'
-import {createAccidental, createAugmentationDot} from '../dr-extensions/dr-edit/score-builder'
+import {createAccidental, createAugmentationDot} from '../../dr-extensions/dr-edit/score-builder'
 
 export type NoteHeadEditSlot = SlotData & {info: NotesInfo; note: NoteSymbol; measure: Measure}
 

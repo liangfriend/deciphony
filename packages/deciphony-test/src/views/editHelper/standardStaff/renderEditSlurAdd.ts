@@ -1,6 +1,6 @@
 import {isNoteSymbol} from 'deciphony-renderer'
 import type {Measure, MusicScore, NotesInfo, NoteSymbol, SingleStaff} from 'deciphony-renderer'
-import {createSlur} from '../dr-extensions/dr-edit/score-builder'
+import {createSlur} from '../../dr-extensions/dr-edit/score-builder'
 import type {NoteHeadEditSlot} from './renderEditNoteHeadProperties'
 
 /** 连音线跨越的连续音符位数（含当前音符） */

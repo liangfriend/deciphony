@@ -1,7 +1,7 @@
 import {isNoteRest, isNoteSymbol} from 'deciphony-renderer'
 import type {Chronaxie, Measure, MusicScore, NoteSymbol, NotesInfo, SlotData, VDom} from 'deciphony-renderer'
-import {createNoteRest, createNoteSymbol, createNotesInfo} from '../dr-extensions/dr-edit/score-builder/factories'
-import {DEFAULT_ADD_NOTE_STATE, type AddNoteSlotKind, type AddNoteState} from './renderEditAddNoteState'
+import {createNoteRest, createNoteSymbol, createNotesInfo} from '../../dr-extensions/dr-edit/score-builder/factories'
+import {DEFAULT_ADD_NOTE_STATE, type AddNoteSlotKind, type AddNoteState} from '../renderEditAddNoteState'
 import {noteSymbolSvg, rest as restSymbolSvg} from './noteSvg'
 
 /** 占位音符头高度 */

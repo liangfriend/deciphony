@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 import musicScoreVue from 'deciphony-renderer'
+import {MusicScoreTypeEnum} from 'deciphony-renderer'
 import type {MusicScore} from 'deciphony-renderer'
-import {onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/其多列简谱'
 import {
   AddNoteStatePanel,
+  AddNumberStatePanel,
   EditSlotGdButtons,
   EditSlotSdButtons,
   GhostNotePreview,
+  GhostNumberPreview,
   PropertyPanel,
   SlurDragHandles,
   VoltaDragHandles,
@@ -16,6 +19,9 @@ import {
 } from './editHelper'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
+const isNumberNotation = computed(
+  () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
+)
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
 
 const {
@@ -67,7 +73,8 @@ onBeforeUnmount(() => {
 <template>
   <div class="play-test">
     <div class="play-test__main">
-      <AddNoteStatePanel v-model="addNoteState"/>
+      <AddNumberStatePanel v-if="isNumberNotation" v-model="addNoteState as any"/>
+      <AddNoteStatePanel v-else v-model="addNoteState as any"/>
       <div ref="scoreRootRef" class="play-test__score">
       <div class="play-test__score-stack">
       <musicScoreVue
@@ -101,7 +108,14 @@ onBeforeUnmount(() => {
             fill-opacity="0.01"
             pointer-events="none"
           />
+          <GhostNumberPreview
+            v-if="isNumberNotation"
+            :measure-id="selectedItem?.measure?.id"
+            :node="node"
+            :preview="activeGhostPreview"
+          />
           <GhostNotePreview
+            v-else
             :measure-id="selectedItem?.measure?.id"
             :node="node"
             :preview="activeGhostPreview"

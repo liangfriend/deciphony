@@ -1,12 +1,11 @@
 /**
  * editHelper — 可迁移的编辑编排层（选中、指针、ghost、拖拽、插槽按钮策略）。
  *
- * 依赖 dr-edit 做曲谱数据变更；不绑定某一种页面 UI。
- * 具体产品形态（renderEditTest 等）只消费本层 composable / 工具。
- *
- * @example
- * import { useRenderEdit, addGrandStaffBtnX } from './editHelper'
- * const edit = useRenderEdit(musicScoreData)
+ * 分层：
+ * - dr-edit：曲谱数据变更
+ * - editHelper/shared：两种谱面共用
+ * - editHelper/standardStaff：五线谱专有
+ * - editHelper/numberNotation：简谱专有
  */
 
 export {EXCLUDED_INTERACTION_TAGS, HIGHLIGHT_CLASS} from './constants'
@@ -43,23 +42,6 @@ export {
   deleteSingleStaffBtnX,
   deleteSingleStaffBtnY,
 } from './renderEditSlotLayout'
-export {
-  applyMeasureAddAction,
-  findMeasureSlotElement,
-  findNoteHeadElement,
-  isMeasureAddMode,
-  pointerToSvg,
-  resolveGhostNotePreview,
-  resolveMeasureBounds,
-  type GhostNotePreview,
-  type MeasureBounds,
-} from './renderEditSymbolAddAction'
-export {
-  createNoteHeadDragSession,
-  isNoteHeadSelected,
-  updateNoteHeadDragFromPointer,
-  type NoteHeadDragSession,
-} from './renderEditNoteHeadDrag'
 export {deleteSelectedItem, isRestSelected} from './renderEditDelete'
 export {resolvePropertyPanelKind, type PropertyPanelKind} from './renderEditPropertyPanel'
 export {
@@ -75,7 +57,6 @@ export {
   insertMeasureAfter,
   insertMeasureBefore,
 } from './renderEditMeasureProperties'
-export {SLUR_SPAN_OPTIONS, tryAddSlurFromNoteHead, type SlurSpan} from './renderEditSlurAdd'
 export {
   computeSlurHandlePoints,
   createSlurDragSession,
@@ -97,12 +78,61 @@ export {
   type VoltaHandleKind,
   type VoltaHandlePoints,
 } from './renderEditVoltaDrag'
-export {useRenderEdit} from './useRenderEdit'
+export {useRenderEdit, type MusicScoreComponentExpose} from './useRenderEdit'
 
+// —— 五线谱 ——
+export {
+  applyMeasureAddAction as applyStaffMeasureAddAction,
+  findMeasureSlotElement,
+  findNoteHeadElement,
+  isMeasureAddMode,
+  pointerToSvg,
+  resolveGhostNotePreview,
+  resolveMeasureBounds,
+  type GhostNotePreview as StaffGhostNotePreview,
+  type MeasureBounds,
+} from './standardStaff/renderEditSymbolAddAction'
+export {
+  createNoteHeadDragSession,
+  isNoteHeadSelected,
+  updateNoteHeadDragFromPointer,
+  type NoteHeadDragSession,
+} from './standardStaff/renderEditNoteHeadDrag'
+export {SLUR_SPAN_OPTIONS, tryAddSlurFromNoteHead, type SlurSpan} from './standardStaff/renderEditSlurAdd'
+export {useStandardStaffRenderEdit} from './standardStaff/useRenderEdit'
+export {default as NoteHeadPropertyPanel} from './standardStaff/components/NoteHeadPropertyPanel.vue'
+export {default as GhostNotePreview} from './standardStaff/components/GhostNotePreview.vue'
+
+// —— 简谱 ——
+export {
+  ADD_NUMBER_KIND_OPTIONS,
+  DEFAULT_ADD_NUMBER_STATE,
+  type AddNumberSlotKind,
+  type AddNumberState,
+} from './numberNotation/renderEditNumberAddState'
+export {
+  applyMeasureAddAction as applyNumberMeasureAddAction,
+  resolveGhostNumberPreview,
+  type GhostNumberPreview as NumberGhostPreview,
+} from './numberNotation/renderEditNumberAddAction'
+export {
+  createNumberHeadDragSession,
+  isNumberHeadSelected,
+  updateNumberHeadDragFromPointer,
+  type NumberHeadDragSession,
+} from './numberNotation/renderEditNumberHeadDrag'
+export {tryAddSlurFromNumberHead} from './numberNotation/renderEditSlurAdd'
+export {useNumberNotationRenderEdit} from './numberNotation/useRenderEdit'
+export {default as NumberHeadPropertyPanel} from './numberNotation/components/NumberHeadPropertyPanel.vue'
+export {default as GhostNumberPreview} from './numberNotation/components/GhostNumberPreview.vue'
+export {default as AddNumberStatePanel} from './numberNotation/components/AddNumberStatePanel.vue'
+export type {StaffGhostNotePreview as GhostNotePreviewState}
+export type {NumberGhostPreview as GhostNumberPreviewState}
+
+// —— 共用 UI ——
 export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'
 export {default as PropertyPanel} from './components/PropertyPanel.vue'
 export {default as MeasurePropertyPanel} from './components/MeasurePropertyPanel.vue'
-export {default as NoteHeadPropertyPanel} from './components/NoteHeadPropertyPanel.vue'
 export {default as VoltaPropertyPanel} from './components/VoltaPropertyPanel.vue'
 export {default as VoltaDragHandles} from './components/VoltaDragHandles.vue'
 export {default as SlurDragHandles} from './components/SlurDragHandles.vue'
@@ -113,4 +143,3 @@ export {default as AddSingleStaffButton} from './components/AddSingleStaffButton
 export {default as DeleteSingleStaffButton} from './components/DeleteSingleStaffButton.vue'
 export {default as AddMeasureButton} from './components/AddMeasureButton.vue'
 export {default as EditSlotSdButtons} from './components/EditSlotSdButtons.vue'
-export {default as GhostNotePreview} from './components/GhostNotePreview.vue'

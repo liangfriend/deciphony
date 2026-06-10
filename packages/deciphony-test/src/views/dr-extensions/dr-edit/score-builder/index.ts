@@ -5,3 +5,15 @@ export * from './locate';
 export * from './factories';
 export {insertGrandStaff, insertSingleStaff, insertMeasure} from './insert';
 export {removeGrandStaff, removeSingleStaff, removeMeasure} from './remove';
+export {
+    appendNotesInfo,
+    appendNotesNumberInfo,
+    insertNoteNumber,
+    insertNoteRest,
+    insertNoteSlot,
+    insertNoteSymbol,
+    isNoteNumberSlot,
+    isSlotNoteLike,
+    isSlotRestLike,
+    removeNoteSlot,
+} from './noteSlot';

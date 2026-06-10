@@ -2,15 +2,19 @@ import {isNoteRest, isNoteSymbol} from 'deciphony-renderer'
 import type {
     Measure,
     MusicScore,
+    NoteNumber,
     NoteRest,
-    NoteSymbol,
     NotesInfo,
+    NotesNumberInfo,
+    NoteSymbol,
     SlotData,
 } from 'deciphony-renderer'
 import {deleteMeasure} from '../dr-extensions/dr-edit/edit-util'
-import {isNoteHeadSelected} from './renderEditNoteHeadDrag'
+import {isNoteNumberSlot, isSlotRestLike} from '../dr-extensions/dr-edit/score-builder/noteSlot'
+import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {removeVolta} from './renderEditMeasureProperties'
-import {isMeasureAddMode} from './renderEditSymbolAddAction'
+import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
+import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
 import {isSlurSelected} from './renderEditSlurDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 
@@ -34,6 +38,13 @@ export function isRestSelected(
     return selected?.measure != null && self != null && isNoteRest(self)
 }
 
+export function isNumberRestSelected(
+    selected: SlotData | null,
+): selected is SlotData & {measure: Measure; self: NoteNumber} {
+    const self = selected?.self
+    return selected?.measure != null && self != null && isNoteNumberSlot(self) && isSlotRestLike(self)
+}
+
 function removeScoreAffiliatedById(musicScore: MusicScore, symbolId: string): boolean {
     const idx = musicScore.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
     if (idx < 0) return false
@@ -44,10 +55,19 @@ function removeScoreAffiliatedById(musicScore: MusicScore, symbolId: string): bo
 function collectNotesInfoIdsInMeasure(measure: Measure): string[] {
     const ids: string[] = []
     for (const slot of measure.notes) {
-        if (!isNoteSymbol(slot)) continue
-        for (const info of slot.notesInfo) ids.push(info.id)
-        for (const info of slot.graceNotes ?? []) ids.push(info.id)
-        for (const info of slot.graceNotesAfter ?? []) ids.push(info.id)
+        if (isNoteSymbol(slot)) {
+            for (const info of slot.notesInfo) ids.push(info.id)
+            for (const info of slot.graceNotes ?? []) ids.push(info.id)
+            for (const info of slot.graceNotesAfter ?? []) ids.push(info.id)
+            continue
+        }
+        if (isNoteNumberSlot(slot)) {
+            for (const info of slot.notesInfo) {
+                ids.push(info.id)
+                for (const g of info.graceNotes ?? []) ids.push(g.id)
+                for (const g of info.graceNotesAfter ?? []) ids.push(g.id)
+            }
+        }
     }
     return ids
 }
@@ -92,6 +112,27 @@ function deleteMeasureSlot(
     return true
 }
 
+function deleteNumberHeadSlot(
+    musicScore: MusicScore,
+    slot: SlotData & {info: NotesNumberInfo; note: NoteNumber; measure: Measure},
+): boolean {
+    const {info, note, measure} = slot
+    const noteIndex = measure.notes.indexOf(note)
+    if (noteIndex < 0) return false
+
+    const infoIndex = note.notesInfo.findIndex((ni) => ni.id === info.id)
+    if (infoIndex < 0) return false
+
+    if (note.notesInfo.length <= 1) {
+        purgeScoreAffiliatedForNotesInfo(musicScore, info.id)
+        measure.notes.splice(noteIndex, 1)
+    } else {
+        purgeScoreAffiliatedForNotesInfo(musicScore, info.id)
+        note.notesInfo.splice(infoIndex, 1)
+    }
+    return true
+}
+
 function deleteNoteHeadSlot(
     musicScore: MusicScore,
     slot: SlotData & { info: NotesInfo; note: NoteSymbol; measure: Measure },
@@ -114,6 +155,14 @@ function deleteNoteHeadSlot(
 }
 
 function deleteRestSlot(slot: SlotData & { measure: Measure; self: NoteRest }): boolean {
+    const {measure, self} = slot
+    const idx = measure.notes.findIndex((item) => item.id === self.id)
+    if (idx < 0) return false
+    measure.notes.splice(idx, 1)
+    return true
+}
+
+function deleteNumberRestSlot(slot: SlotData & {measure: Measure; self: NoteNumber}): boolean {
     const {measure, self} = slot
     const idx = measure.notes.findIndex((item) => item.id === self.id)
     if (idx < 0) return false
@@ -149,6 +198,14 @@ function deleteSingleNoteAffiliatedById(musicScore: MusicScore, symbolId: string
                                 info.affiliatedSymbols.splice(idx, 1)
                                 return true
                             }
+                        }
+                        continue
+                    }
+                    if (isNoteNumberSlot(slot)) {
+                        const idx = slot.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
+                        if (idx >= 0) {
+                            slot.affiliatedSymbols.splice(idx, 1)
+                            return true
                         }
                         continue
                     }
@@ -194,12 +251,17 @@ function deleteMeasureAffiliatedByIdGlobal(musicScore: MusicScore, symbolId: str
 function deleteNotesInfoSubSymbol(slot: SlotData, symbolId: string): boolean {
     const info = slot.info
     if (!info) return false
-    if (info.accidental?.id === symbolId) {
+    if ('accidental' in info && info.accidental?.id === symbolId) {
         delete info.accidental
         return true
     }
-    if (info.augmentationDot?.id === symbolId) {
+    if ('augmentationDot' in info && info.augmentationDot?.id === symbolId) {
         delete info.augmentationDot
+        return true
+    }
+    const note = slot.note
+    if (note && isNoteNumberSlot(note) && note.augmentationDot?.id === symbolId) {
+        delete note.augmentationDot
         return true
     }
     return false
@@ -226,8 +288,16 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
         return deleteNoteHeadSlot(musicScore, selected)
     }
 
+    if (isNumberHeadSelected(selected)) {
+        return deleteNumberHeadSlot(musicScore, selected)
+    }
+
     if (isRestSelected(selected)) {
         return deleteRestSlot(selected)
+    }
+
+    if (isNumberRestSelected(selected)) {
+        return deleteNumberRestSlot(selected)
     }
 
     if (isMeasureAddMode(selected)) {

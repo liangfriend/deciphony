@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type {SlotData} from 'deciphony-renderer'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
+import NumberHeadPropertyPanel from '../numberNotation/components/NumberHeadPropertyPanel.vue'
+import NoteHeadPropertyPanel from '../standardStaff/components/NoteHeadPropertyPanel.vue'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
-import NoteHeadPropertyPanel from './NoteHeadPropertyPanel.vue'
 import VoltaPropertyPanel from './VoltaPropertyPanel.vue'
 
 defineProps<{
@@ -13,6 +14,7 @@ defineProps<{
 const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
   measure: '小节属性',
   noteHead: '音符头属性',
+  numberHead: '音符属性',
   volta: 'Volta 属性',
 }
 </script>
@@ -31,7 +33,11 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
       />
       <NoteHeadPropertyPanel
         v-else-if="kind === 'noteHead' && selected.info && selected.note && selected.measure"
-        :edit-slot="selected"
+        :edit-slot="selected as any"
+      />
+      <NumberHeadPropertyPanel
+        v-else-if="kind === 'numberHead' && selected.info && selected.note && selected.measure"
+        :edit-slot="selected as any"
       />
       <VoltaPropertyPanel
         v-else-if="kind === 'volta'"

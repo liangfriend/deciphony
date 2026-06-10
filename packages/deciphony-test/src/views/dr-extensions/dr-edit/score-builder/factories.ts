@@ -90,7 +90,7 @@ export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandSt
     return {
         ...ZERO_FRAME,
         id: newId(),
-        staves: withDefaultStaff ? [createSingleStaff()] : [],
+        staves: withDefaultStaff ? [createSingleStaff({notationType: options.notationType})] : [],
         uSpace: options.uSpace ?? DEFAULT_SPACING.grandStaff.uSpace,
         dSpace: options.dSpace ?? DEFAULT_SPACING.grandStaff.dSpace,
         linkedStaff: options.linkedStaff,
@@ -100,11 +100,16 @@ export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandSt
 
 export function createSingleStaff(options: CreateSingleStaffOptions = {}): SingleStaff {
     const withDefaultMeasure = options.withDefaultMeasure !== false;
+    const isNumberNotation = options.notationType === MusicScoreTypeEnum.NumberNotation;
     return {
         ...ZERO_FRAME,
         id: newId(),
         measures: withDefaultMeasure
-            ? [createMeasure({clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']})]
+            ? [createMeasure(
+                isNumberNotation
+                    ? {timeSignature: TimeSignatureTypeEnum['4_4']}
+                    : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
+            )]
             : [],
         uSpaceI: options.uSpaceI ?? DEFAULT_SPACING.singleStaff.uSpaceI,
         dSpaceI: options.dSpaceI ?? DEFAULT_SPACING.singleStaff.dSpaceI,

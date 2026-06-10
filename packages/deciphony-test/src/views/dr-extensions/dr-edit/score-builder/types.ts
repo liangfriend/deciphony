@@ -73,6 +73,16 @@ export type LocatedNotesInfo = NotesInfoPath & {
   notesInfo: NotesInfo;
 };
 
+export type NotesNumberInfoPath = NotePath & {notesNumberInfoIndex: number};
+
+export type LocatedNotesNumberInfo = NotesNumberInfoPath & {
+  grandStaff: GrandStaff;
+  singleStaff: SingleStaff;
+  measure: Measure;
+  note: NoteNumber;
+  notesNumberInfo: NotesNumberInfo;
+};
+
 // —— 创建选项 ——
 
 export type CreateMusicScoreOptions = Partial<
@@ -83,12 +93,14 @@ export type CreateGrandStaffOptions = Partial<
   Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket'>
 > & {
   withDefaultStaff?: boolean;
+  notationType?: import('deciphony-renderer').MusicScoreTypeEnum;
 };
 
 export type CreateSingleStaffOptions = Partial<
   Pick<SingleStaff, 'uSpaceI' | 'dSpaceI' | 'uSpaceO' | 'dSpaceO'>
 > & {
   withDefaultMeasure?: boolean;
+  notationType?: import('deciphony-renderer').MusicScoreTypeEnum;
 };
 
 export type CreateMeasureOptions = {

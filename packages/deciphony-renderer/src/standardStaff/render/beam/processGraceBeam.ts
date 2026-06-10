@@ -246,6 +246,7 @@ export function processGraceBeam(params: {
                 zIndex: 1200,
                 tag: 'noteBeam',
                 skinName: skinNameForNodes,
+                skinKey: StandardStaffSkinKeyEnum.NoteBeam,
                 targetId: '',
                 dataComment: '倚音符杠',
             });

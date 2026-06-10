@@ -677,6 +677,7 @@ export function musicScoreToVDom(
     VDoms: vDoms,
     idMap: nodeIdMap,
     skinName: effectiveSkinName,
+    notationType: musicScore.type,
     skin,
   });
   /* 【阶段三 · 曲谱级附属】晚于阶段二新建，单独 apply；不能合并为曲谱末尾一次（见文件头）。见五线谱同段注释。 */

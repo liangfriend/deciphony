@@ -16,7 +16,10 @@ import type {
 import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
+    MusicScoreTypeEnum,
 } from '@/enums/musicScoreEnum';
+import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSkinKeyEnum';
+import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
 import type {NodeIdMap} from '@/standardStaff/render/types';
 
 const AFFILIATED_Z = 1200;
@@ -25,10 +28,23 @@ export type RenderAffiliatedContext = {
     VDoms: VDom[];
     idMap: NodeIdMap;
     skinName?: string;
+    notationType?: MusicScoreTypeEnum;
     /** 当前谱面的皮肤包（五线谱或简谱其一） */
     skin?: Record<string, { w: number; h: number }>;
     measureHeight?: number;
 };
+
+function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
+    return notationType === MusicScoreTypeEnum.NumberNotation
+        ? NumberNotationSkinKeyEnum.Slur
+        : StandardStaffSkinKeyEnum.Slur;
+}
+
+function voltaSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
+    return notationType === MusicScoreTypeEnum.NumberNotation
+        ? NumberNotationSkinKeyEnum.Volta
+        : StandardStaffSkinKeyEnum.Volta;
+}
 
 function offsetPx(rule: AffiliatedOffsetRule, measureHeight: number) {
     return {
@@ -138,6 +154,7 @@ function renderSlur(
         zIndex: AFFILIATED_Z,
         tag: 'affiliation',
         skinName: ctx.skinName ?? 'default',
+        skinKey: slurSkinKey(ctx.notationType),
         dataComment: '连音线',
         special: {
             slur: slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur,
@@ -183,6 +200,7 @@ function renderVolta(
         zIndex: AFFILIATED_Z,
         tag: 'affiliation',
         skinName: ctx.skinName ?? 'default',
+        skinKey: voltaSkinKey(ctx.notationType),
         targetId: sym.id,
         dataComment: '反复房子',
     };

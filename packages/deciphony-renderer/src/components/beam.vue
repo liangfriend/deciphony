@@ -10,12 +10,22 @@
  *
  * 每条符杠线画成一个四边形：左右边垂直于小节（平行 y 轴），上下边沿符杠斜率。
  */
-import {computed} from 'vue';
-import type {VDom} from '@/types/common';
+import {computed, toRef} from 'vue';
+import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum';
+import type {Skin, VDom} from '@/types/common';
+import {useGeometrySkinColor} from './useGeometrySkinColor';
 
 const props = defineProps<{
   vDom: VDom;
+  notationType?: MusicScoreTypeEnum;
+  skin?: Skin;
 }>();
+
+const fillColor = useGeometrySkinColor(
+    toRef(props, 'vDom'),
+    toRef(props, 'skin'),
+    toRef(props, 'notationType'),
+);
 
 const beam = computed(() => props.vDom.special?.beam);
 
@@ -78,7 +88,7 @@ const quads = computed(() => {
       v-for="(d, i) in quads"
       :key="i"
       :d="d"
-      fill="currentColor"
+      :fill="fillColor"
   />
 </template>
 

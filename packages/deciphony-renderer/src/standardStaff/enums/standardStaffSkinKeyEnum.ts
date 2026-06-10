@@ -127,8 +127,12 @@ export enum StandardStaffSkinKeyEnum {
     Repeat_dc_al_coda = 'repeat_dc_al_coda',
     Repeat_ds_al_fine = 'repeat_ds_al_fine',
     Repeat_ds_al_coda = 'repeat_ds_al_coda',
-    // 双音符附属符号没有皮肤，所以不写
-    // 双小节附属符号没有皮肤，所以不写
+    /** 符杠（几何组件；content 为纯色，w/h=0） */
+    NoteBeam = 'noteBeam',
+    /** 连音线（几何组件；content 为纯色，w/h=0） */
+    Slur = 'slur',
+    /** 反复房子（几何组件；content 为纯色，w/h=0） */
+    Volta = 'volta',
     // 单音符附属符号
     Accent_above = 'acccent_above',
     Staccato_above = 'staccato_above',

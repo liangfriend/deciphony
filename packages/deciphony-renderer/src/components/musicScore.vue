@@ -37,9 +37,9 @@
           @pointermove="onDrMove($event, node)"
           @pointerup="onDrUp($event, node)"
       >
-        <Slur v-if="node.special?.slur" :v-dom="node"/>
-        <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node"/>
-        <Beam v-else-if="node.special?.beam" :v-dom="node"/>
+        <Slur v-if="node.special?.slur" :v-dom="node" :notation-type="notationType" :skin="skin"/>
+        <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node" :notation-type="notationType" :skin="skin"/>
+        <Beam v-else-if="node.special?.beam" :v-dom="node" :notation-type="notationType" :skin="skin"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
 
         </slot>

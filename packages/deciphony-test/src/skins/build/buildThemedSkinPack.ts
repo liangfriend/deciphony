@@ -14,6 +14,9 @@ import {
     buildMeasureContent,
     buildNoteHeadContent,
     buildNoteStemContent,
+    buildNoteBeamColorContent,
+    buildSlurColorContent,
+    buildVoltaColorContent,
     buildNoteTailContent,
     buildNumberGlyph,
     buildNumberMeasure,
@@ -49,6 +52,12 @@ function applyStandardStaffItem(theme: SkinTheme, key: string, base: SkinItem): 
             return buildAddLineContent(theme)
         case 'noteStem':
             return buildNoteStemContent(theme)
+        case 'noteBeam':
+            return buildNoteBeamColorContent(theme)
+        case 'slur':
+            return buildSlurColorContent(theme)
+        case 'volta':
+            return buildVoltaColorContent(theme)
         case 'noteTail':
             return buildNoteTailContent(theme, enumKey, base)
         default:
@@ -74,6 +83,8 @@ function getNumberNotationCategory(key: string): string {
     if (key.startsWith('augmentationDot_')) return 'augmentationDot'
     if (key.includes('barline') || key === 'close_line' || key === 'linked_close_line') return 'barline'
     if (key.startsWith('reduceLine_') || key === 'addline' || key === 'octaveDot') return 'line'
+    if (key === NumberNotationSkinKeyEnum.Slur) return 'slur'
+    if (key === NumberNotationSkinKeyEnum.Volta) return 'volta'
     return 'other'
 }
 
@@ -100,6 +111,10 @@ function applyNumberNotationItem(theme: SkinTheme, key: string, base: SkinItem):
         case 'line':
             return buildCreativeContent(theme, 'line', key, base)
                 ?? themedRecolor(base.content, theme.ink, theme.inkStroke, theme.lineCap)
+        case 'slur':
+            return buildSlurColorContent(theme)
+        case 'volta':
+            return buildVoltaColorContent(theme)
         default:
             return buildGenericContent(theme, base)
     }

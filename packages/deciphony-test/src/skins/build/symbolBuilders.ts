@@ -57,6 +57,21 @@ export function buildNoteStemContent(theme: SkinTheme): string {
     return creative(theme, 'noteStem', StandardStaffSkinKeyEnum.NoteStem, {content: '', w: 1, h: 1, skinKey: StandardStaffSkinKeyEnum.NoteStem})
 }
 
+/** 符杠：与符干同色 */
+export function buildNoteBeamColorContent(theme: SkinTheme): string {
+    return theme.stemFill
+}
+
+/** 连音线 */
+export function buildSlurColorContent(theme: SkinTheme): string {
+    return theme.ink
+}
+
+/** 反复房子线条与序号 */
+export function buildVoltaColorContent(theme: SkinTheme): string {
+    return theme.inkStroke
+}
+
 export function buildGenericContent(theme: SkinTheme, base: SkinItem): string {
     return creative(theme, 'other', '', base)
 }

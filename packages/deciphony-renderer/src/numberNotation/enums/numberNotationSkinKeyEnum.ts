@@ -151,5 +151,8 @@ export enum NumberNotationSkinKeyEnum {
     Dyn_RFZ = 'dyn_rfz',
     Dyn_RF = 'dyn_rf',
     Dyn_FZ = 'dyn_fz',
-    // TODO 单小节附属符号没有皮肤，所以不写
+    /** 连音线（几何组件；content 为纯色，w/h=0） */
+    Slur = 'slur',
+    /** 反复房子（几何组件；content 为纯色，w/h=0） */
+    Volta = 'volta',
 }

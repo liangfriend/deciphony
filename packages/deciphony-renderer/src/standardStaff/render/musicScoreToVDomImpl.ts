@@ -718,6 +718,7 @@ export function musicScoreToVDom(
     VDoms: vDoms,
     idMap: nodeIdMap,
     skinName: effectiveSkinName,
+    notationType: musicScore.type,
     skin,
   });
   /*

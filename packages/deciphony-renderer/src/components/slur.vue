@@ -1,11 +1,21 @@
 <script lang="ts" setup>
 // 仅接收 vDom，连音线信息已在 vDom.startPoint / endPoint / special.slur 中
-import { computed } from 'vue';
-import type { VDom } from '@/types/common';
+import {computed, toRef} from 'vue';
+import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum';
+import type {Skin, VDom} from '@/types/common';
+import {useGeometrySkinColor} from './useGeometrySkinColor';
 
 const props = defineProps<{
   vDom: VDom;
+  notationType?: MusicScoreTypeEnum;
+  skin?: Skin;
 }>();
+
+const fillColor = useGeometrySkinColor(
+    toRef(props, 'vDom'),
+    toRef(props, 'skin'),
+    toRef(props, 'notationType'),
+);
 
 // 两条二次贝塞尔曲线围成月牙形：起点→控制点→终点，下弧 终点→控制点'→起点；控制点 = 默认中点上方 + special.slur.relativeControlPoint 偏移，厚度来自 special.slur
 const pathD = computed(() => {
@@ -26,7 +36,7 @@ const pathD = computed(() => {
 <template>
   <path
     :d="pathD"
-    fill="currentColor"
+    :fill="fillColor"
     stroke="none"
   />
 </template>

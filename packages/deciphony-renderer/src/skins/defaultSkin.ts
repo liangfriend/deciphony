@@ -629,6 +629,11 @@ function makeNoteHead(key: StandardStaffSkinKeyEnum) {
     return {content: tiltedEllipseFilled, w: 14, h: 90, skinKey: key, widthRatio: 6, widthRatioForMeasure: 6};
 }
 
+/** 几何组件专用：content 为 fill/stroke 色值，w/h=0 */
+function makeColorSkin<K extends string>(color: string, skinKey: K) {
+    return {content: color, w: 0, h: 0, skinKey};
+}
+
 // 符干（高度由 transfer 动态传入 node.h，需拉伸填满故用 preserveAspectRatio="none"）
 const noteStem = {
     content: `<g >
@@ -1720,6 +1725,9 @@ const standardStaffSkin: StandardStaffSkinPack = {
         h: 18,
         skinKey: StandardStaffSkinKeyEnum.Repeat_ds_al_coda,
     },
+    [StandardStaffSkinKeyEnum.NoteBeam]: makeColorSkin('black', StandardStaffSkinKeyEnum.NoteBeam),
+    [StandardStaffSkinKeyEnum.Slur]: makeColorSkin('black', StandardStaffSkinKeyEnum.Slur),
+    [StandardStaffSkinKeyEnum.Volta]: makeColorSkin('black', StandardStaffSkinKeyEnum.Volta),
     // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
     [StandardStaffSkinKeyEnum.Accent_above]: {
         content: REPEAT_PLACEHOLDER_RECT,
@@ -2588,6 +2596,8 @@ const numberNotationSkin: NumberNotationSkinPack = {
         h: 18,
         skinKey: NumberNotationSkinKeyEnum.Repeat_ds_al_coda,
     },
+    [NumberNotationSkinKeyEnum.Slur]: makeColorSkin('black', NumberNotationSkinKeyEnum.Slur),
+    [NumberNotationSkinKeyEnum.Volta]: makeColorSkin('black', NumberNotationSkinKeyEnum.Volta),
     // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
     [NumberNotationSkinKeyEnum.Accent_above]: {
         content: REPEAT_PLACEHOLDER_RECT,
@@ -2891,7 +2901,11 @@ function applySkinColor(color: string): SkinPack {
         const out = {} as T;
         for (const k of Object.keys(pack) as (keyof T)[]) {
             const item = pack[k];
-            out[k] = {...item, content: replaceColor(item.content)} as T[keyof T];
+            const colorOnly = item.w === 0 && item.h === 0 && !item.content.trim().startsWith('<');
+            out[k] = {
+                ...item,
+                content: colorOnly ? color : replaceColor(item.content),
+            } as T[keyof T];
         }
         if (type === MusicScoreTypeEnum.NumberNotation && color === '#c00') {
             out.measure.content = '<rect x="0" y="0" width="node.w" height="45" stroke="transparent" fill="rgba(255,0,0,0.1)"></rect>'

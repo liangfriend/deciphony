@@ -1,0 +1,204 @@
+[
+  {
+    "id": 1,
+    "nodeName": "故事节点",
+    "nodeType": "Story",
+    "width": 1600,
+    "height": 900,
+    "entrySceneId": 1781152324220,
+    "bgUrl": "",
+    "fontColor": "white"
+  },
+  {
+    "id": 2,
+    "nodeName": "底部字幕布局",
+    "nodeType": "Layout",
+    "layer": "FrontObject",
+    "applyPosition": "LR",
+    "objectFit": "Fill",
+    "left": 80,
+    "right": 0,
+    "top": 0,
+    "bottom": 18,
+    "width": 1440,
+    "height": 270,
+    "rotation": 0,
+    "scale": 1
+  },
+  {
+    "id": 3,
+    "nodeName": "左侧人物布局",
+    "nodeType": "Layout",
+    "layer": "FrontObject",
+    "applyPosition": "LR",
+    "objectFit": "Fill",
+    "left": 0,
+    "right": 0,
+    "top": 0,
+    "bottom": 0,
+    "width": 400,
+    "height": 800,
+    "rotation": 0,
+    "scale": 1
+  },
+  {
+    "id": 4,
+    "nodeName": "右侧人物布局",
+    "nodeType": "Layout",
+    "layer": "FrontObject",
+    "applyPosition": "RB",
+    "objectFit": "Fill",
+    "left": 0,
+    "right": 0,
+    "top": 0,
+    "bottom": 0,
+    "width": 400,
+    "height": 800,
+    "rotation": 0,
+    "scale": 1
+  },
+  {
+    "id": 5,
+    "nodeName": "居中字幕布局",
+    "nodeType": "Layout",
+    "layer": "FrontObject",
+    "applyPosition": "LT",
+    "objectFit": "Fill",
+    "left": 480,
+    "right": 0,
+    "top": 270,
+    "bottom": 0,
+    "width": 640,
+    "height": 360,
+    "rotation": 0,
+    "scale": 1
+  },
+  {
+    "id": 6,
+    "nodeName": "全屏背景布局",
+    "nodeType": "Layout",
+    "layer": "Background",
+    "applyPosition": "LT",
+    "objectFit": "Fill",
+    "left": 0,
+    "right": 0,
+    "top": 0,
+    "bottom": 0,
+    "width": 1600,
+    "height": 900,
+    "rotation": 0,
+    "scale": 1
+  },
+  {
+    "id": 7,
+    "nodeName": "爱心滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "// 清屏（可选）\nctx.clearRect(0, 0, width, height)\n\nconst hearts = []\nfor (let i = 0; i < 20; i++) {\n  hearts.push({\n    x: Math.random() * width,\n    y: Math.random() * height,\n    size: 20 + Math.random() * 30\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n\n  hearts.forEach(h => {\n    ctx.globalAlpha = 0.3 + Math.random() * 0.7\n    ctx.font = `100px serif`\n    ctx.fillText(\"💗\", h.x, h.y)\n  })\n\n  requestAnimationFrame(draw)\n}\n\ndraw()",
+    "filterStyle": "{\n    backgroundColor: 'rgba(245,179,193,0.2)',\n}"
+  },
+  {
+    "id": 8,
+    "nodeName": "星星闪烁滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "\nctx.clearRect(0, 0, width, height)\n\nconst stars = []\nfor (let i = 0; i < 40; i++) {\n  stars.push({\n    x: Math.random() * width,\n    y: Math.random() * height,\n    size: 1 + Math.random() * 2,\n    phase: Math.random() * Math.PI * 2\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n  stars.forEach(s => {\n    s.phase += 0.03\n    const alpha = 0.5 + Math.sin(s.phase) * 0.5\n    ctx.globalAlpha = alpha\n    ctx.fillStyle = \"#fff\"\n    ctx.beginPath()\n    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2)\n    ctx.fill()\n  })\n  requestAnimationFrame(draw)\n}\n\ndraw()\n",
+    "filterStyle": "{\n    backgroundColor: 'rgba(20,20,40,0.3)',\n}"
+  },
+  {
+    "id": 9,
+    "nodeName": "樱花飘落滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "\nctx.clearRect(0, 0, width, height)\n\nconst petals = []\nfor (let i = 0; i < 25; i++) {\n  petals.push({\n    x: Math.random() * width,\n    y: Math.random() * height,\n    size: 18 + Math.random() * 22,\n    speed: 1 + Math.random() * 2,\n    drift: Math.random() * 2,\n    phase: Math.random() * Math.PI * 2\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n  petals.forEach(p => {\n    p.y += p.speed\n    p.phase += 0.05\n    p.x += Math.sin(p.phase) * p.drift\n\n    if (p.y > height + 30) {\n      p.y = -20\n      p.x = Math.random() * width\n    }\n\n    ctx.globalAlpha = 0.7\n    ctx.font = p.size + \"px serif\"\n    ctx.fillText(\"🌸\", p.x, p.y)\n  })\n  requestAnimationFrame(draw)\n}\n\ndraw()\n",
+    "filterStyle": "{\n    backgroundColor: 'rgba(255,182,193,0.15)',\n}"
+  },
+  {
+    "id": 10,
+    "nodeName": "雪花滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "\nctx.clearRect(0, 0, width, height)\n\nconst snow = []\nfor (let i = 0; i < 40; i++) {\n  snow.push({\n    x: Math.random() * width,\n    y: Math.random() * height,\n    size: 10 + Math.random() * 10,\n    speed: 0.5 + Math.random() * 1.5\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n  snow.forEach(f => {\n    f.y += f.speed\n    if (f.y > height) {\n      f.y = -20\n      f.x = Math.random() * width\n    }\n    ctx.globalAlpha = 0.5 + Math.random() * 0.5\n    ctx.font = f.size + \"px serif\"\n    ctx.fillText(\"❄️\", f.x, f.y)\n  })\n  requestAnimationFrame(draw)\n}\n\ndraw()\n",
+    "filterStyle": "{\n    backgroundColor: 'rgba(200,220,255,0.15)',\n}"
+  },
+  {
+    "id": 11,
+    "nodeName": "泡泡滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "\nctx.clearRect(0, 0, width, height)\n\nconst bubbles = []\nfor (let i = 0; i < 25; i++) {\n  bubbles.push({\n    x: Math.random() * width,\n    y: height + Math.random() * height,\n    size: 10 + Math.random() * 25,\n    speed: 0.8 + Math.random() * 1.2,\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n  bubbles.forEach(b => {\n    b.y -= b.speed\n    if (b.y < -20) {\n      b.y = height + 20\n      b.x = Math.random() * width\n    }\n    ctx.globalAlpha = 0.3 + Math.random() * 0.4\n    ctx.font = b.size + \"px serif\"\n    ctx.fillText(\"🫧\", b.x, b.y)\n  })\n  requestAnimationFrame(draw)\n}\n\ndraw()\n",
+    "filterStyle": "{\n    backgroundColor: 'rgba(180,230,255,0.15)',\n}"
+  },
+  {
+    "id": 12,
+    "nodeName": "光点粒子滤镜",
+    "nodeType": "Filter",
+    "filterCanvasScript": "\nconst pts = []\nfor (let i = 0; i < 40; i++) {\n  pts.push({\n    x: Math.random() * width,\n    y: Math.random() * height,\n    r: 1 + Math.random() * 3,\n    phase: Math.random() * Math.PI * 2\n  })\n}\n\nfunction draw() {\n  ctx.clearRect(0, 0, width, height)\n  pts.forEach(p => {\n    p.phase += 0.02\n    const alpha = 0.3 + Math.sin(p.phase) * 0.3\n    ctx.globalAlpha = alpha\n    ctx.fillStyle = \"#fff\"\n    ctx.beginPath()\n    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)\n    ctx.fill()\n  })\n  requestAnimationFrame(draw)\n}\n\ndraw()\n",
+    "filterStyle": "{\n    backgroundColor: 'rgba(100,120,255,0.1)',\n}"
+  },
+  {
+    "id": 1781152324220,
+    "nodeName": "场景节点",
+    "nodeType": "Scene",
+    "initImageIds": [
+      1781152443444
+    ],
+    "initCustomIds": [],
+    "initAudioIds": [],
+    "initVideoIds": [],
+    "initDialogueIds": [
+      1781152324580
+    ],
+    "initActionIds": [],
+    "endCurationId": -1
+  },
+  {
+    "id": 1781152324580,
+    "nodeName": "对话节点",
+    "nodeType": "Dialogue",
+    "autoShowFirstCaption": true,
+    "keepIds": [],
+    "initImageIds": [],
+    "initCustomIds": [],
+    "initAudioIds": [],
+    "initVideoIds": [],
+    "initCaptionIds": [
+      1781152325004
+    ],
+    "initActionIds": []
+  },
+  {
+    "id": 1781152325004,
+    "nodeName": "字幕节点",
+    "nodeType": "Caption",
+    "title": "",
+    "content": "光和热电饭锅认为个",
+    "autoPlay": true,
+    "autoNext": true,
+    "speed": 50,
+    "boxStyle": "{\n    backgroundColor: 'rgba(100,100,100,0.5)',\n  width: '100%',\n  height: '100%',\n  fontSize: '50px',\n  color:'white',\n}",
+    "captionTextStyle": "width: '100%',\n      height: '80%',\n      overflow: 'auto',\n      bottom: 0,\n      padding: '16px',",
+    "captionTitleStyle": "width: 'fit-content',\n      height: '20%',\n      left: '50px',\n      borderBottom: '5px solid #4096ff',\n      fontSize: '2rem'\n    ",
+    "audioId": -1,
+    "autoPlayDelay": 0,
+    "layoutId": 2,
+    "initActionIds": [],
+    "optionIds": [],
+    "finishActionIds": [],
+    "doneActionIds": [],
+    "optionContainerStyle": "{\n    display: 'flex',\n  flexDirection: 'column',\n  justifyContent: 'space-evenly',\n  width: '100%',\n  height: '100%',\n  position: 'relative',\n  overflow: 'hidden',\n  gap: '10%'\n}"
+  },
+  {
+    "id": 1781152325484,
+    "nodeName": "选项节点",
+    "nodeType": "Option",
+    "text": "",
+    "activeActionIds": [],
+    "visibleConditionIds": [],
+    "normalStyle": "{\n    pointerEvents: 'auto',\n    cursor: 'pointer',\n    position: 'relative',\n    width: '30%',\n    left: '70%',\n    backgroundColor: '#555',\n    display: 'flex',\n    justifyContent: 'center',\n    alignItems: 'center',\n    borderRadius: '10px',\n    fontSize: '2rem',\n    color: 'white',\n    height: '100%'\n}",
+    "hoverStyle": "{\n  backgroundColor: '#4096ff',\n}"
+  },
+  {
+    "id": 1781152443444,
+    "nodeName": "图片节点",
+    "nodeType": "Image",
+    "layoutId": 6,
+    "url": "",
+    "initActionIds": []
+  }
+]

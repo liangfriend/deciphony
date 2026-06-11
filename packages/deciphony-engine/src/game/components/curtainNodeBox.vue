@@ -1,17 +1,19 @@
 <script lang="ts" setup>
-import { onMounted, PropType, ref } from 'vue'
-import { CurtainNode } from '@/types'
-import { gsap } from 'gsap'
-import { CurtainTypeEnum } from '@/enum'
-import { useGame } from '@/composables/useGame'
+import {onMounted, PropType, ref} from 'vue'
+import {storeToRefs} from 'pinia'
+import {CurtainNode} from '../../types'
+import {gsap} from 'gsap'
+import {CurtainTypeEnum} from '../../enum'
+import {enginePinia} from '../../store/pinia'
+import {useGameStore} from '../../store/useGameStore'
 
 const props = defineProps({
   curtainNode: {
     type: Object as PropType<CurtainNode>,
     required: true
   },
-  canvasWidth: { type: Number, required: true },
-  canvasHeight: { type: Number, required: true }
+  canvasWidth: {type: Number, required: true},
+  canvasHeight: {type: Number, required: true}
 })
 
 // 是否用图片填充
@@ -22,34 +24,34 @@ const hold = 0.5
 const rectRef = ref<SVGRectElement | null>(null)
 const leftRef = ref<SVGRectElement | null>(null)
 const rightRef = ref<SVGRectElement | null>(null)
-const { viewerCurtainNodeMap } = useGame()
+const {viewerCurtainNodeMap} = storeToRefs(useGameStore(enginePinia))
 onMounted(() => {
   const duration = (props.curtainNode.anDuration ?? 0) / 1000
   const delay = (props.curtainNode.delay ?? 0) / 1000
   const moveTime = (duration * (1 - hold)) / 2
   const holdTime = duration * hold
 
-  const tl = gsap.timeline({ delay })
+  const tl = gsap.timeline({delay})
 
   switch (props.curtainNode.curtainType) {
     case CurtainTypeEnum.FadeInOut:
       tl.fromTo(
         rectRef.value,
-        { opacity: 0 },
-        { opacity: 1, duration: moveTime, ease: 'power1.inOut' }
+        {opacity: 0},
+        {opacity: 1, duration: moveTime, ease: 'power1.inOut'}
       )
-        .to(rectRef.value, { opacity: 1, duration: holdTime })
-        .to(rectRef.value, { opacity: 0, duration: moveTime, ease: 'power1.inOut' })
+      .to(rectRef.value, {opacity: 1, duration: holdTime})
+      .to(rectRef.value, {opacity: 0, duration: moveTime, ease: 'power1.inOut'})
       break
 
     case CurtainTypeEnum.SlideUpInUpOut:
       tl.fromTo(
         rectRef.value,
-        { y: -props.canvasHeight },
-        { y: 0, duration: moveTime, ease: 'power1.inOut' }
+        {y: -props.canvasHeight},
+        {y: 0, duration: moveTime, ease: 'power1.inOut'}
       )
-        .to(rectRef.value, { y: 0, duration: holdTime })
-        .to(rectRef.value, { y: -props.canvasHeight, duration: moveTime, ease: 'power1.inOut' })
+      .to(rectRef.value, {y: 0, duration: holdTime})
+      .to(rectRef.value, {y: -props.canvasHeight, duration: moveTime, ease: 'power1.inOut'})
       break
 
     case CurtainTypeEnum.Door: {
@@ -62,15 +64,15 @@ onMounted(() => {
       // 左右对开门动画
       tl.fromTo(
         [leftRef.value, rightRef.value],
-        { xPercent: (v) => (v === 0 ? -100 : 100) },
-        { xPercent: 0, duration: moveTime, ease: 'power1.inOut' }
+        {xPercent: (v) => (v === 0 ? -100 : 100)},
+        {xPercent: 0, duration: moveTime, ease: 'power1.inOut'}
       )
-        .to({}, { duration: holdTime })
-        .to([leftRef.value, rightRef.value], {
-          xPercent: (v) => (v === 0 ? -100 : 100),
-          duration: moveTime,
-          ease: 'power1.inOut'
-        })
+      .to({}, {duration: holdTime})
+      .to([leftRef.value, rightRef.value], {
+        xPercent: (v) => (v === 0 ? -100 : 100),
+        duration: moveTime,
+        ease: 'power1.inOut'
+      })
       break
     }
   }

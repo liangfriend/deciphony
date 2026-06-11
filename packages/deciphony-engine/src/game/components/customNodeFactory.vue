@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { PropType } from 'vue'
-import { CustomNode, LayoutNode } from '@/types'
-import { NodeEnum } from '@/enum'
+import {PropType} from 'vue'
+import {CustomNode, LayoutNode} from '../../types'
+import {NodeEnum} from '../../enum'
 
 const props = defineProps({
   layout: {
@@ -18,5 +18,5 @@ const props = defineProps({
 </script>
 
 <template>
-  <template v-if="customNode.nodeType === NodeEnum.Custom"> </template>
+  <template v-if="customNode.nodeType === NodeEnum.Custom"></template>
 </template>

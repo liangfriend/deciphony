@@ -2,35 +2,36 @@
 // 节点功能
 import {useRoute, useRouter} from 'vue-router'
 import {computed, CSSProperties, onBeforeUnmount, onMounted, ref, watch, PropType} from 'vue'
-import {EngineNode, StoryNode} from '@/types'
-import {LayerEnum, NodeEnum} from '@/enum'
-import ImageNodeBox from '@/game/components/imageNodeBox.vue'
-import VideoNodeBox from '@/game/components/videoNodeBox.vue'
-import CaptionNodeBox from '@/game/components/captionNodeBox.vue'
-// import {updateLoadedEditorNodeList, useNodeManager} from '@/composables/useNodeManager'
-import {useGame} from '@/composables/useGame'
-import FilterNodeBox from '@/game/components/filterNodeBox.vue'
-import CurtainNodeBox from '@/game/components/curtainNodeBox.vue'
-import CustomNodeBox from '@/game/components/customNodeBox.vue'
-import {updateLoadedGameData, useGameData} from '@/composables/useGameData'
+import {storeToRefs} from 'pinia'
+import {EngineNode, StoryNode} from '../types'
+import {LayerEnum, NodeEnum} from '../enum'
+import ImageNodeBox from '../game/components/imageNodeBox.vue'
+import VideoNodeBox from '../game/components/videoNodeBox.vue'
+import CaptionNodeBox from '../game/components/captionNodeBox.vue'
+// import {updateLoadedEditorNodeList, useNodeManager} from '../composables/useNodeManager'
+import {enginePinia} from '../store/pinia'
+import {useGameStore} from '../store/useGameStore'
+import {useNodeManagerStore} from '../store/useNodeManagerStore'
+import {useAudioManagerStore} from '../store/useAudioManagerStore'
+import FilterNodeBox from '../game/components/filterNodeBox.vue'
+import CurtainNodeBox from '../game/components/curtainNodeBox.vue'
+import CustomNodeBox from '../game/components/customNodeBox.vue'
 
 const router = useRouter()
 const route = useRoute()
 // ====================数据初始化======================
 // const {editorNodeList, nodeMap, editorNodeMap, groupedNodes, clearNodeManager} = useNodeManager()
+const gameStore = useGameStore(enginePinia)
 const {
   curCaptionId,
   curSceneId,
   curDialogueId,
-  doAction,
   viewerNodeMap,
   viewerNodeGroups,
-  startCaption,
-  startDialogue,
   viewerKeys,
-  startScene,
   viewerCurtainNodeMap
-} = useGame()
+} = storeToRefs(gameStore)
+const {doAction, startCaption, startDialogue, startScene, updateLoadedGameData} = gameStore
 // const { gameData } = useGameData()
 const props = defineProps({
   gameData: { // 游戏本体
@@ -52,6 +53,11 @@ const storyNode = computed((): StoryNode => {
 })
 
 async function initData() {
+  useNodeManagerStore(enginePinia).loadNodes(props.gameData)
+  useAudioManagerStore(enginePinia).initAudioNodePlayers()
+  if (typeof props.extraData?.gameData === 'string') {
+    updateLoadedGameData(props.extraData.gameData)
+  }
   // if (type.value === 'test') {
   //   const data = (await window.api.work.query({id: gameId.value})).data?.[0]
   //   if (data) {
@@ -345,7 +351,6 @@ function exit() {
       </svg>
     </div>
     <div
-      v-if="type === 'test'"
       class="stack-item test-layer"
       comment="测试层，不参与游戏，放数据的"
     >
@@ -354,7 +359,6 @@ function exit() {
         <div>当前对话id:{{ curDialogueId }}</div>
         <div>当前字幕id:{{ curCaptionId }}</div>
 
-        {{ gameData }}
       </div>
     </div>
   </div>
@@ -368,6 +372,8 @@ function exit() {
   </el-dialog>
 </template>
 <style scoped>
+@import '../../base.css';
+
 .caption-text {
   width: 100%;
   height: 100%;

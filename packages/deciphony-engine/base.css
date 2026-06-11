@@ -1,0 +1,43 @@
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stack {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.stack-item {
+    pointer-events: none;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+
+    > * {
+        pointer-events: auto;
+    }
+}
+
+.hidden-scrollbar {
+    /* 保留滚动功能 */
+    overflow: auto;
+
+    /* IE 和 Edge */
+    -ms-overflow-style: none;
+
+    /* Firefox */
+    scrollbar-width: none;
+}
+
+/* Chrome、Safari、Edge（Webkit内核） */
+.hidden-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-user-select {
+    user-select: none;
+}

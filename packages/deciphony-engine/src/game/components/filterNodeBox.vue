@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { computed, PropType, ref, watchEffect } from 'vue'
-import { FilterNode } from '@/types'
-import { parseJS } from '@/utils/execJS'
+import {computed, PropType, ref, watchEffect} from 'vue'
+import {FilterNode} from '../../types'
+import {parseJS} from '../../utils/execJS'
 
 const props = defineProps({
   filterNode: {
     type: Object as PropType<FilterNode>,
     required: true
   },
-  canvasWidth: { type: Number, required: true },
-  canvasHeight: { type: Number, required: true }
+  canvasWidth: {type: Number, required: true},
+  canvasHeight: {type: Number, required: true}
 })
 
 const filterStyle = computed(() => {
@@ -44,7 +44,7 @@ watchEffect(() => {
     <foreignObject :height="canvasHeight" :width="canvasWidth">
       <!--   基础颜色   -->
       <div :style="filterStyle" class="filter-node">
-        <canvas ref="canvasRef" :width="canvasWidth" :height="canvasHeight"></canvas>
+        <canvas ref="canvasRef" :height="canvasHeight" :width="canvasWidth"></canvas>
       </div>
     </foreignObject>
   </g>
@@ -55,6 +55,7 @@ watchEffect(() => {
   will-change: filter;
   mix-blend-mode: normal; /* 或 overlay / soft-light 可根据滤镜需要调整 */
 }
+
 .filter-node {
   width: 100%;
   height: 100%;

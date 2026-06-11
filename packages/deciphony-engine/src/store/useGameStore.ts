@@ -1,19 +1,17 @@
 /*
  * 流程管理器 游戏的总调度指挥中心
  */
-import { computed, ref } from 'vue'
-import { defineStore } from 'pinia'
-import { ElMessage } from 'element-plus'
-import { useNodeManager } from '@/composables/useNodeManager'
-import { useGameData } from '@/composables/useGameData'
-import { enginePinia } from '@/store/pinia'
-import { useAudioManagerStore } from '@/store/useAudioManagerStore'
-import { useVideoManagerStore } from '@/store/useVideoManagerStore'
-import { useAnimateionStore } from '@/store/useAnimateionStore'
-import { parseJS, runCode } from '@/utils/execJS'
-import { getQuery } from '@/utils/url'
-import { ReactiveMap } from '@/dataStructures/relativeMap'
-import { ActionTypeEnum, LayerEnum, NodeEnum } from '@/enum'
+import {computed, ref} from 'vue'
+import {defineStore} from 'pinia'
+import {ElMessage} from 'element-plus'
+import {useNodeManagerStore} from '../store/useNodeManagerStore'
+import {enginePinia} from '../store/pinia'
+import {useAudioManagerStore} from '../store/useAudioManagerStore'
+import {useVideoManagerStore} from '../store/useVideoManagerStore'
+import {useAnimateionStore} from '../store/useAnimateionStore'
+import {parseJS, runCode} from '../utils/execJS'
+import {ReactiveMap} from '../dataStructures/relativeMap'
+import {ActionTypeEnum, LayerEnum, NodeEnum} from '../enum'
 import {
   ActionNode,
   AudioNode,
@@ -32,12 +30,25 @@ import {
   ViewerNode
 } from '@/types'
 
+export type GameSaveHandler = (id: number, data: { data: string }) => void | Promise<void>
+
 export const useGameStore = defineStore('game', () => {
-  const { nodeMap } = useNodeManager()
+  const nodeManagerStore = useNodeManagerStore(enginePinia)
   const videoManagerStore = useVideoManagerStore(enginePinia)
   const audioManagerStore = useAudioManagerStore(enginePinia)
   const animationStore = useAnimateionStore(enginePinia)
-  const { gameData } = useGameData()
+
+  // 因为 gameData 要直接放进 monacoEditor，所以这里直接保存字符串
+  const gameData = ref('{}')
+  const saveHandler = ref<GameSaveHandler | null>(null)
+
+  function setSaveHandler(handler: GameSaveHandler) {
+    saveHandler.value = handler
+  }
+
+  function updateLoadedGameData(data: string) {
+    gameData.value = data
+  }
 
   const curSceneId = ref(-1)
   const curDialogueId = ref(-1)
@@ -88,19 +99,19 @@ export const useGameStore = defineStore('game', () => {
         continue
       }
       if (node.nodeType === NodeEnum.Image) {
-        const layout = nodeMap.value.get(node.layoutId) as LayoutNode
+        const layout = nodeManagerStore.nodeMap.get(node.layoutId) as LayoutNode
         res.images[layout.layer].push({
           node,
           layout
         })
       } else if (node.nodeType === NodeEnum.Custom) {
-        const layout = nodeMap.value.get(node.layoutId) as LayoutNode
+        const layout = nodeManagerStore.nodeMap.get(node.layoutId) as LayoutNode
         res.customs[layout.layer].push({
           node,
           layout
         })
       } else if (node.nodeType === NodeEnum.Video) {
-        const layout = nodeMap.value.get(node.layoutId) as LayoutNode
+        const layout = nodeManagerStore.nodeMap.get(node.layoutId) as LayoutNode
         res.videos[layout.layer].push({
           node,
           layout
@@ -114,7 +125,7 @@ export const useGameStore = defineStore('game', () => {
           node
         })
       } else if (node.nodeType === NodeEnum.Caption) {
-        const layout = nodeMap.value.get(node.layoutId) as LayoutNode
+        const layout = nodeManagerStore.nodeMap.get(node.layoutId) as LayoutNode
         if (layout) {
           res.captions.push({
             node,
@@ -141,7 +152,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function removeViewerNodeMap(id: number) {
-    const node = nodeMap.value.get(id) as EngineNode
+    const node = nodeManagerStore.nodeMap.get(id) as EngineNode
     viewerNodeMap.value.delete(id)
     if (node?.nodeType === NodeEnum.Audio && id) {
       const player = audioManagerStore.audioNodePlayerMap.get(id) as AudioNodePlayer
@@ -155,50 +166,46 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function autoSave(saveId: number, newSceneId: number, newGameData: string) {
+    if (!saveHandler.value) return
     const data = {
       sceneId: newSceneId,
       gameData: newGameData
     }
-    await window.api.save.update(saveId, { data: JSON.stringify(data) })
+    await saveHandler.value(saveId, {data: JSON.stringify(data)})
   }
 
   async function startScene(scenedId: number) {
     if (!scenedId || scenedId === -1) return
-
-    const preSceneNoode = nodeMap.value.get(curSceneId.value) as SceneNode
-    if (preSceneNoode && preSceneNoode.endCurationId && preSceneNoode.endCurationId !== -1) {
-      const endCurtain = nodeMap.value.get(preSceneNoode.endCurationId) as CurtainNode
-      viewerCurtainNodeMap.value.set(preSceneNoode.endCurationId, endCurtain)
+    // curSceneId还没更新，获取旧的场景节点执行结束幕布
+    const preSceneNode = nodeManagerStore.nodeMap.get(curSceneId.value) as SceneNode
+    if (preSceneNode && preSceneNode.endCurationId && preSceneNode.endCurationId !== -1) {
+      const endCurtain = nodeManagerStore.nodeMap.get(preSceneNode.endCurationId) as CurtainNode
+      viewerCurtainNodeMap.value.set(preSceneNode.endCurationId, endCurtain)
       await new Promise((resolve) =>
         setTimeout(resolve, (+endCurtain.anDuration + +endCurtain.delay) / 2)
       )
     }
     viewerNodeMap.value.clear()
-    const type = getQuery().type
-    const saveId = +getQuery().saveId
-    if (type === 'game') {
-      await autoSave(saveId, scenedId, gameData.value)
-    }
     curSceneId.value = scenedId
-    const sceneNode = nodeMap.value.get(curSceneId.value) as SceneNode
+    const sceneNode = nodeManagerStore.nodeMap.get(curSceneId.value) as SceneNode
     if (sceneNode) {
       sceneNode.initActionIds?.forEach((actionId) => {
         doAction(actionId)
       })
       sceneNode.initImageIds?.forEach((nodeId) => {
-        const node = nodeMap.value.get(nodeId) as ImageNode
+        const node = nodeManagerStore.nodeMap.get(nodeId) as ImageNode
         addViewerNodeMap(nodeId, node)
       })
       sceneNode.initCustomIds?.forEach((nodeId) => {
-        const node = nodeMap.value.get(nodeId) as CustomNode
+        const node = nodeManagerStore.nodeMap.get(nodeId) as CustomNode
         addViewerNodeMap(nodeId, node)
       })
       sceneNode.initAudioIds?.forEach((nodeId) => {
-        const node = nodeMap.value.get(nodeId) as AudioNode
+        const node = nodeManagerStore.nodeMap.get(nodeId) as AudioNode
         addViewerNodeMap(nodeId, node)
       })
       sceneNode.initVideoIds?.forEach((nodeId) => {
-        const node = nodeMap.value.get(nodeId) as VideoNode
+        const node = nodeManagerStore.nodeMap.get(nodeId) as VideoNode
         addViewerNodeMap(nodeId, node)
       })
       startDialogue(sceneNode.initDialogueIds[0])
@@ -209,26 +216,26 @@ export const useGameStore = defineStore('game', () => {
     if (!dialogueId || dialogueId === -1) return
     removeViewerNodeMap(curDialogueId.value)
     removeRelatedResources(curDialogueId.value)
-
     curDialogueId.value = dialogueId
-    const dialogueNode = nodeMap.value.get(curDialogueId.value) as DialogueNode
+    const dialogueNode = nodeManagerStore.nodeMap.get(curDialogueId.value) as DialogueNode
+    console.log('chicken', nodeManagerStore.nodeMap)
     dialogueNode.initActionIds?.forEach((actionId) => {
       doAction(actionId)
     })
     dialogueNode.initImageIds?.forEach((nodeId) => {
-      const node = nodeMap.value.get(nodeId) as ImageNode
+      const node = nodeManagerStore.nodeMap.get(nodeId) as ImageNode
       addViewerNodeMap(nodeId, node)
     })
     dialogueNode.initCustomIds?.forEach((nodeId) => {
-      const node = nodeMap.value.get(nodeId) as CustomNode
+      const node = nodeManagerStore.nodeMap.get(nodeId) as CustomNode
       addViewerNodeMap(nodeId, node)
     })
     dialogueNode.initAudioIds?.forEach((nodeId) => {
-      const node = nodeMap.value.get(nodeId) as AudioNode
+      const node = nodeManagerStore.nodeMap.get(nodeId) as AudioNode
       addViewerNodeMap(nodeId, node)
     })
     dialogueNode.initVideoIds?.forEach((nodeId) => {
-      const node = nodeMap.value.get(nodeId) as VideoNode
+      const node = nodeManagerStore.nodeMap.get(nodeId) as VideoNode
       addViewerNodeMap(nodeId, node)
     })
     if (dialogueNode && dialogueNode.autoShowFirstCaption) {
@@ -240,14 +247,14 @@ export const useGameStore = defineStore('game', () => {
 
   function startCaption(captionId: number) {
     removeViewerNodeMap(curCaptionId.value)
-    const captionNode = nodeMap.value.get(captionId) as CaptionNode
+    const captionNode = nodeManagerStore.nodeMap.get(captionId) as CaptionNode
     addViewerNodeMap(captionId, captionNode)
     curCaptionId.value = captionId
   }
 
   function removeRelatedResources(nodeId: number) {
     if (nodeId === -1) return
-    const node = nodeMap.value.get(nodeId) as EngineNode
+    const node = nodeManagerStore.nodeMap.get(nodeId) as EngineNode
     if (node.nodeType === NodeEnum.Dialogue) {
       const keepIds = node.keepIds
       node.initImageIds.forEach((id) => {
@@ -281,11 +288,11 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function doAction(actionId: number) {
-    const actionNode = nodeMap.value.get(actionId) as ActionNode
+    const actionNode = nodeManagerStore.nodeMap.get(actionId) as ActionNode
     if (actionNode) {
       let condition = true
       for (let id of actionNode.executeConditionIds) {
-        const conditionNode = nodeMap.value.get(id) as ConditionNode
+        const conditionNode = nodeManagerStore.nodeMap.get(id) as ConditionNode
         const res = runCode(conditionNode.func)
         if (!res) condition = false
       }
@@ -293,28 +300,28 @@ export const useGameStore = defineStore('game', () => {
       setTimeout(() => {
         switch (actionNode.actionType) {
           case ActionTypeEnum.ShowImage: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Image) {
               addViewerNodeMap(targetNode.id, targetNode)
             }
             break
           }
           case ActionTypeEnum.HideImage: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Image) {
               removeViewerNodeMap(targetNode.id)
             }
             break
           }
           case ActionTypeEnum.ShowVideo: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Video) {
               addViewerNodeMap(targetNode.id, targetNode)
             }
             break
           }
           case ActionTypeEnum.HideVideo: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Video) {
               removeViewerNodeMap(targetNode.id)
             }
@@ -331,35 +338,35 @@ export const useGameStore = defineStore('game', () => {
             break
           }
           case ActionTypeEnum.PlayAudio: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Audio) {
               addViewerNodeMap(targetNode.id, targetNode)
             }
             break
           }
           case ActionTypeEnum.StopAudio: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Audio) {
               removeViewerNodeMap(targetNode.id)
             }
             break
           }
           case ActionTypeEnum.ShowFilter: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Filter) {
               addViewerNodeMap(targetNode.id, targetNode)
             }
             break
           }
           case ActionTypeEnum.HideFilter: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Filter) {
               removeViewerNodeMap(targetNode.id)
             }
             break
           }
           case ActionTypeEnum.ActiveCurtain: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Curtain) {
               addViewerNodeMap(targetNode.id, targetNode)
             }
@@ -377,7 +384,7 @@ export const useGameStore = defineStore('game', () => {
             break
           }
           case ActionTypeEnum.Next: {
-            const targetNode = nodeMap.value.get(actionNode.targetId)
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
             if (targetNode?.nodeType === NodeEnum.Scene) {
               startScene(actionNode.targetId)
             }
@@ -397,7 +404,7 @@ export const useGameStore = defineStore('game', () => {
                 `
               )
               fn(data)
-              gameData.value = JSON.stringify(data)
+              updateLoadedGameData(JSON.stringify(data))
             } catch (e: any) {
               console.error('数据修改行为函数语法错误', e)
             }
@@ -415,6 +422,7 @@ export const useGameStore = defineStore('game', () => {
     curCaptionId,
     curSceneId,
     curDialogueId,
+    gameData,
     doAction,
     viewerNodeMap,
     viewerNodeGroups,
@@ -424,6 +432,8 @@ export const useGameStore = defineStore('game', () => {
     viewerKeys,
     viewerCurtainNodeMap,
     addViewerNodeMap,
-    removeViewerNodeMap
+    removeViewerNodeMap,
+    updateLoadedGameData,
+    setSaveHandler
   }
 })

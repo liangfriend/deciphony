@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { useCaption } from '@/composables/useCaption'
-import { computed, CSSProperties, defineProps, PropType, ref } from 'vue'
-import { CaptionNode, CaptionStatus, ConditionNode, LayoutNode, OptionNode } from '@/types'
-import { useNodeManager } from '@/composables/useNodeManager'
-import { parseJS, runCode } from '@/utils/execJS'
+import {useCaption} from '../../composables/useCaption'
+import {computed, CSSProperties, defineProps, PropType, ref} from 'vue'
+import {storeToRefs} from 'pinia'
+import {CaptionNode, CaptionStatus, ConditionNode, LayoutNode, OptionNode} from '../../types'
+import {enginePinia} from '../../store/pinia'
+import {useNodeManagerStore} from '../../store/useNodeManagerStore'
+import {parseJS, runCode} from '../../utils/execJS'
 
 const props = defineProps({
   layout: {
@@ -25,7 +27,7 @@ const props = defineProps({
     required: true
   }
 })
-const { editorNodeList, nodeMap, editorNodeMap, groupedNodes, clearNodeManager } = useNodeManager()
+const {nodeMap} = storeToRefs(useNodeManagerStore(enginePinia))
 const emit = defineEmits<{
   (e: 'statusChange', status: CaptionStatus, captionNode: CaptionNode): void
 }>()
@@ -76,7 +78,7 @@ const optionStyle = computed((): ((node: OptionNode) => CSSProperties) => {
       let style: CSSProperties = parseJS(node.normalStyle)
 
       if (isHover) {
-        style = { ...style, ...parseJS(node.hoverStyle) }
+        style = {...style, ...parseJS(node.hoverStyle)}
       }
       return style
     } catch (e) {
@@ -85,7 +87,7 @@ const optionStyle = computed((): ((node: OptionNode) => CSSProperties) => {
       let style: CSSProperties = {}
 
       if (hoverMap.value.get(node.id)) {
-        style = { ...style, backgroundColor: '#4096ff' }
+        style = {...style, backgroundColor: '#4096ff'}
       }
 
       return style
@@ -97,26 +99,26 @@ const optionStyle = computed((): ((node: OptionNode) => CSSProperties) => {
 <template>
   <g
     v-if="visible"
-    class="pointer-events-auto"
     ref="captionRef"
     :transform="`
         translate(${x}, ${y})
         scale(${layout.scale})
         rotate(${layout.rotation}, ${width / 2}, ${height / 2})
      `"
+    class="pointer-events-auto"
   >
     <foreignObject :height="height" :width="width">
-      <div class="caption stack" :style="boxStyle">
-        <div class="caption-text stack-item" :style="captionTextStyle">
+      <div :style="boxStyle" class="caption stack">
+        <div :style="captionTextStyle" class="caption-text stack-item">
           {{ displayText }}
         </div>
-        <div class="caption-title stack-item" :style="captionTitleStyle">
+        <div :style="captionTitleStyle" class="caption-title stack-item">
           {{ captionNode.title }}
         </div>
         <div
           v-if="status === 'finished' || status === 'done'"
-          class="optionContainer stack-item"
           :style="optionContainerStyle"
+          class="optionContainer stack-item"
         >
           <div
             v-for="option in optionNodes"

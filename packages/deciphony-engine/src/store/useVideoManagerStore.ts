@@ -1,6 +1,6 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { VideoNodePlayer } from '@/types'
+import {ref} from 'vue'
+import {defineStore} from 'pinia'
+import {VideoNodePlayer} from '../types'
 
 export const useVideoManagerStore = defineStore('videoManager', () => {
   const videoNodePLayerMap = ref<Map<number, VideoNodePlayer>>(new Map())

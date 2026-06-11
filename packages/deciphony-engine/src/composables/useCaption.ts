@@ -5,29 +5,28 @@ import {
   DialogueNode,
   LayoutNode,
   SceneNode
-} from '@/types'
+} from '../types'
 import {computed, CSSProperties, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
-import {LayoutPositionEnum} from '@/enum'
+import {storeToRefs} from 'pinia'
+import {LayoutPositionEnum} from '../enum'
 import {useRouter} from 'vue-router'
-import {useNodeManager} from '@/composables/useNodeManager'
-import {useGame} from '@/composables/useGame'
-import {parseJS} from '@/utils/execJS'
+import {enginePinia} from '../store/pinia'
+import {useNodeManagerStore} from '../store/useNodeManagerStore'
+import {useGameStore} from '../store/useGameStore'
+import {parseJS} from '../utils/execJS'
 
 const router = useRouter()
-const {nodeMap} = useNodeManager()
+const nodeManagerStore = useNodeManagerStore(enginePinia)
+const gameStore = useGameStore(enginePinia)
 const {
   curCaptionId,
   curSceneId,
   curDialogueId,
-  doAction,
   viewerNodeMap,
-  viewerNodeGroups,
-  startCaption,
-  startDialogue,
-  startScene,
-  addViewerNodeMap,
-  removeViewerNodeMap
-} = useGame()
+  viewerNodeGroups
+} = storeToRefs(gameStore)
+const {doAction, startCaption, startDialogue, startScene, addViewerNodeMap, removeViewerNodeMap} =
+  gameStore
 
 // 给字幕节点内部用的,caption的audioId不受viewerNodeMap管辖
 export function useCaption(
@@ -64,7 +63,7 @@ export function useCaption(
       })
     } else if (s === 'playing') {
       // 字幕语音
-      const audioNode = nodeMap.value.get(props.captionNode.audioId) as AudioNode
+      const audioNode = nodeManagerStore.nodeMap.get(props.captionNode.audioId) as AudioNode
       // 播放字幕音频
       if (audioNode) {
         // 获取视图节点map中的manager
@@ -139,9 +138,9 @@ export function useCaption(
 
   // 如果当前字幕是最后一条，跳转下一条字幕/对话
   function changeNext() {
-    const sceneNode = nodeMap.value.get(curSceneId.value) as SceneNode
-    const dialogueNode = nodeMap.value.get(curDialogueId.value) as DialogueNode
-    const captionNode = nodeMap.value.get(curCaptionId.value) as CaptionNode
+    const sceneNode = nodeManagerStore.nodeMap.get(curSceneId.value) as SceneNode
+    const dialogueNode = nodeManagerStore.nodeMap.get(curDialogueId.value) as DialogueNode
+    const captionNode = nodeManagerStore.nodeMap.get(curCaptionId.value) as CaptionNode
     const captionIndex = dialogueNode.initCaptionIds.findIndex((e) => e === curCaptionId.value)
     const dialogueIndex = sceneNode.initDialogueIds.findIndex((e) => e === curDialogueId.value)
     const nextCaptionId = dialogueNode.initCaptionIds[captionIndex + 1]

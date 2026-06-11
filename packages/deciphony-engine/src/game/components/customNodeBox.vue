@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { computed, CSSProperties, onMounted, PropType, ref, watch } from 'vue'
-import { Animateion, CustomNode, LayoutNode } from '@/types'
-import { LayoutPositionEnum, ObjectFitEnum } from '@/enum'
-import { useAnimateion } from '@/composables/useAnimateion'
-import { gsap } from 'gsap'
-import CustomNodeFactory from '@/game/components/customNodeFactory.vue'
+import {computed, CSSProperties, onMounted, PropType, ref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
+import {Animateion, CustomNode, LayoutNode} from '../../types'
+import {LayoutPositionEnum, ObjectFitEnum} from '../../enum'
+import {enginePinia} from '../../store/pinia'
+import {useAnimateionStore} from '../../store/useAnimateionStore'
+import {gsap} from 'gsap'
+import CustomNodeFactory from '../../game/components/customNodeFactory.vue'
 
 const props = defineProps({
   layout: {
@@ -21,8 +23,8 @@ const props = defineProps({
 
 // 计算布局位置
 const layoutStyle = computed(() => {
-  const { left, right, top, bottom, width, height, applyPosition } = props.layout as LayoutNode
-  const { canvasWidth, canvasHeight } = props as { canvasWidth: number; canvasHeight: number }
+  const {left, right, top, bottom, width, height, applyPosition} = props.layout as LayoutNode
+  const {canvasWidth, canvasHeight} = props as { canvasWidth: number; canvasHeight: number }
 
   let x = 0,
     y = 0
@@ -44,7 +46,7 @@ const layoutStyle = computed(() => {
       y = canvasHeight - bottom - height
       break
   }
-  return { x, y, width, height }
+  return {x, y, width, height}
 })
 
 const objectFitMode = computed(() =>
@@ -63,7 +65,7 @@ const imageStyle = computed(
 const gRef = ref<SVGGElement | null>(null)
 
 // 动画监听
-const { animationMap } = useAnimateion()
+const {animationMap} = storeToRefs(useAnimateionStore(enginePinia))
 watch(
   () => animationMap.value.get(props.customNode.id),
   (anim: Animateion | undefined) => {
@@ -95,12 +97,12 @@ watch(
       yoyo: loop,
       onComplete: () => {
         if (!keepFinalState && !loop) {
-          gsap.set(gRef.value, { clearProps: 'transform,opacity' })
+          gsap.set(gRef.value, {clearProps: 'transform,opacity'})
         }
       }
     })
   },
-  { deep: true }
+  {deep: true}
 )
 
 onMounted(() => {

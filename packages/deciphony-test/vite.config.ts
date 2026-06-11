@@ -18,8 +18,8 @@ export default defineConfig({
     alias: {
       'deciphony-renderer': path.resolve(rendererSrc, 'index.ts'),
       'deciphony-player': path.resolve(__dirname, '../deciphony-player/src/index.ts'),
-      'j-player': path.resolve(__dirname, '../j-player/src/index.ts'),
       'deciphony-ui': path.resolve(__dirname, '../deciphony-ui/src/index.ts'),
+      'deciphony-engine': path.resolve(__dirname, '../deciphony-engine/src/index.ts'),
       '@assets': path.resolve(__dirname, '../deciphony-ui/src/assets'),
       // 必须与 deciphony-renderer 指向同一份源码，否则 @/ 与包入口会被 Vite 当成两个模块实例
       '@': rendererSrc,

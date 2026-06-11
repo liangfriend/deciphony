@@ -1,6 +1,6 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { Animateion } from '@/types'
+import {ref} from 'vue'
+import {defineStore} from 'pinia'
+import {Animateion} from '../types'
 
 export const useAnimateionStore = defineStore('animateion', () => {
   const animationMap = ref(new Map<number, Animateion>())

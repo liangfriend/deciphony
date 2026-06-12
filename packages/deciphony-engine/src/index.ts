@@ -6,25 +6,12 @@ import {useGameStore} from './store/useGameStore'
 
 export default GameView
 
-export interface GameDataManager {
-  gameData: Ref<string>
-}
-
 export interface ExtraDataManager {
   extraData: Ref<string>
 }
 
-export function updateLoadedGameData(gameData: string) {
-  useGameStore(enginePinia).updateLoadedGameData(gameData)
-}
-
 export function updateExtraData(extraData: string) {
   useGameStore(enginePinia).updateExtraData(extraData)
-}
-
-export function useGameData(): GameDataManager {
-  const {gameData} = storeToRefs(useGameStore(enginePinia))
-  return {gameData}
 }
 
 export function useExtraData(): ExtraDataManager {

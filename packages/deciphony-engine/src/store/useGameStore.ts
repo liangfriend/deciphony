@@ -36,27 +36,10 @@ export const useGameStore = defineStore('game', () => {
   const audioManagerStore = useAudioManagerStore(enginePinia)
   const animationStore = useAnimateionStore(enginePinia)
 
-  // 因为 gameData 要直接放进 monacoEditor，所以这里直接保存字符串
-  const gameData = ref('{}')
   const extraData = ref('{}')
-
-  function syncGameDataToExtraData(data: string) {
-    const extra = parseJS(extraData.value) as Record<string, unknown>
-    extra.gameData = data
-    extraData.value = JSON.stringify(extra)
-  }
-
-  function updateLoadedGameData(data: string) {
-    gameData.value = data
-    syncGameDataToExtraData(data)
-  }
 
   function updateExtraData(data: string) {
     extraData.value = data
-    const parsed = parseJS(data) as Record<string, unknown>
-    if (typeof parsed.gameData === 'string') {
-      gameData.value = parsed.gameData
-    }
   }
 
   const curSceneId = ref(-1)
@@ -186,10 +169,6 @@ export const useGameStore = defineStore('game', () => {
       )
     }
     viewerNodeMap.value.clear()
-    syncGameDataToExtraData(gameData.value)
-    const extra = parseJS(extraData.value) as Record<string, unknown>
-    extra.sceneId = scenedId
-    extraData.value = JSON.stringify(extra)
     curSceneId.value = scenedId
     const sceneNode = nodeManagerStore.nodeMap.get(curSceneId.value) as SceneNode
     if (sceneNode) {
@@ -403,10 +382,8 @@ export const useGameStore = defineStore('game', () => {
           }
           case ActionTypeEnum.DataChange: {
             try {
-              const data = parseJS(gameData.value)
               const extra = parseJS(extraData.value) as Record<string, unknown>
               const fn = new Function(
-                'gameData',
                 'extraData',
                 `
                   try {
@@ -416,9 +393,7 @@ export const useGameStore = defineStore('game', () => {
                   }
                 `
               )
-              fn(data, extra)
-              gameData.value = JSON.stringify(data)
-              extra.gameData = gameData.value
+              fn(extra)
               extraData.value = JSON.stringify(extra)
             } catch (e: any) {
               console.error('数据修改行为函数语法错误', e)
@@ -437,7 +412,6 @@ export const useGameStore = defineStore('game', () => {
     curCaptionId,
     curSceneId,
     curDialogueId,
-    gameData,
     doAction,
     viewerNodeMap,
     viewerNodeGroups,
@@ -448,7 +422,6 @@ export const useGameStore = defineStore('game', () => {
     viewerCurtainNodeMap,
     addViewerNodeMap,
     removeViewerNodeMap,
-    updateLoadedGameData,
     updateExtraData,
     extraData
   }

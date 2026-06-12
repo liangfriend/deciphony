@@ -93,7 +93,7 @@ export type ActionNode = Node & {
   animation: Animateion
   actionIds: number[] // 组合行为专用
   data?: any // 自定义行为节点时，携带的信息
-  dataChangeFunc: string // 数据修改行为，可读写 gameData、extraData
+  dataChangeFunc: string // 数据修改行为，可读写 extraData
   executeConditionIds: number[] // 执行条件
 }
 export type LayoutNode = Node & {
@@ -163,7 +163,7 @@ export type FilterNode = Node & {
 // 条件节点
 export type ConditionNode = Node & {
   nodeType: NodeEnum.Condition
-  func: string // 条件函数，可用 nodeMap、gameData、extraData
+  func: string // 条件函数，可用 nodeMap、extraData
 }
 export type EngineNode =
   | StoryNode
@@ -266,7 +266,6 @@ export type SaveModel = {
 /** 场景切换时自动存档 emit 给外部的载荷 */
 export type GameAutoSavePayload = {
   sceneId: number
-  gameData: string
   extraData: Record<string, unknown>
 }
 

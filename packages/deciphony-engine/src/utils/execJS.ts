@@ -7,7 +7,7 @@ export function runCode(code: string) {
     const nodeManagerStore = useNodeManagerStore(enginePinia)
     const gameStore = useGameStore(enginePinia)
     const fn = new Function(
-      'nodeMap,gameData,extraData',
+      'nodeMap,extraData',
       `
       try {
         ${code}
@@ -16,9 +16,8 @@ export function runCode(code: string) {
       }
     `
     )
-    const gameDataObj = parseJS(gameStore.gameData)
     const extraDataObj = parseJS(gameStore.extraData)
-    return fn(nodeManagerStore.nodeMap, gameDataObj, extraDataObj)
+    return fn(nodeManagerStore.nodeMap, extraDataObj)
   } catch (e: any) {
     return e
   }

@@ -32,7 +32,6 @@ const {
   curCaptionId,
   curSceneId,
   curDialogueId,
-  gameData,
   viewerNodeMap,
   viewerNodeGroups,
   viewerKeys,
@@ -83,7 +82,6 @@ watch(curSceneId, (sceneId) => {
   if (sceneId === -1) return
   emit('autoSave', {
     sceneId,
-    gameData: gameData.value,
     extraData: parseJS(storeExtraData.value) as Record<string, unknown>
   })
 })

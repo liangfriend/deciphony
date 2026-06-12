@@ -10,8 +10,16 @@ export interface GameDataManager {
   gameData: Ref<string>
 }
 
+export interface ExtraDataManager {
+  extraData: Ref<string>
+}
+
 export function updateLoadedGameData(gameData: string) {
   useGameStore(enginePinia).updateLoadedGameData(gameData)
+}
+
+export function updateExtraData(extraData: string) {
+  useGameStore(enginePinia).updateExtraData(extraData)
 }
 
 export function useGameData(): GameDataManager {
@@ -19,10 +27,14 @@ export function useGameData(): GameDataManager {
   return {gameData}
 }
 
+export function useExtraData(): ExtraDataManager {
+  const {extraData} = storeToRefs(useGameStore(enginePinia))
+  return {extraData}
+}
+
 export * from './composables/useCaption'
 export * from './composables/useVideoPlayer'
 export * from './composables/useAudioNodePlayer'
-// export * from './composables/useOperationHistory'
 export * from './utils/execJS'
 export * from './enum'
 export type * from './types'

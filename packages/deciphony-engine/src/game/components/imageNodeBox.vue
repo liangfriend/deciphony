@@ -69,7 +69,7 @@ watch(
   () => animationMap.value.get(props.imageNode.id),
   (anim: Animateion | undefined) => {
     if (!anim || !gRef.value) return
-
+    console.log('chicken', '执行动画')
     const {
       scale,
       offsetX,

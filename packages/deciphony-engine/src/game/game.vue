@@ -16,6 +16,12 @@ import {useAudioManagerStore} from '../store/useAudioManagerStore'
 import FilterNodeBox from '../game/components/filterNodeBox.vue'
 import CurtainNodeBox from '../game/components/curtainNodeBox.vue'
 import CustomNodeBox from '../game/components/customNodeBox.vue'
+import {CustomNodeSlotProps, GameAutoSavePayload} from '../types'
+import {parseJS} from '../utils/execJS'
+
+defineSlots<{
+  custom(props: CustomNodeSlotProps): unknown
+}>()
 
 const router = useRouter()
 const route = useRoute()
@@ -26,27 +32,61 @@ const {
   curCaptionId,
   curSceneId,
   curDialogueId,
+  gameData,
   viewerNodeMap,
   viewerNodeGroups,
   viewerKeys,
   viewerCurtainNodeMap
 } = storeToRefs(gameStore)
-const {doAction, startCaption, startDialogue, startScene, updateLoadedGameData} = gameStore
-// const { gameData } = useGameData()
+const {doAction, startCaption, startDialogue, startScene, updateExtraData} = gameStore
+const {extraData: storeExtraData} = storeToRefs(gameStore)
+
 const props = defineProps({
-  gameData: { // 游戏本体
+  gameData: {
+    // 游戏本体
     type: Object as PropType<EngineNode[]>,
     required: true
   },
-  extraData: { // 额外数据
-    type: Object,
+  extraData: {
+    // 额外数据（好感度等），与引擎双向同步
+    type: Object
   },
   sceneId: {
     type: Number,
     default: -1
   }
 })
-const emit = defineEmits(['exit'])
+const emit = defineEmits<{
+  exit: []
+  'update:extraData': [extraData: Record<string, unknown>]
+  autoSave: [payload: GameAutoSavePayload]
+}>()
+
+let syncingExtraDataFromProps = false
+
+watch(
+  () => props.extraData,
+  (val) => {
+    syncingExtraDataFromProps = true
+    updateExtraData(JSON.stringify(val ?? {}))
+    syncingExtraDataFromProps = false
+  },
+  {deep: true, immediate: true}
+)
+
+watch(storeExtraData, (val) => {
+  if (syncingExtraDataFromProps) return
+  emit('update:extraData', parseJS(val))
+})
+
+watch(curSceneId, (sceneId) => {
+  if (sceneId === -1) return
+  emit('autoSave', {
+    sceneId,
+    gameData: gameData.value,
+    extraData: parseJS(storeExtraData.value) as Record<string, unknown>
+  })
+})
 
 const storyNode = computed((): StoryNode => {
   return props.gameData.find(node => node.nodeType === NodeEnum.Story) as StoryNode
@@ -55,9 +95,6 @@ const storyNode = computed((): StoryNode => {
 async function initData() {
   useNodeManagerStore(enginePinia).loadNodes(props.gameData)
   useAudioManagerStore(enginePinia).initAudioNodePlayers()
-  if (typeof props.extraData?.gameData === 'string') {
-    updateLoadedGameData(props.extraData.gameData)
-  }
   // if (type.value === 'test') {
   //   const data = (await window.api.work.query({id: gameId.value})).data?.[0]
   //   if (data) {
@@ -150,9 +187,16 @@ function exit() {
         <!--    TODO 应该应用插槽，让外部实现函数工厂，暴露给插槽一个回调函数，进行反向消息传递    -->
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.Background]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div :key="curSceneId" class="stack-item behind-object-layer">
@@ -179,9 +223,16 @@ function exit() {
         ></video-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.BehindObject]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div :key="curSceneId" class="stack-item character-layer">
@@ -208,9 +259,16 @@ function exit() {
         ></video-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.Character]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div :key="curSceneId" class="stack-item front-object-layer">
@@ -238,9 +296,16 @@ function exit() {
         ></video-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.FrontObject]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div :key="curSceneId" class="stack-item effect-layer">
@@ -273,9 +338,16 @@ function exit() {
         ></filter-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.Effect]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div :key="curSceneId" class="stack-item operation-layer">
@@ -310,9 +382,16 @@ function exit() {
         ></caption-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.Operation]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div class="stack-item curtain-layer" comment="幕布层不跟随场景刷新，所以不加key">
@@ -345,9 +424,16 @@ function exit() {
         ></curtain-node-box>
         <custom-node-box
           v-for="item in viewerNodeGroups.customs[LayerEnum.Curtain]"
+          :key="item.node.id"
+          :canvas-height="+storyNode.height"
+          :canvas-width="+storyNode.width"
           :custom-node="item.node"
           :layout="item.layout"
-        ></custom-node-box>
+        >
+          <template #default="slotProps">
+            <slot name="custom" v-bind="slotProps" />
+          </template>
+        </custom-node-box>
       </svg>
     </div>
     <div

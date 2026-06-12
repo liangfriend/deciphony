@@ -29,7 +29,6 @@ export enum ActionTypeEnum {
   ShowCustom = 'ShowCustom',
   HideCustom = 'HideCustom',
 
-  ActiveCurtain = 'ActiveCurtain', // 激活幕布
   Animation = 'Animation', // 动画行为
   Combined = 'Combined', // 组合式行为
   Next = 'Next', // 场景或对话节点的跳转

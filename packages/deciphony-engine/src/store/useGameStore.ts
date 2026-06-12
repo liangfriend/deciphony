@@ -30,8 +30,6 @@ import {
   ViewerNode
 } from '@/types'
 
-export type GameSaveHandler = (id: number, data: { data: string }) => void | Promise<void>
-
 export const useGameStore = defineStore('game', () => {
   const nodeManagerStore = useNodeManagerStore(enginePinia)
   const videoManagerStore = useVideoManagerStore(enginePinia)
@@ -40,14 +38,25 @@ export const useGameStore = defineStore('game', () => {
 
   // 因为 gameData 要直接放进 monacoEditor，所以这里直接保存字符串
   const gameData = ref('{}')
-  const saveHandler = ref<GameSaveHandler | null>(null)
+  const extraData = ref('{}')
 
-  function setSaveHandler(handler: GameSaveHandler) {
-    saveHandler.value = handler
+  function syncGameDataToExtraData(data: string) {
+    const extra = parseJS(extraData.value) as Record<string, unknown>
+    extra.gameData = data
+    extraData.value = JSON.stringify(extra)
   }
 
   function updateLoadedGameData(data: string) {
     gameData.value = data
+    syncGameDataToExtraData(data)
+  }
+
+  function updateExtraData(data: string) {
+    extraData.value = data
+    const parsed = parseJS(data) as Record<string, unknown>
+    if (typeof parsed.gameData === 'string') {
+      gameData.value = parsed.gameData
+    }
   }
 
   const curSceneId = ref(-1)
@@ -165,15 +174,6 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function autoSave(saveId: number, newSceneId: number, newGameData: string) {
-    if (!saveHandler.value) return
-    const data = {
-      sceneId: newSceneId,
-      gameData: newGameData
-    }
-    await saveHandler.value(saveId, {data: JSON.stringify(data)})
-  }
-
   async function startScene(scenedId: number) {
     if (!scenedId || scenedId === -1) return
     // curSceneId还没更新，获取旧的场景节点执行结束幕布
@@ -186,6 +186,10 @@ export const useGameStore = defineStore('game', () => {
       )
     }
     viewerNodeMap.value.clear()
+    syncGameDataToExtraData(gameData.value)
+    const extra = parseJS(extraData.value) as Record<string, unknown>
+    extra.sceneId = scenedId
+    extraData.value = JSON.stringify(extra)
     curSceneId.value = scenedId
     const sceneNode = nodeManagerStore.nodeMap.get(curSceneId.value) as SceneNode
     if (sceneNode) {
@@ -218,7 +222,6 @@ export const useGameStore = defineStore('game', () => {
     removeRelatedResources(curDialogueId.value)
     curDialogueId.value = dialogueId
     const dialogueNode = nodeManagerStore.nodeMap.get(curDialogueId.value) as DialogueNode
-    console.log('chicken', nodeManagerStore.nodeMap)
     dialogueNode.initActionIds?.forEach((actionId) => {
       doAction(actionId)
     })
@@ -296,6 +299,7 @@ export const useGameStore = defineStore('game', () => {
         const res = runCode(conditionNode.func)
         if (!res) condition = false
       }
+
       if (!condition) return
       setTimeout(() => {
         switch (actionNode.actionType) {
@@ -365,10 +369,17 @@ export const useGameStore = defineStore('game', () => {
             }
             break
           }
-          case ActionTypeEnum.ActiveCurtain: {
+          case ActionTypeEnum.ShowCustom: {
             const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
-            if (targetNode?.nodeType === NodeEnum.Curtain) {
+            if (targetNode?.nodeType === NodeEnum.Custom) {
               addViewerNodeMap(targetNode.id, targetNode)
+            }
+            break
+          }
+          case ActionTypeEnum.HideCustom: {
+            const targetNode = nodeManagerStore.nodeMap.get(actionNode.targetId)
+            if (targetNode?.nodeType === NodeEnum.Custom) {
+              removeViewerNodeMap(targetNode.id)
             }
             break
           }
@@ -393,8 +404,10 @@ export const useGameStore = defineStore('game', () => {
           case ActionTypeEnum.DataChange: {
             try {
               const data = parseJS(gameData.value)
+              const extra = parseJS(extraData.value) as Record<string, unknown>
               const fn = new Function(
                 'gameData',
+                'extraData',
                 `
                   try {
                     ${actionNode.dataChangeFunc}
@@ -403,8 +416,10 @@ export const useGameStore = defineStore('game', () => {
                   }
                 `
               )
-              fn(data)
-              updateLoadedGameData(JSON.stringify(data))
+              fn(data, extra)
+              gameData.value = JSON.stringify(data)
+              extra.gameData = gameData.value
+              extraData.value = JSON.stringify(extra)
             } catch (e: any) {
               console.error('数据修改行为函数语法错误', e)
             }
@@ -434,6 +449,7 @@ export const useGameStore = defineStore('game', () => {
     addViewerNodeMap,
     removeViewerNodeMap,
     updateLoadedGameData,
-    setSaveHandler
+    updateExtraData,
+    extraData
   }
 })

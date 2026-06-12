@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import {computed, CSSProperties, onMounted, PropType, ref, watch} from 'vue'
+import {computed, onMounted, PropType, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
-import {Animateion, CustomNode, LayoutNode} from '../../types'
-import {LayoutPositionEnum, ObjectFitEnum} from '../../enum'
+import {Animateion, CustomNode, CustomNodeSlotProps, LayoutNode} from '../../types'
+import {LayoutPositionEnum} from '../../enum'
 import {enginePinia} from '../../store/pinia'
 import {useAnimateionStore} from '../../store/useAnimateionStore'
+import {parseJS} from '../../utils/execJS'
 import {gsap} from 'gsap'
-import CustomNodeFactory from '../../game/components/customNodeFactory.vue'
 
 const props = defineProps({
   layout: {
@@ -21,7 +21,10 @@ const props = defineProps({
   canvasHeight: Number
 })
 
-// 计算布局位置
+defineSlots<{
+  default(props: CustomNodeSlotProps): unknown
+}>()
+
 const layoutStyle = computed(() => {
   const {left, right, top, bottom, width, height, applyPosition} = props.layout as LayoutNode
   const {canvasWidth, canvasHeight} = props as { canvasWidth: number; canvasHeight: number }
@@ -49,22 +52,13 @@ const layoutStyle = computed(() => {
   return {x, y, width, height}
 })
 
-const objectFitMode = computed(() =>
-  props.layout.objectFit === ObjectFitEnum.Fill ? 'fill' : 'contain'
-)
+const slotData = computed((): Record<string, unknown> => {
+  const parsed = parseJS(props.customNode.data)
+  return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
+})
 
-const imageStyle = computed(
-  (): CSSProperties => ({
-    objectFit: objectFitMode.value,
-    width: '100%',
-    height: '100%'
-  })
-)
-
-// ✅ 这里改成 gRef，而不是 imgRef
 const gRef = ref<SVGGElement | null>(null)
 
-// 动画监听
 const {animationMap} = storeToRefs(useAnimateionStore(enginePinia))
 watch(
   () => animationMap.value.get(props.customNode.id),
@@ -87,8 +81,8 @@ watch(
     gsap.to(gRef.value, {
       duration: duration / 1000,
       scale,
-      x: `+=${offsetX}`, // ✅ 关键！相对移动，不覆盖初始 x
-      y: `+=${offsetY}`, // ✅ 关键！相对移动，不覆盖初始 y
+      x: `+=${offsetX}`,
+      y: `+=${offsetY}`,
       rotation: rotate,
       opacity,
       transformOrigin: `${transformOrigin[0]}px ${transformOrigin[1]}px`,
@@ -106,7 +100,6 @@ watch(
 )
 
 onMounted(() => {
-  // 设定初始 transform， 让gsap来管理初始坐标，是因为如果直接放置layout到g标签，出现动画时就会因为样式重叠而错乱
   gsap.set(gRef.value, {
     x: layoutStyle.value.x,
     y: layoutStyle.value.y,
@@ -120,7 +113,19 @@ onMounted(() => {
 <template>
   <g ref="gRef">
     <foreignObject :height="layoutStyle.height" :width="layoutStyle.width">
-      <custom-node-factory :customNode="customNode" :layout="layout"></custom-node-factory>
+      <div xmlns="http://www.w3.org/1999/xhtml" class="custom-node-slot">
+        <slot :custom-node="customNode" :data="slotData" :layout="layout" />
+      </div>
     </foreignObject>
   </g>
 </template>
+
+<style scoped>
+.custom-node-slot {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+</style>

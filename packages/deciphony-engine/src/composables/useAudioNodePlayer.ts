@@ -3,10 +3,9 @@ import {AudioNode, AudioNodePlayer} from '@/types'
 
 export function useAudioNodePlayer(audioNode: AudioNode): AudioNodePlayer {
   const player = new APlayer()
-  const audioUrl = audioNode.url
+  player.setAudio(audioNode.url)
 
   async function play() {
-    await player.addAudio(audioUrl)
     player.play()
   }
 
@@ -20,7 +19,7 @@ export function useAudioNodePlayer(audioNode: AudioNode): AudioNodePlayer {
 
   function destory() {
     player.stop()
-    // player.destory()
+    player.dispose()
   }
 
   return {

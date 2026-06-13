@@ -20,7 +20,7 @@ import {
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
 const isNumberNotation = computed(
-  () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
+    () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
 )
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
 
@@ -49,10 +49,10 @@ function onKeyDown(event: KeyboardEvent) {
   if (event.key !== 'Delete' && event.key !== 'Backspace') return
   const target = event.target
   if (
-    target instanceof HTMLInputElement
-    || target instanceof HTMLTextAreaElement
-    || target instanceof HTMLSelectElement
-    || (target instanceof HTMLElement && target.isContentEditable)
+      target instanceof HTMLInputElement
+      || target instanceof HTMLTextAreaElement
+      || target instanceof HTMLSelectElement
+      || (target instanceof HTMLElement && target.isContentEditable)
   ) {
     return
   }
@@ -76,72 +76,72 @@ onBeforeUnmount(() => {
       <AddNumberStatePanel v-if="isNumberNotation" v-model="addNoteState as any"/>
       <AddNoteStatePanel v-else v-model="addNoteState as any"/>
       <div ref="scoreRootRef" class="play-test__score">
-      <div class="play-test__score-stack">
-      <musicScoreVue
-        ref="musicScoreRef"
-        class="play-test__score-svg"
-        :data="musicScoreData"
-        :slot-config="{'g-r':{w:50},'g-l':{w:50},'g-d':{h:40},'s-d':{h:20}}"
-        skin-name="default"
-        @renderMusicScore="handleRenderMusicScore"
-        @dr-click="handleDrClick"
-        @dr-down="handleDrDown"
-        @dr-enter="handleDrEnter"
-        @dr-leave="handleDrLeave"
-        @dr-up="handleDrUp"
-        @top-move="handleTopMove"
-        @top-up="handleTopUp"
-      >
-        <template #g-d="{ node }">
-          <EditSlotGdButtons :node="node"/>
-        </template>
-        <template #s-d="{ node }">
-          <EditSlotSdButtons :node="node"/>
-        </template>
-        <template #m="{ node }">
-          <rect
-            v-if="selectedItem?.measure?.id === node.slotData?.measure?.id"
-            class="measure-selection-frame dr-selected-highlight"
-            :height="node.h"
-            :width="node.w"
-            fill="white"
-            fill-opacity="0.01"
-            pointer-events="none"
-          />
-          <GhostNumberPreview
-            v-if="isNumberNotation"
-            :measure-id="selectedItem?.measure?.id"
-            :node="node"
-            :preview="activeGhostPreview"
-          />
-          <GhostNotePreview
-            v-else
-            :measure-id="selectedItem?.measure?.id"
-            :node="node"
-            :preview="activeGhostPreview"
-          />
-        </template>
-      </musicScoreVue>
-      <svg
-        v-if="slurHandlePoints || voltaHandlePoints"
-        class="play-test__affiliated-drag-layer"
-        :height="musicScoreData.height"
-        :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
-        :width="musicScoreData.width"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <SlurDragHandles
-          v-if="slurHandlePoints"
-          :handles="slurHandlePoints"
-          @handle-down="handleSlurHandleDown"
-        />
-        <VoltaDragHandles
-          v-if="voltaHandlePoints"
-          :handles="voltaHandlePoints"
-          @handle-down="handleVoltaHandleDown"
-        />
-      </svg>
-      </div>
+        <div class="play-test__score-stack">
+          <musicScoreVue
+              ref="musicScoreRef"
+              class="play-test__score-svg"
+              :data="musicScoreData"
+              :slot-config="{'g-r':{w:50},'g-l':{w:50},'g-d':{h:40},'s-d':{h:20}}"
+              skin-name="default"
+              @renderMusicScore="handleRenderMusicScore"
+              @dr-click="handleDrClick"
+              @dr-down="handleDrDown"
+              @dr-enter="handleDrEnter"
+              @dr-leave="handleDrLeave"
+              @dr-up="handleDrUp"
+              @top-move="handleTopMove"
+              @top-up="handleTopUp"
+          >
+            <template #g-d="{ node }">
+              <EditSlotGdButtons :node="node"/>
+            </template>
+            <template #s-d="{ node }">
+              <EditSlotSdButtons :node="node"/>
+            </template>
+            <template #m="{ node }">
+              <rect
+                  v-if="selectedItem?.measure?.id === node.slotData?.measure?.id"
+                  class="measure-selection-frame dr-selected-highlight"
+                  :height="node.h"
+                  :width="node.w"
+                  fill="white"
+                  fill-opacity="0.01"
+                  pointer-events="none"
+              />
+              <GhostNumberPreview
+                  v-if="isNumberNotation"
+                  :measure-id="selectedItem?.measure?.id"
+                  :node="node"
+                  :preview="activeGhostPreview"
+              />
+              <GhostNotePreview
+                  v-else
+                  :measure-id="selectedItem?.measure?.id"
+                  :node="node"
+                  :preview="activeGhostPreview"
+              />
+            </template>
+          </musicScoreVue>
+          <svg
+              v-if="slurHandlePoints || voltaHandlePoints"
+              class="play-test__affiliated-drag-layer"
+              :height="musicScoreData.height"
+              :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
+              :width="musicScoreData.width"
+              xmlns="http://www.w3.org/2000/svg"
+          >
+            <SlurDragHandles
+                v-if="slurHandlePoints"
+                :handles="slurHandlePoints"
+                @handle-down="handleSlurHandleDown"
+            />
+            <VoltaDragHandles
+                v-if="voltaHandlePoints"
+                :handles="voltaHandlePoints"
+                @handle-down="handleVoltaHandleDown"
+            />
+          </svg>
+        </div>
       </div>
     </div>
     <PropertyPanel :kind="propertyPanelKind" :selected="selectedItem"/>

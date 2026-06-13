@@ -21,7 +21,7 @@ import {
   getRestSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getNoteWidthRatio, getSlotRestChronaxie, getVoiceGroups, isSlotRest} from "../utils/note";
+import {getSlotRestChronaxie, getVoiceGroups, isSlotRest} from "../utils/note";
 import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 import {
@@ -31,6 +31,8 @@ import {
   renderGraceNotesBefore,
 } from "../grace/renderGraceStaff";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
+import {buildMeasureColumnLayout} from "@/render/layout/measureColumnLayout";
+import {createStandardStaffColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -64,6 +66,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     skin,
     idMap,
     skinName,
+    columnLayout,
   } = params;
   const skinNameForNodes = skinName ?? 'default';
   const out: VDom[] = [];
@@ -201,12 +204,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
 
   const notes = measure.notes;
-  // 计算当前小节总的widthRatio
-  const totalNoteRatio = notes.reduce((sum, n) => {
-    if (!isStaffSlot(n)) return sum;
-    return sum + getNoteWidthRatio(n, skin, measureHeight);
-  }, 0);
-  const domainStartX = measureX + prefixW;
+  const columnAdapter = createStandardStaffColumnLayoutAdapter(skin, measureHeight);
+  const layout =
+    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter);
+  const domainStartX = measureX + layout.noteDomainStartOffset;
   /*
   * 定义音符中心点坐标获取函数
   * */
@@ -214,26 +215,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     measureY + measureHeight - measureLineWidth / 2
     - region * (measureHeight - 5 * measureLineWidth) / 8
     - region * measureLineWidth / 2;
-  /*
-  * 使用均等槽位
-  * 如果曲谱数据的widthRatio没有设置好，出现了不合理的总宽度系数，则使用均等槽位模式
-  * 所有符号宽度域等比分配
-  * 这个正常来讲不应该被用到，属于一个防报错手段
-  * */
-  const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
 
   if (notes.length > 0) {
-    let accRatio = 0;
-    const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
       const slot = notes[i];
       if (!isStaffSlot(slot)) continue;
-      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(slot, skin, measureHeight);
-      // 计算出符号域宽度
-      const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
-      // 计算出符号域开始x值
-      const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
-      if (!useEqualSlots) accRatio += ratio;
+      const geo = layout.slotGeometries[i];
+      if (!geo) continue;
+      const slotStartX = domainStartX + geo.startInDomain;
+      const slotW = geo.width;
       const isRest = isSlotRest(slot);
       // 参考宽度：用于在 slot 内居中。休止符用休止符皮肤宽；音符用该 slot 内所有声部符头皮肤的最大宽（全/二分/四分符头尺寸可能不同）
       let referenceW: number;

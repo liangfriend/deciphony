@@ -119,6 +119,8 @@ slotConfig = {
 
 ### 3.1 小节内符号（按 x 方向顺序）
 
+**音符/休止符横坐标（重构规格，待实现）**：见 [小节内音符横坐标布局.md](./小节内音符横坐标布局.md)（onset 格 + 列 widthRatio + 连谱平均）。
+
 **前置：** clef_f → keySignature_f → timeSignature_f → 音符/休止符 → **后置：** clef_b → barline → keySignature_b → timeSignature_b
 
 | tag | targetId | 说明 |

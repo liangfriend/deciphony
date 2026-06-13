@@ -27,11 +27,12 @@ export function getSlotRestChronaxie(note: NoteNumber): number {
   return note.chronaxie ?? 64;
 }
 
-/** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
+/**
+ * widthRatio 时值换算系数。
+ * onset 列布局后，全/二/四分不再靠放大 ratio 给增时线腾位（时长由 onset 对齐）；仅更短时值略缩小。
+ */
 export function getChronaxieWidthCoefficient(chronaxie: number): number {
-  if (chronaxie === 256) return 4;
-  if (chronaxie === 128) return 2;
-  if (chronaxie === 64) return 1;
+  if (chronaxie >= 64) return 1;
   if (chronaxie === 32) return 0.5;
   if (chronaxie === 16) return 0.25;
   if (chronaxie === 8) return 0.25;
@@ -74,6 +75,18 @@ function graceWidthRatioForNoteNumber(
     after = Math.max(after, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
   }
   return ((before + after) / measureHeight) * 4;
+}
+
+/** 列布局用 widthRatio：不含时值系数（onset 已表达时长；增时线不参与列宽） */
+export function getNoteColumnWidthRatio(
+  note: NoteNumber,
+  skin: NumberNotationSkinPack,
+  measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
+): number {
+  const slotSkinKey = getSyllableSkinKey('X');
+  const slotW = resolveWidthRatio(note.widthRatio, skin[slotSkinKey]?.widthRatio);
+  const sub = collectSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio));
+  return slotW + sub + graceWidthRatioForNoteNumber(note, skin, measureHeight);
 }
 
 /** 音符在小节内的宽度占比 */

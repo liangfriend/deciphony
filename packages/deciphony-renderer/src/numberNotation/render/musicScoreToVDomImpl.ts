@@ -11,6 +11,12 @@ import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
 import {getBracketSkinKey, getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
+import {buildLinkedMeasureColumnLayouts} from "@/render/layout/measureColumnLayout";
+import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
+import {
+  computeNumberNotationMeasureFixedWidths,
+  createNumberNotationColumnLayoutAdapter,
+} from "./layout/measureColumnLayoutAdapter";
 import {processBeam} from "./beam/processBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
@@ -143,6 +149,31 @@ export function musicScoreToVDom(
       const totalSum = totalRatioPerCol.reduce((a, b) => a + b, 0) || 1;
       for (let mi = 0; mi < maxMeasures; mi++) {
         measureWidths.push(totalRatioPerCol[mi] / totalSum * grandStaffW);
+      }
+    }
+
+    let linkedColumnLayoutsByMi: (MeasureColumnLayout | null)[][] = [];
+    if (linkedStaff && maxMeasures > 0) {
+      const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
+      linkedColumnLayoutsByMi = new Array(maxMeasures);
+      for (let mi = 0; mi < maxMeasures; mi++) {
+        const measuresAtMi = grandStaff.staves.map((s) => s.measures[mi] ?? null);
+        let maxPrefixW = 0;
+        let maxSuffixW = 0;
+        for (const m of measuresAtMi) {
+          if (!m) continue;
+          const fixed = computeNumberNotationMeasureFixedWidths(m, skin);
+          maxPrefixW = Math.max(maxPrefixW, fixed.prefixW);
+          maxSuffixW = Math.max(maxSuffixW, fixed.suffixW);
+        }
+        const measureWidth = measureWidths[mi] ?? 0;
+        const noteDomainW = Math.max(0, measureWidth - maxPrefixW - maxSuffixW);
+        linkedColumnLayoutsByMi[mi] = buildLinkedMeasureColumnLayouts(
+          measuresAtMi,
+          noteDomainW,
+          maxPrefixW,
+          columnAdapter,
+        );
       }
     }
 
@@ -459,6 +490,7 @@ export function musicScoreToVDom(
           skin,
           idMap: nodeIdMap,
           skinName: effectiveSkinName,
+          columnLayout: linkedStaff ? linkedColumnLayoutsByMi[mi]?.[i] ?? null : null,
         });
         const symbolVDomsStartIdx = vDoms.length;
         vDoms.push(...symbolVDoms);

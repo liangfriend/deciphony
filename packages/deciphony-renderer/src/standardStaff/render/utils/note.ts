@@ -58,12 +58,14 @@ export function getRestChronaxie(rest: NoteRest): Chronaxie {
   return rest.chronaxie;
 }
 
-/** 音符 / 休止符位的时值（用于宽度与皮肤） */
+/** 音符 / 休止符位的时值（用于宽度与 onset 累积；和弦取 notesInfo 最大 chronaxie） */
 export function getSlotChronaxie(slot: StaffSlot): number {
   if (isNoteRest(slot)) return slot.chronaxie;
-  let max = 64;
-  for (const ni of slot.notesInfo) {
-    if (ni.chronaxie > max) max = ni.chronaxie;
+  if (slot.notesInfo.length === 0) return 64;
+  let max = slot.notesInfo[0]!.chronaxie;
+  for (let i = 1; i < slot.notesInfo.length; i++) {
+    const c = slot.notesInfo[i]!.chronaxie;
+    if (c > max) max = c;
   }
   return max;
 }
@@ -77,11 +79,12 @@ export function getSlotRestChronaxie(slot: StaffSlot): number {
   return getSlotChronaxie(slot);
 }
 
-/** widthRatio/widthRatioForMeasure 以四分音符(64)为 1；时值换算系数 */
+/**
+ * widthRatio 时值换算系数。
+ * onset 列布局后，全/二/四分不再靠放大 ratio 给符尾/增时腾位（时长由 onset 对齐）；仅更短时值略缩小。
+ */
 export function getChronaxieWidthCoefficient(chronaxie: number): number {
-  if (chronaxie === 256) return 1.5;
-  if (chronaxie === 128) return 1.3;
-  if (chronaxie === 64) return 1;
+  if (chronaxie >= 64) return 1;
   if (chronaxie === 32) return 0.8;
   if (chronaxie === 16) return 0.7;
   if (chronaxie === 8) return 0.6;

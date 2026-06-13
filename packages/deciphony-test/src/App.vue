@@ -19,9 +19,9 @@ import EngineTest from "./views/engineTest.vue";
   <!--  <render-test></render-test>-->
   <!--  <render-play-test></render-play-test>-->
   <!--  <render-xml-test></render-xml-test>-->
-  <!--  <render-edit-test></render-edit-test>-->
+  <render-edit-test></render-edit-test>
   <!--  <transfer-test></transfer-test>-->
-  <engine-test></engine-test>
+  <!--  <engine-test></engine-test>-->
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->
 

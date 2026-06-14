@@ -94,7 +94,6 @@ const effectiveSkinName = computed(() => {
   return sn && s && sn in s ? sn : 'default'
 })
 onMounted(() => {
-  console.log('chicken', defaultSkin)
 })
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
 

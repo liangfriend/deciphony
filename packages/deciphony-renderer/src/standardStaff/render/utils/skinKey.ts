@@ -109,16 +109,8 @@ export function getKeySignatureSkinKey(type: KeySignatureTypeEnum): StandardStaf
 
 export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): StandardStaffSkinKeyEnum {
     if (type == null) return StandardStaffSkinKeyEnum['4_4'];
-    const map: Record<TimeSignatureTypeEnum, StandardStaffSkinKeyEnum> = {
-        [TimeSignatureTypeEnum['1_1']]: StandardStaffSkinKeyEnum['1_1'],
-        [TimeSignatureTypeEnum['1_4']]: StandardStaffSkinKeyEnum['1_4'],
-        [TimeSignatureTypeEnum['2_4']]: StandardStaffSkinKeyEnum['2_4'],
-        [TimeSignatureTypeEnum['3_4']]: StandardStaffSkinKeyEnum['3_4'],
-        [TimeSignatureTypeEnum['4_4']]: StandardStaffSkinKeyEnum['4_4'],
-        [TimeSignatureTypeEnum['3_8']]: StandardStaffSkinKeyEnum['3_8'],
-        [TimeSignatureTypeEnum['6_8']]: StandardStaffSkinKeyEnum['6_8'],
-    };
-    return map[type] ?? StandardStaffSkinKeyEnum['4_4'];
+    return StandardStaffSkinKeyEnum[type as keyof typeof StandardStaffSkinKeyEnum]
+        ?? StandardStaffSkinKeyEnum['4_4'];
 }
 
 /** 时值 chronaxie → 音符头皮肤 */

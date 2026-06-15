@@ -78,7 +78,12 @@ function getNumberNotationCategory(key: string): string {
     if (key === NumberNotationSkinKeyEnum.Measure) return 'measure'
     if (key.startsWith('number_')) return 'number'
     if (/^(C|D|E|F|G|A|B)(_|_sharp|_flat)?$/.test(key) || key === 'C_flat') return 'keySignature'
-    if (['1_1', '1_4', '2_4', '3_4', '4_4', '3_8', '6_8'].includes(key)) return 'timeSignature'
+    if ([
+      '2_4', '3_4', '4_4', '5_4', '6_4',
+      '3_8', '4_8', '5_8', '6_8', '7_8', '9_8', '12_8',
+      'common', 'cut',
+      '2_2', '3_2', '4_2',
+    ].includes(key)) return 'timeSignature'
     if (['sharp', 'flat', 'double_sharp', 'double_flat', 'natural'].includes(key)) return 'accidental'
     if (key.startsWith('augmentationDot_')) return 'augmentationDot'
     if (key.includes('barline') || key === 'close_line' || key === 'linked_close_line') return 'barline'

@@ -11,6 +11,7 @@ import RenderTitleTest from "./views/renderTitleTest.vue";
 import RenderXmlTest from "./views/renderXmlTest.vue";
 import TransferTest from "./views/transferTest.vue";
 import EngineTest from "./views/engineTest.vue";
+import SkinBuilder from "./views/skinBuilder.vue";
 </script>
 
 <template>
@@ -18,10 +19,11 @@ import EngineTest from "./views/engineTest.vue";
   <!--  <ui-test></ui-test>-->
   <!--  <render-test></render-test>-->
   <!--  <render-play-test></render-play-test>-->
+  <skin-builder></skin-builder>
   <!--  <render-xml-test></render-xml-test>-->
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <transfer-test></transfer-test>-->
-  <engine-test></engine-test>
+  <!--  <engine-test></engine-test>-->
   <!--  <render-title-test></render-title-test>-->
   <!--  <dr-edit></dr-edit>-->
 

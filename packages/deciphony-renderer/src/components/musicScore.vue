@@ -1,45 +1,45 @@
 <template>
-  <svg :height="data.height" :viewBox="`0 0 ${data.width} ${data.height}`" :width="data.width"
-       :style="{touchAction:'none'}"
-       preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"
+  <svg ref="svgRef" :height="data.height" :style="{touchAction:'none'}"
+       :viewBox="`0 0 ${data.width} ${data.height}`"
+       :width="data.width" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg"
        @click="onTopClick"
        @pointerdown="onTopDown"
        @pointerenter="onTopSvgEnter"
        @pointerleave="onTopSvgLeave"
        @pointermove="onTopMove"
-       @pointerup="onTopUp"
-       ref="svgRef">
+       @pointerup="onTopUp">
     <template v-for="(node, domIndex) in vDom"
               :key="vdomDomId(node, domIndex)">
       <g
-          v-if="!AFFILIATION_TAGS.has(node.tag)"
-          :id="vdomDomId(node, domIndex)"
-          @click="onDrClick($event, node)"
-          @pointerdown="onDrDown($event, node)"
-          @pointerenter="onDrEnter($event, node)"
-          @pointerleave="onDrLeave($event, node)"
-          @pointermove="onDrMove($event, node)"
-          @pointerup="onDrUp($event, node)"
+        v-if="!AFFILIATION_TAGS.has(node.tag)"
+        :id="vdomDomId(node, domIndex)"
+        @click="onDrClick($event, node)"
+        @pointerdown="onDrDown($event, node)"
+        @pointerenter="onDrEnter($event, node)"
+        @pointerleave="onDrLeave($event, node)"
+        @pointermove="onDrMove($event, node)"
+        @pointerup="onDrUp($event, node)"
       >
         <Group :node="node" :notation-type="data.type" :skin="skin"/>
       </g>
       <g
-          v-else-if="AFFILIATION_TAGS.has(node.tag)"
-          :id="vdomDomId(node, domIndex)"
-          :data-comment="node.dataComment"
-          :data-slot-name="node.slotName??''"
-          :data-target-id="node.targetId"
-          :transform="`translate(${node.x}, ${node.y})`"
-          @click="onDrClick($event, node)"
-          @pointerdown="onDrDown($event, node)"
-          @pointerenter="onDrEnter($event, node)"
-          @pointerleave="onDrLeave($event, node)"
-          @pointermove="onDrMove($event, node)"
-          @pointerup="onDrUp($event, node)"
+        v-else-if="AFFILIATION_TAGS.has(node.tag)"
+        :id="vdomDomId(node, domIndex)"
+        :data-comment="node.dataComment"
+        :data-slot-name="node.slotName??''"
+        :data-target-id="node.targetId"
+        :transform="`translate(${node.x}, ${node.y})`"
+        @click="onDrClick($event, node)"
+        @pointerdown="onDrDown($event, node)"
+        @pointerenter="onDrEnter($event, node)"
+        @pointerleave="onDrLeave($event, node)"
+        @pointermove="onDrMove($event, node)"
+        @pointerup="onDrUp($event, node)"
       >
-        <Slur v-if="node.special?.slur" :v-dom="node" :notation-type="notationType" :skin="skin"/>
-        <Volta v-else-if="node.special?.volta !== undefined" :v-dom="node" :notation-type="notationType" :skin="skin"/>
-        <Beam v-else-if="node.special?.beam" :v-dom="node" :notation-type="notationType" :skin="skin"/>
+        <Slur v-if="node.special?.slur" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Volta v-else-if="node.special?.volta !== undefined" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Beam v-else-if="node.special?.beam" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
 
         </slot>
@@ -80,11 +80,11 @@ const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.Numbe
 
 const data = computed(() => props.data)//?? defaultMock.value
 const skin = computed<Skin>(() =>
-        props.skin ?? {
-          default: defaultSkin,
-          red: defaultSkinRed,
-          blue: defaultSkinBlue,
-        }
+    props.skin ?? {
+      default: defaultSkin,
+      red: defaultSkinRed,
+      blue: defaultSkinBlue,
+    }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -189,20 +189,21 @@ function onTopSvgLeave(event: PointerEvent) {
 }
 
 const musicScoreToVDom = computed(() =>
-    notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
+  notationType.value === MusicScoreTypeEnum.NumberNotation ? musicScoreToVDomNumber : musicScoreToVDomStandard
 )
 
 // data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
-    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
-    ([d, slotConfig]) => {
-      const next = d
-          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
-          : []
-      vDom.value = diffAndMergeVDom(vDom.value, next)//next//
-      emit('renderMusicScore', vDom.value)
-    },
-    {immediate: true, deep: true}
+  [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
+  ([d, slotConfig]) => {
+    const next = d
+      ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
+      : []
+    console.log('chicken', skin.value)
+    vDom.value = diffAndMergeVDom(vDom.value, next)//next//
+    emit('renderMusicScore', vDom.value)
+  },
+  {immediate: true, deep: true}
 )
 
 /**

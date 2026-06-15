@@ -12,7 +12,8 @@ import {
   chronaxieToXmlType,
   clefToXmlSignLine,
   keySignatureToFifths,
-  timeSignatureToBeats
+  timeSignatureToBeats,
+  timeSignatureTypeToMusicXml,
 } from './musicXmlEncode'
 import type { MusicXmlBuilderOptions, MusicXmlMeasureAttributes, MusicXmlNoteInput } from './types'
 
@@ -94,10 +95,15 @@ export class MusicXmlBuilder {
     }
 
     if (input.time != null) {
-      const { beats, beatType } = timeSignatureToBeats(input.time)
+      const xmlTime = timeSignatureTypeToMusicXml(input.time)
       const time = elem(attributes, 'time')
-      text(time, 'beats', beats)
-      text(time, 'beat-type', beatType)
+      if (xmlTime.symbol) {
+        attr(time, 'symbol', xmlTime.symbol)
+      } else {
+        const { beats, beatType } = timeSignatureToBeats(input.time)
+        text(time, 'beats', beats)
+        text(time, 'beat-type', beatType)
+      }
     }
 
     if (input.staves != null) {

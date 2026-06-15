@@ -3,7 +3,9 @@ import {
   ClefTypeEnum,
   type Chronaxie,
   KeySignatureTypeEnum,
-  TimeSignatureTypeEnum
+  TimeSignatureTypeEnum,
+  timeSignatureTypeToBeats,
+  timeSignatureTypeToMusicXml,
 } from 'deciphony-renderer'
 import type { MusicXmlPitch } from './types'
 
@@ -88,17 +90,15 @@ export function keySignatureToFifths(key: KeySignatureTypeEnum): number {
   return KEY_TO_FIFTHS[key] ?? 0
 }
 
-/** 拍号 → beats / beat-type */
+/** 拍号 → beats / beat-type（Common=4/4，Cut=2/2） */
 export function timeSignatureToBeats(time: TimeSignatureTypeEnum): {
   beats: number
   beatType: number
 } {
-  const [beatsRaw, beatTypeRaw] = String(time).split('_')
-  return {
-    beats: Number(beatsRaw) || 4,
-    beatType: Number(beatTypeRaw) || 4
-  }
+  return timeSignatureTypeToBeats(time)
 }
+
+export {timeSignatureTypeToMusicXml}
 
 /** 谱号 → sign / line */
 export function clefToXmlSignLine(clef: ClefTypeEnum): { sign: string; line: number } {

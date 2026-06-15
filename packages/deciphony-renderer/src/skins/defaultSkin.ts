@@ -2,6 +2,7 @@ import {NumberNotationSkinPack, SkinPack, StandardStaffSkinPack} from "@/types/c
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
+import {FRACTION_TIME_SIGNATURE_KEYS} from "@/utils/timeSignature";
 /*
 * w和h不会影响图形的宽高，图形的宽高是图形本身决定的，w和h是皮肤开发者要计算出图形的宽高显示写到属性中，让坐标系统识别
 * 因为svg嵌套的行为我没有掌握，所以舍弃了svg嵌套这一做法
@@ -589,6 +590,52 @@ function makeTimeSignature(content: string, key: StandardStaffSkinKeyEnum) {
         widthRatioForMeasure: 0,
         skinKey: key,
     };
+}
+
+function makeCommonTimeSignature(key: StandardStaffSkinKeyEnum) {
+    return {
+        content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text></g>`,
+        w: 30,
+        h: 56,
+        widthRatio: 0,
+        widthRatioForMeasure: 0,
+        skinKey: key,
+    };
+}
+
+function makeCutTimeSignature(key: StandardStaffSkinKeyEnum) {
+    return {
+        content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="21" y1="10" x2="21" y2="52" stroke="black" stroke-width="2"/></g>`,
+        w: 30,
+        h: 56,
+        widthRatio: 0,
+        widthRatioForMeasure: 0,
+        skinKey: key,
+    };
+}
+
+const STANDARD_STAFF_TIME_SIGNATURE_SKIN_KEYS = [
+    ...FRACTION_TIME_SIGNATURE_KEYS.map((key) => StandardStaffSkinKeyEnum[key]),
+    StandardStaffSkinKeyEnum.Common,
+    StandardStaffSkinKeyEnum.Cut,
+] as const;
+
+const NUMBER_NOTATION_TIME_SIGNATURE_SKIN_KEYS = [
+    ...FRACTION_TIME_SIGNATURE_KEYS.map((key) => NumberNotationSkinKeyEnum[key]),
+    NumberNotationSkinKeyEnum.Common,
+    NumberNotationSkinKeyEnum.Cut,
+] as const;
+
+function buildStandardStaffTimeSignatures() {
+    const entries: Partial<StandardStaffSkinPack> = {};
+    for (const key of FRACTION_TIME_SIGNATURE_KEYS) {
+        const skinKey = StandardStaffSkinKeyEnum[key];
+        const [top, bottom] = key.split('_');
+        entries[skinKey] = makeTimeSignature(`${top}/${bottom}`, skinKey);
+    }
+    entries[StandardStaffSkinKeyEnum.Common] = makeCommonTimeSignature(StandardStaffSkinKeyEnum.Common);
+    entries[StandardStaffSkinKeyEnum.Cut] = makeCutTimeSignature(StandardStaffSkinKeyEnum.Cut);
+    return entries as Pick<StandardStaffSkinPack, (typeof STANDARD_STAFF_TIME_SIGNATURE_SKIN_KEYS)[number]>;
 }
 
 // 音符头：1=全音符空心椭圆(h=10)，2=倾斜空心，3=倾斜实心
@@ -1541,13 +1588,7 @@ const standardStaffSkin: StandardStaffSkinPack = {
     [StandardStaffSkinKeyEnum.linked_heavy_double_barline]: linkedHeavyDoubleBarline,
 
     // 拍号
-    [StandardStaffSkinKeyEnum["1_1"]]: makeTimeSignature("1/1", StandardStaffSkinKeyEnum["1_1"]),
-    [StandardStaffSkinKeyEnum["1_4"]]: makeTimeSignature("1/4", StandardStaffSkinKeyEnum["1_4"]),
-    [StandardStaffSkinKeyEnum["2_4"]]: makeTimeSignature("2/4", StandardStaffSkinKeyEnum["2_4"]),
-    [StandardStaffSkinKeyEnum["3_4"]]: makeTimeSignature("3/4", StandardStaffSkinKeyEnum["3_4"]),
-    [StandardStaffSkinKeyEnum["4_4"]]: makeTimeSignature("4/4", StandardStaffSkinKeyEnum["4_4"]),
-    [StandardStaffSkinKeyEnum["3_8"]]: makeTimeSignature("3/8", StandardStaffSkinKeyEnum["3_8"]),
-    [StandardStaffSkinKeyEnum["6_8"]]: makeTimeSignature("6/8", StandardStaffSkinKeyEnum["6_8"]),
+    ...buildStandardStaffTimeSignatures(),
 
     // 音符头
     [StandardStaffSkinKeyEnum.NoteHead_1]: makeNoteHead(StandardStaffSkinKeyEnum.NoteHead_1),
@@ -2025,6 +2066,40 @@ function makeNumberNotationTimeSignature(top: string, bottom: string, key: Numbe
     };
 }
 
+function makeNumberNotationCommonTimeSignature(key: NumberNotationSkinKeyEnum) {
+    return {
+        content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text></g>`,
+        w: 30,
+        h: 56,
+        skinKey: key,
+        widthRatio: 0,
+        widthRatioForMeasure: 0,
+    };
+}
+
+function makeNumberNotationCutTimeSignature(key: NumberNotationSkinKeyEnum) {
+    return {
+        content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="21" y1="10" x2="21" y2="52" stroke="black" stroke-width="2"/></g>`,
+        w: 30,
+        h: 56,
+        skinKey: key,
+        widthRatio: 0,
+        widthRatioForMeasure: 0,
+    };
+}
+
+function buildNumberNotationTimeSignatures() {
+    const entries: Partial<NumberNotationSkinPack> = {};
+    for (const key of FRACTION_TIME_SIGNATURE_KEYS) {
+        const skinKey = NumberNotationSkinKeyEnum[key];
+        const [top, bottom] = key.split('_');
+        entries[skinKey] = makeNumberNotationTimeSignature(top, bottom, skinKey);
+    }
+    entries[NumberNotationSkinKeyEnum.Common] = makeNumberNotationCommonTimeSignature(NumberNotationSkinKeyEnum.Common);
+    entries[NumberNotationSkinKeyEnum.Cut] = makeNumberNotationCutTimeSignature(NumberNotationSkinKeyEnum.Cut);
+    return entries as Pick<NumberNotationSkinPack, (typeof NUMBER_NOTATION_TIME_SIGNATURE_SKIN_KEYS)[number]>;
+}
+
 
 const numberNotationSkin: NumberNotationSkinPack = {
     [NumberNotationSkinKeyEnum.Measure]: {
@@ -2386,13 +2461,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
         ...linkedHeavyDoubleBarline,
         skinKey: NumberNotationSkinKeyEnum.linked_heavy_double_barline
     },
-    [NumberNotationSkinKeyEnum['1_1']]: makeNumberNotationTimeSignature('1', '1', NumberNotationSkinKeyEnum['1_1']),
-    [NumberNotationSkinKeyEnum['1_4']]: makeNumberNotationTimeSignature('1', '4', NumberNotationSkinKeyEnum['1_4']),
-    [NumberNotationSkinKeyEnum['2_4']]: makeNumberNotationTimeSignature('2', '4', NumberNotationSkinKeyEnum['2_4']),
-    [NumberNotationSkinKeyEnum['3_4']]: makeNumberNotationTimeSignature('3', '4', NumberNotationSkinKeyEnum['3_4']),
-    [NumberNotationSkinKeyEnum['4_4']]: makeNumberNotationTimeSignature('4', '4', NumberNotationSkinKeyEnum['4_4']),
-    [NumberNotationSkinKeyEnum['3_8']]: makeNumberNotationTimeSignature('3', '8', NumberNotationSkinKeyEnum['3_8']),
-    [NumberNotationSkinKeyEnum['6_8']]: makeNumberNotationTimeSignature('6', '8', NumberNotationSkinKeyEnum['6_8']),
+    ...buildNumberNotationTimeSignatures(),
     [NumberNotationSkinKeyEnum.AugmentationDot_1]: {
         content: `<circle cx="1.5" cy="1.5" r="1.5" fill="black"/>`,
         w: 3,

@@ -11,6 +11,7 @@ import {
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
   TimeSignatureTypeEnum,
+  timeSignatureTypeToLabel,
 } from 'deciphony-renderer'
 import {insertMeasure} from '../dr-extensions/dr-edit/edit-util'
 import {
@@ -63,15 +64,11 @@ export const KEY_SIGNATURE_OPTIONS: {value: KeySignatureTypeEnum; label: string}
   {value: KeySignatureTypeEnum.C_flat, label: 'C♭ 大调'},
 ]
 
-export const TIME_SIGNATURE_OPTIONS: {value: TimeSignatureTypeEnum; label: string}[] = [
-  {value: TimeSignatureTypeEnum['4_4'], label: '4/4'},
-  {value: TimeSignatureTypeEnum['3_4'], label: '3/4'},
-  {value: TimeSignatureTypeEnum['2_4'], label: '2/4'},
-  {value: TimeSignatureTypeEnum['1_4'], label: '1/4'},
-  {value: TimeSignatureTypeEnum['3_8'], label: '3/8'},
-  {value: TimeSignatureTypeEnum['6_8'], label: '6/8'},
-  {value: TimeSignatureTypeEnum['1_1'], label: '1/1'},
-]
+export const TIME_SIGNATURE_OPTIONS: {value: TimeSignatureTypeEnum; label: string}[] =
+  Object.values(TimeSignatureTypeEnum).map((value) => ({
+    value,
+    label: timeSignatureTypeToLabel(value),
+  }))
 
 export const START_REPEAT_OPTIONS: {value: MeasureStartRepeatEnum; label: string}[] = [
   {value: MeasureStartRepeatEnum.Segno, label: 'Segno'},

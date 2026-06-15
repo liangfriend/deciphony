@@ -30,4 +30,14 @@ export {
   vdomSelectionKey,
 } from './render/vdomDomId'
 
+/** 拍号工具（beats 换算、标签、MusicXML） */
+export {
+  beatsToTimeSignatureType,
+  FRACTION_TIME_SIGNATURE_KEYS,
+  timeSignatureSymbolToType,
+  timeSignatureTypeToBeats,
+  timeSignatureTypeToLabel,
+  timeSignatureTypeToMusicXml,
+} from './utils/timeSignature'
+export type {FractionTimeSignatureKey} from './utils/timeSignature'
 

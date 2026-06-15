@@ -4,7 +4,9 @@ import {
     type Chronaxie,
     KeySignatureTypeEnum,
     TimeSignatureTypeEnum,
-} from 'deciphony-renderer'
+    beatsToTimeSignatureType,
+    timeSignatureSymbolToType,
+} from 'deciphony-renderer';
 
 const STEP_SEMITONE: Record<string, number> = {
     C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11,
@@ -70,13 +72,18 @@ export function xmlTimeToType(attrItem: any): TimeSignatureTypeEnum | undefined 
     if (!Array.isArray(timeBlock)) return undefined
     let beats: string | undefined
     let beatType: string | undefined
+    let symbol: string | undefined
     for (const item of timeBlock) {
         if (item.beats) beats = String(item.beats[0]?.['#text'])
         if (item['beat-type']) beatType = String(item['beat-type'][0]?.['#text'])
+        if (item.symbol) symbol = String(item.symbol[0]?.['#text'])
+    }
+    if (symbol) {
+        const bySymbol = timeSignatureSymbolToType(symbol)
+        if (bySymbol) return bySymbol
     }
     if (!beats || !beatType) return undefined
-    const key = `${beats}_${beatType}` as keyof typeof TimeSignatureTypeEnum
-    return TimeSignatureTypeEnum[key]
+    return beatsToTimeSignatureType(beats, beatType)
 }
 
 /** 解析 xml pitch 块 → midi */

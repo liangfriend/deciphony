@@ -46,13 +46,23 @@ const BARLINE_KEYS = new Set<string>([
 ])
 
 const TIME_SIG_KEYS = new Set<string>([
-    StandardStaffSkinKeyEnum['1_1'],
-    StandardStaffSkinKeyEnum['1_4'],
     StandardStaffSkinKeyEnum['2_4'],
     StandardStaffSkinKeyEnum['3_4'],
     StandardStaffSkinKeyEnum['4_4'],
+    StandardStaffSkinKeyEnum['5_4'],
+    StandardStaffSkinKeyEnum['6_4'],
     StandardStaffSkinKeyEnum['3_8'],
+    StandardStaffSkinKeyEnum['4_8'],
+    StandardStaffSkinKeyEnum['5_8'],
     StandardStaffSkinKeyEnum['6_8'],
+    StandardStaffSkinKeyEnum['7_8'],
+    StandardStaffSkinKeyEnum['9_8'],
+    StandardStaffSkinKeyEnum['12_8'],
+    StandardStaffSkinKeyEnum.Common,
+    StandardStaffSkinKeyEnum.Cut,
+    StandardStaffSkinKeyEnum['2_2'],
+    StandardStaffSkinKeyEnum['3_2'],
+    StandardStaffSkinKeyEnum['4_2'],
 ])
 
 const NOTE_HEAD_KEYS = new Set<string>([

@@ -90,16 +90,8 @@ export function getKeySignatureSkinKey(type: KeySignatureTypeEnum): NumberNotati
 
 export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): NumberNotationSkinKeyEnum {
   if (type == null) return NumberNotationSkinKeyEnum['4_4'];
-  const map: Record<TimeSignatureTypeEnum, NumberNotationSkinKeyEnum> = {
-    [TimeSignatureTypeEnum['1_1']]: NumberNotationSkinKeyEnum['1_1'],
-    [TimeSignatureTypeEnum['1_4']]: NumberNotationSkinKeyEnum['1_4'],
-    [TimeSignatureTypeEnum['2_4']]: NumberNotationSkinKeyEnum['2_4'],
-    [TimeSignatureTypeEnum['3_4']]: NumberNotationSkinKeyEnum['3_4'],
-    [TimeSignatureTypeEnum['4_4']]: NumberNotationSkinKeyEnum['4_4'],
-    [TimeSignatureTypeEnum['3_8']]: NumberNotationSkinKeyEnum['3_8'],
-    [TimeSignatureTypeEnum['6_8']]: NumberNotationSkinKeyEnum['6_8'],
-  };
-  return map[type] ?? NumberNotationSkinKeyEnum['4_4'];
+  return NumberNotationSkinKeyEnum[type as keyof typeof NumberNotationSkinKeyEnum]
+    ?? NumberNotationSkinKeyEnum['4_4'];
 }
 
 export function chronaxieToBeamLineCount(chronaxie: number): number {

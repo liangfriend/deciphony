@@ -21,7 +21,7 @@ import SkinBuilder from "./views/skinBuilder.vue";
   <!--  <render-play-test></render-play-test>-->
   <skin-builder></skin-builder>
   <!--  <render-xml-test></render-xml-test>-->
-  <render-edit-test></render-edit-test>
+  <!--  <render-edit-test></render-edit-test>-->
   <!--  <transfer-test></transfer-test>-->
   <!--  <engine-test></engine-test>-->
   <!--  <render-title-test></render-title-test>-->

@@ -8,7 +8,7 @@ import {getDrPlaySequence} from "./dr-extensions/dr-play/play-util";
 import {usePlayHighlight, type MusicScoreHighlightExpose} from './dr-extensions/dr-play-highlight'
 import {bambooForestSkin, glacierSkin} from '../skins'
 
-const skinName = ref<'default' | 'bambooForest' | 'glacier'>('bambooForest')
+const skinName = ref<'default' | 'bambooForest' | 'glacier'>('default')
 const customSkins = {bambooForest: bambooForestSkin, glacier: glacierSkin}
 
 const musicScoreData = data
@@ -102,23 +102,23 @@ function handleStop() {
   <div class="play-test">
     <div class="play-test__score">
       <musicScoreVue
-          ref="musicScoreRef"
-          :data="musicScoreData"
-          :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
-          :skin="skinName === 'default' ? undefined : customSkins"
-          :skin-name="skinName"
-          @renderMusicScore="handleRenderMusicScore"
+        ref="musicScoreRef"
+        :data="musicScoreData"
+        :skin="skinName === 'default' ? undefined : customSkins"
+        :skin-name="skinName"
+        :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
+        @renderMusicScore="handleRenderMusicScore"
       />
     </div>
     <div class="play-test__panel">
       <h3 class="play-test__title">皮肤</h3>
       <div class="play-test__skins">
-        <button class="play-test__btn" :class="{active: skinName === 'default'}" @click="skinName = 'default'">默认
+        <button :class="{active: skinName === 'default'}" class="play-test__btn" @click="skinName = 'default'">默认
         </button>
-        <button class="play-test__btn" :class="{active: skinName === 'bambooForest'}"
+        <button :class="{active: skinName === 'bambooForest'}" class="play-test__btn"
                 @click="skinName = 'bambooForest'">竹林
         </button>
-        <button class="play-test__btn" :class="{active: skinName === 'glacier'}" @click="skinName = 'glacier'">冰川
+        <button :class="{active: skinName === 'glacier'}" class="play-test__btn" @click="skinName = 'glacier'">冰川
         </button>
       </div>
       <h3 class="play-test__title">播放控制</h3>

@@ -21,6 +21,27 @@ export const FRACTION_TIME_SIGNATURE_KEYS = [
 
 export type FractionTimeSignatureKey = (typeof FRACTION_TIME_SIGNATURE_KEYS)[number];
 
+/** 展示 / 对照曲谱用：全部拍号（固定顺序） */
+export const TIME_SIGNATURE_TYPES_ORDERED: TimeSignatureTypeEnum[] = [
+  TimeSignatureTypeEnum['2_4'],
+  TimeSignatureTypeEnum['3_4'],
+  TimeSignatureTypeEnum['4_4'],
+  TimeSignatureTypeEnum['5_4'],
+  TimeSignatureTypeEnum['6_4'],
+  TimeSignatureTypeEnum['3_8'],
+  TimeSignatureTypeEnum['4_8'],
+  TimeSignatureTypeEnum['5_8'],
+  TimeSignatureTypeEnum['6_8'],
+  TimeSignatureTypeEnum['7_8'],
+  TimeSignatureTypeEnum['9_8'],
+  TimeSignatureTypeEnum['12_8'],
+  TimeSignatureTypeEnum.Common,
+  TimeSignatureTypeEnum.Cut,
+  TimeSignatureTypeEnum['2_2'],
+  TimeSignatureTypeEnum['3_2'],
+  TimeSignatureTypeEnum['4_2'],
+];
+
 /** 拍号 → 分子 / 分母（Common=4/4，Cut=2/2） */
 export function timeSignatureTypeToBeats(type: TimeSignatureTypeEnum): {
   beats: number;

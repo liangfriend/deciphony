@@ -15,6 +15,7 @@ import {
   MusicScoreTypeEnum,
   TimeSignatureTypeEnum,
 } from '@/enums/musicScoreEnum'
+import {TIME_SIGNATURE_TYPES_ORDERED} from '@/utils/timeSignature'
 import type {Chronaxie} from '@/types/common'
 import type {MusicScore, MeasurePath} from '@/types/MusicScoreType'
 import {
@@ -259,13 +260,14 @@ function buildStaff3(score: MusicScore, path: StaffPath) {
   }
 }
 
-/** 单谱表 4：全部拍号 */
+/** 单谱表 4：全部拍号（19 种） */
 function buildStaff4(score: MusicScore, path: StaffPath) {
   let mi = 0
-  for (const ts of Object.values(TimeSignatureTypeEnum)) {
+  for (const ts of TIME_SIGNATURE_TYPES_ORDERED) {
     const mPath = addMeasure(score, path, mi++, {
       inheritFromPrev: false,
       timeSignature: ts,
+      widthRatioForMeasure: MEASURE_W,
     })
     setMeasureTimeSignature(score, mPath, ts, 'f')
     insertRest(score, mPath, {chronaxie: 256})
@@ -293,7 +295,7 @@ export function buildSkinExhibitStandardStaff(): MusicScore {
   const score = createMusicScore({
     title: 'Skin Exhibit · 五线谱',
     type: MusicScoreTypeEnum.StandardStaff,
-    width: 2800,
+    width: 3000,
     height: 850,
     topSpaceHeight: 40,
   })

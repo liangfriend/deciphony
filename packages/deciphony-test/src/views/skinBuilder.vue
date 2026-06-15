@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
+import {ElMessage} from 'element-plus'
 import type {SkinItem} from '@/types/common'
 import defaultSkinJson from './skins/default.json'
 import SkinSymbolCard from './skinBuilder/SkinSymbolCard.vue'
@@ -77,6 +78,48 @@ function exportSkinJson() {
   URL.revokeObjectURL(url)
 }
 
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+function isSkinPackJson(data: unknown): data is SkinPackJson {
+  if (!data || typeof data !== 'object') return false
+  const o = data as Record<string, unknown>
+  const hasStandard = o.standardStaff != null && typeof o.standardStaff === 'object'
+  const hasNumber = o.numberNotation != null && typeof o.numberNotation === 'object'
+  return hasStandard || hasNumber
+}
+
+function triggerImportJson() {
+  fileInputRef.value?.click()
+}
+
+function onImportFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    try {
+      const parsed: unknown = JSON.parse(String(reader.result ?? ''))
+      if (!isSkinPackJson(parsed)) {
+        ElMessage.error('JSON 格式无效：需包含 standardStaff 或 numberNotation 对象')
+        return
+      }
+      skinPack.value = JSON.parse(JSON.stringify(parsed)) as SkinPackJson
+      const sections = [
+        parsed.standardStaff ? `五线谱 ${Object.keys(parsed.standardStaff).length} 项` : null,
+        parsed.numberNotation ? `简谱 ${Object.keys(parsed.numberNotation).length} 项` : null,
+      ].filter(Boolean).join('，')
+      ElMessage.success(`已导入 ${file.name}（${sections}）`)
+    } catch {
+      ElMessage.error('JSON 解析失败')
+    }
+  }
+  reader.onerror = () => ElMessage.error('读取文件失败')
+  reader.readAsText(file)
+}
+
 const editDialogVisible = ref(false)
 const editTarget = ref<SkinSymbolEditTarget | null>(null)
 
@@ -134,6 +177,16 @@ function onEditSave(payload: {content: string; w: number; h: number}) {
         <el-button size="small" @click="compareDialogVisible = true">
           对照预览
         </el-button>
+        <el-button size="small" @click="triggerImportJson">
+          导入 JSON
+        </el-button>
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept=".json,application/json"
+          hidden
+          @change="onImportFile"
+        >
         <el-button type="primary" size="small" @click="exportSkinJson">
           导出 JSON
         </el-button>

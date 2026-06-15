@@ -34,6 +34,7 @@ export {
 export {
   beatsToTimeSignatureType,
   FRACTION_TIME_SIGNATURE_KEYS,
+  TIME_SIGNATURE_TYPES_ORDERED,
   timeSignatureSymbolToType,
   timeSignatureTypeToBeats,
   timeSignatureTypeToLabel,

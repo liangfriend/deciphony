@@ -32,7 +32,7 @@ import {
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getNoteWidthRatio, getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
+import {getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
 import {
   graceNoteNumberAfterWidth,
   graceNoteNumberBeforeWidth,
@@ -42,6 +42,13 @@ import {
 import {computeOctaveDotYOffsets, noteCenterY} from "../utils/noteLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
+import {
+  buildMeasureColumnLayout,
+  CHRONAXIE_GRID_UNIT,
+  computeSlotOnset,
+  resolveAddLineXInDomain,
+} from "@/render/layout/measureColumnLayout";
+import {createNumberNotationColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -65,6 +72,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     skin,
     idMap,
     skinName,
+    columnLayout,
   } = params;
   const skinNameForNodes = skinName ?? 'default';
   const out: VDom[] = [];
@@ -200,9 +208,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   }
 
   const notes = measure.notes as NoteNumber[];
-  const totalNoteRatio = notes.reduce((sum, n) => sum + getNoteWidthRatio(n, skin, measureHeight), 0);
-  const domainStartX = measureX + prefixW;
-  const useEqualSlots = notes.length > 0 && totalNoteRatio <= 0;
+  const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
+  const layout =
+    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter);
+  const domainStartX = measureX + layout.noteDomainStartOffset;
 
   type SlotInfo = {
     note: NoteNumber;
@@ -217,14 +226,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   const slots: SlotInfo[] = [];
 
   if (notes.length > 0) {
-    let accRatio = 0;
-    const slotWidth = useEqualSlots ? noteDomainW / notes.length : 0;
     for (let i = 0; i < notes.length; i++) {
       const note = notes[i];
-      const ratio = useEqualSlots ? 1 : getNoteWidthRatio(note, skin, measureHeight);
-      const slotW = useEqualSlots ? slotWidth : (ratio / totalNoteRatio) * noteDomainW;
-      const slotStartX = domainStartX + (useEqualSlots ? i * slotWidth : (accRatio / totalNoteRatio) * noteDomainW);
-      if (!useEqualSlots) accRatio += ratio;
+      const geo = layout.slotGeometries[i];
+      if (!geo) continue;
+      const slotStartX = domainStartX + geo.startInDomain;
+      const slotW = geo.width;
 
       const isRestSlot = isSlotRest(note);
       const restChronaxie = getSlotRestChronaxie(note);
@@ -243,10 +250,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      // 计算音符头的x值：四分及以下居中；二分因1条加时线 slotW/2；全音符因3条加时线 slotW/4
+      // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
-      // 一个音符宽度域中每一份的宽度（如果没有加时线等于音符宽度域slotW）
-      const effectiveSlotW = slotChronaxie <= 64 ? slotW : (slotChronaxie === 128 ? slotW / 2 : slotW / 4);
+      const noteOnset = computeSlotOnset(measure, i, columnAdapter);
       let graceBeforeW = 0;
       let graceAfterW = 0;
       if (!isRestSlot) {
@@ -255,7 +261,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           graceAfterW = Math.max(graceAfterW, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
         }
       }
-      const slotX = slotStartX + (effectiveSlotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
+      const slotX = slotStartX + (slotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
@@ -324,14 +330,18 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             });
           }
         }
-        // 休止符加时线：二分1条、全音符3条
+        // 休止符加时线：对齐 noteOnset + 64*(k+1) 小格边界
         const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
           const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = slotStartX + effectiveSlotW * (k + 1)
+              const lineX = domainStartX + resolveAddLineXInDomain(
+                layout,
+                noteOnset + CHRONAXIE_GRID_UNIT * (k + 1),
+                referenceW,
+              );
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},
@@ -490,14 +500,18 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         for (const gn of allNotes) {
           renderGraceNotesNumberAfter(gn.graceNotesAfter, note, headX, referenceW, graceCtx);
         }
-        // 音符加时线：二分1条、全音符3条，y居中，x等分居中
+        // 音符增时线：对齐 noteOnset + 64*(k+1) 小格边界（与下一 onset 列或时轴插值一致）
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
           const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = slotStartX + effectiveSlotW * (k + 1)
+              const lineX = domainStartX + resolveAddLineXInDomain(
+                layout,
+                noteOnset + CHRONAXIE_GRID_UNIT * (k + 1),
+                referenceW,
+              );
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},

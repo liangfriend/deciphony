@@ -18,7 +18,15 @@ function shiftAccidentalContent(content: string): string {
   return `<g transform="translate(3, 0)">\n${trimmed}\n</g>`;
 }
 
-/** Coda / To Coda 占位（后续替换为正式符号） */
+/** Coda 符号 path（To Coda 仍为文字） */
+const REPEAT_CODA_PATH =
+  'M8.5,2.9v5.2H11c0.1-0.8,0-1.8-0.3-3.1c-0.2-0.5-0.4-1-0.8-1.4C9.5,3.1,9.1,2.9,8.5,2.9 M13.5,6.1c0.3,0.7,0.4,1.4,0.5,2h2.1v1H14c0,0.5-0.2,1.1-0.5,1.9c-0.3,0.7-0.6,1.3-0.9,1.8c-0.7,1.1-2.1,1.8-4.1,2.3V17H7.3v-1.9c-1.9-0.5-3.2-1.2-3.9-2.3c-0.4-0.5-0.7-1.1-1-1.8C2.2,10.3,2,9.6,2,9.1H0v-1h2c0-0.6,0.2-1.2,0.5-2c0.2-0.8,0.6-1.4,1-1.8c0.7-1.1,2-1.9,3.9-2.4V0h1.2v1.9c2,0.5,3.3,1.3,4.1,2.4C12.9,4.8,13.2,5.4,13.5,6.1 M5.3,4.9C5,6.3,4.9,7.3,4.9,8.1h2.3V2.9c-0.5,0-1,0.2-1.3,0.7C5.6,4,5.4,4.4,5.3,4.9 M4.9,9.1c0,0.7,0.1,1.7,0.3,3c0.1,0.5,0.4,1,0.7,1.4c0.3,0.4,0.8,0.6,1.3,0.6v-5H4.9 M8.5,9.1v5c0.6,0,1-0.2,1.4-0.6c0.4-0.4,0.6-0.9,0.8-1.4c0.3-1.3,0.4-2.2,0.3-3H8.5';
+
+function repeatCodaSkin(): string {
+  return `<g transform="scale(1.8,1.8) translate(0,-0.6)"><path d="${REPEAT_CODA_PATH}" fill="black" stroke="none"></path></g>`;
+}
+
+/** 其它反复符号占位（后续替换为正式符号） */
 const REPEAT_PLACEHOLDER_RECT = `<rect x="0" y="0" width="30" height="30" fill="none" stroke="black" stroke-width="1"/>`;
 
 function repeatTextSkin(label: string, w: number, h: number, centered: boolean): string {
@@ -612,7 +620,7 @@ function makeCommonTimeSignature(key: StandardStaffSkinKeyEnum) {
 
 function makeCutTimeSignature(key: StandardStaffSkinKeyEnum) {
   return {
-    content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="21" y1="10" x2="21" y2="52" stroke="black" stroke-width="2"/></g>`,
+    content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="16" y1="10" x2="16" y2="40" stroke="black" stroke-width="2"/></g>`,
     w: 30,
     h: 56,
     widthRatio: 0,
@@ -1714,15 +1722,15 @@ const standardStaffSkin: StandardStaffSkinPack = {
     skinKey: StandardStaffSkinKeyEnum.Square,
   },
   [StandardStaffSkinKeyEnum.Repeat_coda]: {
-    content: REPEAT_PLACEHOLDER_RECT,
+    content: repeatCodaSkin(),
     w: 30,
     h: 30,
     skinKey: StandardStaffSkinKeyEnum.Repeat_coda,
   },
   [StandardStaffSkinKeyEnum.Repeat_to_coda]: {
-    content: REPEAT_PLACEHOLDER_RECT,
-    w: 30,
-    h: 30,
+    content: repeatTextSkin('To Coda', 55, 18, false),
+    w: 55,
+    h: 18,
     skinKey: StandardStaffSkinKeyEnum.Repeat_to_coda,
   },
   [StandardStaffSkinKeyEnum.Repeat_segno]: {
@@ -2086,7 +2094,7 @@ function makeNumberNotationCommonTimeSignature(key: NumberNotationSkinKeyEnum) {
 
 function makeNumberNotationCutTimeSignature(key: NumberNotationSkinKeyEnum) {
   return {
-    content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="21" y1="10" x2="21" y2="52" stroke="black" stroke-width="2"/></g>`,
+    content: `<g><text x="15" y="35" text-anchor="middle" font-size="28" font-weight="600">C</text><line x1="16" y1="10" x2="16" y2="40" stroke="black" stroke-width="2"/></g>`,
     w: 30,
     h: 56,
     skinKey: key,
@@ -2181,7 +2189,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Number_7
   },
   [NumberNotationSkinKeyEnum.Number_X]: {
-    content: `<g transform="translate(-1.6602, -1.7500)">
+    content: `<g transform="translate(-3, -1.7500)">
         <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">X</text>
 </g>`,
     w: 14.16,
@@ -2499,76 +2507,117 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.C, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.G]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=G</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.D]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=D</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.A]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=A</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.E]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=E</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.B]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=B</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.F_sharp]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=F♯</text>
+</g>
 </g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.F]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=F</text>
+</g>
 </g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.B_flat]: {
-    content: `<g transform="translate(0.0000, 17.2727)">
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
         <text>1=B♭</text>
+</g>
 </g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.E_flat]: {
-    content: `<text>1=B♭</text>`,
-    w: 44.28,
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=E♭</text>
+</g>
+</g>`,
+    w: 42.6,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.E_flat, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.A_flat]: {
-    content: `<text>1=A♭</text>`,
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=A♭</text>
+</g>
+</g>`,
     w: 44.28,
     h: 22.73,
     skinKey: NumberNotationSkinKeyEnum.A_flat, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.C_sharp]: {
-    content: `<text>1=C♯</text>`,
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=C♯</text>
+</g>
+</g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.C_sharp, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.D_flat]: {
-    content: `<text>1=D♭</text>`,
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=D♭</text>
+</g>
+</g>`,
     w: 44.28,
     h: 22.73,
     skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
   },
   [NumberNotationSkinKeyEnum.G_flat]: {
-    content: `<text>1=G♭</text>`,
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=G♭</text>
+</g>
+</g>`,
     w: 44.28,
     h: 22.73,
     skinKey: NumberNotationSkinKeyEnum.G_flat, widthRatio: 0, widthRatioForMeasure: 0,
-  }, [NumberNotationSkinKeyEnum.C_flat]: {
-    content: `<text>1=C♭</text>`,
+  },
+  [NumberNotationSkinKeyEnum.C_flat]: {
+    content: `<g transform="translate(3, 0)">
+<g transform="translate(0.0000, 17.2727)">
+        <text>1=C♭</text>
+</g>
+</g>`,
     w: 44.28,
     h: 22.73,
     skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 0, widthRatioForMeasure: 0,
@@ -2595,12 +2644,14 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Bracket,
   },
   [NumberNotationSkinKeyEnum.Brace]: {
-    content: `<g transform="scale(calc(node.h/74))">
+    content: `
         <g transform="translate(7.2000, 0.0000)">
-        <path d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
-</g></g>`,
-    w: 30,
-    h: 0,
+        <g transform="scale(calc(node.h/86.6))">
+            <path  d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
+    </g>
+</g>`,
+    w: 7.2,
+    h: 100,
     skinKey: NumberNotationSkinKeyEnum.Brace,
   },
   [NumberNotationSkinKeyEnum.Square]: {
@@ -2613,15 +2664,15 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Square,
   },
   [NumberNotationSkinKeyEnum.Repeat_coda]: {
-    content: REPEAT_PLACEHOLDER_RECT,
+    content: repeatCodaSkin(),
     w: 30,
     h: 30,
     skinKey: NumberNotationSkinKeyEnum.Repeat_coda,
   },
   [NumberNotationSkinKeyEnum.Repeat_to_coda]: {
-    content: REPEAT_PLACEHOLDER_RECT,
-    w: 30,
-    h: 30,
+    content: repeatTextSkin('To Coda', 55, 18, false),
+    w: 55,
+    h: 18,
     skinKey: NumberNotationSkinKeyEnum.Repeat_to_coda,
   },
   [NumberNotationSkinKeyEnum.Repeat_segno]: {

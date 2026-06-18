@@ -90,11 +90,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   //   const item = skin[key];
   //   if (item) prefixW += item.w;
   // }
-  if (measure.keySignature_f) {
-    const key = getKeySignatureSkinKey(measure.keySignature_f.type);
-    const item = skin[key];
-    if (item) prefixW += item.w;
-  }
+  // 简谱调号绘制在小节上方，不参与定宽 prefixW
   if (measure.timeSignature_f) {
     const key = getTimeSignatureSkinKey(measure.timeSignature_f.type);
     const item = skin[key];
@@ -625,13 +621,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       }
       : undefined;
     pushSymbol(x, p.skinKey, p.tag, p.dataComment, p.targetId, undefined, opts);
+    // 简谱调号不参与 x 累加
+    if (p.tag === 'keySignature_b') continue;
     x += item.w;
   }
 
   return out;
 }
 
-/** 计算前置小节线在小节内的左边缘 x（clef_f + keySig_f + timeSig_f 之后，供连谱小节线 barline_f 定位） */
+/** 计算前置小节线在小节内的左边缘 x（timeSig_f 之后，供连谱小节线 barline_f 定位；简谱调号不参与定宽） */
 export function getBarlineFXInMeasure(
   measure: import("@/types/MusicScoreType").Measure,
   measureX: number,
@@ -642,10 +640,6 @@ export function getBarlineFXInMeasure(
   //   const item = skin[getClefSkinKey(measure.clef_f.type, true)];
   //   if (item) prefixW += item.w;
   // }
-  if (measure.keySignature_f) {
-    const item = skin[getKeySignatureSkinKey(measure.keySignature_f.type)];
-    if (item) prefixW += item.w;
-  }
   if (measure.timeSignature_f) {
     const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
     if (item) prefixW += item.w;

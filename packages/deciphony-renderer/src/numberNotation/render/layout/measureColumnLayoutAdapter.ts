@@ -13,10 +13,7 @@ export function computeNumberNotationMeasureFixedWidths(
   skin: NumberNotationSkinPack,
 ): { prefixW: number; suffixW: number } {
   let prefixW = 0;
-  if (measure.keySignature_f) {
-    const item = skin[getKeySignatureSkinKey(measure.keySignature_f.type)];
-    if (item) prefixW += item.w;
-  }
+  // 简谱调号绘制在小节上方，不参与定宽 prefixW / suffixW
   if (measure.timeSignature_f) {
     const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
     if (item) prefixW += item.w;

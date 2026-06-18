@@ -5,7 +5,7 @@ import {
   getAccidentalSkinKey,
   getAugmentationDotSkinKey,
   getBarlineSkinKey,
-  getKeySignatureSkinKey, getSyllableSkinKey,
+  getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "./skinKey";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
@@ -139,12 +139,13 @@ export function getMeasureWidthRatio(measure: Measure, skin: NumberNotationSkinP
   // if (measure.clef_b) {
   //     acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.type, false)]?.widthRatioForMeasure);
   // }
-  if (measure.keySignature_f) {
-    acc += resolveWidthRatio(measure.keySignature_f.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure);
-  }
-  if (measure.keySignature_b) {
-    acc += resolveWidthRatio(measure.keySignature_b.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_b.type)]?.widthRatioForMeasure);
-  }
+  // 简谱调号绘制在小节上方，不参与小节 widthRatioForMeasure（数据上 createKeySignature 默认 wm=10 亦忽略）
+  // if (measure.keySignature_f) {
+  //   acc += resolveWidthRatio(measure.keySignature_f.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure);
+  // }
+  // if (measure.keySignature_b) {
+  //   acc += resolveWidthRatio(measure.keySignature_b.widthRatioForMeasure, skin[getKeySignatureSkinKey(measure.keySignature_b.type)]?.widthRatioForMeasure);
+  // }
   if (measure.timeSignature_f) {
     acc += resolveWidthRatio(measure.timeSignature_f.widthRatioForMeasure, skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)]?.widthRatioForMeasure);
   }

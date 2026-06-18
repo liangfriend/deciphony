@@ -198,7 +198,6 @@ watch(
     const next = d
       ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
       : []
-    console.log('chicken', skin.value)
     vDom.value = diffAndMergeVDom(vDom.value, next)//next//
     emit('renderMusicScore', vDom.value)
   },

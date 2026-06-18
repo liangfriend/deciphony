@@ -22,7 +22,7 @@ const pathD = computed(() => {
   const s = props.vDom.startPoint;
   const e = props.vDom.endPoint;
   const slur = props.vDom.special?.slur;
-  const thickness = slur?.thickness != null ?? 4;
+  const thickness = slur?.thickness != null ? slur?.thickness : 4;
   const relCtrl = slur?.relativeControlPoint ?? {x: 0, y: 0};
   const defaultCx = (s.x + e.x) / 2;
   const defaultCy = Math.min(s.y, e.y) - Math.max(8, Math.abs(e.x - s.x) * 0.2);
@@ -35,6 +35,7 @@ const pathD = computed(() => {
 
 <template>
   <path
+    :key="pathD"
     :d="pathD"
     :fill="fillColor"
     stroke="none"

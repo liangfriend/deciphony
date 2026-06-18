@@ -434,9 +434,12 @@ function glacierTimeSig(theme: SkinTheme, top: string, bottom: string): string {
     return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0%" stop-color="${theme.accentSoft}"/><stop offset="100%" stop-color="${theme.glow}"/>
   </linearGradient></defs>
-  <polygon points="15,0 28,8 28,38 15,45 2,38 2,8" fill="url(#${id})" stroke="${theme.ink}" stroke-width="0.6" opacity="0.45"/>
-  <text x="15" y="22" text-anchor="middle" font-size="20" font-weight="${theme.timeSigFontWeight}" fill="${theme.timeSigColor}">${top}</text>
-  <text x="15" y="42" text-anchor="middle" font-size="20" font-weight="${theme.timeSigFontWeight}" fill="${theme.timeSigColor}" opacity="0.85">${bottom}</text>`
+  <polygon points="15,2 27,9 27,41 15,53 3,41 3,9" fill="url(#${id})" stroke="${theme.inkStroke}" stroke-width="0.85" stroke-linejoin="miter" opacity="0.55"/>
+  <line x1="15" y1="2" x2="15" y2="53" stroke="${theme.inkStroke}" stroke-width="0.35" opacity="0.32"/>
+  <line x1="3" y1="9" x2="27" y2="41" stroke="${theme.inkStroke}" stroke-width="0.3" opacity="0.22"/>
+  <line x1="27" y1="9" x2="3" y2="41" stroke="${theme.inkStroke}" stroke-width="0.3" opacity="0.22"/>
+  <text x="15" y="24" text-anchor="middle" font-size="22" font-weight="${theme.timeSigFontWeight}" fill="${theme.timeSigColor}">${top}</text>
+  <text x="15" y="46" text-anchor="middle" font-size="22" font-weight="${theme.timeSigFontWeight}" fill="${theme.timeSigColor}">${bottom}</text>`
 }
 
 function bambooDot(theme: SkinTheme, count: number): string {

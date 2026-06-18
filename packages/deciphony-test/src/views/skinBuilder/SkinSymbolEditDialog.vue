@@ -32,6 +32,10 @@ const isColorOnly = computed(() =>
   props.target ? isColorOnlySkinContent(draft.content) : false
 )
 
+function formatRatio(value: number | undefined) {
+  return value == null ? '—' : String(value)
+}
+
 const draftItem = computed((): SkinItem | null => {
   if (!props.target) return null
   return {
@@ -94,7 +98,9 @@ function onSave() {
           :item="draftItem"
         />
         <div class="skin-edit-dialog__meta">
-          skinKey: {{ target.item.skinKey }}
+          <div>skinKey: {{ target.item.skinKey }}</div>
+          <div>widthRatio: {{ formatRatio(target.item.widthRatio) }}</div>
+          <div>widthRatioForMeasure: {{ formatRatio(target.item.widthRatioForMeasure) }}</div>
         </div>
       </div>
 
@@ -197,5 +203,7 @@ function onSave() {
   color: #909399;
   text-align: center;
   word-break: break-all;
+  line-height: 1.5;
+  width: 100%;
 }
 </style>

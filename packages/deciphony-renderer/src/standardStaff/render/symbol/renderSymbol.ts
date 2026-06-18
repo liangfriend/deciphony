@@ -312,7 +312,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               w: augSkin.w,
               h: augSkin.h,
               zIndex: z,
-              tag: 'accidental',
+              tag: 'augmentationDot',
               skinName: skinNameForNodes,
               targetId: rest.augmentationDot.id,
               skinKey: augSkinKey,
@@ -471,11 +471,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           w: augSkin.w,
           h: augSkin.h,
           zIndex: z,
-          tag: 'accidental',
+          tag: 'augmentationDot',
           skinName: skinNameForNodes,
           targetId: n.augmentationDot.id,
           skinKey: augSkinKey,
-          dataComment: '附点符号',
+          dataComment: '附点',
         });
       });
 

@@ -11,6 +11,13 @@ import {FRACTION_TIME_SIGNATURE_KEYS} from "@/utils/timeSignature";
 // 统一的五线谱高度
 const STAFF_HEIGHT = 45;
 
+/** 变音符号整体右移 3px */
+function shiftAccidentalContent(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed || trimmed.startsWith('<g transform="translate(3, 0)">')) return content;
+  return `<g transform="translate(3, 0)">\n${trimmed}\n</g>`;
+}
+
 /** Coda / To Coda 占位（后续替换为正式符号） */
 const REPEAT_PLACEHOLDER_RECT = `<rect x="0" y="0" width="30" height="30" fill="none" stroke="black" stroke-width="1"/>`;
 
@@ -164,7 +171,7 @@ const tenorF = {
 
 // 变音记号
 const sharp = {
-  content: `
+  content: shiftAccidentalContent(`
     <g transform="
     translate(-37.88,-13.1562),
                scale(1)">
@@ -173,8 +180,8 @@ const sharp = {
       <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
       <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
     </g>
-`,
-  w: 12.24,
+`),
+  w: 17.6,
   h: 30.04,
 
   skinKey: StandardStaffSkinKeyEnum.Sharp,
@@ -183,7 +190,7 @@ const sharp = {
 };
 
 const flat = {
-  content: `
+  content: shiftAccidentalContent(`
      <g transform="translate(-39.6836, -20.7969)">
       <path
         d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
@@ -192,8 +199,8 @@ const flat = {
         stroke-width="1.52124"
       />
   </g>
-`,
-  w: 8.63,
+`),
+  w: 13.6,
   h: 29.42,
 
   skinKey: StandardStaffSkinKeyEnum.Flat,
@@ -202,7 +209,7 @@ const flat = {
 };
 
 const doubleSharp = {
-  content: `
+  content: shiftAccidentalContent(`
      <g transform="translate(-37.8828, -13.1562)">
          <rect id="Rectangle 1264" x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black"></rect>
         <rect id="Rectangle 1265" x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black"></rect>
@@ -215,8 +222,8 @@ const doubleSharp = {
             <path id="Rectangle 1267" d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black"></path>
         </g>
 </g>
-`,
-  w: 26.24,
+`),
+  w: 30.24,
   h: 30.04,
 
   skinKey: StandardStaffSkinKeyEnum.Double_sharp,
@@ -225,14 +232,14 @@ const doubleSharp = {
 };
 
 const doubleFlat = {
-  content: `<g transform="translate(-39.6836, -21.7969)">
+  content: shiftAccidentalContent(`<g transform="translate(-39.6836, -21.7969)">
         <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
         <g transform="translate(11,0)">
             <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
     
         </g>
-</g>`,
-  w: 19.63,
+</g>`),
+  w: 24,
   h: 29.42,
 
   skinKey: StandardStaffSkinKeyEnum.Double_flat,
@@ -241,10 +248,10 @@ const doubleFlat = {
 };
 
 const natural = {
-  content: `<g transform="translate(-3.5000, -11.0000)">
+  content: shiftAccidentalContent(`<g transform="translate(-3.5000, -11.0000)">
         <path id="natural_1_" d="M5.1,23.1v5.1l5.6-1.2v-5L5.1,23.1z M12.2,17.8V39h-1.6v-8.3l-7.1,1.5V11h1.6v8.3L12.2,17.8z"></path>
-</g>`,
-  w: 8.7,
+</g>`),
+  w: 13.6,
   h: 28,
 
   skinKey: StandardStaffSkinKeyEnum.Natural,
@@ -1102,7 +1109,7 @@ const standardStaffSkin: StandardStaffSkinPack = {
     />
   </g>
 `,
-    w: 49.0496 + 5,
+    w: 61.63,
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.D_flat,
@@ -2246,7 +2253,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.OctaveDot
   },
   [NumberNotationSkinKeyEnum.Sharp]: {
-    content: `
+    content: shiftAccidentalContent(`
     <g transform="scale(0.5) 
     translate(-37.88,-13.1562)
                ">
@@ -2255,15 +2262,15 @@ const numberNotationSkin: NumberNotationSkinPack = {
       <path d="M37.8828 21.6815L50.1191 19.0859V23.5355L37.8828 26.1311V21.6815Z" fill="black" />
       <path d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black" />
     </g>
-`,
-    w: 6.12,
+`),
+    w: 8.8,
     h: 15.02,
     skinKey: NumberNotationSkinKeyEnum.Sharp,
     widthRatio: 10,
     widthRatioForMeasure: 10,
   },
   [NumberNotationSkinKeyEnum.Flat]: {
-    content: `
+    content: shiftAccidentalContent(`
      <g transform="scale(0.5) translate(-39.6836, -20.7969)">
       <path
         d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969"
@@ -2272,15 +2279,15 @@ const numberNotationSkin: NumberNotationSkinPack = {
         stroke-width="1.52124"
       />
   </g>
-`,
-    w: 4.32,
+`),
+    w: 6.8,
     h: 14.71,
     skinKey: NumberNotationSkinKeyEnum.Flat,
     widthRatio: 10,
     widthRatioForMeasure: 10,
   },
   [NumberNotationSkinKeyEnum.Double_sharp]: {
-    content: `
+    content: shiftAccidentalContent(`
      <g transform="scale(0.5) translate(-37.8828, -13.1562)">
          <rect id="Rectangle 1264" x="40.1074" y="14.6406" width="1.48319" height="28.5514" fill="black"></rect>
         <rect id="Rectangle 1265" x="46.4102" y="13.1562" width="1.48319" height="28.5514" fill="black"></rect>
@@ -2293,32 +2300,32 @@ const numberNotationSkin: NumberNotationSkinPack = {
             <path id="Rectangle 1267" d="M37.8828 33.9237L50.1191 31.3281V35.7777L37.8828 38.3733V33.9237Z" fill="black"></path>
         </g>
 </g>
-`,
-    w: 13.12,
+`),
+    w: 15.12,
     h: 15.02,
     skinKey: NumberNotationSkinKeyEnum.Double_sharp,
     widthRatio: 10,
     widthRatioForMeasure: 10,
   },
   [NumberNotationSkinKeyEnum.Double_flat]: {
-    content: `<g transform="scale(0.5) translate(-39.6836, -21.7969)">
+    content: shiftAccidentalContent(`<g transform="scale(0.5) translate(-39.6836, -21.7969)">
         <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
         <g transform="translate(11,0)">
             <path d="M39.6836 39.941C44.1108 34.3597 56.6663 39.6271 39.6836 50.2217M39.6836 39.941C41.2414 38.4368 45.5825 35.9737 46.9165 40.0869C48.1652 43.937 43.0033 48.4515 39.6836 50.2217M39.6836 39.941C43.5534 36.8878 46.0949 37.9243 46.7436 39.6271C48.2747 43.6464 42.7809 48.2894 39.6836 50.2217M39.6836 50.2217V20.7969" stroke="black" fill="transparent" stroke-width="1.52124"></path>
     
         </g>
-</g>`,
-    w: 9.82,
+</g>`),
+    w: 12,
     h: 14.71,
     skinKey: NumberNotationSkinKeyEnum.Double_flat,
     widthRatio: 10,
     widthRatioForMeasure: 10,
   },
   [NumberNotationSkinKeyEnum.Natural]: {
-    content: `<g transform="scale(0.5) translate(-3.5000, -11.0000)">
+    content: shiftAccidentalContent(`<g transform="scale(0.5) translate(-3.5000, -11.0000)">
         <path id="natural_1_" d="M5.1,23.1v5.1l5.6-1.2v-5L5.1,23.1z M12.2,17.8V39h-1.6v-8.3l-7.1,1.5V11h1.6v8.3L12.2,17.8z"></path>
-</g>`,
-    w: 4.35,
+</g>`),
+    w: 6.8,
     h: 14,
     skinKey: NumberNotationSkinKeyEnum.Natural,
     widthRatio: 10,

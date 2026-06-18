@@ -187,6 +187,22 @@ export function resolveXInDomainAtChronaxie(
 }
 
 /**
+ * 简谱加时线 x（相对变宽区起点）：在占宽 slot 内按时值比例定位。
+ * 全/二分等长时值只占一列时，不能用小节级 chronaxie 插值（会偏到列左侧）。
+ */
+export function resolveAddLineXInSlot(
+  slotStartInDomain: number,
+  slotWidth: number,
+  slotChronaxie: number,
+  gridIndex: number,
+  symbolW: number,
+): number {
+  if (slotChronaxie <= 0 || slotWidth <= 0) return slotStartInDomain;
+  const fraction = (CHRONAXIE_GRID_UNIT * (gridIndex + 1)) / slotChronaxie;
+  return slotStartInDomain + fraction * slotWidth - symbolW / 2;
+}
+
+/**
  * 简谱增/休止符加时线 x（相对变宽区起点）。
  * 对齐目标 64 格所在列内锚点：列起点 + 列宽/2 - symbolW/2（与同 onset 符头 slotX 一致）。
  * 无 onset 列时取 [chronaxie-64, chronaxie] 时轴段中心再居中。

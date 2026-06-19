@@ -5,7 +5,11 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:renderer": "pnpm --filter deciphony-renderer build",
+    "build:player": "pnpm --filter deciphony-player build",
+    "publish:renderer": "pnpm build:renderer && pnpm --filter deciphony-renderer publish --no-git-checks --registry http://localhost:4873/",
+    "publish:player": "pnpm --filter deciphony-player publish --no-git-checks --registry http://localhost:4873/"
   },
   "keywords": [],
   "devDependencies": {

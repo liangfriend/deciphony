@@ -1,6 +1,6 @@
 {
   "name": "deciphony-renderer",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "",
   "type": "module",
   "main": "./dist/index.cjs.js",
@@ -17,6 +17,9 @@
     "dev": "vite",
     "build": "vite build",
     "prepublishOnly": "npm version patch"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
   },
   "exports": {
     ".": {

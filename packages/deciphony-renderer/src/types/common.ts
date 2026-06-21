@@ -156,4 +156,13 @@ export type Frame = {
   relativeY: number,
   relativeW: number,
   relativeH: number,
+  /**
+   * 小节内列宽权重（getNoteWidthRatio；未设置时用皮肤包；0 为有效值）。
+   * 带 Frame 的节点并非都会使用（如 GrandStaff、连音线、NotesInfo 等可忽略）。
+   */
+  widthRatio?: number,
+  /**
+   * 小节总宽分配权重（getMeasureWidthRatio；未设置时用皮肤包；0 为有效值）。
+   */
+  widthRatioForMeasure?: number,
 }

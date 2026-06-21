@@ -147,8 +147,6 @@ export type Measure = {
 
     endRepeat?: MeasureEndRepeat,
 
-    widthRatioForMeasure?: number,
-
     affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
 
 } & Frame
@@ -165,10 +163,6 @@ export type AugmentationDot = {
     id: string
 
     count: 1 | 2 | 3,
-
-    widthRatio?: number
-
-    widthRatioForMeasure?: number,
 
 } & Frame
 
@@ -298,10 +292,6 @@ export type Barline = {
 
     type: BarlineTypeEnum
 
-    widthRatio?: number // 目前完全无用
-
-    widthRatioForMeasure?: number
-
 } & Frame
 
 // 谱号 谱号出现在小节和音符上 后置谱号在小节线之前
@@ -311,10 +301,6 @@ export type Clef = {
     id: string
 
     type: ClefTypeEnum
-
-    widthRatio?: number // 因为谱号有出现在音符上的情况，所以这个widthRatio不是完全无用的
-
-    widthRatioForMeasure?: number
 
 } & Frame
 
@@ -326,10 +312,6 @@ export type KeySignature = {
 
     type: KeySignatureTypeEnum
 
-    widthRatio?: number // 目前完全无用
-
-    widthRatioForMeasure?: number
-
 } & Frame
 
 // 拍号 后置拍号在小节线之后
@@ -340,10 +322,6 @@ export type TimeSignature = {
 
     type: TimeSignatureTypeEnum
 
-    widthRatio?: number // 目前完全无用
-
-    widthRatioForMeasure?: number
-
 } & Frame
 
 export type Accidental = {
@@ -351,10 +329,6 @@ export type Accidental = {
     id: string
 
     type: AccidentalTypeEnum
-
-    widthRatio?: number // 目前完全无用
-
-    widthRatioForMeasure?: number
 
 } & Frame
 
@@ -377,14 +351,7 @@ export type NoteSymbol = {
 
     clef?: Clef
 
-    widthRatio?: number
-
-    widthRatioForMeasure?: number,
-
 } & Frame
-
-
-/** 五线谱休止符位 */
 
 export type NoteRest = {
 
@@ -399,10 +366,6 @@ export type NoteRest = {
     affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
 
     clef?: Clef
-
-    widthRatio?: number
-
-    widthRatioForMeasure?: number,
 
 } & Frame
 
@@ -469,10 +432,52 @@ export type NoteNumber = {
 
     beamType: BeamTypeEnum
 
-    widthRatio?: number // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+} & Frame
 
-    widthRatioForMeasure?: number, // 这个是代表四分音符，具体需要乘算chronaxie；未设置时用皮肤包
+// TODO 之类后续三期可能改成 吉他/贝斯/尤克里里   因为tabNote在这三个谱子里是通用的
+// ==========================================吉他谱================================================
+
+export type TabNote = {
+
+    id: string
+
+    type: NoteSymbolTypeEnum.Note
+
+    notesInfo: TabNoteInfo[]
+
+    graceNotes?: TabNoteInfo[]
+
+    graceNotesAfter?: TabNoteInfo[]
 
 } & Frame
 
+export type TabRest = {
 
+    id: string
+
+    type: NoteSymbolTypeEnum.Rest
+
+    chronaxie: Chronaxie
+
+    augmentationDot?: AugmentationDot
+
+    affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+
+
+} & Frame
+
+export type TabNoteInfo = {
+
+    id: string
+
+    region: number // 这个含义是第几条线， 0是第一线，1是第二线...
+
+    value: number // 品，-1代表x
+
+    beamType: BeamTypeEnum
+
+    augmentationDot?: AugmentationDot
+
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+
+} & Frame

@@ -1,5 +1,5 @@
 /** 五线谱皮肤 key：一谱一套，仅用于 standardStaff */
-export enum TablatureSkinKeyEnum {
+export enum GuitarTabSkinKeyEnum {
     Measure = 'measure',
 
     // 闭合线（单谱表第一小节左侧）
@@ -47,22 +47,45 @@ export enum TablatureSkinKeyEnum {
     '2_2' = '2_2',
     '3_2' = '3_2',
     '4_2' = '4_2',
-    TabNote_x = 'noteHead_1',
-    TabNote_x = 'noteHead_2',
-    TabNote_x = 'noteHead_3',
-    TabNote_x = 'notestem',
-    TabNote_x = 'noteTail_1',
-    TabNote_x = 'noteTail_2',
-    TabNote_x = 'noteTail_3',
-    TabNote_x = 'noteTail_4',
-    TabNote_x = 'noteTail_5',
-    TabNote_x = 'noteTail_6',
-    TabNote_x = 'noteTail_1_r',
-    TabNote_x = 'noteTail_2_r',
-    TabNote_x = 'noteTail_3_r',
-    TabNote_x = 'noteTail_4_r',
-    NoteTail_5_r = 'noteTail_5_r',
-    NoteTail_6_r = 'noteTail_6_r',
+    TabNote_x = 'tabNote_x',
+    TabNote_0 = 'tabNote_0',
+    TabNote_1 = 'tabNote_1',
+    TabNote_2 = 'tabNote_2',
+    TabNote_3 = 'tabNote_3',
+    TabNote_4 = 'tabNote_4',
+    TabNote_5 = 'tabNote_5',
+    TabNote_6 = 'tabNote_6',
+    TabNote_7 = 'tabNote_7 =',
+    TabNote_8 = 'tabNote_8',
+    TabNote_9 = 'tabNote_9',
+    TabNote_10 = 'tabNote_10',
+    TabNote_11 = 'tabNote_11',
+    TabNote_12 = 'tabNote_12',
+    TabNote_13 = 'tabNote_13',
+    TabNote_14 = 'tabNote_14',
+    TabNote_15 = 'tabNote_15',
+    TabNote_16 = 'tabNote_16',
+    TabNote_17 = 'tabNote_17',
+    TabNote_18 = 'tabNote_18',
+    TabNote_19 = 'tabNote_19',
+    TabNote_20 = 'tabNote_20',
+    TabNote_21 = 'tabNote_21',
+    TabNote_22 = 'tabNote_22',
+    TabNote_23 = 'tabNote_23',
+    TabNote_24 = 'tabNote_24',
+    TabNote_25 = 'tabNote_25',
+    TabNote_26 = 'tabNote_26',
+    TabNote_27 = 'tabNote_27',
+    // 符干
+    NoteStem = 'notestem',
+    // 符尾
+    NoteTail_1 = 'noteTail_1',
+    NoteTail_2 = 'noteTail_2',
+    NoteTail_3 = 'noteTail_3',
+    NoteTail_4 = 'noteTail_4',
+    NoteTail_5 = 'noteTail_5',
+    NoteTail_6 = 'noteTail_6',
+    // 休止符
     Rest_1 = 'rest_1',
     Rest_2 = 'rest_2',
     Rest_3 = 'rest_3',
@@ -72,11 +95,10 @@ export enum TablatureSkinKeyEnum {
     Rest_7 = 'rest_7',
     Rest_8 = 'rest_8',
     Rest_9 = 'rest_9',
+    // 附点
     AugmentationDot_1 = 'augmentationDot_1',
     AugmentationDot_2 = 'augmentationDot_2',
     AugmentationDot_3 = 'augmentationDot_3',
-    AddLine_u = 'addLine_u', // 上方的加线
-    AddLine_d = 'addLine_d', // 下方的加线
     // 连谱号
     Bracket = 'bracket', // 标准连谱号
     Brace = 'brace', // 大括号

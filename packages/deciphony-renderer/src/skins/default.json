@@ -2325,6 +2325,22 @@
       "widthRatioForMeasure": 0,
       "skinKey": "4_4"
     },
+    "5_4": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">5</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">4</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "5_4"
+    },
+    "6_4": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">6</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">4</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "6_4"
+    },
     "3_8": {
       "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">3</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
       "w": 30,
@@ -2332,6 +2348,22 @@
       "widthRatio": 0,
       "widthRatioForMeasure": 0,
       "skinKey": "3_8"
+    },
+    "4_8": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">4</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "4_8"
+    },
+    "5_8": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">5</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "5_8"
     },
     "6_8": {
       "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">6</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
@@ -2341,29 +2373,301 @@
       "widthRatioForMeasure": 0,
       "skinKey": "6_8"
     },
-    "noteHead_1": {
-      "content": "<g transform=\"translate(0, 1)\">\n        <path d=\"M 16 4 A 8 5 0 0 1 0 4 A 8 5 0 0 1 16 4 L 13 4 A 5 2.5 0 0 0 3 4 A 5 2.5 0 0 0 13 4 Z\" fill=\"black\"></path>\n</g>",
-      "w": 16,
-      "h": 10,
-      "skinKey": "noteHead_1",
-      "widthRatio": 6,
-      "widthRatioForMeasure": 6
+    "7_8": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">7</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "7_8"
     },
-    "noteHead_2": {
-      "content": "\n<g transform=\"translate(-0.7051, 1.2474)\">\n        <path d=\"M 15 4 A 7 4.5 -20 0 1 1 4 A 7 4.5 -20 0 1 15 4 L 11.76 5.37 A 4 2 -20 0 0 4.24 2.63 A 4 2 -20 0 0 11.76 5.37 Z\" fill=\"black\"></path>\n</g>\n",
-      "w": 14.59,
-      "h": 10.49,
-      "skinKey": "noteHead_2",
-      "widthRatio": 6,
-      "widthRatioForMeasure": 6
+    "9_8": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">9</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "9_8"
     },
-    "noteHead_3": {
-      "content": "\n<g transform=\"translate(-0.7051, 1.2474)\">\n        <path d=\"M 15 4 A 7 4.5 -20 0 1 1 4 A 7 4.5 -20 0 1 15 4\" fill=\"black\"></path>\n</g>\n",
-      "w": 14.59,
-      "h": 10.49,
-      "skinKey": "noteHead_3",
-      "widthRatio": 6,
-      "widthRatioForMeasure": 6
+    "12_8": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">12</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "12_8"
+    },
+    "common": {
+      "content": "<g><text x=\"15\" y=\"35\" text-anchor=\"middle\" font-size=\"28\" font-weight=\"600\">C</text></g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "common"
+    },
+    "cut": {
+      "content": "<g><text x=\"15\" y=\"35\" text-anchor=\"middle\" font-size=\"28\" font-weight=\"600\">C</text><line x1=\"16\" y1=\"10\" x2=\"16\" y2=\"40\" stroke=\"black\" stroke-width=\"2\"/></g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "cut"
+    },
+    "2_2": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">2</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "2_2"
+    },
+    "3_2": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">3</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "3_2"
+    },
+    "4_2": {
+      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">4</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
+      "w": 30,
+      "h": 56,
+      "widthRatio": 0,
+      "widthRatioForMeasure": 0,
+      "skinKey": "4_2"
+    },
+    "tabNote_x": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">x</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_x",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_0": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">0</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_0",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_1": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">1</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_1",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_2": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">2</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_2",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_3": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">3</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_3",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_4": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">4</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_4",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_5": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">5</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_5",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_6": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">6</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_6",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_7": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">7</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_7",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_8": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">8</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_8",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_9": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">9</text>\n</g>",
+      "w": 5,
+      "h": 11,
+      "skinKey": "tabNote_9",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_10": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">10</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_10",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_11": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">11</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_11",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_12": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">12</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_12",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_13": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">13</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_13",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_14": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">14</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_14",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_15": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">15</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_15",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_16": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">16</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_16",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_17": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">17</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_17",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_18": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">18</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_18",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_19": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">19</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_19",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_20": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">20</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_20",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_21": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">21</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_21",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_22": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">22</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_22",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_23": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">23</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_23",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_24": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">24</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_24",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_25": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">25</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_25",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_26": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">26</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_26",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tabNote_27": {
+      "content": "<g transform=\"translate(0.0000, 9.0000)\">\n        <text transform=\"scale(0.5)\">27</text>\n</g>",
+      "w": 10,
+      "h": 11,
+      "skinKey": "tabNote_27",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
     },
     "notestem": {
       "content": "<g >\n  <rect width=\"node.w\" height=\"node.h\" />\n</g>",
@@ -2406,42 +2710,6 @@
       "w": 10.19,
       "h": 54.45,
       "skinKey": "noteTail_6"
-    },
-    "noteTail_1_r": {
-      "content": "<g transform=\"translate(1.0500, 23.4000)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n            <path d=\"     M3.9,15.4c0.5-1.5,1.1-3.8,0.3-5.6C3.5,8.2,2,6.8-0.1,6.1l-0.1,0.8h-0.5V0h0.6l0.3,2c0.3,1,0.6,1.2,1.2,2L2,4.8l2.1,2.6  c2.3,2.9,1.1,6.4-0.1,8.1C4,15.6,3.8,15.7,3.9,15.4z   \" fill=\"black\"></path>\n        </g>\n</g>",
-      "w": 9.16,
-      "h": 23.4,
-      "skinKey": "noteTail_1_r"
-    },
-    "noteTail_2_r": {
-      "content": "<g transform=\"translate(1.0500, 28.0500)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n            <path d=\"     M5.8,10.3C5.7,8.7,5.2,7.3,4.1,6c-0.7-1-1.7-2-3-3c-0.5-0.5-0.8-1-1-1.5L-0.1,0h-0.6v10h0.5V9.6c1.3,0.4,2.5,1.2,3.3,2  c0.5,0.5,0.8,1.1,1.1,1.6C5,15.1,4.5,17.1,4,18.6c0,0.1,0.1,0.1,0.1,0.1c0.2-0.3,0.4-0.4,0.6-0.9c0.2-0.4,0.4-0.9,0.5-1.4  c0.2-0.7,0.3-1.4,0.2-2.1l0,0c0-0.4-0.1-0.8-0.2-1.3C5.7,12.3,5.8,11.1,5.8,10.3z M4.1,10.9L3,9.6L2,8.3L1.4,7.5  c-0.5-0.7-0.9-1-1.2-1.7c0,0-0.1-0.3-0.1-0.4c0,0-0.1-0.7-0.1-1l0,0c1.5,0.8,2.8,1.8,3.8,2.9c0.9,0.9,1.3,1.9,1.6,3  c0,0.1,0,0.2,0,0.3L5,12.5C4.8,11.9,4.5,11.4,4.1,10.9z   \" fill=\"black\"></path>\n    </g>\n</g>",
-      "w": 9.75,
-      "h": 28.05,
-      "skinKey": "noteTail_2_r"
-    },
-    "noteTail_3_r": {
-      "content": "\n       <g transform=\"translate(1.0500, 28.0500)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n                <path d=\"     M5.4,12.8c0-0.1,0.1-0.2,0.1-0.3c0.2-0.7,0.3-1.4,0.3-2C5.7,9.7,5.6,9,5.4,8.4c0.3-0.8,0.4-1.7,0.4-2.6 c-0.1-1.6-0.6-3-1.7-4.3c-0.8-1-1.8-2-3-3C0.6-2,0.3-2.5,0.1-3l-0.2-1.5h-0.6v14.7h0.5V9.7l2.5,1.6C3.3,11.8,4,12.4,4.6,13c0,0,0,0,0,0.1C5.3,14,5.5,16,5.5,16c0,0.6,0,1.1-0.2,1.8l0,0.2c0,0.3-0.1,0.4-0.1,0.6c0,0.1,0.1,0.1,0.1,0.1C5.6,17.9,6,17,6,15.7  C6,15,5.8,13.6,5.4,12.8z M-0.1-0.1c1.5,0.8,2.8,1.7,3.8,2.9c0.8,0.9,1.3,2,1.4,3.4v1.6c-0.2-0.6-0.6-1.1-1-1.6  c-0.8-0.9-1.8-1.9-3-3c-0.5-0.5-0.8-1-1-1.5l-0.2-1.5V-0.1z M5.1,12.2l-0.6-0.8l-0.2-0.2l-0.8-0.9L2.1,9c-0.5-0.5-1-1.1-1.4-2  C0.2,6.2,0,5.4-0.1,4.5c1.5,0.8,2.8,1.8,3.8,2.9c0.8,1,1.3,2.1,1.5,3.3l-0.1,1.1L5.1,12.2z   \" fill=\"black\"></path>\n              </g>\n</g>\n",
-      "w": 10.05,
-      "h": 34.8,
-      "skinKey": "noteTail_3_r"
-    },
-    "noteTail_4_r": {
-      "content": "<g transform=\"translate(1.0500, 28.6500)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n            <path d=\"     M5.8,3.9c0.3-0.8,0.4-1.7,0.4-2.6C6.1-0.3,5.6-1.7,4.5-3c-0.8-1-1.8-2-3-3C1-6.5,0.7-7,0.5-7.5L-0.2-9h-0.5v19.4H0V9.9  c0,0,2.6,1,3.3,1.9c0.5,0.5,0.9,1.1,1.1,1.8c0.8,1.8,0.3,3.8-0.2,5.3c-0.1,0.3,0.1,0.2,0.1,0.1c0.8-1.1,1.4-2.6,1.3-4.5l0,0  c-0.2-2.1-1.8-3.9-1.8-3.9S1.5,8,1.1,7.2C0.9,6.9,0,5,0,4.7h0.4c1.5,0.8,2.8,1.8,3.8,2.9c2.3,2.1,1.1,5.7,1.1,5.7l0.1,0.3  c1-1.6,0.7-4.4,0.5-5C6.1,7.8,6.2,6.9,6.2,6C6.2,5.3,6,4.6,5.8,3.9z M5.5,8c-0.2-0.6-0.6-1.1-1-1.6c-0.8-0.9-1.8-1.9-3-3  c-0.5-0.5-0.8-1-1-1.5L0,0.1C1.4,0.9,3.1,1.8,4.1,3c0.8,1,1.3,2,1.4,3.4V8z M5.5,3.3l-1-1.6c-0.8-1-1.8-2-3-3c-0.5-0.5-0.8-1-1-1.5  L0-4.6c1.5,0.8,3.1,1.7,4.2,2.9c0.8,0.9,1.3,2,1.4,3.2V3.3z   \" fill=\"black\"></path>\n    </g>\n</g>",
-      "w": 10.35,
-      "h": 42.15,
-      "skinKey": "noteTail_4_r"
-    },
-    "noteTail_5_r": {
-      "content": "<g transform=\"translate(1.0500, 28.1167)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n            <path d=\"     M5.7,14.3c0.1-0.4,0.2-0.7,0.3-1.1c0-0.2,0-0.4,0-0.5c0-0.5-0.1-1-0.2-1.6c-0.1-0.4-0.1-0.9,0-1.3C5.9,9.4,5.9,9,5.9,8.6  c0-0.5-0.1-1.1-0.1-1.7c0-0.3,0-0.6,0-0.9l0.1-0.9c0-0.2,0-0.4,0-0.6c0-0.5-0.1-0.9-0.1-1.5c0-0.3,0-0.6,0-0.9l0.1-1  c0-0.2,0-0.4,0-0.5c0-0.7-0.1-1.5-0.4-2.4C5.2-2.8,4.7-3.7,4-4.6C3.4-5.5,2.4-6.4,1.3-7.4c-0.5-0.5-0.8-1-1-1.4l-0.5-1h-0.5v21.1  h0.4v-0.6l2.7,1.7c0.8,0.5,1.4,1,1.9,1.5c0.2,0.2,0.3,0.3,0.5,0.5c0.1,0.2,0.2,0.3,0.3,0.4c0.2,0.4,0.3,0.8,0.4,1.3  c0,0,0.4,1.2,0,2.2l-0.2,0.4c0,0.1,0.1,0,0.1,0c0.3-0.5,0.4-0.4,0.6-1.2c0.1-0.4,0.1-0.8,0.1-1.2C6.3,15.6,6.1,14.9,5.7,14.3z   M-0.1-6C1-5.4,2-4.8,2.8-4.1c0.8,0.6,1.5,1.5,2,2.7l0.3,1.1c0,0.1,0.1,0.3,0.1,0.4L5.4,1v0.7C5.1,0.9,4.7,0.1,4.1-0.7  C3.4-1.5,2.4-2.5,1.3-3.5c-0.5-0.5-0.8-1-1-1.4l-0.4-1V-6z M2.8-0.2c0.8,0.6,1.5,1.5,2,2.7l0.3,1.1c0,0.2,0.1,0.3,0.1,0.5l0.2,1v0.6  C5.1,4.7,4.7,3.9,4.1,3.2C3.4,2.3,2.4,1.3,1.3,0.4c-0.5-0.5-0.9-1-1-1.5l-0.4-1C1-1.5,2-0.9,2.8-0.2z M-0.1,1.7C1,2.3,2,3,2.8,3.7  c0.8,0.6,1.5,1.5,2,2.7l0.3,1.1c0,0.1,0.1,0.3,0.1,0.4l0.2,0.9v0.7C5.1,8.7,4.7,7.9,4.1,7.1C3.4,6.2,2.4,5.3,1.3,4.3  c-0.5-0.5-0.8-1-1-1.4l-0.4-1.1V1.7z M4.6,12.6l-1-1.1l-1.4-1.4C1.7,9.6,1.2,9,0.8,8.2C0.3,7.4,0.1,6.6,0,5.7c1.1,0.6,2,1.2,2.8,1.8  c0.7,0.6,1.4,1.4,1.9,2.4c0.1,0.2,0.2,0.4,0.2,0.6l0.3,1l0.1,0.4l0.1,0.8v1.1l-0.7-1L4.6,12.6z   \" fill=\"black\"></path>\n    </g>\n</g>",
-      "w": 10.32,
-      "h": 42.82,
-      "skinKey": "noteTail_5_r"
-    },
-    "noteTail_6_r": {
-      "content": "<g transform=\"translate(1.3500, 27.4500)\">\n        <g transform=\"scale(1,-1)  scale(1.5)\">\n            <path d=\"     M5.2,12.7c0.1-0.3,0.2-0.6,0.2-0.9c0.1-0.5,0.2-1,0.2-1.5c-0.1-0.7-0.2-1.4-0.4-2c0.3-0.8,0.4-1.7,0.4-2.6  c0-0.8-0.2-1.5-0.4-2.1C5.5,2.8,5.6,1.9,5.6,1c0-0.7-0.1-1.4-0.3-2c0.2-0.8,0.3-1.6,0.3-2.5c0-0.6-0.1-1.2-0.3-1.8  c0.2-0.8,0.3-1.6,0.3-2.4C5.5-9.3,5-10.7,3.9-12c-0.8-1-1.8-2-3-3c-0.5-0.5-0.9-1-1.1-1.5L-0.5-18h-0.4v28h0.5V9.6l0.1,0.1L0.3,10  l1.8,1.1c0.9,0.5,1.7,1.1,2.2,1.7c0.9,1.1,1,3,1,3c0,0.6-0.1,1.3-0.3,2c0,0-0.1,0.2-0.1,0.3C4.8,18.4,5,18.3,5,18.2  c0.4-0.6,0.6-0.9,0.8-1.8C6.1,15.4,5.6,13.5,5.2,12.7z M3.4-10.7c0.9,1,1.4,2.1,1.5,3.1v1.3L3.8-7.9c-0.8-1-1.8-2-3-3  c-0.5-0.5-0.8-1-1-1.5l-0.2-1.2C1.1-12.8,2.4-11.9,3.4-10.7z M3.4-6.5c0.9,1,1.4,2.1,1.5,3.3l-0.1,1v0.4l-1-1.6c-0.8-1-1.8-2-3-3  c-0.5-0.5-0.8-1-1-1.5l-0.2-1.5C1.1-8.6,2.4-7.7,3.4-6.5z M-0.4-5c1.5,0.8,2.8,1.7,3.8,2.9c0.9,1,1.4,2.1,1.5,3.3V3l-1-1.6  c-0.8-1-1.8-2-3-3C0.4-2.1,0-2.6-0.2-3.2l-0.2-1.5V-5z M-0.4-0.2c1.5,0.8,2.8,1.7,3.8,2.9c0.9,0.9,1.4,2,1.5,3.2v1.7  C4.7,7,4.3,6.5,3.9,6c-0.8-0.9-1.8-1.9-3-3C0.4,2.5,0,2-0.2,1.5L-0.4,0V-0.2z M-0.4,4.4c0.3,0.1,0.5,0.3,0.8,0.4  c1.2,0.7,2.2,1.5,3,2.5c0.9,1,1.4,2.1,1.5,3.3V12l-0.6-0.8l-1-1.1L1.9,8.8C1.3,8.3,0.8,7.7,0.4,6.9C-0.1,6.1-0.3,5.3-0.4,4.4z   \" fill=\"black\"></path>\n    </g>\n</g>",
-      "w": 10.19,
-      "h": 54.45,
-      "skinKey": "noteTail_6_r"
     },
     "rest_1": {
       "content": "<rect x=\"0\" y=\"0\" width=\"10\" height=\"6\" fill=\"black\"/>",
@@ -2538,18 +2806,6 @@
       "skinKey": "augmentationDot_3",
       "widthRatio": 14,
       "widthRatioForMeasure": 14
-    },
-    "addLine_u": {
-      "content": "<line x1=\"0\" y1=\"5.5\" x2=\"16\" y2=\"5.5\" stroke=\"black\" stroke-width=\"1\" />",
-      "w": 16,
-      "h": 11,
-      "skinKey": "addLine_u"
-    },
-    "addLine_d": {
-      "content": "<line x1=\"0\" y1=\"5.5\" x2=\"16\" y2=\"5.5\" stroke=\"black\" stroke-width=\"1\" />",
-      "w": 16,
-      "h": 11,
-      "skinKey": "addLine_d"
     },
     "bracket": {
       "content": "\n      <g transform=\"translate(0, 0)\">\n        <g transform=\"translate(4.6000, 0.1)\">\n            <path d=\"M3.1-3C2.5-2.4,1.9-1.9,1.3-1.6L-1-0.4v5.3h-3.6v-7l4-0.7c1.2-0.3,2.1-0.6,2.7-0.9c0.7-0.4,1.2-0.8,1.6-1.1l1-1.2l0.5,0.2C4.7-4.8,4-3.9,3.1-3\" stroke=\"none\"></path>\n    </g>\n          <g transform=\"translate(4.6000, 0.4000)\">\n            <path d=\"M-1-0.4vcalc(node.h-1.8)h-3.6V-0.4H-1\" stroke=\"none\"></path>\n    </g>\n          <g transform=\"translate(4.6000, 1) translate(0, node.h)\">\n            <path d=\"M-0.9-0.7l2.3,1.2C2,0.8,2.6,1.3,3.2,1.9c0.9,0.9,1.6,1.8,2.1,2.8L4.8,4.9L3.7,3.7C3.3,3.3,2.8,3,2.1,2.6C1.5,2.3,0.6,2-0.6,1.7l-4-0.7v-7H-1v5.3\" stroke=\"none\"></path>\n    </g>\n</g>\n",
@@ -2928,102 +3184,6 @@
       "w": 30,
       "h": 30,
       "skinKey": "dyn_fz"
-    },
-    "5_4": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">5</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">4</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "5_4"
-    },
-    "6_4": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">6</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">4</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "6_4"
-    },
-    "4_8": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">4</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "4_8"
-    },
-    "5_8": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">5</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "5_8"
-    },
-    "7_8": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">7</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "7_8"
-    },
-    "9_8": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">9</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "9_8"
-    },
-    "12_8": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">12</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">8</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "12_8"
-    },
-    "2_2": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">2</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "2_2"
-    },
-    "3_2": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">3</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "3_2"
-    },
-    "4_2": {
-      "content": "<g>\n  <text x=\"15\" y=\"24\" text-anchor=\"middle\"  font-size=\"22\" font-weight=\"600\">4</text>\n  <text x=\"15\" y=\"46\" text-anchor=\"middle\" font-size=\"22\"  font-weight=\"600\">2</text>\n</g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "4_2"
-    },
-    "common": {
-      "content": "<g><text x=\"15\" y=\"35\" text-anchor=\"middle\" font-size=\"28\" font-weight=\"600\">C</text></g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "common"
-    },
-    "cut": {
-      "content": "<g><text x=\"15\" y=\"35\" text-anchor=\"middle\" font-size=\"28\" font-weight=\"600\">C</text><line x1=\"16\" y1=\"10\" x2=\"16\" y2=\"40\" stroke=\"black\" stroke-width=\"2\"/></g>",
-      "w": 30,
-      "h": 56,
-      "widthRatio": 0,
-      "widthRatioForMeasure": 0,
-      "skinKey": "cut"
     }
   }
 }

@@ -230,7 +230,7 @@
       "widthRatioForMeasure": 4
     },
     "startRepeat_barline": {
-      "content": "<line x1=\"6\" y1=\"0\" x2=\"6\" y2=\"45\" stroke-width=\"3\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n      <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"45\" stroke-width=\"2\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n      <circle cx=\"14\" cy=\"15\" r=\"1.5\"  fill=\"rgba(28,28,34,0.92)\" stroke=\"rgba(28,28,34,0.92)\"/>\n      <circle cx=\"14\" cy=\"30\" r=\"1.5\"  fill=\"rgba(28,28,34,0.92)\" stroke=\"rgba(28,28,34,0.92)\"/>",
+      "content": "<g transform=\"translate(-6.0000, 0.0000)\">\n        <line x1=\"6\" y1=\"0\" x2=\"6\" y2=\"45\" stroke-width=\"3\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n          <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"45\" stroke-width=\"2\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n          <circle cx=\"14\" cy=\"15\" r=\"1.5\"  fill=\"rgba(28,28,34,0.92)\" stroke=\"rgba(28,28,34,0.92)\"/>\n          <circle cx=\"14\" cy=\"30\" r=\"1.5\"  fill=\"rgba(28,28,34,0.92)\" stroke=\"rgba(28,28,34,0.92)\"/>\n</g>",
       "w": 11.5,
       "h": 45,
       "skinKey": "startRepeat_barline",
@@ -278,7 +278,7 @@
       "widthRatioForMeasure": 4
     },
     "reverse_barline": {
-      "content": "<line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke-width=\"2\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n      <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"45\" stroke-width=\"3\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>",
+      "content": "<g transform=\"translate(-4.0000, 0.0000)\">\n        <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke-width=\"2\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n          <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"45\" stroke-width=\"3\"  fill=\"none\" stroke=\"rgba(28,28,34,0.92)\"/>\n</g>",
       "w": 8,
       "h": 45,
       "skinKey": "reverse_barline",

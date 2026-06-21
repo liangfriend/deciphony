@@ -9,24 +9,24 @@ import type {Measure, MusicScore} from "@/types/MusicScoreType";
 export type NodeIdMap = Map<string, Partial<Record<VDomTagType, VDom>>>;
 
 export type RenderSymbolParams = {
-  measure: Measure;
-  measures: Measure[];
-  measureIndex: number;
-  measureX: number;
-  measureY: number;
-  measureWidth: number;
-  measureHeight: number;
-  measureLineWidth: number;
-  skin: import("@/types/common").StandardStaffSkinPack;
-  idMap: NodeIdMap;
-  skinName?: string;
-  /** 连谱预计算的列布局；缺省时 renderSymbol 内按单谱表规则构建 */
-  columnLayout?: import('@/render/layout/measureColumnLayout').MeasureColumnLayout | null;
+    measure: Measure;
+    measures: Measure[];
+    measureIndex: number;
+    measureX: number;
+    measureY: number;
+    measureWidth: number;
+    measureHeight: number;
+    measureLineWidth: number;
+    skin: import("@/types/common").GuitarTabSkinPack;
+    idMap: NodeIdMap;
+    skinName?: string;
+    /** 连谱预计算的列布局；缺省时 renderSymbol 内按单谱表规则构建 */
+    columnLayout?: import('@/render/layout/measureColumnLayout').MeasureColumnLayout | null;
 };
 
 export type RenderDoubleAffiliatedSymbolParams = {
-  musicScore: MusicScore;
-  VDoms: VDom[];
-  idMap: NodeIdMap;
-  skinName?: string;
+    musicScore: MusicScore;
+    VDoms: VDom[];
+    idMap: NodeIdMap;
+    skinName?: string;
 };

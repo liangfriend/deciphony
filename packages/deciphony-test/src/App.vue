@@ -17,9 +17,9 @@ import SkinBuilder from "./views/skinBuilder.vue";
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <!--  <render-test></render-test>-->
+  <render-test></render-test>
   <!--  <render-play-test></render-play-test>-->
-  <skin-builder></skin-builder>
+  <!--  <skin-builder></skin-builder>-->
   <!--  <render-xml-test></render-xml-test>-->
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <transfer-test></transfer-test>-->

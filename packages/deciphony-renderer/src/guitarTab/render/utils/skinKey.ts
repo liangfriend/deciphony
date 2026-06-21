@@ -1,163 +1,87 @@
 import {
     BarlineTypeEnum,
     BracketTypeEnum,
-    ClefTypeEnum,
-    KeySignatureTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
-import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {AugmentationDot} from "@/types/MusicScoreType";
-import {AccidentalTypeEnum} from "@/enums/musicScoreEnum";
 
-
-export function getBarlineSkinKey(barlineType: BarlineTypeEnum): StandardStaffSkinKeyEnum {
-    const map: Record<BarlineTypeEnum, StandardStaffSkinKeyEnum> = {
-        [BarlineTypeEnum.Single_barline]: StandardStaffSkinKeyEnum.Single_barline,
-        [BarlineTypeEnum.Double_barline]: StandardStaffSkinKeyEnum.Double_barline,
-        [BarlineTypeEnum.StartRepeat_barline]: StandardStaffSkinKeyEnum.StartRepeat_barline,
-        [BarlineTypeEnum.EndRepeat_barline]: StandardStaffSkinKeyEnum.EndRepeat_barline,
-        [BarlineTypeEnum.Dashed_barline]: StandardStaffSkinKeyEnum.Dashed_barline,
-        [BarlineTypeEnum.Final_barline]: StandardStaffSkinKeyEnum.Final_barline,
-        [BarlineTypeEnum.Start_end_repeat_barline]: StandardStaffSkinKeyEnum.Start_end_repeat_barline,
-        [BarlineTypeEnum.Dotted_barline]: StandardStaffSkinKeyEnum.Dotted_barline,
-        [BarlineTypeEnum.Reverse_barline]: StandardStaffSkinKeyEnum.Reverse_barline,
-        [BarlineTypeEnum.Heavy_barline]: StandardStaffSkinKeyEnum.Heavy_barline,
-        [BarlineTypeEnum.Heavy_double_barline]: StandardStaffSkinKeyEnum.Heavy_double_barline,
+export function getBarlineSkinKey(barlineType: BarlineTypeEnum): GuitarTabSkinKeyEnum {
+    const map: Record<BarlineTypeEnum, GuitarTabSkinKeyEnum> = {
+        [BarlineTypeEnum.Single_barline]: GuitarTabSkinKeyEnum.Single_barline,
+        [BarlineTypeEnum.Double_barline]: GuitarTabSkinKeyEnum.Double_barline,
+        [BarlineTypeEnum.StartRepeat_barline]: GuitarTabSkinKeyEnum.StartRepeat_barline,
+        [BarlineTypeEnum.EndRepeat_barline]: GuitarTabSkinKeyEnum.EndRepeat_barline,
+        [BarlineTypeEnum.Dashed_barline]: GuitarTabSkinKeyEnum.Dashed_barline,
+        [BarlineTypeEnum.Final_barline]: GuitarTabSkinKeyEnum.Final_barline,
+        [BarlineTypeEnum.Start_end_repeat_barline]: GuitarTabSkinKeyEnum.Start_end_repeat_barline,
+        [BarlineTypeEnum.Dotted_barline]: GuitarTabSkinKeyEnum.Dotted_barline,
+        [BarlineTypeEnum.Reverse_barline]: GuitarTabSkinKeyEnum.Reverse_barline,
+        [BarlineTypeEnum.Heavy_barline]: GuitarTabSkinKeyEnum.Heavy_barline,
+        [BarlineTypeEnum.Heavy_double_barline]: GuitarTabSkinKeyEnum.Heavy_double_barline,
     };
-    return map[barlineType] ?? StandardStaffSkinKeyEnum.Single_barline;
+    return map[barlineType] ?? GuitarTabSkinKeyEnum.Single_barline;
 }
 
 /** 连谱小节线皮肤 key（BarlineTypeEnum → linked_*） */
-export function getLinkedBarlineSkinKey(barlineType: BarlineTypeEnum): StandardStaffSkinKeyEnum {
-    const map: Record<BarlineTypeEnum, StandardStaffSkinKeyEnum> = {
-        [BarlineTypeEnum.Single_barline]: StandardStaffSkinKeyEnum.linked_single_barline,
-        [BarlineTypeEnum.Double_barline]: StandardStaffSkinKeyEnum.linked_double_barline,
-        [BarlineTypeEnum.StartRepeat_barline]: StandardStaffSkinKeyEnum.linked_startRepeat_barline,
-        [BarlineTypeEnum.EndRepeat_barline]: StandardStaffSkinKeyEnum.linked_endRepeat_barline,
-        [BarlineTypeEnum.Dashed_barline]: StandardStaffSkinKeyEnum.linked_dashed_barline,
-        [BarlineTypeEnum.Final_barline]: StandardStaffSkinKeyEnum.linked_final_barline,
-        [BarlineTypeEnum.Start_end_repeat_barline]: StandardStaffSkinKeyEnum.linked_start_end_repeat_barline,
-        [BarlineTypeEnum.Dotted_barline]: StandardStaffSkinKeyEnum.linked_dotted_barline,
-        [BarlineTypeEnum.Reverse_barline]: StandardStaffSkinKeyEnum.linked_reverse_barline,
-        [BarlineTypeEnum.Heavy_barline]: StandardStaffSkinKeyEnum.linked_heavy_barline,
-        [BarlineTypeEnum.Heavy_double_barline]: StandardStaffSkinKeyEnum.linked_heavy_double_barline,
+export function getLinkedBarlineSkinKey(barlineType: BarlineTypeEnum): GuitarTabSkinKeyEnum {
+    const map: Record<BarlineTypeEnum, GuitarTabSkinKeyEnum> = {
+        [BarlineTypeEnum.Single_barline]: GuitarTabSkinKeyEnum.linked_single_barline,
+        [BarlineTypeEnum.Double_barline]: GuitarTabSkinKeyEnum.linked_double_barline,
+        [BarlineTypeEnum.StartRepeat_barline]: GuitarTabSkinKeyEnum.linked_startRepeat_barline,
+        [BarlineTypeEnum.EndRepeat_barline]: GuitarTabSkinKeyEnum.linked_endRepeat_barline,
+        [BarlineTypeEnum.Dashed_barline]: GuitarTabSkinKeyEnum.linked_dashed_barline,
+        [BarlineTypeEnum.Final_barline]: GuitarTabSkinKeyEnum.linked_final_barline,
+        [BarlineTypeEnum.Start_end_repeat_barline]: GuitarTabSkinKeyEnum.linked_start_end_repeat_barline,
+        [BarlineTypeEnum.Dotted_barline]: GuitarTabSkinKeyEnum.linked_dotted_barline,
+        [BarlineTypeEnum.Reverse_barline]: GuitarTabSkinKeyEnum.linked_reverse_barline,
+        [BarlineTypeEnum.Heavy_barline]: GuitarTabSkinKeyEnum.linked_heavy_barline,
+        [BarlineTypeEnum.Heavy_double_barline]: GuitarTabSkinKeyEnum.linked_heavy_double_barline,
     };
-    return map[barlineType] ?? StandardStaffSkinKeyEnum.linked_single_barline;
+    return map[barlineType] ?? GuitarTabSkinKeyEnum.linked_single_barline;
 }
 
-/** 谱号类型 + 是否前置 */
-export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): StandardStaffSkinKeyEnum {
-    switch (clefType) {
-        case ClefTypeEnum.Treble:
-            return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
-        case ClefTypeEnum.Bass:
-            return isFront ? StandardStaffSkinKeyEnum.Bass_f : StandardStaffSkinKeyEnum.Bass;
-        case ClefTypeEnum.Alto:
-            return isFront ? StandardStaffSkinKeyEnum.Alto_f : StandardStaffSkinKeyEnum.Alto;
-        case ClefTypeEnum.Tenor:
-            return isFront ? StandardStaffSkinKeyEnum.Tenor_f : StandardStaffSkinKeyEnum.Tenor;
-        default:
-            return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
-    }
+export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): GuitarTabSkinKeyEnum {
+    if (type == null) return GuitarTabSkinKeyEnum['4_4'];
+    return GuitarTabSkinKeyEnum[type as keyof typeof GuitarTabSkinKeyEnum]
+        ?? GuitarTabSkinKeyEnum['4_4'];
 }
 
-/** 小节生效谱号：可传 noteIndex 表示该音符位前生效的谱号 */
-export function getClefForMeasure(
-    measures: import("@/types/MusicScoreType").Measure[],
-    measureIndex: number,
-    noteIndex?: number
-): ClefTypeEnum {
-    if (measureIndex < 0) return ClefTypeEnum.Treble;
-    const m = measures[measureIndex];
-    if (noteIndex != null && noteIndex >= 0 && m.notes) {
-        for (let i = noteIndex; i >= 0; i--) {
-            const note = m.notes[i] as { clef?: { type: ClefTypeEnum } };
-            if (note?.clef) return note.clef.type;
-        }
-    }
-    if (m.clef_f) return m.clef_f.type;
-    const prev = measureIndex - 1;
-    if (prev < 0) return ClefTypeEnum.Treble;
-    const pm = measures[prev];
-    if (pm.clef_b) return pm.clef_b.type;
-    if (pm.clef_f) return pm.clef_f.type;
-    return getClefForMeasure(measures, prev);
-}
-
-/** 调号 y 偏移：皮肤按 treble 布局，中音/次中音 +5.5，低音 +11 */
-export function getKeySignatureYOffset(
-    clefType: ClefTypeEnum,
-    measureHeight: number,
-    measureLineWidth: number
-): number {
-    const unit = (measureHeight - 5 * measureLineWidth) / 8 + measureLineWidth / 2;
-    switch (clefType) {
-        case ClefTypeEnum.Alto:
-            return unit;
-        case ClefTypeEnum.Tenor:
-            return -unit;
-        case ClefTypeEnum.Bass:
-            return unit * 2;
-        default:
-            return 0;
-    }
-}
-
-export function getKeySignatureSkinKey(type: KeySignatureTypeEnum): StandardStaffSkinKeyEnum {
-    return StandardStaffSkinKeyEnum[type];
-}
-
-export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): StandardStaffSkinKeyEnum {
-    if (type == null) return StandardStaffSkinKeyEnum['4_4'];
-    return StandardStaffSkinKeyEnum[type as keyof typeof StandardStaffSkinKeyEnum]
-        ?? StandardStaffSkinKeyEnum['4_4'];
-}
-
-/** 时值 chronaxie → 音符头皮肤 */
-export function getNoteHeadSkinKey(chronaxie: number): StandardStaffSkinKeyEnum {
-    if (chronaxie >= 256) return StandardStaffSkinKeyEnum.NoteHead_1;
-    if (chronaxie >= 128) return StandardStaffSkinKeyEnum.NoteHead_2;
-    return StandardStaffSkinKeyEnum.NoteHead_3;
+/** 时值 chronaxie → TAB 音符皮肤 */
+export function getNoteHeadSkinKey(chronaxie: number): GuitarTabSkinKeyEnum {
+    if (chronaxie >= 256) return GuitarTabSkinKeyEnum.TabNote_0;
+    if (chronaxie >= 128) return GuitarTabSkinKeyEnum.TabNote_0;
+    return GuitarTabSkinKeyEnum.TabNote_0;
 }
 
 /** 时值 chronaxie → 休止符皮肤 */
-export function getRestSkinKey(chronaxie: number): StandardStaffSkinKeyEnum {
-    const map: Record<number, StandardStaffSkinKeyEnum> = {
-        256: StandardStaffSkinKeyEnum.Rest_1,
-        128: StandardStaffSkinKeyEnum.Rest_2,
-        64: StandardStaffSkinKeyEnum.Rest_3,
-        32: StandardStaffSkinKeyEnum.Rest_4,
-        16: StandardStaffSkinKeyEnum.Rest_5,
-        8: StandardStaffSkinKeyEnum.Rest_6,
-        4: StandardStaffSkinKeyEnum.Rest_7,
-        2: StandardStaffSkinKeyEnum.Rest_8,
-        1: StandardStaffSkinKeyEnum.Rest_9,
+export function getRestSkinKey(chronaxie: number): GuitarTabSkinKeyEnum {
+    const map: Record<number, GuitarTabSkinKeyEnum> = {
+        256: GuitarTabSkinKeyEnum.Rest_1,
+        128: GuitarTabSkinKeyEnum.Rest_2,
+        64: GuitarTabSkinKeyEnum.Rest_3,
+        32: GuitarTabSkinKeyEnum.Rest_4,
+        16: GuitarTabSkinKeyEnum.Rest_5,
+        8: GuitarTabSkinKeyEnum.Rest_6,
+        4: GuitarTabSkinKeyEnum.Rest_7,
+        2: GuitarTabSkinKeyEnum.Rest_8,
+        1: GuitarTabSkinKeyEnum.Rest_9,
     };
-    return map[chronaxie] ?? StandardStaffSkinKeyEnum.Rest_4;
+    return map[chronaxie] ?? GuitarTabSkinKeyEnum.Rest_4;
 }
 
-/** 时值 chronaxie ≤32 → 符尾皮肤；direction 为 down 时用符尾倒（_r） */
-export function getNoteTailSkinKey(chronaxie: number, direction?: 'up' | 'down'): StandardStaffSkinKeyEnum {
-    const map: Record<number, StandardStaffSkinKeyEnum> = {
-        32: StandardStaffSkinKeyEnum.NoteTail_1,
-        16: StandardStaffSkinKeyEnum.NoteTail_2,
-        8: StandardStaffSkinKeyEnum.NoteTail_3,
-        4: StandardStaffSkinKeyEnum.NoteTail_4,
-        2: StandardStaffSkinKeyEnum.NoteTail_5,
-        1: StandardStaffSkinKeyEnum.NoteTail_6,
+/** 时值 chronaxie ≤32 → 符尾皮肤 */
+export function getNoteTailSkinKey(chronaxie: number, direction?: 'up' | 'down'): GuitarTabSkinKeyEnum {
+    const map: Record<number, GuitarTabSkinKeyEnum> = {
+        32: GuitarTabSkinKeyEnum.NoteTail_1,
+        16: GuitarTabSkinKeyEnum.NoteTail_2,
+        8: GuitarTabSkinKeyEnum.NoteTail_3,
+        4: GuitarTabSkinKeyEnum.NoteTail_4,
+        2: GuitarTabSkinKeyEnum.NoteTail_5,
+        1: GuitarTabSkinKeyEnum.NoteTail_6,
     };
-    const rMap: Record<number, StandardStaffSkinKeyEnum> = {
-        32: StandardStaffSkinKeyEnum.NoteTail_1_r,
-        16: StandardStaffSkinKeyEnum.NoteTail_2_r,
-        8: StandardStaffSkinKeyEnum.NoteTail_3_r,
-        4: StandardStaffSkinKeyEnum.NoteTail_4_r,
-        2: StandardStaffSkinKeyEnum.NoteTail_5_r,
-        1: StandardStaffSkinKeyEnum.NoteTail_6_r,
-    };
-    if (direction === 'down') {
-        return rMap[chronaxie] ?? StandardStaffSkinKeyEnum.NoteTail_1_r;
-    }
-    return map[chronaxie] ?? StandardStaffSkinKeyEnum.NoteTail_1;
+
+    return map[chronaxie] ?? GuitarTabSkinKeyEnum.NoteTail_1;
 }
 
 export function chronaxieToBeamLineCount(chronaxie: number): number {
@@ -165,32 +89,21 @@ export function chronaxieToBeamLineCount(chronaxie: number): number {
     return map[chronaxie] ?? 1;
 }
 
-export function getAccidentalSkinKey(type: AccidentalTypeEnum): StandardStaffSkinKeyEnum {
-    const map: Record<AccidentalTypeEnum, StandardStaffSkinKeyEnum> = {
-        [AccidentalTypeEnum.Sharp]: StandardStaffSkinKeyEnum.Sharp,
-        [AccidentalTypeEnum.Flat]: StandardStaffSkinKeyEnum.Flat,
-        [AccidentalTypeEnum.Double_sharp]: StandardStaffSkinKeyEnum.Double_sharp,
-        [AccidentalTypeEnum.Double_flat]: StandardStaffSkinKeyEnum.Double_flat,
-        [AccidentalTypeEnum.Natural]: StandardStaffSkinKeyEnum.Natural,
-    };
-    return map[type] ?? StandardStaffSkinKeyEnum.Natural;
-}
-
 /** 连谱号类型 → 皮肤 key */
-export function getBracketSkinKey(type: BracketTypeEnum): StandardStaffSkinKeyEnum {
-    const map: Record<BracketTypeEnum, StandardStaffSkinKeyEnum> = {
-        [BracketTypeEnum.Bracket]: StandardStaffSkinKeyEnum.Bracket,
-        [BracketTypeEnum.Brace]: StandardStaffSkinKeyEnum.Brace,
-        [BracketTypeEnum.Square]: StandardStaffSkinKeyEnum.Square,
+export function getBracketSkinKey(type: BracketTypeEnum): GuitarTabSkinKeyEnum {
+    const map: Record<BracketTypeEnum, GuitarTabSkinKeyEnum> = {
+        [BracketTypeEnum.Bracket]: GuitarTabSkinKeyEnum.Bracket,
+        [BracketTypeEnum.Brace]: GuitarTabSkinKeyEnum.Brace,
+        [BracketTypeEnum.Square]: GuitarTabSkinKeyEnum.Square,
     };
-    return map[type] ?? StandardStaffSkinKeyEnum.Bracket;
+    return map[type] ?? GuitarTabSkinKeyEnum.Bracket;
 }
 
-export function getAugmentationDotSkinKey(augmentationDot: AugmentationDot): StandardStaffSkinKeyEnum {
-    const map: Record<1 | 2 | 3, StandardStaffSkinKeyEnum> = {
-        [1]: StandardStaffSkinKeyEnum.AugmentationDot_1,
-        [2]: StandardStaffSkinKeyEnum.AugmentationDot_2,
-        [3]: StandardStaffSkinKeyEnum.AugmentationDot_3,
+export function getAugmentationDotSkinKey(augmentationDot: AugmentationDot): GuitarTabSkinKeyEnum {
+    const map: Record<1 | 2 | 3, GuitarTabSkinKeyEnum> = {
+        [1]: GuitarTabSkinKeyEnum.AugmentationDot_1,
+        [2]: GuitarTabSkinKeyEnum.AugmentationDot_2,
+        [3]: GuitarTabSkinKeyEnum.AugmentationDot_3,
     };
     return map[augmentationDot.count as 1 | 2 | 3];
 }

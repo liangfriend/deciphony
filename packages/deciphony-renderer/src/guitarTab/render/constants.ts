@@ -2,10 +2,6 @@
  * 渲染相关常量
  */
 
-/** 变音符号与音符头之间的默认间距（与 measureHeight 的比值） */
-export const ACCIDENTAL_NOTE_GAP = 0 / 8;
-/** 音符前谱号与音符头的间距（与 measureHeight 的比值） */
-export const CLEF_NOTE_GAP_RATIO = 0 / 16;
 /** 附点符号与音符头之间的默认间距（与 measureHeight 的比值） */
 export const AUGMENTATION_DOT_GAP = 1 / 16;
 /** 一节高度（一线或一间的距离）比例 */

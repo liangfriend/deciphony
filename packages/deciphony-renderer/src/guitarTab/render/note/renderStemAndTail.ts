@@ -1,7 +1,7 @@
-import type {StandardStaffSkinPack} from "@/types/common";
+import type {GuitarTabSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
-import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {LINE_SPACING_RATIO, MIN_STEM_HEIGHT_RATIO, STEM_Y_OFFSET} from "../constants";
 import {getNoteTailSkinKey} from "../utils/skinKey";
@@ -53,7 +53,7 @@ export type RenderStemAndTailParams = {
     measureY: number;
     measureHeight: number;
     measureWidth: number;
-    skin: StandardStaffSkinPack;
+    skin: GuitarTabSkinPack;
     zIndex: number;
     idMap: NodeIdMap;
     chronaxie?: number;
@@ -89,7 +89,7 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
     const out: VDom[] = [];
     if (chronaxie >= 256) return out;
 
-    const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
+    const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
     if (!stemSkin) return out;
 
     const g = isGrace ? GRACE_NOTE_SCALE : 1;
@@ -128,7 +128,7 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
             tag: 'noteStem',
             skinName: skinNameForNodes,
             targetId,
-            skinKey: StandardStaffSkinKeyEnum.NoteStem,
+            skinKey: GuitarTabSkinKeyEnum.NoteStem,
             dataComment: isGrace ? '倚音符干' : '符干',
         });
         if (chronaxie <= 32) {
@@ -189,7 +189,7 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
             tag: 'noteStem',
             skinName: skinNameForNodes,
             targetId,
-            skinKey: StandardStaffSkinKeyEnum.NoteStem,
+            skinKey: GuitarTabSkinKeyEnum.NoteStem,
             dataComment: isGrace ? '倚音符干' : '符干',
         });
         if (chronaxie <= 32) {

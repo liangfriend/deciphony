@@ -1,4 +1,4 @@
-/** 五线谱皮肤 key：一谱一套，仅用于 standardStaff */
+/** 五线谱皮肤 key：一谱一套，仅用于 guitarTab */
 export enum GuitarTabSkinKeyEnum {
     Measure = 'measure',
 
@@ -47,6 +47,7 @@ export enum GuitarTabSkinKeyEnum {
     '2_2' = '2_2',
     '3_2' = '3_2',
     '4_2' = '4_2',
+    // 音符
     TabNote_x = 'tabNote_x',
     TabNote_0 = 'tabNote_0',
     TabNote_1 = 'tabNote_1',
@@ -55,7 +56,7 @@ export enum GuitarTabSkinKeyEnum {
     TabNote_4 = 'tabNote_4',
     TabNote_5 = 'tabNote_5',
     TabNote_6 = 'tabNote_6',
-    TabNote_7 = 'tabNote_7 =',
+    TabNote_7 = 'tabNote_7',
     TabNote_8 = 'tabNote_8',
     TabNote_9 = 'tabNote_9',
     TabNote_10 = 'tabNote_10',

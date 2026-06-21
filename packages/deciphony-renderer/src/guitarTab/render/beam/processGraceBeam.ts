@@ -8,12 +8,12 @@
  * - 符杠接点 x 用 graceStemBeamAttachX（组内缘），绘制段界仍用符干中心 + overlap 嵌入。
  */
 
-import type {StandardStaffSkinPack} from "@/types/common";
+import type {GuitarTabSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import type {NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {isNoteSymbol} from "../utils/staffSlot";
-import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
@@ -130,12 +130,22 @@ export function processGraceBeam(params: {
     /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */
     symbolVDomsStartIdx: number;
     symbolVDomsLength: number;
-    skin: StandardStaffSkinPack;
+    skin: GuitarTabSkinPack;
     measureHeight: number;
     measureLineWidth: number;
     skinName?: string;
 }): void {
-    const {measure, nodeIdMap, vDoms, symbolVDomsStartIdx, symbolVDomsLength, skin, measureHeight, measureLineWidth, skinName} = params;
+    const {
+        measure,
+        nodeIdMap,
+        vDoms,
+        symbolVDomsStartIdx,
+        symbolVDomsLength,
+        skin,
+        measureHeight,
+        measureLineWidth,
+        skinName
+    } = params;
     const skinNameForNodes = skinName ?? 'default';
     const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 5 * measureLineWidth) * GRACE_NOTE_SCALE;
     const beamScale = GRACE_NOTE_SCALE;
@@ -156,7 +166,7 @@ export function processGraceBeam(params: {
         if (stemEnds.length < 2) continue;
 
         const {inclination, anchor} = computeBeamSlope(stemEnds, direction);
-        const stemSkin = skin[StandardStaffSkinKeyEnum.NoteStem];
+        const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
         const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
         const beamCounts = visualOrder.map((ni) => chronaxieToBeamLineCount(ni.chronaxie));
         const lineCount = Math.max(...beamCounts);
@@ -246,7 +256,7 @@ export function processGraceBeam(params: {
                 zIndex: 1200,
                 tag: 'noteBeam',
                 skinName: skinNameForNodes,
-                skinKey: StandardStaffSkinKeyEnum.NoteBeam,
+                skinKey: GuitarTabSkinKeyEnum.NoteBeam,
                 targetId: '',
                 dataComment: '倚音符杠',
             });

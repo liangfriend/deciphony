@@ -1,5 +1,6 @@
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import {defaultSkin} from '@/skins/defaultSkin'
+import {resolveNotationPack} from '@/render/resolveNotation'
 import type {Skin} from '@/types/common'
 
 const DEFAULT_COLOR = '#000000'
@@ -28,10 +29,10 @@ export function resolveSkinColor(
         || skin?.default
         || defaultSkin
 
-    const notationPack =
-        notationType === MusicScoreTypeEnum.NumberNotation
-            ? pack.numberNotation
-            : pack.standardStaff
+    const notationPack = resolveNotationPack(
+        pack,
+        notationType,
+    )
 
     const item = notationPack?.[skinKey as keyof typeof notationPack] as { content?: string } | undefined
     if (!item?.content) return fallback

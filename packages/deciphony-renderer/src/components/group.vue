@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {NumberNotationSkinPack, Skin, SkinItem, SkinPack, StandardStaffSkinPack, VDom} from "@/types/common";
+import {Skin, SkinItem, SkinPack, VDom} from "@/types/common";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import {vdomOuterTransform} from "@/render/vdomScale";
 import {applySkinContentTemplate} from "@/render/skinContent";
+import {resolveNotationPack} from "@/render/resolveNotation";
 
 defineOptions({
   name: 'Group',
@@ -12,7 +13,7 @@ defineOptions({
 
 const props = defineProps<{
   node: VDom
-  /** 曲谱模式：五线谱用 standardStaff，简谱用 numberNotation */
+  /** 曲谱模式：五线谱 / 简谱 / 吉他谱等，决定使用 SkinPack 中哪一套符号皮肤 */
   notationType?: MusicScoreTypeEnum
   /** 多套皮肤包：skinName -> SkinPack；skinName=default 或未找到时使用内置 defaultSkin */
   skin?: Skin
@@ -77,9 +78,9 @@ const skinPack = computed<SkinPack>(() => {
   return props.skin?.[name] ?? defaultSkin
 })
 
-const notationPack = computed<StandardStaffSkinPack | NumberNotationSkinPack | undefined>(() => {
+const notationPack = computed(() => {
   const pack = skinPack.value
-  return props.notationType === MusicScoreTypeEnum.NumberNotation ? pack.numberNotation : pack.standardStaff
+  return resolveNotationPack(pack, props.notationType ?? MusicScoreTypeEnum.StandardStaff)
 })
 
 const outerTransform = computed(() => vdomOuterTransform(props.node))

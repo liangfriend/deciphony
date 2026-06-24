@@ -195,11 +195,10 @@ export function resolveAddLineXInSlot(
   slotWidth: number,
   slotChronaxie: number,
   gridIndex: number,
-  symbolW: number,
 ): number {
   if (slotChronaxie <= 0 || slotWidth <= 0) return slotStartInDomain;
   const fraction = (CHRONAXIE_GRID_UNIT * (gridIndex + 1)) / slotChronaxie;
-  return slotStartInDomain + fraction * slotWidth - symbolW / 2;
+  return slotStartInDomain + fraction * slotWidth;
 }
 
 /**

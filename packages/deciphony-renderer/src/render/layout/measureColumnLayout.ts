@@ -186,42 +186,28 @@ export function resolveXInDomainAtChronaxie(
   return (t / totalChronaxie) * noteDomainW;
 }
 
-/**
- * 简谱加时线 x（相对变宽区起点）：在占宽 slot 内按时值比例定位。
- * 全/二分等长时值只占一列时，不能用小节级 chronaxie 插值（会偏到列左侧）。
- */
-export function resolveAddLineXInSlot(
-  slotStartInDomain: number,
-  slotWidth: number,
-  slotChronaxie: number,
-  gridIndex: number,
-  symbolW: number,
+/** chronaxie 区间 [rangeStart, rangeEnd] 的几何中心 x（相对变宽区起点） */
+export function resolveXCenterInChronaxieRange(
+  layout: MeasureColumnLayout,
+  rangeStart: number,
+  rangeEnd: number,
 ): number {
-  if (slotChronaxie <= 0 || slotWidth <= 0) return slotStartInDomain;
-  const fraction = (CHRONAXIE_GRID_UNIT * (gridIndex + 1)) / slotChronaxie;
-  return slotStartInDomain + fraction * slotWidth - symbolW / 2;
+  const x0 = resolveXInDomainAtChronaxie(layout, rangeStart);
+  const x1 = resolveXInDomainAtChronaxie(layout, rangeEnd);
+  return x0 + Math.max(0, x1 - x0) / 2;
 }
 
 /**
- * 简谱增/休止符加时线 x（相对变宽区起点）。
- * 对齐目标 64 格所在列内锚点：列起点 + 列宽/2 - symbolW/2（与同 onset 符头 slotX 一致）。
- * 无 onset 列时取 [chronaxie-64, chronaxie] 时轴段中心再居中。
+ * 简谱加时线 x（相对变宽区起点）：在 chronaxie 区间 [rangeStart, rangeEnd] 内居中。
+ * 二分/全音符的第 k 条加时线对应 slot 内第 (k+2) 个 64 格，数字占第 1 格。
  */
-export function resolveAddLineXInDomain(
+export function resolveAddLineXInChronaxieRange(
   layout: MeasureColumnLayout,
-  chronaxie: number,
+  rangeStart: number,
+  rangeEnd: number,
   symbolW: number,
 ): number {
-  const geo = layout.onsetColumnGeometry.get(chronaxie);
-  if (geo != null) {
-    return geo.startInDomain + geo.width / 2 - symbolW / 2;
-  }
-  const t = Math.max(0, Math.min(chronaxie, layout.totalChronaxie));
-  const tPrev = Math.max(0, t - CHRONAXIE_GRID_UNIT);
-  const x0 = resolveXInDomainAtChronaxie(layout, tPrev);
-  const x1 = resolveXInDomainAtChronaxie(layout, t);
-  const cellW = Math.max(0, x1 - x0);
-  return x0 + cellW / 2 - symbolW / 2;
+  return resolveXCenterInChronaxieRange(layout, rangeStart, rangeEnd) - symbolW / 2;
 }
 
 /** 单谱表小节列布局 */

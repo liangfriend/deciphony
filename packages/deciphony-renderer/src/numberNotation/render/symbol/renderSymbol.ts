@@ -44,7 +44,10 @@ import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {
   buildMeasureColumnLayout,
-  resolveAddLineXInSlot,
+  CHRONAXIE_GRID_UNIT,
+  computeSlotOnset,
+  resolveAddLineXInChronaxieRange,
+  resolveXCenterInChronaxieRange,
 } from "@/render/layout/measureColumnLayout";
 import {createNumberNotationColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 
@@ -244,8 +247,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
+      // 数字头 x：占 slot 内第 1 个 64 格；长时值（二分/全）加时线在后续各格
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
+      const slotOnset = computeSlotOnset(measure, i, columnAdapter);
       let graceBeforeW = 0;
       let graceAfterW = 0;
       if (!isRestSlot) {
@@ -254,7 +258,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           graceAfterW = Math.max(graceAfterW, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
         }
       }
-      const slotX = slotStartX + (slotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
+      const firstCellEnd = Math.min(slotOnset + CHRONAXIE_GRID_UNIT, slotOnset + slotChronaxie);
+      const headCenterX =
+        domainStartX + resolveXCenterInChronaxieRange(layout, slotOnset, firstCellEnd);
+      const slotX = headCenterX - referenceW / 2 + (graceBeforeW - graceAfterW) / 2;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
@@ -323,18 +330,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             });
           }
         }
-        // 休止符加时线：在 slot 宽度内按 64 格比例定位
+        // 休止符加时线：第 1 格为数字，第 2/3/4 格为加时线
         const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
           const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
+              const cellStart = slotOnset + CHRONAXIE_GRID_UNIT * (k + 1);
+              const cellEnd = Math.min(cellStart + CHRONAXIE_GRID_UNIT, slotOnset + restChronaxie);
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = domainStartX + resolveAddLineXInSlot(
-                slotStartX - domainStartX,
-                slotW,
-                restChronaxie,
-                k,
+              const lineX = domainStartX + resolveAddLineXInChronaxieRange(
+                layout,
+                cellStart,
+                cellEnd,
                 addLineSkin.w,
               );
               out.push({
@@ -495,18 +503,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         for (const gn of allNotes) {
           renderGraceNotesNumberAfter(gn.graceNotesAfter, note, headX, referenceW, graceCtx);
         }
-        // 音符增时线：在 slot 宽度内按 64 格比例定位
+        // 音符增时线：第 1 格为数字，第 2/3/4 格为加时线
         const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
         if (addLineCount > 0) {
           const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (addLineSkin) {
             for (let k = 0; k < addLineCount; k++) {
+              const cellStart = slotOnset + CHRONAXIE_GRID_UNIT * (k + 1);
+              const cellEnd = Math.min(cellStart + CHRONAXIE_GRID_UNIT, slotOnset + slotChronaxie);
               const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = domainStartX + resolveAddLineXInSlot(
-                slotStartX - domainStartX,
-                slotW,
-                slotChronaxie,
-                k,
+              const lineX = domainStartX + resolveAddLineXInChronaxieRange(
+                layout,
+                cellStart,
+                cellEnd,
                 addLineSkin.w,
               );
               out.push({

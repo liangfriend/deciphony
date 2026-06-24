@@ -115,13 +115,14 @@ export type SingleStaff = {
 /** 五线谱小节内的音符位 / 休止符位（简谱为 NoteNumber） */
 
 export type StaffSlot = NoteSymbol | NoteRest;
+export type TabSlot = TabNote | TabRest
 
 
 export type Measure = {
 
     id: string
 
-    notes: (StaffSlot | NoteNumber)[],
+    notes: (StaffSlot | TabSlot | NoteNumber)[],
 
     barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
 

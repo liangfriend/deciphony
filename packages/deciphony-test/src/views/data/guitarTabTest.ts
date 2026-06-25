@@ -1,11 +1,11 @@
 import {
-    AugmentationDot,
-    BeamTypeEnum,
-    Frame,
-    MusicScore,
-    MusicScoreTypeEnum,
-    NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol,
-    TabNoteInfo
+  AugmentationDot,
+  BeamTypeEnum,
+  Frame,
+  MusicScore,
+  MusicScoreTypeEnum,
+  NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol,
+  TabNoteInfo
 } from "deciphony-renderer";
 import {createGrandStaff, createMusicScore,} from "./scoreBuilder";
 // 曲谱结构
@@ -17,21 +17,21 @@ const grandStaff1 = createGrandStaff()
 data.grandStaffs.push(grandStaff1)
 const note = {
 
-    id: Date.now(),
+  id: Date.now(),
 
-    type: NoteSymbolTypeEnum.Note,
+  type: NoteSymbolTypeEnum.Note,
 
-    notesInfo: [{
-        id: Date.now() + 5,
+  notesInfo: [{
+    id: Date.now() + 5,
 
-        region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
+    region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 0, // 品，-1代表x
+    value: 0, // 品，-1代表x
 
-        beamType: BeamTypeEnum.None,
+    beamType: BeamTypeEnum.None,
 
-        affiliatedSymbols: []
-    }]
+    affiliatedSymbols: []
+  }]
 
 }
 grandStaff1.staves[0].measures[0].notes.push(note)

@@ -195,11 +195,10 @@ export function resolveAddLineXInSlot(
   slotWidth: number,
   slotChronaxie: number,
   gridIndex: number,
-  symbolW: number,
 ): number {
   if (slotChronaxie <= 0 || slotWidth <= 0) return slotStartInDomain;
   const fraction = (CHRONAXIE_GRID_UNIT * (gridIndex + 1)) / slotChronaxie;
-  return slotStartInDomain + fraction * slotWidth - symbolW / 2;
+  return slotStartInDomain + fraction * slotWidth;
 }
 
 /**
@@ -231,6 +230,7 @@ export function buildMeasureColumnLayout(
   noteDomainStartOffset: number,
   adapter: ColumnLayoutSlotAdapter,
 ): MeasureColumnLayout {
+  // 这里子所以传数组，是因为可能存在连谱模式，所以需要合并多个谱表的小节列布局，而这个函数是通用的
   const ratioByOnset = mergeOnsetRatios([measure], adapter);
   const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, noteDomainW);
   return {

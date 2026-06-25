@@ -34,7 +34,6 @@ import {
 } from "../utils/skinKey";
 import {getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
 import {
-  graceNoteNumberAfterWidth,
   graceNoteNumberBeforeWidth,
   renderGraceNotesNumberAfter,
   renderGraceNotesNumberBefore,
@@ -247,14 +246,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
       const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
       let graceBeforeW = 0;
-      let graceAfterW = 0;
       if (!isRestSlot) {
         for (const ni of note.notesInfo) {
           graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, note, skin, measureHeight));
-          graceAfterW = Math.max(graceAfterW, graceNoteNumberAfterWidth(ni.graceNotesAfter, note, skin, measureHeight));
         }
       }
-      const slotX = slotStartX + (slotW - referenceW - graceAfterW - graceBeforeW) / 2 + graceBeforeW;
+      const slotX = slotStartX + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
@@ -335,7 +332,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 slotW,
                 restChronaxie,
                 k,
-                addLineSkin.w,
               );
               out.push({
                 startPoint: {x: 0, y: 0},
@@ -507,7 +503,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 slotW,
                 slotChronaxie,
                 k,
-                addLineSkin.w,
               );
               out.push({
                 startPoint: {x: 0, y: 0},

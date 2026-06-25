@@ -4,7 +4,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {NoteNumber} from "@/types/MusicScoreType";
+import type {NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {
@@ -17,7 +17,6 @@ import {
   KEY_SIGNATURE_F_X_OFFSET,
   KEY_SIGNATURE_F_Y_OFFSET,
   OCTAVE_DOT_FIRST_OFFSET,
-  OCTAVE_DOT_LAST_EDGE_MARGIN,
   OCTAVE_DOT_SPACING,
   REDUCE_LINE_Y_OFFSET
 } from "../constants";
@@ -32,13 +31,13 @@ import {
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getSlotChronaxie, getSlotRestChronaxie, isSlotRest} from "../utils/note";
+import {getInfoChronaxie, isSlotRest} from "../utils/note";
 import {
   graceNoteNumberBeforeWidth,
   renderGraceNotesNumberAfter,
   renderGraceNotesNumberBefore,
 } from "../grace/renderGraceNumber";
-import {computeOctaveDotYOffsets, noteCenterY} from "../utils/noteLayout";
+import {floorCenterY} from "../utils/noteLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {
@@ -216,6 +215,59 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     refW: number;
     isRest: boolean;
   };
+
+  function getFloorInfo(slot: SlotInfo, floorIdx: number): NotesNumberInfo | null {
+    if (slot.isRest) return floorIdx === 0 ? (slot.note.notesInfo[0] ?? null) : null;
+    return slot.note.notesInfo[floorIdx] ?? null;
+  }
+
+  function maxFloorCount(slotList: SlotInfo[]): number {
+    let max = 0;
+    for (const s of slotList) {
+      if (s.isRest) max = Math.max(max, 1);
+      else max = Math.max(max, s.note.notesInfo.length);
+    }
+    return max;
+  }
+
+  function renderAddLines(
+    info: NotesNumberInfo,
+    slotStartX: number,
+    slotW: number,
+    floorIdx: number,
+    targetId: string,
+  ): void {
+    const chronaxie = getInfoChronaxie(info);
+    const addLineCount = chronaxie === 128 ? 1 : chronaxie === 256 ? 3 : 0;
+    if (addLineCount <= 0) return;
+    const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
+    if (!addLineSkin) return;
+    const lineY = floorCenterY(measureY, measureHeight, floorIdx, measure.floorSpan) - addLineSkin.h / 2;
+    for (let k = 0; k < addLineCount; k++) {
+      const lineX = domainStartX + resolveAddLineXInSlot(
+        slotStartX - domainStartX,
+        slotW,
+        chronaxie,
+        k,
+      );
+      out.push({
+        startPoint: {x: 0, y: 0},
+        endPoint: {x: 0, y: 0},
+        special: {},
+        x: lineX,
+        y: lineY,
+        w: addLineSkin.w,
+        h: addLineSkin.h,
+        zIndex: z,
+        tag: 'addLine',
+        skinName: skinNameForNodes,
+        targetId,
+        skinKey: NumberNotationSkinKeyEnum.Addline,
+        dataComment: '加时线',
+      });
+    }
+  }
+
   const slots: SlotInfo[] = [];
 
   if (notes.length > 0) {
@@ -227,7 +279,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const slotW = geo.width;
 
       const isRestSlot = isSlotRest(note);
-      const restChronaxie = getSlotRestChronaxie(note);
 
       let referenceW: number;
       if (isRestSlot) {
@@ -244,11 +295,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       }
 
       // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
-      const slotChronaxie = isRestSlot ? restChronaxie : getSlotChronaxie(note);
       let graceBeforeW = 0;
       if (!isRestSlot) {
         for (const ni of note.notesInfo) {
-          graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, note, skin, measureHeight));
+          graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, ni, skin, measureHeight));
         }
       }
       const slotX = slotStartX + graceBeforeW;
@@ -260,14 +310,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const octaveDotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
       const fOff = OCTAVE_DOT_FIRST_OFFSET * measureHeight;
       const spacing = OCTAVE_DOT_SPACING * measureHeight;
-      const lastEdgeMargin = OCTAVE_DOT_LAST_EDGE_MARGIN * measureHeight;
-      const octaveDotYOffsets = octaveDotSkin
-        ? computeOctaveDotYOffsets(allNotes, octaveDotSkin.h, fOff, spacing, lastEdgeMargin)
-        : allNotes.map(() => 0);
 
       const graceCtx = {
         measureY,
         measureHeight,
+        floorSpan: measure.floorSpan,
         skin,
         skinName: skinNameForNodes,
         zIndex: z,
@@ -276,10 +323,13 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       };
       // 休止符渲染
       if (isRestSlot) {
+        const restInfo = allNotes[0];
+        const restChronaxie = restInfo ? getInfoChronaxie(restInfo) : 64;
         const headKey = NumberNotationSkinKeyEnum.Number_0;
         const num0Item = skin[headKey];
         if (!num0Item) continue;
-        const ny = measureY + (measureHeight - num0Item.h) / 2;
+        const hcy = floorCenterY(measureY, measureHeight, 0, measure.floorSpan);
+        const ny = hcy - num0Item.h / 2;
         const vdom: VDom = {
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
@@ -291,18 +341,18 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           zIndex: z,
           tag: 'rest',
           skinName: skinNameForNodes,
-          targetId: note.id,
+          targetId: restInfo?.id ?? note.id,
           skinKey: headKey,
           dataComment: '休止符',
         };
         out.push(vdom);
-        setNodeIdMap(idMap, note.id, vdom);
-        if (note.augmentationDot) {
-          const augSkinKey = getAugmentationDotSkinKey(note.augmentationDot);
+        setNodeIdMap(idMap, restInfo?.id ?? note.id, vdom);
+        if (restInfo?.augmentationDot) {
+          const augSkinKey = getAugmentationDotSkinKey(restInfo.augmentationDot);
           const augSkin = skin[augSkinKey];
           if (augSkin) {
             const augX = slotX + num0Item.w + AUGMENTATION_DOT_X_GAP * measureHeight;
-            const augY = ny + num0Item.h / 2 + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
+            const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
             out.push({
               startPoint: {x: 0, y: 0},
               endPoint: {x: 0, y: 0},
@@ -314,42 +364,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               zIndex: z,
               tag: 'augmentationDot',
               skinName: skinNameForNodes,
-              targetId: note.augmentationDot.id,
+              targetId: restInfo.augmentationDot.id,
               skinKey: augSkinKey,
               dataComment: '休止符附点',
             });
           }
         }
-        // 休止符加时线：在 slot 宽度内按 64 格比例定位
-        const addLineCount = restChronaxie === 128 ? 1 : restChronaxie === 256 ? 3 : 0;
-        if (addLineCount > 0) {
-          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
-          if (addLineSkin) {
-            for (let k = 0; k < addLineCount; k++) {
-              const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = domainStartX + resolveAddLineXInSlot(
-                slotStartX - domainStartX,
-                slotW,
-                restChronaxie,
-                k,
-              );
-              out.push({
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: lineX,
-                y: lineY,
-                w: addLineSkin.w,
-                h: addLineSkin.h,
-                zIndex: z,
-                tag: 'addLine',
-                skinName: skinNameForNodes,
-                targetId: note.id,
-                skinKey: NumberNotationSkinKeyEnum.Addline,
-                dataComment: '加时线',
-              });
-            }
-          }
+        if (restInfo) {
+          renderAddLines(restInfo, slotStartX, slotW, 0, restInfo.id);
         }
       } else { // 音符渲染
         // 先渲染音符头（slotX）；变音/八度点/附点等 NotesNumberInfo 符号再从音符头 vDom 取 headX
@@ -358,7 +380,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const numKey = getSyllableSkinKey(n.syllable);
           const numItem = skin[numKey];
           if (!numItem) continue;
-          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem.h, octaveDotYOffsets[stackIdx]);
+          const hcy = floorCenterY(measureY, measureHeight, stackIdx, measure.floorSpan);
           const ny = hcy - numItem.h / 2;
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
@@ -374,10 +396,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const primaryHeadVDom = allNotes[0] ? idMap.get(allNotes[0].id)?.noteHead : undefined;
         const headX = primaryHeadVDom?.x ?? slotX;
 
-        for (const gn of allNotes) {
-          renderGraceNotesNumberBefore(gn.graceNotes, note, headX, graceCtx);
+        for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
+          const gn = allNotes[stackIdx]!;
+          renderGraceNotesNumberBefore(gn.graceNotes, gn, headX, {...graceCtx, floorIndex: stackIdx});
         }
-        const legacySlotAugDot = allNotes.some((ni) => ni.augmentationDot) ? undefined : note.augmentationDot;
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
@@ -385,7 +407,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const headVDom = idMap.get(n.id)?.noteHead;
           const noteHeadX = headVDom?.x ?? slotX;
           const noteHeadW = headVDom?.w ?? numItem?.w ?? referenceW;
-          const hcy = noteCenterY(measureY, measureHeight, stackIdx, numItem?.h ?? measureHeight, octaveDotYOffsets[stackIdx]);
+          const hcy = floorCenterY(measureY, measureHeight, stackIdx, measure.floorSpan);
 
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
@@ -411,9 +433,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
           }
 
-          const augDot = n.augmentationDot ?? (stackIdx === 0 ? legacySlotAugDot : undefined);
-          if (augDot) {
-            const augSkinKey = getAugmentationDotSkinKey(augDot);
+          if (n.augmentationDot) {
+            const augSkinKey = getAugmentationDotSkinKey(n.augmentationDot);
             const augSkin = skin[augSkinKey];
             if (augSkin) {
               const augX = noteHeadX + noteHeadW + AUGMENTATION_DOT_X_GAP * measureHeight;
@@ -429,55 +450,49 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 zIndex: z,
                 tag: 'augmentationDot',
                 skinName: skinNameForNodes,
-                targetId: augDot.id,
+                targetId: n.augmentationDot.id,
                 skinKey: augSkinKey,
                 dataComment: '附点',
               });
             }
           }
 
-          if (!numItem) continue;
-          const ny = headVDom?.y ?? (hcy - numItem.h / 2);
-
-          if ((n.syllable === 0 || n.syllable === 'X') || (n.octaveDot ?? 0) === 0) continue;
-          if (!octaveDotSkin) continue;
-          const dotCount = Math.abs(n.octaveDot!);
-          const dotX = noteHeadX + (noteHeadW - octaveDotSkin.w) / 2;
-          if (n.octaveDot! > 0) {
-            let dotY = ny - fOff - octaveDotSkin.h;
-            for (let k = 0; k < dotCount; k++) {
-              out.push({
-                startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-                x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
-                tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
-                skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
-              });
-              dotY -= octaveDotSkin.h + spacing;
-            }
-          } else {
-            let baseBottom: number;
-            if (stackIdx === 0 && note.chronaxie <= 32) {
-              const reduceLineKey = getReduceLineSkinKey(note.chronaxie);
-              const reduceLineSkin = skin[reduceLineKey];
-              const lowestNote = allNotes[0];
-              const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
-              const lowestCy = noteCenterY(measureY, measureHeight, 0, lowestNumSkin?.h ?? measureHeight, octaveDotYOffsets[0]);
-              const reduceY = lowestCy + (lowestNumSkin?.h ?? 0) / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
-              baseBottom = reduceY + (reduceLineSkin?.h ?? 0);
+          if ((n.syllable !== 0 && n.syllable !== 'X') && (n.octaveDot ?? 0) !== 0 && octaveDotSkin && numItem) {
+            const dotCount = Math.abs(n.octaveDot!);
+            const dotX = noteHeadX + (noteHeadW - octaveDotSkin.w) / 2;
+            const ny = headVDom?.y ?? (hcy - numItem.h / 2);
+            if (n.octaveDot! > 0) {
+              let dotY = ny - fOff - octaveDotSkin.h;
+              for (let k = 0; k < dotCount; k++) {
+                out.push({
+                  startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+                  x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
+                  tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
+                  skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
+                });
+                dotY -= octaveDotSkin.h + spacing;
+              }
             } else {
-              baseBottom = hcy + numItem.h / 2;
-            }
-            let dotY = baseBottom + fOff;
-            for (let k = 0; k < dotCount; k++) {
-              out.push({
-                startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-                x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
-                tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
-                skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
-              });
-              dotY += octaveDotSkin.h + spacing;
+              const ch = getInfoChronaxie(n);
+              let baseBottom = hcy + numItem.h / 2;
+              if (ch <= 32) {
+                const reduceLineSkin = skin[getReduceLineSkinKey(ch)];
+                const reduceY = hcy + numItem.h / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
+                baseBottom = reduceY + (reduceLineSkin?.h ?? 0);
+              }
+              let dotY = baseBottom + fOff;
+              for (let k = 0; k < dotCount; k++) {
+                out.push({
+                  startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
+                  x: dotX, y: dotY, w: octaveDotSkin.w, h: octaveDotSkin.h, zIndex: z,
+                  tag: 'accidental', skinName: skinNameForNodes, targetId: n.id,
+                  skinKey: NumberNotationSkinKeyEnum.OctaveDot, dataComment: '八度点',
+                });
+                dotY += octaveDotSkin.h + spacing;
+              }
             }
           }
+          renderAddLines(n, slotStartX, slotW, stackIdx, n.id);
         }
         if (firstHeadVDom) {
           renderSingleNoteAffiliatedSymbols(note.affiliatedSymbols, firstHeadVDom, {
@@ -488,120 +503,90 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             measureHeight,
           });
         }
-        for (const gn of allNotes) {
-          renderGraceNotesNumberAfter(gn.graceNotesAfter, note, headX, referenceW, graceCtx);
-        }
-        // 音符增时线：在 slot 宽度内按 64 格比例定位
-        const addLineCount = slotChronaxie === 128 ? 1 : slotChronaxie === 256 ? 3 : 0;
-        if (addLineCount > 0) {
-          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
-          if (addLineSkin) {
-            for (let k = 0; k < addLineCount; k++) {
-              const lineY = measureY + (measureHeight - addLineSkin.h) / 2
-              const lineX = domainStartX + resolveAddLineXInSlot(
-                slotStartX - domainStartX,
-                slotW,
-                slotChronaxie,
-                k,
-              );
-              out.push({
-                startPoint: {x: 0, y: 0},
-                endPoint: {x: 0, y: 0},
-                special: {},
-                x: lineX,
-                y: lineY,
-                w: addLineSkin.w,
-                h: addLineSkin.h,
-                zIndex: z,
-                tag: 'addLine',
-                skinName: skinNameForNodes,
-                targetId: note.id,
-                skinKey: NumberNotationSkinKeyEnum.Addline,
-                dataComment: '加时线',
-              });
-            }
-          }
+        for (let gi = 0; gi < allNotes.length; gi++) {
+          const gn = allNotes[gi]!;
+          renderGraceNotesNumberAfter(gn.graceNotesAfter, gn, headX, referenceW, {...graceCtx, floorIndex: gi});
         }
       }
 
     }
 
-    // 第二遍：渲染减时线（slots 已完整，可正确计算连接）
-    /*
-    * 比如音符A,B 减时线数： 1 2
-      此时将A的减时线延长到B的x位置
-      音符A,B 减时线：2 1
-      此时将B的减时线x减少到A的减时线结束位置，就是A的音符x+音符皮肤w。然后延长B的减时线w到B的x+B音符皮肤w
-      音符A B C  2 1 2
-      此时将中间减时线向左移动，并延长到音符C开始
-      就是这样，永远会移动减时线少的乙方
-      * 如果A B 相等，延长左侧减时线
-    * */
-    const hasReduceLine = (s: SlotInfo) => !s.isRest && s.note.chronaxie <= 32;
-    for (let i = 0; i < slots.length; i++) {
-      const slot = slots[i];
-      if (slot.isRest || slot.note.chronaxie > 32) continue;
-      const reduceLineKey = getReduceLineSkinKey(slot.note.chronaxie);
-      const reduceLineSkin = skin[reduceLineKey];
-      if (!reduceLineSkin) continue;
-      const allNotes = slot.note.notesInfo;
-      if (allNotes.length === 0) continue;
+    // 第二遍：按层渲染减时线（每层独立 beam 连接）
+    const floorCount = maxFloorCount(slots);
+    for (let floorIdx = 0; floorIdx < floorCount; floorIdx++) {
+      const hasReduceLineAt = (slot: SlotInfo, info: NotesNumberInfo) =>
+        !slot.isRest && info.syllable !== 0 && info.syllable !== 'X' && getInfoChronaxie(info) <= 32;
 
-      const beamType = slot.note.beamType ?? BeamTypeEnum.None;
-      const myCount = chronaxieToBeamLineCount(slot.note.chronaxie);
-      let leftIdx = i;
-      let rightIdx = i;
-      if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
-        if (beamType === BeamTypeEnum.Combined) {
-          for (let j = i - 1; j >= 0; j--) {
-            const s = slots[j];
-            if (s.isRest || s.note.chronaxie > 32) break;
-            if (s.note.beamType !== BeamTypeEnum.Combined) break;
-            leftIdx = j;
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]!;
+        const info = getFloorInfo(slot, floorIdx);
+        if (!info || slot.isRest || info.syllable === 0 || info.syllable === 'X') continue;
+        const ch = getInfoChronaxie(info);
+        if (ch > 32) continue;
+
+        const reduceLineKey = getReduceLineSkinKey(ch);
+        const reduceLineSkin = skin[reduceLineKey];
+        if (!reduceLineSkin) continue;
+
+        const beamType = info.beamType ?? BeamTypeEnum.None;
+        const myCount = chronaxieToBeamLineCount(ch);
+        let leftIdx = i;
+        let rightIdx = i;
+        if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
+          if (beamType === BeamTypeEnum.Combined) {
+            for (let j = i - 1; j >= 0; j--) {
+              const leftInfo = getFloorInfo(slots[j]!, floorIdx);
+              if (!leftInfo || getInfoChronaxie(leftInfo) > 32) break;
+              if (leftInfo.beamType !== BeamTypeEnum.Combined) break;
+              leftIdx = j;
+            }
+          }
+          for (let j = i + 1; j < slots.length; j++) {
+            const rightInfo = getFloorInfo(slots[j]!, floorIdx);
+            if (!rightInfo || getInfoChronaxie(rightInfo) > 32) break;
+            if (rightInfo.beamType !== BeamTypeEnum.Combined) break;
+            rightIdx = j;
           }
         }
-        for (let j = i + 1; j < slots.length; j++) {
-          const s = slots[j];
-          if (s.isRest || s.note.chronaxie > 32) break;
-          if (s.note.beamType !== BeamTypeEnum.Combined) break;
-          rightIdx = j;
-        }
+        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
+        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
+        const leftInfo = leftSlot ? getFloorInfo(leftSlot, floorIdx) : null;
+        const rightInfo = rightSlot ? getFloorInfo(rightSlot, floorIdx) : null;
+        const leftCount = leftInfo && leftSlot && hasReduceLineAt(leftSlot, leftInfo)
+          ? chronaxieToBeamLineCount(getInfoChronaxie(leftInfo)) : Infinity;
+        const rightCount = rightInfo && rightSlot && hasReduceLineAt(rightSlot, rightInfo)
+          ? chronaxieToBeamLineCount(getInfoChronaxie(rightInfo)) : Infinity;
+
+        const slotHeadX = slot.slotX;
+        const leftHeadX = leftSlot ? leftSlot.slotX : slotHeadX;
+        const rightHeadX = rightSlot ? rightSlot.slotX : slotHeadX;
+        const lineX = myCount < leftCount && leftSlot
+          ? leftHeadX + leftSlot.refW
+          : slotHeadX;
+        const lineEnd = myCount <= rightCount && rightSlot
+          ? rightHeadX + rightSlot.refW
+          : slotHeadX + slot.refW;
+        const lineW = Math.max(lineEnd - lineX, slot.refW);
+
+        const numSkin = skin[getSyllableSkinKey(info.syllable)];
+        const hcy = floorCenterY(measureY, measureHeight, floorIdx, measure.floorSpan);
+        const reduceY = hcy + (numSkin?.h ?? 0) / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
+        out.push({
+          startPoint: {x: 0, y: 0},
+          endPoint: {x: 0, y: 0},
+          special: {},
+          x: lineX,
+          y: reduceY,
+          w: lineW,
+          h: reduceLineSkin.h,
+          zIndex: z,
+          tag: 'accidental',
+          skinName: skinNameForNodes,
+          targetId: info.id,
+          skinKey: reduceLineKey,
+          dataComment: '减时线',
+        });
       }
-      const leftSlot = leftIdx < i ? slots[i - 1] : null;
-      const rightSlot = rightIdx > i ? slots[i + 1] : null;
-      const leftCount = leftSlot && hasReduceLine(leftSlot) ? chronaxieToBeamLineCount(leftSlot.note.chronaxie) : Infinity;
-      const rightCount = rightSlot && hasReduceLine(rightSlot) ? chronaxieToBeamLineCount(rightSlot.note.chronaxie) : Infinity;
-      // 减时线少的向多的一方延伸；相等时延长左侧（myCount <= rightCount 时向右延伸）
-      const slotHeadX = slot.slotX;
-      const leftHeadX = leftSlot ? leftSlot.slotX : slotHeadX;
-      const rightHeadX = rightSlot ? rightSlot.slotX : slotHeadX;
-      const lineX = myCount < leftCount && leftSlot
-        ? leftHeadX + leftSlot.refW
-        : slotHeadX;
-      const lineEnd = myCount <= rightCount && rightSlot
-        ? rightHeadX + rightSlot.refW
-        : slotHeadX + slot.refW;
-      const lineW = Math.max(lineEnd - lineX, slot.refW);
-      const lowestNote = allNotes[0];
-      const lowestNumSkin = skin[getSyllableSkinKey(lowestNote.syllable)];
-      const lowestCy = noteCenterY(measureY, measureHeight, 0);
-      const reduceY = lowestCy + lowestNumSkin?.h / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
-      out.push({
-        startPoint: {x: 0, y: 0},
-        endPoint: {x: 0, y: 0},
-        special: {},
-        x: lineX,
-        y: reduceY,
-        w: lineW,
-        h: reduceLineSkin.h,
-        zIndex: z,
-        tag: 'accidental',
-        skinName: skinNameForNodes,
-        // 减时线属于 note（NoteNumber）层级，跨槽位连接，相对 Frame 跟随音符本身而非单个 notesNumberInfo
-        targetId: slot.note.id,
-        skinKey: reduceLineKey,
-        dataComment: '减时线',
-      });
     }
   }
 

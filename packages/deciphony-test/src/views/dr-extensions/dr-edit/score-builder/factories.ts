@@ -347,35 +347,50 @@ export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest {
 
 export function createNotesNumberInfo(
     syllable: NotesNumberInfo['syllable'],
-    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental'>>,
+    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental' | 'chronaxie' | 'beamType' | 'augmentationDot'>>,
 ): NotesNumberInfo {
     const accidental = partial?.accidental
         ? typeof partial.accidental === 'object'
             ? partial.accidental
             : createAccidental(partial.accidental)
         : undefined;
+    const augmentationDot = resolveAugmentationDot(partial?.augmentationDot);
     return {
         id: newId(),
         syllable,
+        chronaxie: partial?.chronaxie ?? 64,
+        beamType: partial?.beamType ?? BeamTypeEnum.None,
         octaveDot: partial?.octaveDot ?? 0,
         ...(accidental ? {accidental} : {}),
+        ...(augmentationDot ? {augmentationDot} : {}),
     };
 }
 
 export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
     const chronaxie = options.chronaxie ?? 64;
+    const beamType = options.beamType ?? BeamTypeEnum.None;
+    const augmentationDot = resolveAugmentationDot(options.augmentationDot);
 
     let notesInfo: NotesNumberInfo[];
     if (options.notesInfo?.length) {
         notesInfo = options.notesInfo.map((ni) =>
-            createNotesNumberInfo(ni.syllable, {octaveDot: ni.octaveDot, accidental: ni.accidental}),
+            createNotesNumberInfo(ni.syllable, {
+                octaveDot: ni.octaveDot,
+                accidental: ni.accidental,
+                chronaxie: ni.chronaxie ?? chronaxie,
+                beamType: ni.beamType ?? beamType,
+                augmentationDot: ni.augmentationDot ?? augmentationDot,
+            }),
         );
     } else {
         notesInfo = [
             createNotesNumberInfo(options.syllable, {
                 octaveDot: options.octaveDot,
                 accidental: options.accidental,
+                chronaxie,
+                beamType,
+                augmentationDot,
             }),
         ];
     }
@@ -383,9 +398,7 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber {
     return {
         ...ZERO_FRAME,
         id: newId(),
-        chronaxie,
         notesInfo,
-        beamType: options.beamType ?? BeamTypeEnum.None,
         affiliatedSymbols: [],
         widthRatio,
         widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,

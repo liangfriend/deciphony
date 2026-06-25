@@ -147,16 +147,21 @@ export type CreateNoteRestOptions = {
 
 export type CreateNoteNumberOptions = {
   syllable: NotesNumberInfo['syllable'];
+  /** 写入首个（或全部未指定时值的）notesInfo */
   chronaxie?: Chronaxie;
   octaveDot?: NotesNumberInfo['octaveDot'];
   beamType?: BeamTypeEnum;
   accidental?: AccidentalTypeEnum;
+  augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   widthRatio?: number;
   widthRatioForMeasure?: number;
   notesInfo?: Array<{
     syllable: NotesNumberInfo['syllable'];
     octaveDot?: NotesNumberInfo['octaveDot'];
     accidental?: AccidentalTypeEnum;
+    chronaxie?: Chronaxie;
+    beamType?: BeamTypeEnum;
+    augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   }>;
 };
 

@@ -259,11 +259,6 @@ function deleteNotesInfoSubSymbol(slot: SlotData, symbolId: string): boolean {
         delete info.augmentationDot
         return true
     }
-    const note = slot.note
-    if (note && isNoteNumberSlot(note) && note.augmentationDot?.id === symbolId) {
-        delete note.augmentationDot
-        return true
-    }
     return false
 }
 

@@ -1,10 +1,10 @@
 /**
- * 简谱倚音：NotesNumberInfo 级（graceNotes 挂在主音 notesInfo 上）；时值/符杠取自父 NoteNumber
+ * 简谱倚音：NotesNumberInfo 级（graceNotes 挂在主音 notesInfo 上）；时值/符杠取自倚音自身
  */
 
 import {VDom} from "@/types/common";
 import type {NumberNotationSkinPack} from "@/types/common";
-import type {AugmentationDot, NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
+import type {NotesNumberInfo} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {
@@ -20,7 +20,8 @@ import {
     getReduceLineSkinKey,
     getSyllableSkinKey,
 } from "../utils/skinKey";
-import {noteCenterY} from "../utils/noteLayout";
+import {getInfoChronaxie} from "../utils/note";
+import {floorCenterY} from "../utils/noteLayout";
 import {
     GRACE_NOTE_SCALE,
     GRACE_OCTAVE_DOT_FIRST_OFFSET,
@@ -62,7 +63,7 @@ function pushGrace(out: VDom[], v: VDom): void {
 }
 
 type GraceReduceSlot = {
-    parent: NoteNumber;
+    host: NotesNumberInfo;
     ni: NotesNumberInfo;
     visualLeft: number;
     visualRight: number;
@@ -72,22 +73,25 @@ type GraceReduceSlot = {
 
 function buildGraceReduceSlot(
     ni: NotesNumberInfo,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     headX: number,
     skin: NumberNotationSkinPack,
     measureY: number,
     measureHeight: number,
+    floorIndex: number,
+    floorSpan?: number[],
 ): GraceReduceSlot | null {
     const numSkin = skin[getSyllableSkinKey(ni.syllable)];
     if (!numSkin) return null;
     const numW = numSkin.w;
     const numH = numSkin.h;
-    const hcy = noteCenterY(measureY, measureHeight, 0, numH);
-    const ny = boxYForVisualTop(hcy - numH / 2, numH, S);
+    const hcy = floorCenterY(measureY, measureHeight, floorIndex, floorSpan);
+    const mainNy = hcy - numH / 2;
+    const ny = boxYForVisualTop(mainNy, numH, S);
     const visualW = scaledSpan(numW, S);
     const visualLeft = headX + numW * (1 - S) / 2;
     return {
-        parent,
+        host,
         ni,
         visualLeft,
         visualRight: visualLeft + visualW,
@@ -101,38 +105,39 @@ function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumbe
     const {skin, skinName, zIndex, out, measureHeight} = ctx;
     for (let i = 0; i < slots.length; i++) {
         const slot = slots[i]!;
-        const parent = slot.parent;
-        if (parent.chronaxie > 32) continue;
-        const reduceLineKey = getReduceLineSkinKey(parent.chronaxie);
+        const ni = slot.ni;
+        const ch = getInfoChronaxie(ni);
+        if (ch > 32) continue;
+        const reduceLineKey = getReduceLineSkinKey(ch);
         const reduceLineSkin = skin[reduceLineKey];
         if (!reduceLineSkin) continue;
 
-        const beamType = parent.beamType ?? BeamTypeEnum.None;
-        const myCount = chronaxieToBeamLineCount(parent.chronaxie);
+        const beamType = ni.beamType ?? BeamTypeEnum.None;
+        const myCount = chronaxieToBeamLineCount(ch);
         let leftIdx = i;
         let rightIdx = i;
         if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
             if (beamType === BeamTypeEnum.Combined) {
                 for (let j = i - 1; j >= 0; j--) {
                     const s = slots[j]!;
-                    if (s.parent.chronaxie > 32) break;
-                    if (s.parent.beamType !== BeamTypeEnum.Combined) break;
+                    if (getInfoChronaxie(s.ni) > 32) break;
+                    if (s.ni.beamType !== BeamTypeEnum.Combined) break;
                     leftIdx = j;
                 }
             }
             for (let j = i + 1; j < slots.length; j++) {
                 const s = slots[j]!;
-                if (s.parent.chronaxie > 32) break;
-                if (s.parent.beamType !== BeamTypeEnum.Combined) break;
+                if (getInfoChronaxie(s.ni) > 32) break;
+                if (s.ni.beamType !== BeamTypeEnum.Combined) break;
                 rightIdx = j;
             }
         }
-        const leftSlot = leftIdx < i ? slots[i - 1]! : null;
-        const rightSlot = rightIdx > i ? slots[i + 1]! : null;
-        const leftCount = leftSlot && leftSlot.parent.chronaxie <= 32
-            ? chronaxieToBeamLineCount(leftSlot.parent.chronaxie) : Infinity;
-        const rightCount = rightSlot && rightSlot.parent.chronaxie <= 32
-            ? chronaxieToBeamLineCount(rightSlot.parent.chronaxie) : Infinity;
+        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
+        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
+        const leftCount = leftSlot && getInfoChronaxie(leftSlot.ni) <= 32
+            ? chronaxieToBeamLineCount(getInfoChronaxie(leftSlot.ni)) : Infinity;
+        const rightCount = rightSlot && getInfoChronaxie(rightSlot.ni) <= 32
+            ? chronaxieToBeamLineCount(getInfoChronaxie(rightSlot.ni)) : Infinity;
 
         let visualLineLeft = slot.visualLeft;
         let visualLineRight = slot.visualRight;
@@ -158,7 +163,7 @@ function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumbe
 /** 单条倚音 NotesNumberInfo 占位宽度（视觉缩放后） */
 export function estimateGraceNotesNumberInfoWidth(
     ni: NotesNumberInfo,
-    parent: NoteNumber,
+    _host: NotesNumberInfo,
     skin: NumberNotationSkinPack,
     measureHeight: number,
 ): number {
@@ -169,8 +174,8 @@ export function estimateGraceNotesNumberInfoWidth(
         const accSkin = skin[getAccidentalSkinKey(ni.accidental.type)];
         w += scaledSpan(ACCIDENTAL_NOTE_X_GAP * measureHeight + (accSkin?.w ?? 0), GRACE_NOTE_SCALE);
     }
-    if (parent.augmentationDot) {
-        const augSkin = skin[getAugmentationDotSkinKey(parent.augmentationDot)];
+    if (ni.augmentationDot) {
+        const augSkin = skin[getAugmentationDotSkinKey(ni.augmentationDot)];
         w += scaledSpan(AUGMENTATION_DOT_X_GAP * measureHeight + (augSkin?.w ?? 0), GRACE_NOTE_SCALE);
     }
     if (w <= 0) w = scaledSpan(skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20, GRACE_NOTE_SCALE);
@@ -179,7 +184,7 @@ export function estimateGraceNotesNumberInfoWidth(
 
 function graceNotesNumberInfoGroupWidth(
     graceList: NotesNumberInfo[] | undefined,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     skin: NumberNotationSkinPack,
     measureHeight: number,
 ): number {
@@ -188,32 +193,34 @@ function graceNotesNumberInfoGroupWidth(
     let total = gap;
     for (let i = 0; i < graceList.length; i++) {
         if (i > 0) total += gap;
-        total += estimateGraceNotesNumberInfoWidth(graceList[i]!, parent, skin, measureHeight);
+        total += estimateGraceNotesNumberInfoWidth(graceList[i]!, host, skin, measureHeight);
     }
     return total;
 }
 
 export function graceNoteNumberBeforeWidth(
     graceNotes: NotesNumberInfo[] | undefined,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     skin: NumberNotationSkinPack,
     measureHeight: number,
 ): number {
-    return graceNotesNumberInfoGroupWidth(graceNotes, parent, skin, measureHeight);
+    return graceNotesNumberInfoGroupWidth(graceNotes, host, skin, measureHeight);
 }
 
 export function graceNoteNumberAfterWidth(
     graceNotesAfter: NotesNumberInfo[] | undefined,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     skin: NumberNotationSkinPack,
     measureHeight: number,
 ): number {
-    return graceNotesNumberInfoGroupWidth(graceNotesAfter, parent, skin, measureHeight);
+    return graceNotesNumberInfoGroupWidth(graceNotesAfter, host, skin, measureHeight);
 }
 
 export type RenderGraceNumberCtx = {
     measureY: number;
     measureHeight: number;
+    floorIndex?: number;
+    floorSpan?: number[];
     skin: NumberNotationSkinPack;
     skinName: string;
     zIndex: number;
@@ -224,11 +231,11 @@ export type RenderGraceNumberCtx = {
 /** 在 headX 渲染一条倚音（不含减时线；减时线由 processGraceReduceLines 第二遍连接） */
 export function renderGraceNotesNumberInfoAt(
     ni: NotesNumberInfo,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     headX: number,
     ctx: RenderGraceNumberCtx,
 ): void {
-    const {measureY, measureHeight, skin, skinName, zIndex, idMap, out} = ctx;
+    const {measureY, measureHeight, floorIndex = 0, floorSpan, skin, skinName, zIndex, idMap, out} = ctx;
     const octaveDotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
     const fOff = GRACE_OCTAVE_DOT_FIRST_OFFSET * measureHeight;
     const spacing = GRACE_OCTAVE_DOT_SPACING * measureHeight;
@@ -236,7 +243,7 @@ export function renderGraceNotesNumberInfoAt(
     const numKey = getSyllableSkinKey(ni.syllable);
     const numItem = skin[numKey];
     if (!numItem) return;
-    const hcy = noteCenterY(measureY, measureHeight, 0, numItem.h);
+    const hcy = floorCenterY(measureY, measureHeight, floorIndex, floorSpan);
     const mainNy = hcy - numItem.h / 2;
     const ny = boxYForVisualTop(mainNy, numItem.h, S);
     const noteVisualBottom = visualBottomFromBox(ny, numItem.h, S);
@@ -291,8 +298,9 @@ export function renderGraceNotesNumberInfoAt(
             }
         } else {
             let baseBottom: number;
-            if (parent.chronaxie <= 32) {
-                const reduceLineSkin = skin[getReduceLineSkinKey(parent.chronaxie)];
+            const ch = getInfoChronaxie(ni);
+            if (ch <= 32) {
+                const reduceLineSkin = skin[getReduceLineSkinKey(ch)];
                 const reduceVisualTop = noteVisualBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
                 baseBottom = reduceVisualTop + scaledSpan(reduceLineSkin?.h ?? 0, S);
             } else {
@@ -321,17 +329,16 @@ export function renderGraceNotesNumberInfoAt(
         }
     }
 
-    if (parent.augmentationDot) {
-        const augSkinKey = getAugmentationDotSkinKey(parent.augmentationDot as AugmentationDot);
+    if (ni.augmentationDot) {
+        const augSkinKey = getAugmentationDotSkinKey(ni.augmentationDot);
         const augSkin = skin[augSkinKey];
-        const num1 = skin[NumberNotationSkinKeyEnum.Number_1];
-        if (augSkin && num1 && ni.syllable !== 0 && ni.syllable !== 'X') {
-            const augX = headX + num1.w + AUGMENTATION_DOT_X_GAP * measureHeight;
+        if (augSkin && ni.syllable !== 0 && ni.syllable !== 'X') {
+            const augX = headX + numItem.w + AUGMENTATION_DOT_X_GAP * measureHeight;
             const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
             pushGrace(out, {
                 startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
                 x: augX, y: augY, w: augSkin.w, h: augSkin.h, zIndex,
-                tag: 'accidental', skinName, targetId: parent.augmentationDot!.id,
+                tag: 'accidental', skinName, targetId: ni.augmentationDot.id,
                 skinKey: augSkinKey, dataComment: '倚音附点',
             });
         }
@@ -341,7 +348,7 @@ export function renderGraceNotesNumberInfoAt(
 /** 前置倚音：index0 靠主音，整体向左扩散 */
 export function renderGraceNotesNumberBefore(
     graceNotes: NotesNumberInfo[] | undefined,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     mainHeadX: number,
     ctx: RenderGraceNumberCtx,
 ): void {
@@ -351,10 +358,12 @@ export function renderGraceNotesNumberBefore(
     let x = mainHeadX - gap;
     for (let i = 0; i < graceNotes.length; i++) {
         const ni = graceNotes[i]!;
-        const gw = estimateGraceNotesNumberInfoWidth(ni, parent, ctx.skin, ctx.measureHeight);
+        const gw = estimateGraceNotesNumberInfoWidth(ni, host, ctx.skin, ctx.measureHeight);
         x -= gw;
-        renderGraceNotesNumberInfoAt(ni, parent, x, ctx);
-        const slot = buildGraceReduceSlot(ni, parent, x, ctx.skin, ctx.measureY, ctx.measureHeight);
+        renderGraceNotesNumberInfoAt(ni, host, x, ctx);
+        const slot = buildGraceReduceSlot(
+            ni, host, x, ctx.skin, ctx.measureY, ctx.measureHeight, ctx.floorIndex ?? 0, ctx.floorSpan,
+        );
         if (slot) reduceSlots.unshift(slot);
         if (i < graceNotes.length - 1) x -= gap;
     }
@@ -364,7 +373,7 @@ export function renderGraceNotesNumberBefore(
 /** 后置倚音：向右扩散 */
 export function renderGraceNotesNumberAfter(
     graceNotesAfter: NotesNumberInfo[] | undefined,
-    parent: NoteNumber,
+    host: NotesNumberInfo,
     mainHeadX: number,
     mainRefW: number,
     ctx: RenderGraceNumberCtx,
@@ -375,10 +384,12 @@ export function renderGraceNotesNumberAfter(
     let x = mainHeadX + mainRefW + gap;
     for (let i = 0; i < graceNotesAfter.length; i++) {
         const ni = graceNotesAfter[i]!;
-        renderGraceNotesNumberInfoAt(ni, parent, x, ctx);
-        const slot = buildGraceReduceSlot(ni, parent, x, ctx.skin, ctx.measureY, ctx.measureHeight);
+        renderGraceNotesNumberInfoAt(ni, host, x, ctx);
+        const slot = buildGraceReduceSlot(
+            ni, host, x, ctx.skin, ctx.measureY, ctx.measureHeight, ctx.floorIndex ?? 0, ctx.floorSpan,
+        );
         if (slot) reduceSlots.push(slot);
-        x += estimateGraceNotesNumberInfoWidth(ni, parent, ctx.skin, ctx.measureHeight) + gap;
+        x += estimateGraceNotesNumberInfoWidth(ni, host, ctx.skin, ctx.measureHeight) + gap;
     }
     processGraceReduceLines(reduceSlots, ctx);
 }

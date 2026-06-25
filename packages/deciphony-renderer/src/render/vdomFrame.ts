@@ -165,10 +165,6 @@ function registerNotesNumberInfo(
 
 function registerNoteNumber(map: Map<string, RelativeFrame>, note: NoteNumber): void {
     registerFrame(map, note.id, note);
-    const hasPerInfoAugDot = note.notesInfo.some((n) => n.augmentationDot);
-    if (note.augmentationDot && !hasPerInfoAugDot) {
-        registerAugmentationDot(map, note.augmentationDot, note);
-    }
     registerSingleNoteAffiliatedSymbols(map, note.affiliatedSymbols, note);
     for (const info of note.notesInfo) {
         registerNotesNumberInfo(map, info, note);

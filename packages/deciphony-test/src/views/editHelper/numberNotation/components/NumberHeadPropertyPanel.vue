@@ -9,8 +9,8 @@ import {
   BEAM_TYPE_OPTIONS,
   OCTAVE_DOT_OPTIONS,
   SYLLABLE_OPTIONS,
-  setNoteNumberBeamType,
-  setNoteNumberChronaxie,
+  setNotesNumberInfoBeamType,
+  setNotesNumberInfoChronaxie,
   setNotesNumberInfoAccidental,
   setNotesNumberInfoAugmentationDot,
   setNotesNumberInfoOctaveDot,
@@ -27,13 +27,13 @@ const notesInfo = computed(() => props.editSlot.info)
 const note = computed(() => props.editSlot.note)
 
 const chronaxie = computed({
-  get: () => note.value.chronaxie,
-  set: (v: Chronaxie) => setNoteNumberChronaxie(note.value, v),
+  get: () => notesInfo.value.chronaxie,
+  set: (v: Chronaxie) => setNotesNumberInfoChronaxie(notesInfo.value, v),
 })
 
 const beamType = computed({
-  get: () => note.value.beamType ?? BeamTypeEnum.None,
-  set: (v: BeamTypeEnum) => setNoteNumberBeamType(note.value, v),
+  get: () => notesInfo.value.beamType ?? BeamTypeEnum.None,
+  set: (v: BeamTypeEnum) => setNotesNumberInfoBeamType(notesInfo.value, v),
 })
 
 const syllable = computed({

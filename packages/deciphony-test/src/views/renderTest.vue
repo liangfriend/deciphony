@@ -2,19 +2,19 @@
   <div class="container">
     <div class="left">
       <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
-                   @renderMusicScore="renderMusicScore"
-                   skin-name="default"/>
+                   skin-name="default"
+                   @renderMusicScore="renderMusicScore"/>
     </div>
-    <div class="right" v-if="true">
+    <div v-if="true" class="right">
       <textarea
-          :value="jsonText"
-          class="json-editor"
-          spellcheck="false"
-          @input="onJsonInput"
+        :value="jsonText"
+        class="json-editor"
+        spellcheck="false"
+        @input="onJsonInput"
       />
       <p v-if="parseError" class="error">{{ parseError }}</p>
     </div>
-    <div class="right" v-else>
+    <div v-else class="right">
       <button @click="fourth">四分音符</button>
       <button @click="whole">全音符</button>
     </div>
@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import MusicScore from 'deciphony-renderer'
-import data from './data/guitarTabTest'
+import data from './data/其多列简谱'
 
 const initialData = JSON.parse(JSON.stringify(data))
 const musicScoreData = ref(initialData)

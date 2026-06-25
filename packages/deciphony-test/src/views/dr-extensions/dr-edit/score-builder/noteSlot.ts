@@ -52,7 +52,12 @@ export function appendNotesNumberInfo(
     syllable: NoteNumber['notesInfo'][number]['syllable'],
     partial?: Parameters<typeof createNotesNumberInfo>[1],
 ): NoteNumber['notesInfo'][number] {
-    const info = createNotesNumberInfo(syllable, partial);
+    const lead = note.notesInfo[0]
+    const info = createNotesNumberInfo(syllable, {
+        chronaxie: lead?.chronaxie,
+        beamType: lead?.beamType,
+        ...partial,
+    });
     note.notesInfo.push(info);
     return info;
 }

@@ -18,9 +18,13 @@ function applyMeasureKeySignatureBack(state: NumberPlayState, measure: Measure):
   if (measure.keySignature_b) state.curKeySignature = measure.keySignature_b.type
 }
 
-function resolveNoteNumberDotCount(note: NoteNumber): number {
-  if (note.augmentationDot) return note.augmentationDot.count
-  return note.notesInfo[0]?.augmentationDot?.count ?? 0
+function getInfoDotCount(info: NotesNumberInfo): number {
+  return info.augmentationDot?.count ?? 0
+}
+
+function getSlotAdvanceDuration(note: NoteNumber): Unit256 {
+  if (!note.notesInfo.length) return getDuration(64, 0)
+  return Math.max(...note.notesInfo.map((ni) => getDuration(ni.chronaxie, getInfoDotCount(ni))))
 }
 
 function hasPitch(ni: NotesNumberInfo): boolean {
@@ -89,19 +93,21 @@ function appendNoteNumberSequence(
   keySignature: KeySignatureTypeEnum,
   noteStaveIndex: Map<string, number>,
 ): Unit256 {
-  const duration = getDuration(note.chronaxie, resolveNoteNumberDotCount(note))
-  const lead = note.notesInfo[0]
-
-  appendGraceNotesBefore(seq, lead?.graceNotes, playTime, staveIndex, keySignature, noteStaveIndex)
+  const slotDuration = getSlotAdvanceDuration(note)
 
   for (const ni of note.notesInfo) {
-    if (!hasPitch(ni)) continue
-    const midi = getNoteNumberMidi(ni, keySignature)
-    pushPitchItem(seq, noteStaveIndex, staveIndex, {note_id: ni.id, midi, duration, playTime})
+    appendGraceNotesBefore(seq, ni.graceNotes, playTime, staveIndex, keySignature, noteStaveIndex)
+
+    if (hasPitch(ni)) {
+      const duration = getDuration(ni.chronaxie, getInfoDotCount(ni))
+      const midi = getNoteNumberMidi(ni, keySignature)
+      pushPitchItem(seq, noteStaveIndex, staveIndex, {note_id: ni.id, midi, duration, playTime})
+    }
+
+    appendGraceNotesAfter(seq, ni.graceNotesAfter, playTime, slotDuration, staveIndex, keySignature, noteStaveIndex)
   }
 
-  appendGraceNotesAfter(seq, lead?.graceNotesAfter, playTime, duration, staveIndex, keySignature, noteStaveIndex)
-  return playTime + duration
+  return playTime + slotDuration
 }
 
 function appendMeasureSequence(
@@ -119,8 +125,9 @@ function appendMeasureSequence(
     if (!isNoteNumberSlot(slot)) continue
 
     if (isSlotRestLike(slot)) {
-      const duration = getDuration(slot.chronaxie, resolveNoteNumberDotCount(slot))
-      seq.push({note_id: slot.id, midi: 0, duration, playTime})
+      const lead = slot.notesInfo[0]
+      const duration = getDuration(lead?.chronaxie ?? 64, lead ? getInfoDotCount(lead) : 0)
+      seq.push({note_id: lead?.id ?? slot.id, midi: 0, duration, playTime})
       playTime += duration
       continue
     }
@@ -142,7 +149,7 @@ function appendMeasureSequence(
 /**
  * 简谱 → 可播放序列
  * - 按小节调号（首调）换算 getNoteNumberMidi
- * - 时值在 NoteNumber 层；和弦共享同一 duration
+ * - 时值在 NotesNumberInfo 层；同槽位 onset 取各层最大时值推进
  * - 休止符 / 节奏 X：midi = 0
  */
 export function getNumberNotationPlaySequence(musicScoreData: MusicScore): DR_playSequence {

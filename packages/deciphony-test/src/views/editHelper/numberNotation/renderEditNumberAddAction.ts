@@ -187,6 +187,10 @@ export function applyMeasureAddAction(
     }
   }
 
-  note.notesInfo.push(createNotesNumberInfo(preview.syllable))
+  const lead = note.notesInfo[0]
+  note.notesInfo.push(createNotesNumberInfo(preview.syllable, {
+    chronaxie: lead?.chronaxie ?? preview.chronaxie,
+    beamType: lead?.beamType,
+  }))
   return {type: 'noteInfoAdded'}
 }

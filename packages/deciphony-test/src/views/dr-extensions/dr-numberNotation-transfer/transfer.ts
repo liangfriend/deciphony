@@ -145,6 +145,8 @@ function staffNotesInfoToNumberInfo(
     id: info.id,
     syllable: syllable as NotesNumberInfo['syllable'],
     octaveDot: octave as NotesNumberInfo['octaveDot'],
+    chronaxie: info.chronaxie,
+    beamType: info.beamType ?? BeamTypeEnum.None,
   }
   if (info.augmentationDot) out.augmentationDot = info.augmentationDot
   if (accidental) out.accidental = createAccidental(accidental)
@@ -158,7 +160,6 @@ function convertNoteSymbolToNoteNumber(
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
 ): NoteNumber {
   applySlotClef(state, note.clef)
-  const lead = note.notesInfo[0]!
   const notesInfo = note.notesInfo.map((ni) =>
     staffNotesInfoToNumberInfo(ni, state, scope, priority),
   )
@@ -180,9 +181,7 @@ function convertNoteSymbolToNoteNumber(
     relativeY: note.relativeY,
     relativeW: note.relativeW,
     relativeH: note.relativeH,
-    chronaxie: lead.chronaxie,
     notesInfo,
-    beamType: lead.beamType ?? BeamTypeEnum.None,
     affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
@@ -209,8 +208,6 @@ function convertRestToNoteNumber(rest: NoteRest): NoteNumber {
 
 function numberInfoToStaffInfo(
   info: NotesNumberInfo,
-  chronaxie: NotesInfo['chronaxie'],
-  beamType: BeamTypeEnum,
   affiliatedSymbols: NotesInfo['affiliatedSymbols'],
   keySignature: KeySignatureTypeEnum,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
@@ -229,9 +226,9 @@ function numberInfoToStaffInfo(
     relativeW: 0,
     relativeH: 0,
     region,
-    chronaxie: graceChronaxie ?? chronaxie,
+    chronaxie: graceChronaxie ?? info.chronaxie,
     direction: region > 4 ? 'down' : 'up',
-    beamType,
+    beamType: info.beamType ?? BeamTypeEnum.None,
     affiliatedSymbols,
   }
   if (info.augmentationDot) staffInfo.augmentationDot = info.augmentationDot
@@ -248,8 +245,6 @@ function convertNoteNumberToNoteSymbol(
   const notesInfo = note.notesInfo.map((ni, index) =>
     numberInfoToStaffInfo(
       ni,
-      note.chronaxie,
-      note.beamType ?? BeamTypeEnum.None,
       index === 0 ? affiliated : [],
       keySignature,
       priority,
@@ -271,18 +266,19 @@ function convertNoteNumberToNoteSymbol(
   const lead = note.notesInfo[0]
   if (lead?.graceNotes?.length) {
     symbol.graceNotes = lead.graceNotes.map((g) =>
-      numberInfoToStaffInfo(g, note.chronaxie, BeamTypeEnum.None, [], keySignature, priority, GRACE_CHRONAXIE),
+      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
     )
   }
   if (lead?.graceNotesAfter?.length) {
     symbol.graceNotesAfter = lead.graceNotesAfter.map((g) =>
-      numberInfoToStaffInfo(g, note.chronaxie, BeamTypeEnum.None, [], keySignature, priority, GRACE_CHRONAXIE),
+      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
     )
   }
   return symbol
 }
 
 function convertNoteNumberToRest(note: NoteNumber): NoteRest {
+  const lead = note.notesInfo[0]
   const rest: NoteRest = {
     id: note.id,
     relativeX: note.relativeX,
@@ -290,12 +286,12 @@ function convertNoteNumberToRest(note: NoteNumber): NoteRest {
     relativeW: note.relativeW,
     relativeH: note.relativeH,
     type: NoteSymbolTypeEnum.Rest,
-    chronaxie: note.chronaxie,
+    chronaxie: lead?.chronaxie ?? 64,
     affiliatedSymbols: note.affiliatedSymbols,
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
   }
-  if (note.augmentationDot) rest.augmentationDot = note.augmentationDot
+  if (lead?.augmentationDot) rest.augmentationDot = lead.augmentationDot
   return rest
 }
 

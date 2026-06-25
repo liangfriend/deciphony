@@ -45,12 +45,12 @@ export const AUGMENTATION_DOT_OPTIONS: {value: 0 | 1 | 2 | 3; label: string}[] =
   {value: 3, label: '三附点'},
 ]
 
-export function setNoteNumberChronaxie(note: NoteNumber, chronaxie: Chronaxie): void {
-  note.chronaxie = chronaxie
+export function setNotesNumberInfoChronaxie(info: NotesNumberInfo, chronaxie: Chronaxie): void {
+  info.chronaxie = chronaxie
 }
 
-export function setNoteNumberBeamType(note: NoteNumber, beamType: BeamTypeEnum): void {
-  note.beamType = beamType
+export function setNotesNumberInfoBeamType(info: NotesNumberInfo, beamType: BeamTypeEnum): void {
+  info.beamType = beamType
 }
 
 export function setNotesNumberInfoSyllable(info: NotesNumberInfo, syllable: NotesNumberInfo['syllable']): void {

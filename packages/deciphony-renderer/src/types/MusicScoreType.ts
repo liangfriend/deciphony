@@ -140,6 +140,10 @@ export type Measure = {
 
     timeSignature_b?: TimeSignature,
 
+    /** 简谱：notesInfo 向上叠层；第 n 层与第 n+1 层中心距 = measureHeight + (floorSpan[n] ?? 0)，更高层 y 更小 */
+
+    floorSpan?: number[],
+
     /** 小节前反复符号（Coda / Segno，最多一个） */
 
     startRepeat?: MeasureStartRepeat,
@@ -402,6 +406,10 @@ export type NotesNumberInfo = {
 
     syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
 
+    chronaxie: Chronaxie,
+
+    beamType: BeamTypeEnum,
+
     accidental?: Accidental,
 
     augmentationDot?: AugmentationDot,
@@ -423,15 +431,9 @@ export type NoteNumber = {
 
     id: string
 
-    chronaxie: Chronaxie
-
     notesInfo: NotesNumberInfo[]
 
-    augmentationDot?: AugmentationDot
-
     affiliatedSymbols: SingleNoteAffiliatedSymbol[]
-
-    beamType: BeamTypeEnum
 
 } & Frame
 

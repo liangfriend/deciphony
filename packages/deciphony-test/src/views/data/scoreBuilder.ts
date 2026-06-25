@@ -221,7 +221,7 @@ export function isNoteNumber(note: StaffSlot | NoteNumber): note is NoteNumber {
 }
 
 function defaultDirection(region: number): 'up' | 'down' {
-  return region > 4 ?'down' : 'up';
+  return region > 4 ? 'down' : 'up';
 }
 
 // —— 工厂（可单独用于 measure 字段赋值） ——
@@ -426,6 +426,7 @@ export function createEmptyMeasure(partial?: InsertMeasureOptions): Measure {
     ...ZERO_FRAME,
     id: newId(),
     notes: [],
+    floorSpan: [10, 10, 10, 10],
     affiliatedSymbols: [],
     widthRatioForMeasure:
       partial?.widthRatioForMeasure ?? DEFAULT_SPACING.measureWidthRatioForMeasure,
@@ -806,6 +807,8 @@ export function notesInfoToNotesNumberInfo(
     id: info.id,
     syllable: syllableFromRegion(clef, info.region, keySignature),
     octaveDot: octaveDotFromRegion(clef, info.region, keySignature),
+    chronaxie: info.chronaxie,
+    beamType: info.beamType ?? BeamTypeEnum.None,
     ...(info.accidental ? {accidental: info.accidental} : {}),
     ...(info.augmentationDot ? {augmentationDot: info.augmentationDot} : {}),
   };
@@ -816,16 +819,13 @@ function convertNoteSymbolToNoteNumber(
   clef: ClefTypeEnum,
   keySignature: KeySignatureTypeEnum,
 ): NoteNumber {
-  const lead = note.notesInfo[0]!;
   return {
     id: note.id,
     relativeX: note.relativeX,
     relativeY: note.relativeY,
     relativeW: note.relativeW,
     relativeH: note.relativeH,
-    chronaxie: lead.chronaxie,
     notesInfo: note.notesInfo.map((ni) => notesInfoToNotesNumberInfo(ni, clef, keySignature)),
-    beamType: lead.beamType ?? BeamTypeEnum.None,
     affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,

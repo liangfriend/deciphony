@@ -1,6 +1,6 @@
 import {
     AugmentationDot,
-    BeamTypeEnum,
+    BeamTypeEnum, Chronaxie,
     Frame,
     MusicScore,
     MusicScoreTypeEnum,
@@ -23,10 +23,23 @@ const note: TabNote = {
 
     notesInfo: [{
         id: Date.now() + 5,
-        chronaxie: 128,
+        chronaxie: 8,
         region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
 
         value: 21, // 品，-1代表x
+
+        beamType: BeamTypeEnum.Combined,
+        augmentationDot: {
+            id: Date.now(),
+            count: 3
+        },
+        affiliatedSymbols: []
+    }, {
+        id: Date.now() + 7,
+        chronaxie: 128,
+        region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
+
+        value: 6, // 品，-1代表x
 
         beamType: BeamTypeEnum.None,
 
@@ -34,5 +47,38 @@ const note: TabNote = {
     }]
 
 }
+const note2: TabNote = {
+
+    id: Date.now(),
+
+    type: NoteSymbolTypeEnum.Note,
+    notesInfo: [{
+        id: Date.now() + 10,
+        chronaxie: 8,
+        region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
+
+        value: 21, // 品，-1代表x
+        beamType: BeamTypeEnum.Combined,
+        augmentationDot: {
+            id: Date.now(),
+            count: 3
+        },
+        affiliatedSymbols: []
+    }, {
+        id: Date.now() + 7,
+        chronaxie: 128,
+        region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
+
+        value: 6, // 品，-1代表x
+
+        beamType: BeamTypeEnum.None,
+
+        affiliatedSymbols: []
+    }]
+
+
+}
+
 grandStaff1.staves[0].measures[0].notes.push(note)
+grandStaff1.staves[0].measures[0].notes.push(note2)
 export default data

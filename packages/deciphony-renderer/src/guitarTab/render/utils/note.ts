@@ -52,6 +52,21 @@ export function getVoiceGroupForDirection(note: NoteSymbol, direction: 'up' | 'd
     return getVoiceGroups(note).find((g) => g.direction === direction);
 }
 
+/** 符杠 / 符尾时值：notes[0].chronaxie */
+export function getSlotBeamChronaxie(note: NoteSymbol): number {
+    return note.notesInfo[0]?.chronaxie ?? 64;
+}
+
+/** 符杠 beamType：notes[0] */
+export function getSlotBeamType(note: NoteSymbol): BeamTypeEnum {
+    return note.notesInfo[0]?.beamType ?? BeamTypeEnum.None;
+}
+
+/** 符干 / 符尾 targetId：notes[0] */
+export function getSlotStemTargetId(note: NoteSymbol): string | undefined {
+    return note.notesInfo[0]?.id;
+}
+
 export function getRestChronaxie(rest: NoteRest): Chronaxie {
     return rest.chronaxie;
 }

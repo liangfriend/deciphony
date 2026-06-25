@@ -10,10 +10,10 @@ export const LINE_SPACING_RATIO = 1 / 8;
 export const BEAM_MAX_SLOPE_DEG = 15;
 /** 最小符干高度相对小节高度的比例 */
 export const MIN_STEM_HEIGHT_RATIO = 7 / 8;
-/** 符杠单线粗细比例 */
-export const BEAM_THICKNESS = 2 / 16;
-/** 符杠多条线之间的空隙比例 */
-export const BEAM_LINE_SPACING = 2 / 32;
+/** 符杠单线粗细比例（线谱一半） */
+export const BEAM_THICKNESS = 1 / 32;
+/** 符杠多条线之间的空隙比例（线谱一半） */
+export const BEAM_LINE_SPACING = 1 / 16;
 /** 符杠非全连时从 centerX 向两侧的缩放值，0.5 表示左右各收缩一半 */
 export const BEAM_PARTIAL_SCALE = 0.5;
 /** 吉他谱符干起点：锚点符头中心 y + ratio × measureHeight */

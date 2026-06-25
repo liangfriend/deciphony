@@ -43,9 +43,9 @@ const beam = computed(() => props.vDom.special?.beam);
  */
 const quads = computed(() => {
   const b = beam.value;
-  const { startPoint, endPoint } = props.vDom;
+  const {startPoint, endPoint} = props.vDom;
   if (!b || !startPoint || !endPoint) return [];
-  const { lines, centerX, direction, thickness = 1.5 } = b;
+  const {lines, centerX, direction, thickness = 1.5, spacing = 1.5} = b;
   const left = startPoint;
   const right = endPoint;
   const fullW = right.x - left.x;
@@ -73,7 +73,7 @@ const quads = computed(() => {
     const t1 = fullW === 0 ? 1 : (x1 - left.x) / fullW;
     const y0 = left.y + fullDy * t0;
     const y1 = left.y + fullDy * t1;
-    const dy = i * (thickness + thickness); // 多条线之间的间距
+    const dy = i * (thickness + spacing); // 多条线之间的间距
     if (direction === 'up') {
       return `M ${x0} ${y0 + dy} L ${x1} ${y1 + dy} L ${x1} ${y1 + dy + thickness} L ${x0} ${y0 + dy + thickness} Z`;
     } else {

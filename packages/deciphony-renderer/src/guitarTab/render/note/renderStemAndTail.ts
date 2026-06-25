@@ -11,6 +11,15 @@ import {
 import {getNoteTailSkinKey} from '../utils/skinKey';
 import {GRACE_NOTE_SCALE} from '@/render/graceNote';
 
+/** 符尾相对符干底端的 y 微调（向下符干） */
+function getNoteTailYOffset(chronaxie: number, measureHeight: number): number {
+  if (chronaxie === 8) return measureHeight / 8;
+  if (chronaxie === 4) return measureHeight * 2 / 8;
+  if (chronaxie === 2) return measureHeight * 3 / 8;
+  if (chronaxie === 1) return measureHeight * 4 / 8;
+  return 0;
+}
+
 export type RenderGuitarTabStemAndTailParams = {
   note: NoteSymbol;
   allNotesInfo: NotesInfo[];
@@ -92,12 +101,13 @@ function renderStemFromHeadAnchor(params: {
     const tailKey = getNoteTailSkinKey(chronaxie, 'down');
     const tailSkin = skin[tailKey];
     if (tailSkin) {
+      const noteTailYOffset = getNoteTailYOffset(chronaxie, measureHeight);
       out.push({
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
         special: {},
         x: stemX,
-        y: stemEndY - tailSkin.h,
+        y: stemEndY - tailSkin.h + noteTailYOffset,
         w: tailSkin.w,
         h: tailSkin.h,
         zIndex,

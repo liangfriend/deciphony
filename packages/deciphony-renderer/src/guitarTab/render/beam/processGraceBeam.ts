@@ -17,7 +17,7 @@ import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
-import {computeBeamSlope} from "./beamSlope";
+import {computeGuitarTabBeamFromStemEnds} from "./guitarTabBeamLine";
 import {GRACE_NOTE_SCALE} from "@/render/graceNote";
 
 /**
@@ -57,31 +57,22 @@ function buildGraceBeamGroups(graceList: NotesInfo[], isBefore: boolean): NotesI
     return buildBeamGroupsLeftToRight(leftToRight);
 }
 
-/** 扫描小节，收集所有倚音连杠组 */
+/** 扫描小节，收集所有倚音连杠组（吉他谱符干向下） */
 function collectGraceBeamGroups(measure: { notes: StaffSlot[] }): Array<{
-    direction: 'up' | 'down';
     visualOrder: NotesInfo[];
     isBefore: boolean;
 }> {
-    const result: Array<{ direction: 'up' | 'down'; visualOrder: NotesInfo[]; isBefore: boolean }> = [];
+    const result: Array<{ visualOrder: NotesInfo[]; isBefore: boolean }> = [];
     for (const slot of measure.notes) {
         if (!isNoteSymbol(slot)) continue;
         if (slot.graceNotes?.length) {
             for (const g of buildGraceBeamGroups(slot.graceNotes, true)) {
-                result.push({
-                    direction: g[0]!.direction,
-                    visualOrder: g,
-                    isBefore: true,
-                });
+                result.push({visualOrder: g, isBefore: true});
             }
         }
         if (slot.graceNotesAfter?.length) {
             for (const g of buildGraceBeamGroups(slot.graceNotesAfter, false)) {
-                result.push({
-                    direction: g[0]!.direction,
-                    visualOrder: g,
-                    isBefore: false,
-                });
+                result.push({visualOrder: g, isBefore: false});
             }
         }
     }
@@ -151,8 +142,9 @@ export function processGraceBeam(params: {
     const beamScale = GRACE_NOTE_SCALE;
     const beamedGraceIds = new Set<string>();
 
-    for (const {direction, visualOrder} of collectGraceBeamGroups(measure)) {
-        // --- 1. 收集接点（attachX 用于斜率，y 为符干顶/底）---
+    for (const {visualOrder} of collectGraceBeamGroups(measure)) {
+        const direction = 'down' as const;
+        // --- 1. 收集符干终点（中心 x，底端 y）---
         const stemEnds: Array<{ x: number; y: number }> = [];
         for (let i = 0; i < visualOrder.length; i++) {
             const ni = visualOrder[i]!;
@@ -160,12 +152,12 @@ export function processGraceBeam(params: {
             if (!stem) continue;
             stemEnds.push({
                 x: graceStemBeamAttachX(stem, direction, i, visualOrder.length),
-                y: direction === 'up' ? stem.y : stem.y + stem.h,
+                y: stem.y + stem.h,
             });
         }
         if (stemEnds.length < 2) continue;
 
-        const {inclination, anchor} = computeBeamSlope(stemEnds, direction);
+        const {inclination, anchor} = computeGuitarTabBeamFromStemEnds(stemEnds);
         const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
         const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
         const beamCounts = visualOrder.map((ni) => chronaxieToBeamLineCount(ni.chronaxie));
@@ -214,13 +206,7 @@ export function processGraceBeam(params: {
             const attachX = graceStemBeamAttachX(stem, direction, i, visualOrder.length);
             const beamY = anchor.y + inclination * (attachX - anchor.x);
             const stemTop = stem.y;
-            const stemBottom = stem.y + stem.h;
-            if (direction === 'up') {
-                stem.y = beamY;
-                stem.h = Math.max(stemBottom - beamY, minStemLength);
-            } else {
-                stem.h = Math.max(beamY - stemTop, minStemLength);
-            }
+            stem.h = Math.max(beamY - stemTop, minStemLength);
         }
 
         // --- 4. 生成符杠 VDom（段界用符干中心 + overlap，与普通符杠嵌入效果一致）---

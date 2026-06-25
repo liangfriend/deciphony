@@ -5,7 +5,11 @@ import {
     getBarlineSkinKey,
     getTimeSignatureSkinKey,
 } from '../utils/skinKey';
-import {getNoteWidthRatio, getSlotChronaxie} from '../utils/note';
+import {
+    getNoteHeadColumnWidthRatio,
+    getGuitarTabExtraOnsetRatios,
+    getSlotLayoutChronaxie,
+} from '../utils/note';
 import {isStaffSlot} from '../utils/staffSlot';
 
 export function computeStandardMeasureFixedWidths(
@@ -40,7 +44,12 @@ export function createGuitarTabColumnLayoutAdapter(
 ): ColumnLayoutSlotAdapter {
     return {
         isLayoutSlot: (note): note is StaffSlot => isStaffSlot(note as StaffSlot),
-        getChronaxie: (note) => getSlotChronaxie(note as StaffSlot),
-        getNoteWidthRatio: (note) => getNoteWidthRatio(note as StaffSlot, skin, measureHeight),
+        getChronaxie: (note) => getSlotLayoutChronaxie(note as StaffSlot),
+        getNoteWidthRatio: (note) => getNoteHeadColumnWidthRatio(note as StaffSlot, skin, measureHeight),
+        getExtraOnsetRatios: (note, slotOnset) =>
+            getGuitarTabExtraOnsetRatios(note as StaffSlot, skin).map((e) => ({
+                onset: slotOnset + e.onsetOffset,
+                ratio: e.ratio,
+            })),
     };
 }

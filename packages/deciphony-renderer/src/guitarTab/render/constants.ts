@@ -16,5 +16,9 @@ export const BEAM_THICKNESS = 2 / 16;
 export const BEAM_LINE_SPACING = 2 / 32;
 /** 符杠非全连时从 centerX 向两侧的缩放值，0.5 表示左右各收缩一半 */
 export const BEAM_PARTIAL_SCALE = 0.5;
-/** 符干 y 值偏移量 */
-export const STEM_Y_OFFSET = 0.05;
+/** 吉他谱符干起点：锚点符头中心 y + ratio × measureHeight */
+export const GUITAR_TAB_STEM_START_OFFSET_RATIO = 0.2;
+/** 吉他谱符干终点（无符尾 / 四分及以上）：measureY + measureHeight + ratio × measureHeight */
+export const GUITAR_TAB_STEM_END_OFFSET_RATIO = 0.4;
+/** 吉他谱符干终点（八分及更短、有符尾）：同上公式，ratio = 1 */
+export const GUITAR_TAB_STEM_END_OFFSET_RATIO_WITH_TAIL = 1;

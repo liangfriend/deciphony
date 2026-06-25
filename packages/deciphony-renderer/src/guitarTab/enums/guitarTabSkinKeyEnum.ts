@@ -96,6 +96,8 @@ export enum GuitarTabSkinKeyEnum {
     Rest_7 = 'rest_7',
     Rest_8 = 'rest_8',
     Rest_9 = 'rest_9',
+    /** 增时线（二分/全音符等） */
+    Addline = 'addline',
     // 附点
     AugmentationDot_1 = 'augmentationDot_1',
     AugmentationDot_2 = 'augmentationDot_2',

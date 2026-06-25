@@ -4,7 +4,7 @@ import {
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
 import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
-import type {AugmentationDot} from "@/types/MusicScoreType";
+import type {AugmentationDot, NotesInfo, TabNoteInfo} from "@/types/MusicScoreType";
 
 export function getBarlineSkinKey(barlineType: BarlineTypeEnum): GuitarTabSkinKeyEnum {
     const map: Record<BarlineTypeEnum, GuitarTabSkinKeyEnum> = {
@@ -47,10 +47,20 @@ export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): GuitarTab
         ?? GuitarTabSkinKeyEnum['4_4'];
 }
 
-/** 时值 chronaxie → TAB 音符皮肤 */
-export function getNoteHeadSkinKey(chronaxie: number): GuitarTabSkinKeyEnum {
-    if (chronaxie >= 256) return GuitarTabSkinKeyEnum.TabNote_0;
-    if (chronaxie >= 128) return GuitarTabSkinKeyEnum.TabNote_0;
+/** 品数；-1 为 x（闷音） */
+export function getTabNoteValue(info: NotesInfo | TabNoteInfo): number {
+    const v = (info as TabNoteInfo).value;
+    return typeof v === 'number' ? v : 0;
+}
+
+/** 品数 value → tabNote 皮肤；-1 为 tabNote_x */
+export function getTabNoteSkinKey(value: number): GuitarTabSkinKeyEnum {
+    if (value === -1) return GuitarTabSkinKeyEnum.TabNote_x;
+    if (value >= 0 && value <= 27) {
+        const enumKey = `TabNote_${value}` as keyof typeof GuitarTabSkinKeyEnum;
+        const skinKey = GuitarTabSkinKeyEnum[enumKey];
+        if (skinKey) return skinKey;
+    }
     return GuitarTabSkinKeyEnum.TabNote_0;
 }
 

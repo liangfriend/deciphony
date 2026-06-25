@@ -474,7 +474,7 @@ export type TabNoteInfo = {
     id: string
 
     region: number // 这个含义是第几条线， 0是第一线，1是第二线...
-
+    chronaxie: Chronaxie
     value: number // 品，-1代表x
 
     beamType: BeamTypeEnum

@@ -33,6 +33,7 @@ import {
 } from "../utils/skinKey";
 import {
   getAddLineCount,
+  getRenderableAugmentationDot,
   getInfoChronaxie,
   isSlotRest,
   resolveAddLineXFromLayout,
@@ -244,7 +245,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     targetId: string,
   ): void {
     const chronaxie = getInfoChronaxie(info, note);
-    const addLineCount = getAddLineCount(chronaxie);
+    const addLineCount = getAddLineCount(chronaxie, info.augmentationDot);
     if (addLineCount <= 0) return;
     const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
     if (!addLineSkin) return;
@@ -351,7 +352,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         out.push(vdom);
         setNodeIdMap(idMap, restInfo?.id ?? note.id, vdom);
         if (restInfo?.augmentationDot) {
-          const augSkinKey = getAugmentationDotSkinKey(restInfo.augmentationDot);
+          const renderableDot = getRenderableAugmentationDot(restChronaxie, restInfo.augmentationDot);
+          if (renderableDot) {
+          const augSkinKey = getAugmentationDotSkinKey(renderableDot);
           const augSkin = skin[augSkinKey];
           const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (augSkin) {
@@ -364,6 +367,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               slotX,
               num0Item.w,
               addLineSkin?.w ?? 0,
+              restInfo.augmentationDot,
             );
             const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
             const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
@@ -378,10 +382,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               zIndex: z,
               tag: 'augmentationDot',
               skinName: skinNameForNodes,
-              targetId: restInfo.augmentationDot.id,
+              targetId: renderableDot.id,
               skinKey: augSkinKey,
               dataComment: '休止符附点',
             });
+          }
           }
         }
         if (restInfo) {
@@ -447,8 +452,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
           }
 
-          if (n.augmentationDot) {
-            const augSkinKey = getAugmentationDotSkinKey(n.augmentationDot);
+          const renderableDot = getRenderableAugmentationDot(getInfoChronaxie(n, note), n.augmentationDot);
+          if (renderableDot) {
+            const augSkinKey = getAugmentationDotSkinKey(renderableDot);
             const augSkin = skin[augSkinKey];
             const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
             if (augSkin) {
@@ -461,6 +467,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 noteHeadX,
                 noteHeadW,
                 addLineSkin?.w ?? 0,
+                n.augmentationDot,
               );
               const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
               const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
@@ -475,7 +482,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 zIndex: z,
                 tag: 'augmentationDot',
                 skinName: skinNameForNodes,
-                targetId: n.augmentationDot.id,
+                targetId: renderableDot.id,
                 skinKey: augSkinKey,
                 dataComment: '附点',
               });

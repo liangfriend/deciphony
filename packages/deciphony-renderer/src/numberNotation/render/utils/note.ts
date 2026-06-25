@@ -1,4 +1,4 @@
-import type {Measure, NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
+import type {AugmentationDot, Measure, NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import type {NumberNotationSkinPack} from "@/types/common";
 import {resolveWidthRatio} from "@/utils/widthRatio";
@@ -19,10 +19,31 @@ export function getInfoChronaxie(info: NotesNumberInfo, note?: NoteNumber): numb
   return legacy ?? 64;
 }
 
-/** 简谱音符位时值（同 onset 各层取最大，用于列布局 onset 推进） */
+/** 简谱音符位时值（同 onset 各层取最大；不含附点延长） */
 export function getSlotChronaxie(note: NoteNumber): number {
   if (!note.notesInfo.length) return 64;
   return Math.max(...note.notesInfo.map((ni) => getInfoChronaxie(ni, note)));
+}
+
+/** 附点延长后的时值（与播放 getDuration 一致） */
+export function getDotExtendedChronaxie(chronaxie: number, dotCount: number): number {
+  let total = chronaxie;
+  let add = chronaxie;
+  for (let i = 0; i < dotCount; i++) {
+    add /= 2;
+    total += add;
+  }
+  return total;
+}
+
+/** 列布局 onset 推进：各层取附点延长后的最大时值 */
+export function getSlotLayoutChronaxie(note: NoteNumber): number {
+  if (!note.notesInfo.length) return 64;
+  return Math.max(
+    ...note.notesInfo.map((ni) =>
+      getDotExtendedChronaxie(getInfoChronaxie(ni, note), ni.augmentationDot?.count ?? 0),
+    ),
+  );
 }
 
 /** 是否为休止符位：syllable===0 */
@@ -53,19 +74,61 @@ export function getChronaxieWidthCoefficient(chronaxie: number): number {
 /** 四分音符 chronaxie 单位 */
 export const QUARTER_CHRONAXIE = 64;
 
-/** 加时线条数 */
-export function getAddLineCount(chronaxie: number): number {
-  if (chronaxie <= QUARTER_CHRONAXIE) return 0;
-  return chronaxie / QUARTER_CHRONAXIE - 1;
+/**
+ * 二分音符第一个附点在简谱中渲染为加时线，不参与附点 widthRatio。
+ * 返回仍按附点绘制的附点（count 已扣除被消耗的 1 个）。
+ */
+export function getRenderableAugmentationDot(
+  chronaxie: number,
+  augmentationDot?: AugmentationDot,
+): AugmentationDot | undefined {
+  if (!augmentationDot) return undefined;
+  if (chronaxie === 128 && augmentationDot.count >= 1) {
+    const remaining = augmentationDot.count - 1;
+    if (remaining <= 0) return undefined;
+    return {...augmentationDot, count: remaining as 1 | 2 | 3};
+  }
+  return augmentationDot;
 }
 
-/** 相对符头 onset 的加时线虚拟列偏移：128→[64]，256→[64,128,192] */
-export function getAddLineOnsetOffsets(chronaxie: number): number[] {
+/** 加时线条数 */
+export function getAddLineCount(
+  chronaxie: number,
+  augmentationDot?: AugmentationDot,
+): number {
+  return getAddLineOnsetOffsets(chronaxie, augmentationDot).length;
+}
+
+/**
+ * 相对符头 onset 的加时线虚拟列偏移。
+ * 128→[64]；128+附点→[64,128]（三等分）；256→[64,128,192]。
+ */
+export function getAddLineOnsetOffsets(
+  chronaxie: number,
+  augmentationDot?: AugmentationDot,
+): number[] {
+  const dotCount = augmentationDot?.count ?? 0;
+  if (chronaxie === 128 && dotCount > 0) {
+    return [QUARTER_CHRONAXIE, QUARTER_CHRONAXIE * 2];
+  }
   const offsets: number[] = [];
   for (let o = QUARTER_CHRONAXIE; o < chronaxie; o += QUARTER_CHRONAXIE) {
     offsets.push(o);
   }
   return offsets;
+}
+
+/** slot 内各层加时线虚拟列偏移并集（取最长） */
+export function getSlotAddLineOnsetOffsets(note: NoteNumber): number[] {
+  let best: number[] = [];
+  for (const ni of note.notesInfo) {
+    const offsets = getAddLineOnsetOffsets(getInfoChronaxie(ni, note), ni.augmentationDot);
+    if (offsets.length > best.length) best = offsets;
+  }
+  if (!note.notesInfo.length) {
+    return getAddLineOnsetOffsets(64);
+  }
+  return best;
 }
 
 type WidthPick = (
@@ -110,8 +173,9 @@ function collectAugDotSubWidthRatio(
 ): number {
   let sub = 0;
   for (const n of note.notesInfo) {
-    if (n.augmentationDot) {
-      sub += pick(skin[getAugmentationDotSkinKey(n.augmentationDot)], n.augmentationDot.widthRatio);
+    const eff = getRenderableAugmentationDot(getInfoChronaxie(n, note), n.augmentationDot);
+    if (eff) {
+      sub += pick(skin[getAugmentationDotSkinKey(eff)], eff.widthRatio);
     }
   }
   return sub;
@@ -138,7 +202,7 @@ export function getNoteHeadColumnWidthRatio(
   skin: NumberNotationSkinPack,
   measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-  const hasAddLines = getSlotChronaxie(note) > QUARTER_CHRONAXIE;
+  const hasAddLines = getSlotAddLineOnsetOffsets(note).length > 0;
   return (
     getSlotSkinWidthRatio(note, skin, false)
     + collectHeadSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), !hasAddLines)
@@ -180,8 +244,7 @@ export function getNoteWidthRatio(
   skin: NumberNotationSkinPack,
   measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-  const ch = getSlotChronaxie(note);
-  const offsets = getAddLineOnsetOffsets(ch);
+  const offsets = getSlotAddLineOnsetOffsets(note);
   let acc = getNoteHeadColumnWidthRatio(note, skin, measureHeight);
   for (let i = 0; i < offsets.length; i++) {
     acc += i === offsets.length - 1
@@ -196,7 +259,7 @@ function getNoteHeadColumnWidthRatioForMeasure(
   skin: NumberNotationSkinPack,
   measureHeight: number,
 ): number {
-  const hasAddLines = getSlotChronaxie(note) > QUARTER_CHRONAXIE;
+  const hasAddLines = getSlotAddLineOnsetOffsets(note).length > 0;
   return (
     getSlotSkinWidthRatio(note, skin, true)
     + collectHeadSubWidthRatio(
@@ -236,7 +299,7 @@ export function getNoteWidthRatioForMeasure(
   skin: NumberNotationSkinPack,
   measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-  const offsets = getAddLineOnsetOffsets(getSlotChronaxie(note));
+  const offsets = getSlotAddLineOnsetOffsets(note);
   let acc = getNoteHeadColumnWidthRatioForMeasure(note, skin, measureHeight);
   for (let i = 0; i < offsets.length; i++) {
     acc += i === offsets.length - 1
@@ -251,7 +314,7 @@ export function getNumberNotationExtraOnsetRatios(
   note: NoteNumber,
   skin: NumberNotationSkinPack,
 ): Array<{ onsetOffset: number; ratio: number }> {
-  const offsets = getAddLineOnsetOffsets(getSlotChronaxie(note));
+  const offsets = getSlotAddLineOnsetOffsets(note);
   return offsets.map((offset, index) => ({
     onsetOffset: offset,
     ratio: index === offsets.length - 1
@@ -282,8 +345,9 @@ export function resolveAugmentationDotAnchorXFromLayout(
   noteHeadX: number,
   noteHeadW: number,
   addLineSkinW: number,
+  augmentationDot?: AugmentationDot,
 ): number {
-  const offsets = getAddLineOnsetOffsets(chronaxie);
+  const offsets = getAddLineOnsetOffsets(chronaxie, augmentationDot);
   if (!offsets.length) return noteHeadX + noteHeadW;
   const lastOnset = slotOnset + offsets[offsets.length - 1]!;
   const geo = layout.onsetColumnGeometry.get(lastOnset);

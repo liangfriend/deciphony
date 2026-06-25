@@ -9,7 +9,7 @@ import {
 import {
   getNoteHeadColumnWidthRatio,
   getNumberNotationExtraOnsetRatios,
-  getSlotChronaxie,
+  getSlotLayoutChronaxie,
 } from '../utils/note';
 
 export function computeNumberNotationMeasureFixedWidths(
@@ -44,7 +44,7 @@ export function createNumberNotationColumnLayoutAdapter(
 ): ColumnLayoutSlotAdapter {
   return {
     isLayoutSlot: () => true,
-    getChronaxie: (note) => getSlotChronaxie(note as NoteNumber),
+    getChronaxie: (note) => getSlotLayoutChronaxie(note as NoteNumber),
     getNoteWidthRatio: (note) =>
       getNoteHeadColumnWidthRatio(note as NoteNumber, skin, measureHeight),
     getExtraOnsetRatios: (note, slotOnset) =>

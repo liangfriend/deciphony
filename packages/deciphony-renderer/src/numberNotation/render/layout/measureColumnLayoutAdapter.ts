@@ -6,14 +6,17 @@ import {
   getKeySignatureSkinKey,
   getTimeSignatureSkinKey,
 } from '../utils/skinKey';
-import {getNoteColumnWidthRatio, getSlotChronaxie} from '../utils/note';
+import {
+  getNoteHeadColumnWidthRatio,
+  getNumberNotationExtraOnsetRatios,
+  getSlotChronaxie,
+} from '../utils/note';
 
 export function computeNumberNotationMeasureFixedWidths(
   measure: Measure,
   skin: NumberNotationSkinPack,
 ): { prefixW: number; suffixW: number } {
   let prefixW = 0;
-  // 简谱调号绘制在小节上方，不参与定宽 prefixW / suffixW
   if (measure.timeSignature_f) {
     const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
     if (item) prefixW += item.w;
@@ -42,6 +45,12 @@ export function createNumberNotationColumnLayoutAdapter(
   return {
     isLayoutSlot: () => true,
     getChronaxie: (note) => getSlotChronaxie(note as NoteNumber),
-    getNoteWidthRatio: (note) => getNoteColumnWidthRatio(note as NoteNumber, skin, measureHeight),
+    getNoteWidthRatio: (note) =>
+      getNoteHeadColumnWidthRatio(note as NoteNumber, skin, measureHeight),
+    getExtraOnsetRatios: (note, slotOnset) =>
+      getNumberNotationExtraOnsetRatios(note as NoteNumber, skin).map((e) => ({
+        onset: slotOnset + e.onsetOffset,
+        ratio: e.ratio,
+      })),
   };
 }

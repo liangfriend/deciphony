@@ -31,7 +31,13 @@ import {
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getInfoChronaxie, isSlotRest} from "../utils/note";
+import {
+  getAddLineCount,
+  getInfoChronaxie,
+  isSlotRest,
+  resolveAddLineXFromLayout,
+  resolveAugmentationDotAnchorXFromLayout,
+} from "../utils/note";
 import {
   graceNoteNumberBeforeWidth,
   renderGraceNotesNumberAfter,
@@ -42,7 +48,7 @@ import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {
   buildMeasureColumnLayout,
-  resolveAddLineXInSlot,
+  computeSlotOnset,
 } from "@/render/layout/measureColumnLayout";
 import {createNumberNotationColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 
@@ -232,24 +238,20 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   function renderAddLines(
     info: NotesNumberInfo,
-    slotStartX: number,
-    slotW: number,
+    note: NoteNumber,
+    slotOnset: number,
     floorIdx: number,
     targetId: string,
   ): void {
-    const chronaxie = getInfoChronaxie(info);
-    const addLineCount = chronaxie === 128 ? 1 : chronaxie === 256 ? 3 : 0;
+    const chronaxie = getInfoChronaxie(info, note);
+    const addLineCount = getAddLineCount(chronaxie);
     if (addLineCount <= 0) return;
     const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
     if (!addLineSkin) return;
     const lineY = floorCenterY(measureY, measureHeight, floorIdx, measure.floorSpan) - addLineSkin.h / 2;
     for (let k = 0; k < addLineCount; k++) {
-      const lineX = domainStartX + resolveAddLineXInSlot(
-        slotStartX - domainStartX,
-        slotW,
-        chronaxie,
-        k,
-      );
+      const lineX = resolveAddLineXFromLayout(layout, domainStartX, slotOnset, k);
+      if (lineX == null) continue;
       out.push({
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
@@ -301,6 +303,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, ni, skin, measureHeight));
         }
       }
+      const slotOnset = computeSlotOnset(measure, i, columnAdapter);
       const slotX = slotStartX + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
@@ -350,8 +353,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (restInfo?.augmentationDot) {
           const augSkinKey = getAugmentationDotSkinKey(restInfo.augmentationDot);
           const augSkin = skin[augSkinKey];
+          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
           if (augSkin) {
-            const augX = slotX + num0Item.w + AUGMENTATION_DOT_X_GAP * measureHeight;
+            const restCh = getInfoChronaxie(restInfo, note);
+            const anchorX = resolveAugmentationDotAnchorXFromLayout(
+              layout,
+              domainStartX,
+              slotOnset,
+              restCh,
+              slotX,
+              num0Item.w,
+              addLineSkin?.w ?? 0,
+            );
+            const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
             const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
             out.push({
               startPoint: {x: 0, y: 0},
@@ -371,7 +385,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
         if (restInfo) {
-          renderAddLines(restInfo, slotStartX, slotW, 0, restInfo.id);
+          renderAddLines(restInfo, note, slotOnset, 0, restInfo.id);
         }
       } else { // 音符渲染
         // 先渲染音符头（slotX）；变音/八度点/附点等 NotesNumberInfo 符号再从音符头 vDom 取 headX
@@ -436,8 +450,19 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           if (n.augmentationDot) {
             const augSkinKey = getAugmentationDotSkinKey(n.augmentationDot);
             const augSkin = skin[augSkinKey];
+            const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
             if (augSkin) {
-              const augX = noteHeadX + noteHeadW + AUGMENTATION_DOT_X_GAP * measureHeight;
+              const ch = getInfoChronaxie(n, note);
+              const anchorX = resolveAugmentationDotAnchorXFromLayout(
+                layout,
+                domainStartX,
+                slotOnset,
+                ch,
+                noteHeadX,
+                noteHeadW,
+                addLineSkin?.w ?? 0,
+              );
+              const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
               const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
               out.push({
                 startPoint: {x: 0, y: 0},
@@ -492,7 +517,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               }
             }
           }
-          renderAddLines(n, slotStartX, slotW, stackIdx, n.id);
+          renderAddLines(n, note, slotOnset, stackIdx, n.id);
         }
         if (firstHeadVDom) {
           renderSingleNoteAffiliatedSymbols(note.affiliatedSymbols, firstHeadVDom, {

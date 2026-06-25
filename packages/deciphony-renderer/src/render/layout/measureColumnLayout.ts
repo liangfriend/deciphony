@@ -33,6 +33,8 @@ export type ColumnLayoutSlotAdapter = {
   isLayoutSlot: (note: unknown) => boolean;
   getChronaxie: (note: unknown) => number;
   getNoteWidthRatio: (note: unknown) => number;
+  /** 简谱：加时线虚拟 onset → widthRatio（不含 DEFAULT） */
+  getExtraOnsetRatios?: (note: unknown, slotOnset: number) => Array<{ onset: number; ratio: number }>;
 };
 
 type OnsetSlotRef = {
@@ -83,6 +85,11 @@ function mergeOnsetRatios(
     for (const ref of collectOnsetSlots(measure, adapter)) {
       const ratio = DEFAULT_CELL_BASE_WIDTH_RATIO + adapter.getNoteWidthRatio(ref.note);
       pushOnsetRatio(ratioByOnset, ref.onset, ratio);
+      if (adapter.getExtraOnsetRatios) {
+        for (const extra of adapter.getExtraOnsetRatios(ref.note, ref.onset)) {
+          pushOnsetRatio(ratioByOnset, extra.onset, DEFAULT_CELL_BASE_WIDTH_RATIO + extra.ratio);
+        }
+      }
     }
   }
   return ratioByOnset;
@@ -187,18 +194,14 @@ export function resolveXInDomainAtChronaxie(
 }
 
 /**
- * 简谱加时线 x（相对变宽区起点）：在占宽 slot 内按时值比例定位。
- * 全/二分等长时值只占一列时，不能用小节级 chronaxie 插值（会偏到列左侧）。
+ * 简谱加时线 x（相对变宽区起点）：取 onset 列几何左缘。
  */
 export function resolveAddLineXInSlot(
-  slotStartInDomain: number,
-  slotWidth: number,
-  slotChronaxie: number,
-  gridIndex: number,
-): number {
-  if (slotChronaxie <= 0 || slotWidth <= 0) return slotStartInDomain;
-  const fraction = (CHRONAXIE_GRID_UNIT * (gridIndex + 1)) / slotChronaxie;
-  return slotStartInDomain + fraction * slotWidth;
+  layout: MeasureColumnLayout,
+  onset: number,
+): number | null {
+  const geo = layout.onsetColumnGeometry.get(onset);
+  return geo ? geo.startInDomain : null;
 }
 
 /**

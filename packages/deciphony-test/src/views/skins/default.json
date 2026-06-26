@@ -2320,89 +2320,89 @@
       "skinKey": "linked_close_line"
     },
     "single_barline": {
-      "content": "\n      <line x1=\"4.5\" y1=\"0\" x2=\"4.5\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" />\n",
+      "content": "\n      <line x1=\"4.5\" y1=\"0\" x2=\"4.5\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" />\n",
       "w": 5,
-      "h": 45,
+      "h": 55,
       "skinKey": "single_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "double_barline": {
-      "content": "\n      <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"7\" y1=\"0\" x2=\"7\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" />\n",
+      "content": "\n      <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"7\" y1=\"0\" x2=\"7\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" />\n",
       "w": 6,
-      "h": 45,
+      "h": 55,
       "skinKey": "double_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "startRepeat_barline": {
-      "content": "<g transform=\"translate(-6.0000, 0.0000)\">\n        <line x1=\"6\" y1=\"0\" x2=\"6\" y2=\"45\" stroke=\"black\" stroke-width=\"3\"></line>\n          <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"45\" stroke=\"black\" stroke-width=\"2\"></line>\n          <circle cx=\"14\" cy=\"15\" r=\"1.5\" fill=\"black\"></circle>\n          <circle cx=\"14\" cy=\"30\" r=\"1.5\" fill=\"black\"></circle>\n</g>",
+      "content": "<g transform=\"translate(-6.0000, 0.0000)\">\n        <line x1=\"6\" y1=\"0\" x2=\"6\" y2=\"55\" stroke=\"black\" stroke-width=\"3\"></line>\n          <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"55\" stroke=\"black\" stroke-width=\"2\"></line>\n          <circle cx=\"14\" cy=\"20\" r=\"1.5\" fill=\"black\"></circle>\n          <circle cx=\"14\" cy=\"35\" r=\"1.5\" fill=\"black\"></circle>\n</g>",
       "w": 11.5,
-      "h": 45,
+      "h": 55,
       "skinKey": "startRepeat_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "endRepeat_barline": {
-      "content": "\n      <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke=\"black\" stroke-width=\"2\" />\n      <line x1=\"12\" y1=\"0\" x2=\"12\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n      <circle cx=\"4\" cy=\"15\" r=\"1.5\" fill=\"black\" />\n      <circle cx=\"4\" cy=\"30\" r=\"1.5\" fill=\"black\" />\n",
+      "content": "\n      <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"55\" stroke=\"black\" stroke-width=\"2\" />\n      <line x1=\"12\" y1=\"0\" x2=\"12\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n      <circle cx=\"4\" cy=\"20\" r=\"1.5\" fill=\"black\" />\n      <circle cx=\"4\" cy=\"35\" r=\"1.5\" fill=\"black\" />\n",
       "w": 12,
-      "h": 45,
+      "h": 55,
       "skinKey": "endRepeat_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "dashed_barline": {
-      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" stroke-dasharray=\"3 3\" />\n",
+      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" stroke-dasharray=\"3 3\" />\n",
       "w": 4,
-      "h": 45,
+      "h": 55,
       "skinKey": "dashed_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "final_barline": {
-      "content": "\n      <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n",
+      "content": "\n      <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n",
       "w": 8,
-      "h": 45,
+      "h": 55,
       "skinKey": "final_barline",
       "widthRatio": 6,
       "widthRatioForMeasure": 6
     },
     "start_end_repeat_barline": {
-      "content": "\n      <circle cx=\"4\" cy=\"15\" r=\"1.5\" fill=\"black\" />\n<circle cx=\"4\" cy=\"30\" r=\"1.5\" fill=\"black\" />\n<line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke=\"black\" stroke-width=\"2\" />\n<line x1=\"12\" y1=\"0\" x2=\"12\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n<line x1=\"16\" y1=\"0\" x2=\"16\" y2=\"45\" stroke=\"black\" stroke-width=\"2\" />\n<circle cx=\"20\" cy=\"15\" r=\"1.5\" fill=\"black\" />\n<circle cx=\"20\" cy=\"30\" r=\"1.5\" fill=\"black\" />\n",
+      "content": "\n      <circle cx=\"4\" cy=\"20\" r=\"1.5\" fill=\"black\" />\n<circle cx=\"4\" cy=\"35\" r=\"1.5\" fill=\"black\" />\n<line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"55\" stroke=\"black\" stroke-width=\"2\" />\n<line x1=\"12\" y1=\"0\" x2=\"12\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n<line x1=\"16\" y1=\"0\" x2=\"16\" y2=\"55\" stroke=\"black\" stroke-width=\"2\" />\n<circle cx=\"20\" cy=\"20\" r=\"1.5\" fill=\"black\" />\n<circle cx=\"20\" cy=\"35\" r=\"1.5\" fill=\"black\" />\n",
       "w": 21.5,
-      "h": 45,
+      "h": 55,
       "skinKey": "endRepeat_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "dotted_barline": {
-      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"45\" stroke=\"black\" stroke-width=\"1\" stroke-dasharray=\"1 3\" />\n",
+      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"55\" stroke=\"black\" stroke-width=\"1\" stroke-dasharray=\"1 3\" />\n",
       "w": 4,
-      "h": 45,
+      "h": 55,
       "skinKey": "dotted_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "reverse_barline": {
-      "content": "<g transform=\"translate(-4.0000, 0.0000)\">\n        <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"45\" stroke=\"black\" stroke-width=\"1\"></line>\n          <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"45\" stroke=\"black\" stroke-width=\"3\"></line>\n</g>",
+      "content": "<g transform=\"translate(-4.0000, 0.0000)\">\n        <line x1=\"8\" y1=\"0\" x2=\"8\" y2=\"55\" stroke=\"black\" stroke-width=\"1\"></line>\n          <line x1=\"4\" y1=\"0\" x2=\"4\" y2=\"55\" stroke=\"black\" stroke-width=\"3\"></line>\n</g>",
       "w": 8,
-      "h": 45,
+      "h": 55,
       "skinKey": "reverse_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "heavy_barline": {
-      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n",
+      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n",
       "w": 6,
-      "h": 45,
+      "h": 55,
       "skinKey": "heavy_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
     },
     "heavy_double_barline": {
-      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n      <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"45\" stroke=\"black\" stroke-width=\"3\" />\n",
+      "content": "\n      <line x1=\"5\" y1=\"0\" x2=\"5\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n      <line x1=\"10\" y1=\"0\" x2=\"10\" y2=\"55\" stroke=\"black\" stroke-width=\"3\" />\n",
       "w": 10,
-      "h": 45,
+      "h": 55,
       "skinKey": "heavy_double_barline",
       "widthRatio": 4,
       "widthRatioForMeasure": 4
@@ -2980,9 +2980,9 @@
       "skinKey": "mordent"
     },
     "arpeggio": {
-      "content": "<rect x=\"0\" y=\"0\" width=\"30\" height=\"30\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>",
-      "w": 30,
-      "h": 30,
+      "content": "black",
+      "w": 0,
+      "h": 0,
       "skinKey": "arpeggio"
     },
     "up_arpeggio": {
@@ -3218,6 +3218,12 @@
       "widthRatio": 0,
       "widthRatioForMeasure": 0,
       "skinKey": "cut"
+    },
+    "strumming": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "strumming"
     }
   }
 }

@@ -1,6 +1,8 @@
 import type {GuitarTabSkinPack} from '@/types/common';
 import {VDom} from '@/types/common';
-import type {NotesInfo, NoteSymbol} from '@/types/MusicScoreType';
+import {TabNoteInfoTypeEnum} from '@/enums/musicScoreEnum';
+import type {NoteSymbol, TabNoteInfo} from '@/types/MusicScoreType';
+import {getTabNoteStemAnchorRegion} from '../utils/tabNoteInfo';
 import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
 import type {NodeIdMap} from '../types';
 import {
@@ -22,10 +24,10 @@ function getNoteTailYOffset(chronaxie: number, measureHeight: number): number {
 
 export type RenderGuitarTabStemAndTailParams = {
   note: NoteSymbol;
-  allNotesInfo: NotesInfo[];
+  allNotesInfo: TabNoteInfo[];
   idMap: NodeIdMap;
-  /** 锚点符头缺失时的 x 回退 */
-  slotX: number;
+  /** slot 列中心 x（符干与箭头对齐） */
+  slotCenterX: number;
   measureY: number;
   measureHeight: number;
   skin: GuitarTabSkinPack;
@@ -36,10 +38,8 @@ export type RenderGuitarTabStemAndTailParams = {
 };
 
 function renderStemFromHeadAnchor(params: {
-  headX: number;
-  headY: number;
-  headW: number;
-  headH: number;
+  headCenterX: number;
+  headCenterY: number;
   measureY: number;
   measureHeight: number;
   chronaxie: number;
@@ -50,10 +50,8 @@ function renderStemFromHeadAnchor(params: {
   isGrace?: boolean;
 }): VDom[] {
   const {
-    headX,
-    headY,
-    headW,
-    headH,
+    headCenterX,
+    headCenterY,
     measureY,
     measureHeight,
     chronaxie,
@@ -69,8 +67,6 @@ function renderStemFromHeadAnchor(params: {
   const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
   if (!stemSkin) return out;
 
-  const headCenterX = headX + headW / 2;
-  const headCenterY = headY + headH / 2;
   const stemStartY = headCenterY + GUITAR_TAB_STEM_START_OFFSET_RATIO * measureHeight;
   const hasTail = chronaxie <= 32;
   const stemEndOffsetRatio = hasTail
@@ -124,7 +120,7 @@ function renderStemFromHeadAnchor(params: {
 }
 
 /**
- * 吉他谱 slot 符干符尾：锚点 = region 最小的 notesInfo；时值取 notesInfo[0]。
+ * 吉他谱 slot 符干符尾：锚 region = 全体 region / regionRange 端点最小；x = slot 中心。
  */
 export function renderGuitarTabStemAndTailForSlot(
   params: RenderGuitarTabStemAndTailParams,
@@ -132,7 +128,7 @@ export function renderGuitarTabStemAndTailForSlot(
   const {
     allNotesInfo,
     idMap,
-    slotX,
+    slotCenterX,
     measureY,
     measureHeight,
     skin,
@@ -145,21 +141,21 @@ export function renderGuitarTabStemAndTailForSlot(
 
   const chronaxie = allNotesInfo[0].chronaxie;
   const targetId = allNotesInfo[0].id;
-  const anchorRegion = Math.min(...allNotesInfo.map((n) => n.region));
-  const anchor = allNotesInfo.find((n) => n.region === anchorRegion);
-  if (!anchor) return [];
-
-  const headVDom = idMap.get(anchor.id)?.noteHead;
-  const headW = headVDom?.w ?? 0;
-  const headH = headVDom?.h ?? 0;
-  const headX = headVDom?.x ?? slotX;
-  const headY = headVDom?.y ?? (noteCenterY(anchorRegion) - headH / 2);
+  const anchorRegion = getTabNoteStemAnchorRegion(allNotesInfo);
+  const headCenterX = slotCenterX;
+  let headCenterY = noteCenterY(anchorRegion);
+  for (const info of allNotesInfo) {
+    const head = idMap.get(info.id)?.tabNoteNumber;
+    if (!head || info.type !== TabNoteInfoTypeEnum.Normal) continue;
+    if (info.region === anchorRegion) {
+      headCenterY = head.y + head.h / 2;
+      break;
+    }
+  }
 
   return renderStemFromHeadAnchor({
-    headX,
-    headY,
-    headW,
-    headH,
+    headCenterX,
+    headCenterY,
     measureY,
     measureHeight,
     chronaxie,
@@ -195,10 +191,8 @@ export type RenderStemAndTailParams = {
 export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
   const chronaxie = params.chronaxie ?? params.note.notesInfo[0]?.chronaxie ?? 64;
   return renderStemFromHeadAnchor({
-    headX: params.headX,
-    headY: params.headY,
-    headW: params.headW,
-    headH: params.headH,
+    headCenterX: params.headX + params.headW / 2,
+    headCenterY: params.headY + params.headH / 2,
     measureY: params.measureY,
     measureHeight: params.measureHeight,
     chronaxie,

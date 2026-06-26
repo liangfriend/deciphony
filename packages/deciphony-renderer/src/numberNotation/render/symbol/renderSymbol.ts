@@ -354,39 +354,39 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (restInfo?.augmentationDot) {
           const renderableDot = getRenderableAugmentationDot(restChronaxie, restInfo.augmentationDot);
           if (renderableDot) {
-          const augSkinKey = getAugmentationDotSkinKey(renderableDot);
-          const augSkin = skin[augSkinKey];
-          const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
-          if (augSkin) {
-            const restCh = getInfoChronaxie(restInfo, note);
-            const anchorX = resolveAugmentationDotAnchorXFromLayout(
-              layout,
-              domainStartX,
-              slotOnset,
-              restCh,
-              slotX,
-              num0Item.w,
-              addLineSkin?.w ?? 0,
-              restInfo.augmentationDot,
-            );
-            const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
-            const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
-            out.push({
-              startPoint: {x: 0, y: 0},
-              endPoint: {x: 0, y: 0},
-              special: {},
-              x: augX,
-              y: augY,
-              w: augSkin.w,
-              h: augSkin.h,
-              zIndex: z,
-              tag: 'augmentationDot',
-              skinName: skinNameForNodes,
-              targetId: renderableDot.id,
-              skinKey: augSkinKey,
-              dataComment: '休止符附点',
-            });
-          }
+            const augSkinKey = getAugmentationDotSkinKey(renderableDot);
+            const augSkin = skin[augSkinKey];
+            const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
+            if (augSkin) {
+              const restCh = getInfoChronaxie(restInfo, note);
+              const anchorX = resolveAugmentationDotAnchorXFromLayout(
+                layout,
+                domainStartX,
+                slotOnset,
+                restCh,
+                slotX,
+                num0Item.w,
+                addLineSkin?.w ?? 0,
+                restInfo.augmentationDot,
+              );
+              const augX = anchorX + AUGMENTATION_DOT_X_GAP * measureHeight;
+              const augY = hcy + AUGMENTATION_DOT_Y_OFFSET * measureHeight - augSkin.h / 2;
+              out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: augX,
+                y: augY,
+                w: augSkin.w,
+                h: augSkin.h,
+                zIndex: z,
+                tag: 'augmentationDot',
+                skinName: skinNameForNodes,
+                targetId: renderableDot.id,
+                skinKey: augSkinKey,
+                dataComment: '休止符附点',
+              });
+            }
           }
         }
         if (restInfo) {
@@ -404,7 +404,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: slotX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
-            tag: 'noteHead', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
+            tag: 'noteNumber', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
             dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
           };
           out.push(vdom);

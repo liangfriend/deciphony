@@ -1,11 +1,12 @@
 import {
-    AugmentationDot,
-    BeamTypeEnum, Chronaxie,
-    Frame,
-    MusicScore,
-    MusicScoreTypeEnum,
-    NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol, TabNote,
-    TabNoteInfo
+  AugmentationDot,
+  BeamTypeEnum, Chronaxie,
+  Frame,
+  MusicScore,
+  MusicScoreTypeEnum,
+  NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol, TabNote,
+  TabNoteInfo,
+  TabNoteInfoTypeEnum,
 } from "deciphony-renderer";
 import {createGrandStaff, createMusicScore,} from "./scoreBuilder";
 // 曲谱结构
@@ -17,64 +18,71 @@ const grandStaff1 = createGrandStaff()
 data.grandStaffs.push(grandStaff1)
 const note: TabNote = {
 
-    id: Date.now(),
+  id: Date.now(),
 
-    type: NoteSymbolTypeEnum.Note,
+  type: NoteSymbolTypeEnum.Note,
 
-    notesInfo: [{
-        id: Date.now() + 5,
-        chronaxie: 8,
-        region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
+  notesInfo: [{
+    id: Date.now() + 5,
+    type: TabNoteInfoTypeEnum.Normal,
+    chronaxie: 8,
+    region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 21, // 品，-1代表x
+    value: 21, // 品，-1代表x
 
-        beamType: BeamTypeEnum.Combined,
-        augmentationDot: {
-            id: Date.now(),
-            count: 3
-        },
-        affiliatedSymbols: []
-    }, {
-        id: Date.now() + 7,
-        chronaxie: 128,
-        region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
+    beamType: BeamTypeEnum.Combined,
+    augmentationDot: {
+      id: Date.now(),
+      count: 3
+    },
+    affiliatedSymbols: []
+  }, {
+    id: Date.now() + 7,
+    type: TabNoteInfoTypeEnum.Normal,
+    chronaxie: 128,
+    region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 6, // 品，-1代表x
+    value: 6, // 品，-1代表x
 
-        beamType: BeamTypeEnum.None,
+    beamType: BeamTypeEnum.None,
 
-        affiliatedSymbols: []
-    }]
+    affiliatedSymbols: []
+  }]
 
 }
 const note2: TabNote = {
 
-    id: Date.now(),
+  id: Date.now(),
 
-    type: NoteSymbolTypeEnum.Note,
-    notesInfo: [{
-        id: Date.now() + 10,
-        chronaxie: 8,
-        region: 0, // 这个含义是第几条线， 0是第一线，1是第二线...
+  type: NoteSymbolTypeEnum.Note,
+  notesInfo: [{
+    id: Date.now() + 10,
+    type: TabNoteInfoTypeEnum.Arpeggio,
+    chronaxie: 8,
+    regionRange: {
+      start: 2,
+      end: 5
+    }, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 21, // 品，-1代表x
-        beamType: BeamTypeEnum.Combined,
-        augmentationDot: {
-            id: Date.now(),
-            count: 3
-        },
-        affiliatedSymbols: []
-    }, {
-        id: Date.now() + 7,
-        chronaxie: 128,
-        region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
+    value: 21, // 品，-1代表x
+    beamType: BeamTypeEnum.Combined,
+    augmentationDot: {
+      id: Date.now(),
+      count: 3
+    },
+    affiliatedSymbols: []
+  }, {
+    id: Date.now() + 7,
+    type: TabNoteInfoTypeEnum.Normal,
+    chronaxie: 128,
+    region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 6, // 品，-1代表x
+    value: 6, // 品，-1代表x
 
-        beamType: BeamTypeEnum.None,
+    beamType: BeamTypeEnum.None,
 
-        affiliatedSymbols: []
-    }]
+    affiliatedSymbols: []
+  }]
 
 
 }

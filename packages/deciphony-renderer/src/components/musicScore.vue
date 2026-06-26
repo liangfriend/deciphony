@@ -40,6 +40,8 @@
         <Slur v-if="node.special?.slur" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Beam v-else-if="node.special?.beam" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Arpeggio v-else-if="node.tag === 'arpeggio'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Strumming v-else-if="node.tag === 'strumming'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
 
         </slot>
@@ -59,12 +61,14 @@ import Group from './group.vue'
 import Slur from './slur.vue'
 import Volta from './volta.vue'
 import Beam from './beam.vue'
+import Arpeggio from './arpeggio.vue'
+import Strumming from './strumming.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
 import type {MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, VDom} from '@/types/common'
 
-const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam'])
+const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming'])
 
 const props = defineProps<{
   data: MusicScore

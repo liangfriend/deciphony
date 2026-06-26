@@ -2,6 +2,7 @@
 import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import type {SlurTypeEnum} from "@/enums/musicScoreEnum";
 import {
   MusicScore,
   GrandStaff,
@@ -82,6 +83,8 @@ export type VDom = {
       relativeEndPoint: { x: number, y: number }, // slur 终点相对坐标
       relativeControlPoint: { x: number, y: number }, // slur 控制点相对坐标
       thickness: number, // 厚度，两个贝塞尔曲线控制点的y值差
+      type?: SlurTypeEnum, // 吉他谱连音线中心文字（H/S/P/HP）
+      relativeTextPoint?: { x: number, y: number }, // 文字相对控制点偏移
     };
     volta?: Record<string, unknown>;
         beam?: {

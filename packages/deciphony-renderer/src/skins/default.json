@@ -2438,7 +2438,7 @@
       "skinKey": "4_2"
     },
     "tabNote_x": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">x</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">x</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_x",
@@ -2446,7 +2446,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_0": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">0</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">0</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_0",
@@ -2454,7 +2454,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_1": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">1</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">1</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_1",
@@ -2462,7 +2462,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_2": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">2</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">2</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_2",
@@ -2470,7 +2470,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_3": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">3</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">3</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_3",
@@ -2478,7 +2478,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_4": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">4</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">4</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_4",
@@ -2486,7 +2486,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_5": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">5</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">5</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_5",
@@ -2494,7 +2494,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_6": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">6</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">6</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_6",
@@ -2502,7 +2502,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_7": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">7</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">7</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_7",
@@ -2510,7 +2510,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_8": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">8</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">8</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_8",
@@ -2518,7 +2518,7 @@
       "widthRatioForMeasure": 10
     },
     "tabNote_9": {
-      "content": "<g transform=\"translate(3.5000, 13.0000)\">\n        <text transform=\"scale(0.7)\">9</text>\n</g>",
+      "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">9</text>\n</g>",
       "w": 8,
       "h": 16,
       "skinKey": "tabNote_9",

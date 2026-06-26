@@ -20,6 +20,7 @@ import {
 } from '@/enums/musicScoreEnum';
 import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSkinKeyEnum';
 import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
+import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
 import type {NodeIdMap} from '@/standardStaff/render/types';
 
 const AFFILIATED_Z = 1200;
@@ -35,9 +36,13 @@ export type RenderAffiliatedContext = {
 };
 
 function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
-    return notationType === MusicScoreTypeEnum.NumberNotation
-        ? NumberNotationSkinKeyEnum.Slur
-        : StandardStaffSkinKeyEnum.Slur;
+    if (notationType === MusicScoreTypeEnum.NumberNotation) {
+        return NumberNotationSkinKeyEnum.Slur;
+    }
+    if (notationType === MusicScoreTypeEnum.GuitarTab) {
+        return GuitarTabSkinKeyEnum.Slur;
+    }
+    return StandardStaffSkinKeyEnum.Slur;
 }
 
 function voltaSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
@@ -103,22 +108,28 @@ function resolveSkinSize(
     return {w: item.w, h: item.h || notationFallbackH};
 }
 
-/** slur 端点必须为 NotesInfo.id / NotesNumberInfo.id（与 noteHead VDom.targetId 一致），不得使用 NoteSymbol/NoteNumber 位 id */
+/** slur 端点必须为 NotesInfo.id / NotesNumberInfo.id（与 noteHead / tabNoteNumber VDom.targetId 一致） */
 function resolveNoteHeadByNotesInfoId(map: NodeIdMap, notesInfoId: string): VDom | undefined {
-    return map.get(notesInfoId)?.noteHead;
+    const entry = map.get(notesInfoId);
+    if (!entry) return undefined;
+    return entry.noteHead ?? entry.tabNoteNumber;
 }
 
 function noteAnchorPoint(
     noteHead: VDom,
     rule: AffiliatedOffsetRule,
     measureHeight: number,
+    notationType?: MusicScoreTypeEnum,
     extraX = 0,
     extraY = 0,
 ) {
     const {dx, dy} = offsetPx(rule, measureHeight);
+    const anchorY = notationType === MusicScoreTypeEnum.GuitarTab
+        ? noteHead.y + dy + extraY
+        : noteHead.y + noteHead.h / 2 + dy + extraY;
     return {
         x: noteHead.x + noteHead.w / 2 + dx + extraX,
-        y: noteHead.y + noteHead.h / 2 + dy + extraY,
+        y: anchorY,
     };
 }
 
@@ -135,8 +146,8 @@ function renderSlur(
     const slurData = sym.data?.slur;
     const relStart = slurData?.relativeStartPoint ?? {x: 0, y: 0};
     const relEnd = slurData?.relativeEndPoint ?? {x: 0, y: 0};
-    const startPt = noteAnchorPoint(startNote, rule.start, measureHeight, relStart.x, relStart.y);
-    const endPt = noteAnchorPoint(endNote, rule.end, measureHeight, relEnd.x, relEnd.y);
+    const startPt = noteAnchorPoint(startNote, rule.start, measureHeight, ctx.notationType, relStart.x, relStart.y);
+    const endPt = noteAnchorPoint(endNote, rule.end, measureHeight, ctx.notationType, relEnd.x, relEnd.y);
     const defaultSlur = {
         relativeStartPoint: {x: 0, y: 0},
         relativeEndPoint: {x: 0, y: 0},
@@ -220,8 +231,8 @@ function renderDoubleNoteSkin(
     const measureHeight = ctx.measureHeight ?? startNote.h;
     const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
     if (!size) return;
-    const start = noteAnchorPoint(startNote, rule.start, measureHeight);
-    const end = noteAnchorPoint(endNote, rule.end, measureHeight);
+    const start = noteAnchorPoint(startNote, rule.start, measureHeight, ctx.notationType);
+    const end = noteAnchorPoint(endNote, rule.end, measureHeight, ctx.notationType);
     const cx = (start.x + end.x) / 2;
     const cy = (start.y + end.y) / 2;
     pushSkinAffiliated(
@@ -285,7 +296,7 @@ export function renderSingleNoteAffiliatedSymbols(
         if (rule.kind !== 'skin') continue;
         const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
         if (!size) continue;
-        const anchor = noteAnchorPoint(noteHead, rule, measureHeight);
+        const anchor = noteAnchorPoint(noteHead, rule, measureHeight, ctx.notationType);
         pushSkinAffiliated(
             ctx,
             sym.id,

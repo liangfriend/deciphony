@@ -349,3 +349,11 @@ export enum TabNoteInfoTypeEnum {
   Arpeggio = 'arpeggio', // 琶音
   Strumming = 'strumming', // 扫弦
 }
+
+// 连音线类型
+export enum SlurTypeEnum {
+  H = 'h',//击弦H
+  S = 's',//滑弦S
+  P = 'p',//勾弦P
+  HP = 'hp'//击勾弦HP
+}

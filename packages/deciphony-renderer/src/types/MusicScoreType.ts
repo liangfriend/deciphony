@@ -22,7 +22,7 @@ import {
 
   SingleMeasureAffiliatedSymbolNameEnum,
 
-  SingleNoteAffiliatedSymbolNameEnum, TabNoteInfoTypeEnum,
+  SingleNoteAffiliatedSymbolNameEnum, SlurTypeEnum, TabNoteInfoTypeEnum,
 
   TimeSignatureTypeEnum
 
@@ -203,6 +203,8 @@ export type DoubleNoteAffiliatedSymbol = {
 
       thickness: number,
 
+      type?: SlurTypeEnum,
+      relativeTextPoint?: { x: 0, y: 0 },
     },
 
   }
@@ -493,14 +495,14 @@ type TabNoteGeometryStyle = {
 /** normal 用 region；琶音 / 扫弦用 regionRange */
 export type TabNoteInfo =
   | (TabNoteInfoCommon & {
-      type: TabNoteInfoTypeEnum.Normal
-      region: number // 第几条线，0 是第一线
-    })
+  type: TabNoteInfoTypeEnum.Normal
+  region: number // 第几条线，0 是第一线
+})
   | (TabNoteInfoCommon & {
-      type: TabNoteInfoTypeEnum.Arpeggio
-      regionRange: TabNoteInfoRegionRange
-    } & TabNoteGeometryStyle)
+  type: TabNoteInfoTypeEnum.Arpeggio
+  regionRange: TabNoteInfoRegionRange
+} & TabNoteGeometryStyle)
   | (TabNoteInfoCommon & {
-      type: TabNoteInfoTypeEnum.Strumming
-      regionRange: TabNoteInfoRegionRange
-    } & TabNoteGeometryStyle)
+  type: TabNoteInfoTypeEnum.Strumming
+  regionRange: TabNoteInfoRegionRange
+} & TabNoteGeometryStyle)

@@ -752,6 +752,7 @@ export function musicScoreToVDom(
         skinName: effectiveSkinName,
         notationType: musicScore.type,
         skin,
+        measureHeight,
     });
     /*
      * 【阶段三 · 曲谱级附属】本批 vDom 在阶段二之后才创建，故单独 apply；不能与前两阶段合并为「曲谱末尾一次」

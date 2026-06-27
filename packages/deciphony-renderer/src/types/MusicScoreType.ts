@@ -468,6 +468,10 @@ export type tabChord = {
     tuning: NoteName[]
     // 索引代表弦，比如索引0=从右往左第一弦，
     stringStates: StringState[]
+    /** 和弦图文字字号，默认 32 */
+    textSize?: number
+    /** 和弦名字号，默认 64 */
+    nameSize?: number
 } & Frame
 export type TabNote = {
 

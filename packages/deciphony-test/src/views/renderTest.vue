@@ -7,10 +7,10 @@
     </div>
     <div v-if="true" class="right">
       <textarea
-        :value="jsonText"
-        class="json-editor"
-        spellcheck="false"
-        @input="onJsonInput"
+          :value="jsonText"
+          class="json-editor"
+          spellcheck="false"
+          @input="onJsonInput"
       />
       <p v-if="parseError" class="error">{{ parseError }}</p>
     </div>
@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import MusicScore from 'deciphony-renderer'
-import data from './data/guitarTabTest'
+import data from './data/其多列简谱'
 
 const initialData = JSON.parse(JSON.stringify(data))
 const musicScoreData = ref(initialData)

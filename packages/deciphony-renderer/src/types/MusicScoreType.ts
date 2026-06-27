@@ -426,7 +426,7 @@ export type NotesNumberInfo = {
 
     graceNotesAfter?: NotesNumberInfo[]
 
-}
+} & Frame
 
 
 // 简谱音乐符号（简谱无谱号概念，无 clef）

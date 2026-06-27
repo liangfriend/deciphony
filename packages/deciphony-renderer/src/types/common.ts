@@ -27,6 +27,7 @@ export type VDomTagType =
     | 'measure'        // 小节
     | 'noteHead'           // 音符头
     | 'noteNumber'      // 简谱音符
+    | 'gracePedestal'  // 简谱倚音托架
     | 'tabNoteNumber'    // 吉他谱/贝斯/尤克里里谱音符
     | 'rest'           // 休止符
     | 'clef_f'         // 前置谱号

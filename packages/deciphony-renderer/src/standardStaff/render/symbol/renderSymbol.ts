@@ -25,8 +25,6 @@ import {getSlotRestChronaxie, getVoiceGroups, isSlotRest} from "../utils/note";
 import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 import {
-  graceAfterWidth,
-  graceBeforeWidth,
   renderGraceNotesAfter,
   renderGraceNotesBefore,
 } from "../grace/renderGraceStaff";
@@ -239,14 +237,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           if (headSkin && headSkin.w > referenceW) referenceW = headSkin.w;
         }
       }
-      let graceBeforeW = 0;
-      let graceAfterW = 0;
-      if (!isRest && isNoteSymbol(slot)) {
-        graceBeforeW = graceBeforeWidth(slot.graceNotes, skin, measureHeight);
-        graceAfterW = graceAfterWidth(slot.graceNotesAfter, skin, measureHeight);
-      }
-      /** 槽位内布局锚点 x（未叠加 Frame）；与简谱一致，倚音区之后居左 */
-      const slotX = slotStartX + graceBeforeW;
+      /** 槽位内布局锚点 x（未叠加 Frame）；主音符不受倚音影响 */
+      const slotX = slotStartX;
       /*
       * 渲染音符前谱号
       * */

@@ -2125,75 +2125,75 @@ const numberNotationSkin: NumberNotationSkinPack = {
     widthRatioForMeasure: 100,
   },
   [NumberNotationSkinKeyEnum.Number_0]: {
-    content: `<g transform="translate(-3.3301, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">0</text>
+    content: `<g transform="translate(0, 0)">
+        <ellipse cx="10" cy="20" rx="6" ry="14" fill="none" stroke="black" stroke-width="3"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_0
   },
   [NumberNotationSkinKeyEnum.Number_1]: {
-    content: `<g transform="translate(-3.3301, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">1</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 6 11 L 10 6 V 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_1
   },
   [NumberNotationSkinKeyEnum.Number_2]: {
-    content: `<g transform="translate(-3.3301, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">2</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 4 12 C 4 6 16 6 16 13 C 16 19 7 25 4 34 H 16" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_2
   },
   [NumberNotationSkinKeyEnum.Number_3]: {
-    content: `<g transform="translate(-3.3301, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">3</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 4 12 C 4 6 16 5 16 12 C 16 17 11 20 7 20 C 11 20 16 22 16 28 C 16 35 4 35 4 28" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_3
   },
   [NumberNotationSkinKeyEnum.Number_4]: {
-    content: `<g transform="translate(-3.0859, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">4</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 13 6 L 4 26 H 17 M 13 6 V 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_4
   },
   [NumberNotationSkinKeyEnum.Number_5]: {
-    content: `<g transform="translate(-3.3301, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">5</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 15 6 H 6 V 18 H 11 C 16 18 16 34 6 33" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_5
   },
   [NumberNotationSkinKeyEnum.Number_6]: {
-    content: `<g transform="translate(-3.3008, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">6</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 14 8 C 8 6 5 14 5 24 C 5 16 16 16 16 25 C 16 34 5 34 5 25" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_6
   },
   [NumberNotationSkinKeyEnum.Number_7]: {
-    content: `<g transform="translate(-3.5645, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">7</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 4 6 H 16 L 8 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_7
   },
   [NumberNotationSkinKeyEnum.Number_X]: {
-    content: `<g transform="translate(-3, -1.7500)">
-        <text x="10" y="28" text-anchor="middle" font-size="24" font-weight="600" fill="black">X</text>
+    content: `<g transform="translate(0, 0)">
+        <path d="M 5 8 L 15 32 M 15 8 L 5 32" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </g>`,
-    w: 14.16,
-    h: 35,
+    w: 20,
+    h: 40,
     skinKey: NumberNotationSkinKeyEnum.Number_X
   },
   // 减时线h多写一些，相当于增加下边距，防止八度点贴在减时线上
@@ -2247,6 +2247,18 @@ const numberNotationSkin: NumberNotationSkinPack = {
     w: 0, // 这个w没用
     h: 24,
     skinKey: NumberNotationSkinKeyEnum.ReduceLine_6
+  },
+  [NumberNotationSkinKeyEnum.Grace_pedestal_before]: {
+    content: `<path d="M 4.5 0 A 2.5 3.5 0 0 1 7 3.5" stroke="black" stroke-width="1" fill="none"/>`,
+    w: 7,
+    h: 3.5,
+    skinKey: NumberNotationSkinKeyEnum.Grace_pedestal_before,
+  },
+  [NumberNotationSkinKeyEnum.Grace_pedestal_after]: {
+    content: `<path d="M 0 3.5 A 3.5 3.5 0 0 1 7 0" stroke="black" stroke-width="1" fill="none"/>`,
+    w: 7,
+    h: 3.5,
+    skinKey: NumberNotationSkinKeyEnum.Grace_pedestal_after,
   },
   [NumberNotationSkinKeyEnum.Addline]: {
     content: `<rect x="0" y="0" width="10" height="4" fill="black"/>`,

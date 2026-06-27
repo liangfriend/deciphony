@@ -88,6 +88,8 @@ export enum NumberNotationSkinKeyEnum {
     ReduceLine_4 = 'reduceLine_4',
     ReduceLine_5 = 'reduceLine_5',
     ReduceLine_6 = 'reduceLine_6',
+    Grace_pedestal_before = 'grace_pedestal_before',
+    Grace_pedestal_after = 'grace_pedestal_after',
     Addline = 'addline', // 简谱加时线
     /** 八度点：音符上方=高八度，下方=低八度，每点表示一个八度 */
     OctaveDot = 'octaveDot',

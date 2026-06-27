@@ -15,10 +15,6 @@ import {
     getTimeSignatureSkinKey,
 } from "./skinKey";
 import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
-import {
-    graceAfterWidth,
-    graceBeforeWidth,
-} from "@/guitarTab/render/grace/renderGraceStaff";
 import {isNoteRest, isNoteSymbol} from "./staffSlot";
 
 export type VoiceGroup = {
@@ -191,16 +187,6 @@ function getLayoutChronaxieForSlot(slot: StaffSlot): number {
     return slot.notesInfo[0]?.chronaxie ?? 64;
 }
 
-function graceWidthRatioForNote(
-    note: NoteSymbol,
-    skin: GuitarTabSkinPack,
-    measureHeight: number,
-): number {
-    const before = graceBeforeWidth(note.graceNotes, skin, measureHeight);
-    const after = graceAfterWidth(note.graceNotesAfter, skin, measureHeight);
-    return (before + after) / measureHeight * 4;
-}
-
 type WidthPick = (
     item: { widthRatio?: number; widthRatioForMeasure?: number } | undefined,
     data?: number,
@@ -277,28 +263,16 @@ function collectAugDotSubWidthRatio(
     return sub;
 }
 
-function graceWidthRatioForSlot(
-    slot: StaffSlot,
-    skin: GuitarTabSkinPack,
-    measureHeight: number,
-): number {
-    if (isNoteSymbol(slot)) {
-        return graceWidthRatioForNote(slot, skin, measureHeight);
-    }
-    return 0;
-}
-
-/** 符头 onset 列：皮肤 + 倚音/附点等；有加时线时不含附点 */
+/** 符头 onset 列：slot widthRatio + 附点等；有加时线时不含附点。倚音宽不参与列宽。 */
 export function getNoteHeadColumnWidthRatio(
     slot: StaffSlot,
     skin: GuitarTabSkinPack,
-    measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45,
+    _measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
     const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
     return (
         getSlotSkinWidthRatio(slot, skin, false)
         + collectHeadSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), !hasAddLines)
-        + graceWidthRatioForSlot(slot, skin, measureHeight)
     );
 }
 
@@ -324,7 +298,7 @@ export function getLastAddLineColumnWidthRatio(
 function getNoteHeadColumnWidthRatioForMeasure(
     slot: StaffSlot,
     skin: GuitarTabSkinPack,
-    measureHeight: number,
+    _measureHeight: number,
 ): number {
     const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
     return (
@@ -335,7 +309,6 @@ function getNoteHeadColumnWidthRatioForMeasure(
             (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure),
             !hasAddLines,
         )
-        + graceWidthRatioForSlot(slot, skin, measureHeight)
     );
 }
 

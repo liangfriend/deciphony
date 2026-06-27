@@ -1129,57 +1129,57 @@
       "widthRatioForMeasure": 100
     },
     "number_0": {
-      "content": "<g transform=\"translate(-3.3301, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">0</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <ellipse cx=\"10\" cy=\"20\" rx=\"6\" ry=\"14\" fill=\"none\" stroke=\"black\" stroke-width=\"3\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_0"
     },
     "number_1": {
-      "content": "<g transform=\"translate(-3.3301, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">1</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 6 11 L 10 6 V 34\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_1"
     },
     "number_2": {
-      "content": "<g transform=\"translate(-3.3301, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">2</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 4 12 C 4 6 16 6 16 13 C 16 19 7 25 4 34 H 16\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_2"
     },
     "number_3": {
-      "content": "<g transform=\"translate(-3.3301, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">3</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 4 12 C 4 6 16 5 16 12 C 16 17 11 20 7 20 C 11 20 16 22 16 28 C 16 35 4 35 4 28\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_3"
     },
     "number_4": {
-      "content": "<g transform=\"translate(-3.0859, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">4</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 13 6 L 4 26 H 17 M 13 6 V 34\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_4"
     },
     "number_5": {
-      "content": "<g transform=\"translate(-3.3301, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">5</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 15 6 H 6 V 18 H 11 C 16 18 16 34 6 33\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_5"
     },
     "number_6": {
-      "content": "<g transform=\"translate(-3.3008, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">6</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 14 8 C 8 6 5 14 5 24 C 5 16 16 16 16 25 C 16 34 5 34 5 25\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_6"
     },
     "number_7": {
-      "content": "<g transform=\"translate(-3.5645, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">7</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 4 6 H 16 L 8 34\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_7"
     },
     "number_X": {
-      "content": "<g transform=\"translate(-3, -1.7500)\">\n        <text x=\"10\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"600\" fill=\"black\">X</text>\n</g>",
-      "w": 14.16,
-      "h": 35,
+      "content": "<g transform=\"translate(0, 0)\">\n        <path d=\"M 5 8 L 15 32 M 15 8 L 5 32\" fill=\"none\" stroke=\"black\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</g>",
+      "w": 20,
+      "h": 40,
       "skinKey": "number_X"
     },
     "reduceLine_1": {
@@ -1217,6 +1217,18 @@
       "w": 0,
       "h": 24,
       "skinKey": "reduceLine_6"
+    },
+    "grace_pedestal_before": {
+      "content": "<path d=\"M 7 0 A 7 10 0 0 0 14 10\" stroke=\"black\" stroke-width=\"1\" fill=\"none\"/>",
+      "w": 14,
+      "h": 10,
+      "skinKey": "grace_pedestal_before"
+    },
+    "grace_pedestal_after": {
+      "content": "<path d=\"M 0 10 A 7 10 0 0 0 7 0\" stroke=\"black\" stroke-width=\"1\" fill=\"none\"/>",
+      "w": 14,
+      "h": 10,
+      "skinKey": "grace_pedestal_after"
     },
     "addline": {
       "content": "<rect x=\"0\" y=\"0\" width=\"10\" height=\"4\" fill=\"black\"/>",

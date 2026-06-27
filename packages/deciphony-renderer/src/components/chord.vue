@@ -28,6 +28,8 @@ const props = defineProps({
   },
   /** 索引 0=1弦(右)，与 tabChord.stringStates 一致 */
   stringStates: {type: Array as PropType<StringState[]>, default: () => []},
+  /** 线条与文字颜色，曲谱渲染时来自皮肤 */
+  color: {type: String, default: '#111'},
 })
 
 const cfg = computed(() => ({
@@ -284,36 +286,10 @@ const baseFretLabel = computed(() => {
     text: String(cfg.value.baseFret),
   }
 })
-
-/** 含框外文字的整体包围盒，用于在 width×height 视口内居中 */
-const centerTransform = computed(() => {
-  const ly = layout.value
-  const ts = cfg.value.textSize
-  const ns = cfg.value.nameSize
-  let minX = ly.gridX
-  let minY = markerY.value - ts * 0.6
-  let maxX = ly.gridX + ly.gridW
-  let maxY = tuningY.value + ts * 0.35
-
-  if (cfg.value.name) {
-    minY = Math.min(minY, nameY.value - ns * 0.55)
-  }
-  const bf = baseFretLabel.value
-  if (bf) {
-    minX = Math.min(minX, bf.x - ts * bf.text.length * 0.55)
-  }
-
-  const contentW = maxX - minX
-  const contentH = maxY - minY
-  const tx = (cfg.value.width - contentW) / 2 - minX
-  const ty = (cfg.value.height - contentH) / 2 - minY
-  return `translate(${tx}, ${ty})`
-})
 </script>
 
 <template>
   <g role="img" aria-label="和弦图">
-    <g :transform="centerTransform">
       <text
           v-if="cfg.name"
           :x="lyGridCenterX"
@@ -322,7 +298,7 @@ const centerTransform = computed(() => {
           dominant-baseline="central"
           :font-size="cfg.nameSize"
           font-weight="600"
-          fill="#111"
+          :fill="color"
       >{{ cfg.name }}
       </text>
 
@@ -333,7 +309,7 @@ const centerTransform = computed(() => {
           text-anchor="end"
           dominant-baseline="central"
           :font-size="cfg.textSize"
-          fill="#111"
+          :fill="color"
       >{{ baseFretLabel.text }}
       </text>
 
@@ -344,7 +320,7 @@ const centerTransform = computed(() => {
           :y1="layout.gridY"
           :x2="s.x"
           :y2="layout.gridY + layout.gridH"
-          stroke="#111"
+          :stroke="color"
           stroke-width="1"
       />
 
@@ -355,7 +331,7 @@ const centerTransform = computed(() => {
           :y1="f.y"
           :x2="layout.gridX + layout.gridW+0.5"
           :y2="f.y"
-          stroke="#111"
+          :stroke="color"
           :stroke-width="f.thick ? 2.5 : 1"
       />
 
@@ -368,10 +344,10 @@ const centerTransform = computed(() => {
             :y2="b.y"
             :stroke-width="b.r * 2"
             stroke-linecap="round"
-            stroke="#111"
+            :stroke="color"
         />
         <g v-else-if="b.kind === 'dot'">
-          <circle :cx="b.x" :cy="b.y" :r="b.r" fill="#111"/>
+          <circle :cx="b.x" :cy="b.y" :r="b.r" :fill="color"/>
           <text
               v-if="b.label"
               :x="b.x"
@@ -404,7 +380,7 @@ const centerTransform = computed(() => {
             text-anchor="middle"
             dominant-baseline="central"
             :font-size="cfg.textSize"
-            fill="#111"
+            :fill="color"
         >O
         </text>
         <text
@@ -414,11 +390,11 @@ const centerTransform = computed(() => {
             text-anchor="middle"
             dominant-baseline="central"
             :font-size="cfg.textSize"
-            fill="#111"
+            :fill="color"
         >X
         </text>
         <g v-else-if="m.kind === 'dot'">
-          <circle :cx="m.x" :cy="m.y" :r="layout.dotRadius" fill="#111"/>
+          <circle :cx="m.x" :cy="m.y" :r="layout.dotRadius" :fill="color"/>
           <text
               v-if="m.label"
               :x="m.x"
@@ -440,10 +416,9 @@ const centerTransform = computed(() => {
           text-anchor="middle"
           dominant-baseline="central"
           :font-size="cfg.textSize"
-          fill="#111"
+          :fill="color"
           opacity="0.75"
       >{{ t.text }}
       </text>
-    </g>
   </g>
 </template>

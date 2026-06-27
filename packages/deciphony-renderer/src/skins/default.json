@@ -735,6 +735,12 @@
       "h": 0,
       "skinKey": "volta"
     },
+    "tabChord": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "tabChord"
+    },
     "acccent_above": {
       "content": "<rect x=\"0\" y=\"0\" width=\"30\" height=\"30\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>",
       "w": 30,
@@ -1725,6 +1731,12 @@
       "w": 0,
       "h": 0,
       "skinKey": "volta"
+    },
+    "tabChord": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "tabChord"
     },
     "acccent_above": {
       "content": "<rect x=\"0\" y=\"0\" width=\"30\" height=\"30\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>",
@@ -2902,6 +2914,12 @@
       "w": 0,
       "h": 0,
       "skinKey": "volta"
+    },
+    "tabChord": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "tabChord"
     },
     "acccent_above": {
       "content": "<rect x=\"0\" y=\"0\" width=\"30\" height=\"30\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>",

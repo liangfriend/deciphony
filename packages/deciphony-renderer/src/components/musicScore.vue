@@ -42,6 +42,7 @@
         <Beam v-else-if="node.special?.beam" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Arpeggio v-else-if="node.tag === 'arpeggio'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Strumming v-else-if="node.tag === 'strumming'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <TabChord v-else-if="node.tag === 'tabChord'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
 
         </slot>
@@ -63,12 +64,13 @@ import Volta from './volta.vue'
 import Beam from './beam.vue'
 import Arpeggio from './arpeggio.vue'
 import Strumming from './strumming.vue'
+import TabChord from './tabChord.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
 import type {MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, VDom} from '@/types/common'
 
-const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming'])
+const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming', 'tabChord'])
 
 const props = defineProps<{
   data: MusicScore

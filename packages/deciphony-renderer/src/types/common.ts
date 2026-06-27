@@ -3,6 +3,7 @@ import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotat
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {SlurTypeEnum} from "@/enums/musicScoreEnum";
+import type {NoteName} from "@/enums/musicScoreEnum";
 import {
   MusicScore,
   GrandStaff,
@@ -10,8 +11,9 @@ import {
   Measure,
   NotesInfo,
   NotesNumberInfo,
-  NoteSymbol, NoteNumber
+  NoteSymbol, NoteNumber,
 } from "@/types/MusicScoreType";
+import type {Barre, StringState} from "@/types/MusicScoreType";
 
 /** 按曲谱模式区分的 skinKey 联合类型 */
 export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum | GuitarTabSkinKeyEnum;
@@ -53,6 +55,7 @@ export type VDomTagType =
   | 'affiliation'    // 附属符号
   | 'arpeggio'       // 吉他谱音符琶音
   | 'strumming'      // 吉他谱音符扫弦
+  | 'tabChord'       // 吉他谱和弦图
   | 'augmentationDot'    // 附点
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
@@ -105,6 +108,20 @@ export type VDom = {
         strumming?: {
             thickness: number;
             arrowWidth: number;
+        };
+        /** 吉他谱 slot 和弦图（不含 id） */
+        tabChord?: {
+            width: number;
+            height: number;
+            stringCount: number;
+            name: string;
+            fretCount: number;
+            baseFret: number;
+            barres: Barre[];
+            tuning: NoteName[];
+            stringStates: StringState[];
+            textSize?: number;
+            nameSize?: number;
         };
     /** 五线谱加线：ledger 线号（上：10,12,…；下：-2,-4,…），同 NotesInfo 多条加线须区分 */
     ledgerLine?: number;

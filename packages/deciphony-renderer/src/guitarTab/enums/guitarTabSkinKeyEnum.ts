@@ -159,6 +159,8 @@ export enum GuitarTabSkinKeyEnum {
   Bracket_arpeggio = 'bracket_arpeggio',
   Up_arpeggio_straight = 'up_arpeggio_straight',
   Down_arpeggio_straight = 'down_arpeggio_straight',
+  // 和弦图
+  TabChord = 'tabChord',
   // glissandos TODO 这个暂时不做
   // dynamics 强弱记号
   Dyn_PPP = 'dyn_ppp',

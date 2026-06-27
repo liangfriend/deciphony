@@ -5,6 +5,7 @@ import {
   Frame,
   MusicScore,
   MusicScoreTypeEnum,
+  NoteName,
   NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol, SlurTypeEnum, TabNote,
   TabNoteInfo,
   TabNoteInfoTypeEnum,
@@ -54,7 +55,33 @@ const note: TabNote = {
     beamType: BeamTypeEnum.None,
 
     affiliatedSymbols: []
-  }]
+  }],
+
+  chord: {
+    id: Date.now() + 20,
+    width: 50,
+    height: 60,
+    stringCount: 6,
+    name: 'C',
+    fretCount: 5,
+    baseFret: 0,
+    textSize: 10,
+    nameSize: 32,
+    barres: [],
+    tuning: [NoteName.E, NoteName.A, NoteName.D, NoteName.G, NoteName.B, NoteName.E],
+    stringStates: [
+      {finger: 'o', text: ''},
+      {finger: 0, text: '1'},
+      {finger: 'o', text: ''},
+      {finger: 1, text: '2'},
+      {finger: 2, text: '3'},
+      {finger: 'x', text: ''},
+    ],
+    relativeX: 0,
+    relativeY: 0,
+    relativeW: 1,
+    relativeH: 1,
+  },
 
 }
 const note2: TabNote = {

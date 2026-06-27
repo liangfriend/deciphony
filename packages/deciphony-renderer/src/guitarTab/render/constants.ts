@@ -22,3 +22,5 @@ export const GUITAR_TAB_STEM_START_OFFSET_RATIO = 0.2;
 export const GUITAR_TAB_STEM_END_OFFSET_RATIO = 0.4;
 /** 吉他谱符干终点（八分及更短、有符尾）：同上公式，ratio = 1 */
 export const GUITAR_TAB_STEM_END_OFFSET_RATIO_WITH_TAIL = 1;
+/** 吉他谱和弦图：y = measureY - chordH - measureHeight × 该比例（框体左上角，位于小节顶线上方） */
+export const GUITAR_TAB_CHORD_Y_OFFSET_RATIO = 0.4;

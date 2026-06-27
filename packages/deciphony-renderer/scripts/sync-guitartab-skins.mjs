@@ -17,8 +17,13 @@ function parseEnumSkinKeys() {
 }
 
 function tabNoteLabel(skinKey) {
-  if (skinKey === 'tabNote_x') return 'x'
-  return skinKey.replace('tabNote_', '')
+  if (skinKey === 'tab_note_x') return 'x'
+  return skinKey.replace('tab_note_', '')
+}
+
+function tabHarmonicLabel(skinKey) {
+  const base = tabNoteLabel(skinKey.replace('tab_harmonic_', 'tab_note_'))
+  return `<${base}>`
 }
 
 function makeTabNoteSkin(skinKey) {
@@ -35,6 +40,27 @@ function makeTabNoteSkin(skinKey) {
   }
 }
 
+function tabHarmonicTranslateX(skinKey) {
+  const label = tabNoteLabel(skinKey.replace('tab_harmonic_', 'tab_note_'))
+  return label.length >= 2 ? -5 : -1
+}
+
+function makeTabHarmonicSkin(skinKey) {
+  const label = tabHarmonicLabel(skinKey)
+  const inner = label.slice(1, -1)
+  const num = inner === 'x' ? -1 : Number(inner)
+  const w = num >= 10 ? 14 : 8
+  const x = tabHarmonicTranslateX(skinKey)
+  return {
+    content: `<g transform="translate(${x.toFixed(4)}, 13.0000)">\n        <text transform="scale(0.7)">${label}</text>\n</g>`,
+    w,
+    h: 16,
+    skinKey,
+    widthRatio: 10,
+    widthRatioForMeasure: 10,
+  }
+}
+
 const enumKeys = parseEnumSkinKeys()
 const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
 const oldPack = data.guitarTab ?? {}
@@ -45,8 +71,14 @@ let kept = 0
 let removed = 0
 
 for (const key of enumKeys) {
-  if (key.startsWith('tabNote_')) {
+  if (key.startsWith('tab_note_')) {
     newPack[key] = makeTabNoteSkin(key)
+    if (!oldPack[key]) added++
+    else kept++
+    continue
+  }
+  if (key.startsWith('tab_harmonic_')) {
+    newPack[key] = makeTabHarmonicSkin(key)
     if (!oldPack[key]) added++
     else kept++
     continue

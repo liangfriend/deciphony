@@ -1,6 +1,7 @@
 import {
     BarlineTypeEnum,
     BracketTypeEnum,
+    TabNoteInfoTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
 import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
@@ -53,15 +54,35 @@ export function getTabNoteValue(info: NotesInfo | TabNoteInfo): number {
     return typeof v === 'number' ? v : 0;
 }
 
-/** 品数 value → tabNote 皮肤；-1 为 tabNote_x */
+/** 品数 value → tab_note 皮肤；-1 为 tab_note_x */
 export function getTabNoteSkinKey(value: number): GuitarTabSkinKeyEnum {
-    if (value === -1) return GuitarTabSkinKeyEnum.TabNote_x;
+    if (value === -1) return GuitarTabSkinKeyEnum.Tab_note_x;
     if (value >= 0 && value <= 27) {
-        const enumKey = `TabNote_${value}` as keyof typeof GuitarTabSkinKeyEnum;
+        const enumKey = `Tab_note_${value}` as keyof typeof GuitarTabSkinKeyEnum;
         const skinKey = GuitarTabSkinKeyEnum[enumKey];
         if (skinKey) return skinKey;
     }
-    return GuitarTabSkinKeyEnum.TabNote_0;
+    return GuitarTabSkinKeyEnum.Tab_note_0;
+}
+
+/** 品数 value → tab_harmonic 皮肤；-1 为 tab_harmonic_x */
+export function getTabHarmonicSkinKey(value: number): GuitarTabSkinKeyEnum {
+    if (value === -1) return GuitarTabSkinKeyEnum.Tab_harmonic_x;
+    if (value >= 0 && value <= 27) {
+        const enumKey = `Tab_harmonic_${value}` as keyof typeof GuitarTabSkinKeyEnum;
+        const skinKey = GuitarTabSkinKeyEnum[enumKey];
+        if (skinKey) return skinKey;
+    }
+    return GuitarTabSkinKeyEnum.Tab_harmonic_0;
+}
+
+/** Normal → tab_note_*；Harmonic → tab_harmonic_* */
+export function getTabNoteHeadSkinKey(info: TabNoteInfo | NotesInfo): GuitarTabSkinKeyEnum {
+    const value = getTabNoteValue(info);
+    if ('type' in info && info.type === TabNoteInfoTypeEnum.Harmonic) {
+        return getTabHarmonicSkinKey(value);
+    }
+    return getTabNoteSkinKey(value);
 }
 
 /** 时值 chronaxie → 休止符皮肤 */

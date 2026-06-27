@@ -8,6 +8,8 @@ import {
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
     getRestSkinKey,
+    getTabNoteHeadSkinKey,
+    getRestSkinKey,
     getTabNoteSkinKey,
     getTabNoteValue,
     getTimeSignatureSkinKey,
@@ -211,6 +213,13 @@ function getSlotTabNoteValue(slot: StaffSlot): number {
     return 0;
 }
 
+function getSlotHeadSkinKey(slot: StaffSlot): GuitarTabSkinKeyEnum {
+    if (isNoteSymbol(slot) && slot.notesInfo[0]) {
+        return getTabNoteHeadSkinKey(slot.notesInfo[0]);
+    }
+    return getTabNoteSkinKey(getSlotTabNoteValue(slot));
+}
+
 function getSlotSkinWidthRatio(
     slot: StaffSlot,
     skin: GuitarTabSkinPack,
@@ -219,7 +228,7 @@ function getSlotSkinWidthRatio(
     const chronaxie = getLayoutChronaxieForSlot(slot);
     const slotSkinKey = isNoteRest(slot)
         ? getRestSkinKey(chronaxie)
-        : getTabNoteSkinKey(getSlotTabNoteValue(slot));
+        : getSlotHeadSkinKey(slot);
     const slotW = forMeasure
         ? resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure)
         : resolveWidthRatio(slot.widthRatio, skin[slotSkinKey]?.widthRatio);

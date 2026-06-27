@@ -132,6 +132,10 @@ function registerNoteSymbol(map: Map<string, RelativeFrame>, note: NoteSymbol): 
     registerNoteClef(map, note);
     for (const info of note.notesInfo) {
         registerNotesInfo(map, info, note);
+        const bend = (info as { bend?: { id: string } & Frame }).bend;
+        if (bend) {
+            registerFrame(map, bend.id, note, info, bend);
+        }
     }
     registerStandardGraceNotes(map, note.graceNotes, note);
     registerStandardGraceNotes(map, note.graceNotesAfter, note);
@@ -256,7 +260,7 @@ export function applyRelativeFrameToVDom<T extends VDom>(
     node.h += f.relativeH;
 
     if (f.relativeX !== 0 || f.relativeY !== 0) {
-        if (node.tag === 'noteBeam' || node.special?.slur) {
+        if (node.tag === 'noteBeam' || node.special?.slur || node.tag === 'bend') {
             node.startPoint = {
                 x: node.startPoint.x + f.relativeX,
                 y: node.startPoint.y + f.relativeY,
@@ -265,6 +269,21 @@ export function applyRelativeFrameToVDom<T extends VDom>(
                 x: node.endPoint.x + f.relativeX,
                 y: node.endPoint.y + f.relativeY,
             };
+        }
+        if (node.special?.bend) {
+            const shiftPt = (p: { x: number; y: number }) => {
+                p.x += f.relativeX;
+                p.y += f.relativeY;
+            };
+            const shiftPeriod = (period: NonNullable<typeof node.special.bend>['period_one']) => {
+                shiftPt(period.relativeStartPoint);
+                shiftPt(period.relativeEndPoint);
+                shiftPt(period.relativeStartControlPoint);
+                shiftPt(period.relativeEndControlPoint);
+                if (period.relativeTextPoint) shiftPt(period.relativeTextPoint);
+            };
+            shiftPeriod(node.special.bend.period_one);
+            if (node.special.bend.period_two) shiftPeriod(node.special.bend.period_two);
         }
         if (node.special?.beam) {
             node.special.beam.centerX += f.relativeX;

@@ -3,7 +3,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot, tabChord, TabNoteInfo} from "@/types/MusicScoreType";
+import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot, tabChord, TabNote, TabNoteInfo} from "@/types/MusicScoreType";
 import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {AUGMENTATION_DOT_GAP} from "../constants";
@@ -11,7 +11,7 @@ import {
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
     getRestSkinKey,
-    getTabNoteSkinKey,
+    getTabNoteHeadSkinKey,
     getTabNoteValue,
     getTimeSignatureSkinKey,
 } from "../utils/skinKey";
@@ -40,10 +40,13 @@ import {
     getTabNoteInfoRegion,
     getTabNoteStemAnchorRegion,
     isTabNoteGeometryInfo,
+    isTabNoteHeadInfo,
     resolveTabArrowThickness,
     resolveTabArrowWidth
 } from "../utils/tabNoteInfo";
 import {buildTabChordVDom} from "../chord/renderTabChord";
+import {buildTabSlapVDom} from "../slap/renderTabSlap";
+import {buildTabBendVDom} from "../bend/renderTabBend";
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     let obj = map.get(id);
@@ -178,6 +181,43 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         - region * (measureHeight - 6 * measureLineWidth) / 5
         - region * measureLineWidth;
 
+    function pushTabSlapForNote(note: NoteSymbol): void {
+        const tabNote = note as TabNote;
+        if (!tabNote.isSlap) return;
+
+        const slapInfos = note.notesInfo.filter(
+            (info): info is TabNoteInfo & { type: TabNoteInfoTypeEnum.Normal; region: number } =>
+                info.type === TabNoteInfoTypeEnum.Normal && getTabNoteValue(info) === -1,
+        );
+        if (slapInfos.length === 0) return;
+
+        let topInfo = slapInfos[0];
+        let bottomInfo = slapInfos[0];
+        for (const info of slapInfos) {
+            if (info.region > topInfo.region) topInfo = info;
+            if (info.region < bottomInfo.region) bottomInfo = info;
+        }
+
+        const topHead = idMap.get(topInfo.id)?.tabNoteNumber;
+        const bottomHead = idMap.get(bottomInfo.id)?.tabNoteNumber;
+        if (!topHead || !bottomHead) return;
+
+        const startPoint = {x: topHead.x, y: topHead.y};
+        const endPoint = {
+            x: bottomHead.x + bottomHead.w,
+            y: bottomHead.y + bottomHead.h,
+        };
+
+        const vdom = buildTabSlapVDom({
+            startPoint,
+            endPoint,
+            targetId: note.id,
+            skinName: skinNameForNodes,
+            zIndex: z + 75,
+        });
+        out.push(vdom);
+    }
+
     function pushTabChordForSlot(slot: StaffSlot, slotCenterX: number): void {
         const chord = (slot as { chord?: tabChord }).chord;
         if (!chord) return;
@@ -235,7 +275,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const slotStartX = domainStartX + geo.startInDomain;
             const slotW = geo.width;
             const isRest = isSlotRest(slot);
-            // 参考宽度：用于在 slot 内居中。休止符用休止符皮肤宽；音符用该 slot 内所有声部符头皮肤的最大宽（全/二分/四分符头尺寸可能不同）
+            // 参考宽度：符干/琶音/和弦等对齐用
             let referenceW: number;
             if (isRest) {
                 const restItem = skin[getRestSkinKey(getSlotRestChronaxie(slot))];
@@ -244,7 +284,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             } else {
                 referenceW = 0;
                 for (const ni of slot.notesInfo) {
-                    const headSkin = skin[getTabNoteSkinKey(getTabNoteValue(ni))];
+                    const headSkin = skin[getTabNoteHeadSkinKey(ni)];
                     if (headSkin && headSkin.w > referenceW) referenceW = headSkin.w;
                 }
             }
@@ -256,10 +296,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
             const slotOnset = computeSlotOnset(measure, i, columnAdapter);
             const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
-            /** 槽位内布局锚点 x（未叠加 Frame）；有加时线时符头居左，否则 slot 内居中 */
-            const slotX = hasAddLines
-                ? slotStartX + graceBeforeW
-                : slotStartX + (slotW - graceBeforeW - referenceW - graceAfterW) / 2 + graceBeforeW;
+            /** 槽位内布局锚点 x（未叠加 Frame）；与简谱一致，倚音区之后居左 */
+            const slotX = slotStartX + graceBeforeW;
+            /** 符干/琶音/和弦等：参考符头列宽居中 */
+            const slotHeadCenterX = slotX + referenceW / 2;
             /*
             * 渲染音符前谱号
             * */
@@ -344,10 +384,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const note = slot;
             const allNotesInfo = note.notesInfo;
 
-
-            const slotCenterX = slotX + slotW / 2;
-
-            // 1) 普通符头居中；琶音/扫弦仅输出箭头 vDom
+            // 1) 普通符头居左；琶音/扫弦仅输出箭头 vDom
             allNotesInfo.forEach((n) => {
                 const info = n as TabNoteInfo;
                 if (isTabNoteGeometryInfo(info)) {
@@ -360,11 +397,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     const geomStyle = {thickness, arrowWidth};
                     const vdom: VDom = {
                         startPoint: {
-                            x: slotCenterX,
+                            x: slotHeadCenterX,
                             y: noteCenterY(info.regionRange.start),
                         },
                         endPoint: {
-                            x: slotCenterX,
+                            x: slotHeadCenterX,
                             y: noteCenterY(info.regionRange.end),
                         },
                         special: isArpeggio
@@ -385,11 +422,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     setNodeIdMap(idMap, info.id, vdom);
                     return;
                 }
-                const headKey = getTabNoteSkinKey(getTabNoteValue(n));
+                const headKey = getTabNoteHeadSkinKey(info);
                 const headItem = skin[headKey];
                 if (!headItem) return;
                 const region = getTabNoteInfoRegion(info);
-                const headX = slotCenterX - headItem.w / 2;
+                const headX = slotX;
                 const ny = noteCenterY(region) - headItem.h / 2;
                 const vdom: VDom = {
                     startPoint: {x: 0, y: 0},
@@ -408,6 +445,22 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 };
                 out.push(vdom);
                 setNodeIdMap(idMap, n.id, vdom);
+                if (isTabNoteHeadInfo(info) && info.bend) {
+                    const noteCenterX = headX + headItem.w / 2;
+                    const noteCenterYVal = noteCenterY(region);
+                    const bendVDom = buildTabBendVDom({
+                        bend: info.bend,
+                        noteCenterX,
+                        noteCenterY: noteCenterYVal,
+                        slotEndX: slotStartX + slotW,
+                        measureHeight,
+                        skinName: skinNameForNodes,
+                        zIndex: z + 70,
+                    });
+                    if (bendVDom) {
+                        out.push(bendVDom);
+                    }
+                }
                 renderSingleNoteAffiliatedSymbols(n.affiliatedSymbols, vdom, {
                     VDoms: out,
                     idMap,
@@ -421,10 +474,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const primaryHead = allNotesInfo
                 .map((ni) => idMap.get(ni.id)?.tabNoteNumber)
                 .find((h) => h != null);
-            const primaryHeadX = primaryHead?.x ?? slotCenterX;
+            const primaryHeadX = primaryHead?.x ?? slotX;
             const primaryHeadW = primaryHead?.w ?? (
                 allNotesInfo[0]
-                    ? skin[getTabNoteSkinKey(getTabNoteValue(allNotesInfo[0]))]?.w ?? 0
+                    ? skin[getTabNoteHeadSkinKey(allNotesInfo[0])]?.w ?? 0
                     : 0
             );
 
@@ -456,8 +509,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 const renderableDot = getRenderableAugmentationDot(n.chronaxie, n.augmentationDot);
                 if (!renderableDot) return;
                 const headVDom = idMap.get(n.id)?.tabNoteNumber;
-                const noteHeadX = headVDom?.x ?? slotCenterX;
-                const noteHeadW = headVDom?.w ?? (skin[getTabNoteSkinKey(getTabNoteValue(n))]?.w ?? 0);
+                const noteHeadX = headVDom?.x ?? slotX;
+                const noteHeadW = headVDom?.w ?? (skin[getTabNoteHeadSkinKey(n)]?.w ?? 0);
                 const augSkinKey = getAugmentationDotSkinKey(renderableDot);
                 const augSkin = skin[augSkinKey];
                 if (!augSkin) return;
@@ -506,7 +559,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 note,
                 allNotesInfo: allNotesInfo as TabNoteInfo[],
                 idMap,
-                slotCenterX,
+                slotCenterX: slotHeadCenterX,
                 measureY,
                 measureHeight,
                 skin,
@@ -518,7 +571,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 out.push(v);
                 if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
             }
-            pushTabChordForSlot(note, slotCenterX);
+            pushTabSlapForNote(note);
+            pushTabChordForSlot(note, slotHeadCenterX);
         }
     }
 

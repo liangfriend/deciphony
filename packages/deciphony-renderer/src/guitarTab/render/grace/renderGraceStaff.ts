@@ -19,8 +19,7 @@ import {AUGMENTATION_DOT_GAP} from "../constants";
 
 import {
     getAugmentationDotSkinKey,
-    getTabNoteSkinKey,
-    getTabNoteValue,
+    getTabNoteHeadSkinKey,
 } from "../utils/skinKey";
 
 import {renderGraceStemAndTail} from "../note/renderStemAndTail";
@@ -60,7 +59,7 @@ export function estimateGraceNotesInfoWidth(
     measureHeight: number,
 ): number {
 
-    const headItem = skin[getTabNoteSkinKey(getTabNoteValue(ni))];
+    const headItem = skin[getTabNoteHeadSkinKey(ni)];
 
     let w = scaledSpan(headItem?.w ?? 0, GRACE_NOTE_SCALE);
 
@@ -176,7 +175,7 @@ export function renderGraceNotesInfo(params: RenderGraceStaffParams): void {
 
     const directionUp = ni.direction === 'up';
 
-    const headKey = getTabNoteSkinKey(getTabNoteValue(ni));
+    const headKey = getTabNoteHeadSkinKey(ni);
 
     const headItem = skin[headKey];
 

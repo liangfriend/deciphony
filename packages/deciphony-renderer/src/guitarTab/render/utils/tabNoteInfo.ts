@@ -11,9 +11,19 @@ export function isTabNoteGeometryInfo(
     || info.type === TabNoteInfoTypeEnum.Strumming;
 }
 
+export function isTabNoteHeadInfo(
+  info: TabNoteInfo,
+): info is TabNoteInfo & {
+  type: TabNoteInfoTypeEnum.Normal | TabNoteInfoTypeEnum.Harmonic
+  region: number
+} {
+  return info.type === TabNoteInfoTypeEnum.Normal
+    || info.type === TabNoteInfoTypeEnum.Harmonic;
+}
+
 /** 收集单条 info 参与符干锚点比较的所有 region（含 regionRange 两端） */
 export function collectTabNoteInfoRegions(info: TabNoteInfo): number[] {
-  if (info.type === TabNoteInfoTypeEnum.Normal) return [info.region];
+  if (isTabNoteHeadInfo(info)) return [info.region];
   return [info.regionRange.start, info.regionRange.end];
 }
 
@@ -23,9 +33,9 @@ export function getTabNoteStemAnchorRegion(infos: TabNoteInfo[]): number {
   return Math.min(...infos.flatMap(collectTabNoteInfoRegions));
 }
 
-/** Normal 为 region；琶音 / 扫弦取 regionRange 较小端（单点回退用） */
+/** Normal / Harmonic 为 region；琶音 / 扫弦取 regionRange 较小端（单点回退用） */
 export function getTabNoteInfoRegion(info: TabNoteInfo): number {
-  if (info.type === TabNoteInfoTypeEnum.Normal) return info.region;
+  if (isTabNoteHeadInfo(info)) return info.region;
   return Math.min(info.regionRange.start, info.regionRange.end);
 }
 

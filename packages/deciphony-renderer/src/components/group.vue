@@ -85,6 +85,8 @@ const notationPack = computed(() => {
 
 const outerTransform = computed(() => vdomOuterTransform(props.node))
 
+const SVG_TAGS_WITH_TARGET_ID = /^(g|text|svg|path|rect|circle|line|polyline|polygon|ellipse|tspan)$/i
+
 const handleSkin = computed(() => {
   return (skinItem: SkinItem | undefined, node: VDom) => {
     if (!skinItem) return ''
@@ -92,8 +94,14 @@ const handleSkin = computed(() => {
     temp = temp.replace(/<svg([^>]*)>/i, (_, attrs) => `<svg${attrs} style="width:${node.w}px;height:${node.h}px;display:block">`)
     const targetId = node.targetId ?? ''
     const escapedId = String(targetId).replace(/"/g, '&quot;')
-    temp = temp.replace(/<(\w+)(\s[^>]*?)?(\/?>)/g, (_, tagName, rest = '', closing) =>
-        `<${tagName}${rest} data-target-id="${escapedId}"${closing}`)
+    const skinKey = node.skinKey ?? skinItem.skinKey ?? ''
+    const isTabHarmonic = skinKey.startsWith('tab_harmonic_')
+    temp = temp.replace(/<(\w+)(\s[^>]*?)?(\/?>)/g, (_, tagName, rest = '', closing) => {
+      if (isTabHarmonic && !SVG_TAGS_WITH_TARGET_ID.test(tagName)) {
+        return `<${tagName}${rest}${closing}`
+      }
+      return `<${tagName}${rest} data-target-id="${escapedId}"${closing}`
+    })
     return temp
   }
 })

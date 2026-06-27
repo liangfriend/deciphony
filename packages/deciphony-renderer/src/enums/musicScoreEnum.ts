@@ -375,17 +375,27 @@ export enum NoteName {
     B = "B",
 }
 
-// ======================================吉他谱================================================
+// ======================================吉他谱（或者tab谱）================================================
 export enum TabNoteInfoTypeEnum {
     Normal = 'normal', // 普通音符
     Arpeggio = 'arpeggio', // 琶音
     Strumming = 'strumming', // 扫弦
+    Harmonic = 'harmonic',
 }
 
-// 连音线类型
+// 连音线类型,这个有可能是通用的
 export enum SlurTypeEnum {
     H = 'h',//击弦H
     S = 's',//滑弦S
     P = 'p',//勾弦P
     HP = 'hp'//击勾弦HP
+}
+
+// 推弦类型，这个有可能是通用的
+export enum BendTypeEnum {
+    Bend = 'bend', // 推弦
+    BendRelease = 'bendRelease', //推弦再回来
+    Prebend = 'prebend', //预推弦
+    PrebendRelease = 'prebendRelease', //预推弦再回来
+    PrebendBend = 'prebendBend', //预推弦再升高
 }

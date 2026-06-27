@@ -1,8 +1,7 @@
 import type {GuitarTabSkinPack} from '@/types/common';
 import {VDom} from '@/types/common';
-import {TabNoteInfoTypeEnum} from '@/enums/musicScoreEnum';
 import type {NoteSymbol, TabNoteInfo} from '@/types/MusicScoreType';
-import {getTabNoteStemAnchorRegion} from '../utils/tabNoteInfo';
+import {getTabNoteStemAnchorRegion, isTabNoteHeadInfo} from '../utils/tabNoteInfo';
 import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
 import type {NodeIdMap} from '../types';
 import {
@@ -146,7 +145,7 @@ export function renderGuitarTabStemAndTailForSlot(
   let headCenterY = noteCenterY(anchorRegion);
   for (const info of allNotesInfo) {
     const head = idMap.get(info.id)?.tabNoteNumber;
-    if (!head || info.type !== TabNoteInfoTypeEnum.Normal) continue;
+    if (!head || !isTabNoteHeadInfo(info)) continue;
     if (info.region === anchorRegion) {
       headCenterY = head.y + head.h / 2;
       break;

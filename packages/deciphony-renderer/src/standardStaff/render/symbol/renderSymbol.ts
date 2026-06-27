@@ -225,7 +225,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const slotStartX = domainStartX + geo.startInDomain;
       const slotW = geo.width;
       const isRest = isSlotRest(slot);
-      // 参考宽度：用于在 slot 内居中。休止符用休止符皮肤宽；音符用该 slot 内所有声部符头皮肤的最大宽（全/二分/四分符头尺寸可能不同）
+      // 参考宽度：符干/琶音等对齐用；休止符用休止符皮肤宽；音符用该 slot 内符头最大宽
       let referenceW: number;
       if (isRest) {
         const restItem = skin[getRestSkinKey(getSlotRestChronaxie(slot))];
@@ -245,8 +245,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         graceBeforeW = graceBeforeWidth(slot.graceNotes, skin, measureHeight);
         graceAfterW = graceAfterWidth(slot.graceNotesAfter, skin, measureHeight);
       }
-      /** 槽位内布局锚点 x（未叠加 Frame）；谱号、倚音区等与 slot 对齐的符号用此值 */
-      const slotX = slotStartX + (slotW - graceBeforeW - referenceW - graceAfterW) / 2 + graceBeforeW;
+      /** 槽位内布局锚点 x（未叠加 Frame）；与简谱一致，倚音区之后居左 */
+      const slotX = slotStartX + graceBeforeW;
       /*
       * 渲染音符前谱号
       * */

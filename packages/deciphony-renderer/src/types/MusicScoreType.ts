@@ -2,7 +2,7 @@ import {
 
     AccidentalTypeEnum,
 
-    BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
+    BarlineTypeEnum, BeamTypeEnum, BendTypeEnum, BracketTypeEnum,
 
     ClefTypeEnum,
 
@@ -32,6 +32,8 @@ import {Chronaxie, Frame} from "@/types/common";
 
 // ==========================================通用================================================
 
+// 音程，1 = 一个半音
+export type Semitone = number
 export type MusicScore = {
 
     id: string
@@ -487,6 +489,7 @@ export type TabNote = {
 
     chord: tabChord
 
+    isSlap: boolean
 } & Frame
 
 export type TabRest = {
@@ -524,12 +527,19 @@ type TabNoteGeometryStyle = {
     /** 箭头总宽（用于 vDom.w 与 slot 中心对齐），默认 8 */
     arrowWidth?: number
 }
-
+// 推弦
+export type Bend = {
+    id: string
+    type: BendTypeEnum
+    periodOne: Semitone
+    periodTwo?: Semitone
+} & Frame
 /** normal 用 region；琶音 / 扫弦用 regionRange */
 export type TabNoteInfo =
     | (TabNoteInfoCommon & {
-    type: TabNoteInfoTypeEnum.Normal
+    type: TabNoteInfoTypeEnum.Normal | TabNoteInfoTypeEnum.Harmonic
     region: number // 第几条线，0 是第一线
+    bend?: Bend
 })
     | (TabNoteInfoCommon & {
     type: TabNoteInfoTypeEnum.Arpeggio

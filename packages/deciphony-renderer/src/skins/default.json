@@ -739,7 +739,7 @@
       "content": "black",
       "w": 0,
       "h": 0,
-      "skinKey": "tabChord"
+      "skinKey": "tab_chord"
     },
     "acccent_above": {
       "content": "<rect x=\"0\" y=\"0\" width=\"30\" height=\"30\" fill=\"none\" stroke=\"black\" stroke-width=\"1\"/>",
@@ -2449,235 +2449,467 @@
       "widthRatioForMeasure": 0,
       "skinKey": "4_2"
     },
-    "tabNote_x": {
+    "tab_note_x": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">x</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_x",
+      "skinKey": "tab_note_x",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_0": {
+    "tab_note_0": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">0</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_0",
+      "skinKey": "tab_note_0",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_1": {
+    "tab_note_1": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">1</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_1",
+      "skinKey": "tab_note_1",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_2": {
+    "tab_note_2": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">2</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_2",
+      "skinKey": "tab_note_2",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_3": {
+    "tab_note_3": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">3</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_3",
+      "skinKey": "tab_note_3",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_4": {
+    "tab_note_4": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">4</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_4",
+      "skinKey": "tab_note_4",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_5": {
+    "tab_note_5": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">5</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_5",
+      "skinKey": "tab_note_5",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_6": {
+    "tab_note_6": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">6</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_6",
+      "skinKey": "tab_note_6",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_7": {
+    "tab_note_7": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">7</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_7",
+      "skinKey": "tab_note_7",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_8": {
+    "tab_note_8": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">8</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_8",
+      "skinKey": "tab_note_8",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_9": {
+    "tab_note_9": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">9</text>\n</g>",
       "w": 8,
       "h": 16,
-      "skinKey": "tabNote_9",
+      "skinKey": "tab_note_9",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_10": {
+    "tab_note_10": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">10</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_10",
+      "skinKey": "tab_note_10",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_11": {
+    "tab_note_11": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">11</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_11",
+      "skinKey": "tab_note_11",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_12": {
+    "tab_note_12": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">12</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_12",
+      "skinKey": "tab_note_12",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_13": {
+    "tab_note_13": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">13</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_13",
+      "skinKey": "tab_note_13",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_14": {
+    "tab_note_14": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">14</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_14",
+      "skinKey": "tab_note_14",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_15": {
+    "tab_note_15": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">15</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_15",
+      "skinKey": "tab_note_15",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_16": {
+    "tab_note_16": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">16</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_16",
+      "skinKey": "tab_note_16",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_17": {
+    "tab_note_17": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">17</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_17",
+      "skinKey": "tab_note_17",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_18": {
+    "tab_note_18": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">18</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_18",
+      "skinKey": "tab_note_18",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_19": {
+    "tab_note_19": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">19</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_19",
+      "skinKey": "tab_note_19",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_20": {
+    "tab_note_20": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">20</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_20",
+      "skinKey": "tab_note_20",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_21": {
+    "tab_note_21": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">21</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_21",
+      "skinKey": "tab_note_21",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_22": {
+    "tab_note_22": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">22</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_22",
+      "skinKey": "tab_note_22",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_23": {
+    "tab_note_23": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">23</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_23",
+      "skinKey": "tab_note_23",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_24": {
+    "tab_note_24": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">24</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_24",
+      "skinKey": "tab_note_24",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_25": {
+    "tab_note_25": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">25</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_25",
+      "skinKey": "tab_note_25",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_26": {
+    "tab_note_26": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">26</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_26",
+      "skinKey": "tab_note_26",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
-    "tabNote_27": {
+    "tab_note_27": {
       "content": "<g transform=\"translate(1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\">27</text>\n</g>",
       "w": 14,
       "h": 16,
-      "skinKey": "tabNote_27",
+      "skinKey": "tab_note_27",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_x": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><x></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_x",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_0": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><0></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_0",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_1": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><1></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_1",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_2": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><2></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_2",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_3": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><3></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_3",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_4": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><4></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_4",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_5": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><5></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_5",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_6": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><6></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_6",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_7": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><7></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_7",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_8": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><8></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_8",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_9": {
+      "content": "<g transform=\"translate(-1.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><9></text>\n</g>",
+      "w": 8,
+      "h": 16,
+      "skinKey": "tab_harmonic_9",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_10": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><10></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_10",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_11": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><11></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_11",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_12": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><12></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_12",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_13": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><13></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_13",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_14": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><14></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_14",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_15": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><15></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_15",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_16": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><16></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_16",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_17": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><17></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_17",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_18": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><18></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_18",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_19": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><19></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_19",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_20": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><20></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_20",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_21": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><21></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_21",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_22": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><22></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_22",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_23": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><23></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_23",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_24": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><24></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_24",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_25": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><25></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_25",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_26": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><26></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_26",
+      "widthRatio": 10,
+      "widthRatioForMeasure": 10
+    },
+    "tab_harmonic_27": {
+      "content": "<g transform=\"translate(-5.0000, 13.0000)\">\n        <text transform=\"scale(0.7)\"><27></text>\n</g>",
+      "w": 14,
+      "h": 16,
+      "skinKey": "tab_harmonic_27",
       "widthRatio": 10,
       "widthRatioForMeasure": 10
     },
@@ -3216,6 +3448,18 @@
       "w": 0,
       "h": 0,
       "skinKey": "strumming"
+    },
+    "tab_slap": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "tab_slap"
+    },
+    "bend": {
+      "content": "black",
+      "w": 0,
+      "h": 0,
+      "skinKey": "bend"
     }
   }
 }

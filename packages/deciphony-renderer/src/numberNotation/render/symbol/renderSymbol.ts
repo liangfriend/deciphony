@@ -297,7 +297,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
+      // 数字头 x：同 onset 列内居左（倚音区之后）
       let graceBeforeW = 0;
       if (!isRestSlot) {
         for (const ni of note.notesInfo) {

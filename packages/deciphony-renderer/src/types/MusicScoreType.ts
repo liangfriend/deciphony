@@ -1,30 +1,30 @@
 import {
 
-  AccidentalTypeEnum,
+    AccidentalTypeEnum,
 
-  BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
+    BarlineTypeEnum, BeamTypeEnum, BracketTypeEnum,
 
-  ClefTypeEnum,
+    ClefTypeEnum,
 
-  DoubleMeasureAffiliatedSymbolNameEnum,
+    DoubleMeasureAffiliatedSymbolNameEnum,
 
-  DoubleNoteAffiliatedSymbolNameEnum,
+    DoubleNoteAffiliatedSymbolNameEnum,
 
-  KeySignatureTypeEnum,
+    KeySignatureTypeEnum,
 
-  MeasureEndRepeatEnum,
+    MeasureEndRepeatEnum,
 
-  MeasureStartRepeatEnum,
+    MeasureStartRepeatEnum,
 
-  MusicScoreTypeEnum,
+    MusicScoreTypeEnum, NoteName,
 
-  NoteSymbolTypeEnum,
+    NoteSymbolTypeEnum,
 
-  SingleMeasureAffiliatedSymbolNameEnum,
+    SingleMeasureAffiliatedSymbolNameEnum,
 
-  SingleNoteAffiliatedSymbolNameEnum, SlurTypeEnum, TabNoteInfoTypeEnum,
+    SingleNoteAffiliatedSymbolNameEnum, SlurTypeEnum, TabNoteInfoTypeEnum,
 
-  TimeSignatureTypeEnum
+    TimeSignatureTypeEnum
 
 } from "@/enums/musicScoreEnum";
 
@@ -34,47 +34,47 @@ import {Chronaxie, Frame} from "@/types/common";
 
 export type MusicScore = {
 
-  id: string
+    id: string
 
-  type: MusicScoreTypeEnum,
+    type: MusicScoreTypeEnum,
 
-  grandStaffs: GrandStaff[],
+    grandStaffs: GrandStaff[],
 
-  affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
+    affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
 
-  width: number,
+    width: number,
 
-  height: number,
+    height: number,
 
-  topSpaceHeight: number, // 顶部留白（space，在 t 插槽之上）
+    topSpaceHeight: number, // 顶部留白（space，在 t 插槽之上）
 
-  title?: string // 标题
+    title?: string // 标题
 
-  subTitle?: string // 副标题
+    subTitle?: string // 副标题
 
-  author?: string // 作者
+    author?: string // 作者
 
-  description: string // 描述
+    description: string // 描述
 
-  bpm?: number // 拍速
+    bpm?: number // 拍速
 
 }
 
 export type GrandStaff = {
 
-  id: string
+    id: string
 
-  staves: SingleStaff[],
+    staves: SingleStaff[],
 
-  uSpace: number,  // 复谱表上间距
+    uSpace: number,  // 复谱表上间距
 
-  dSpace: number,  // 复谱表下间距
+    dSpace: number,  // 复谱表下间距
 
-  /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
+    /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
 
-  linkedStaff?: boolean
+    linkedStaff?: boolean
 
-  bracket?: Bracket
+    bracket?: Bracket
 
 } & Frame
 
@@ -87,27 +87,27 @@ export type GrandStaff = {
 
 export type Bracket = {
 
-  id: string
+    id: string
 
-  type: BracketTypeEnum,
+    type: BracketTypeEnum,
 
-  startSingleStaffIndex: number // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
+    startSingleStaffIndex: number // 从第几个单谱表开始，如果单谱表数量为2，startSingleStaffIndex=1，则不会显示
 
 } & Frame
 
 export type SingleStaff = {
 
-  id: string
+    id: string
 
-  measures: Measure[], // 小节
+    measures: Measure[], // 小节
 
-  uSpaceO: number,  // 单谱表上间距-外
+    uSpaceO: number,  // 单谱表上间距-外
 
-  uSpaceI: number,  // 单谱表上间距-内
+    uSpaceI: number,  // 单谱表上间距-内
 
-  dSpaceI: number,  // 单谱表下间距-内
+    dSpaceI: number,  // 单谱表下间距-内
 
-  dSpaceO: number,  // 单谱表下间距-外
+    dSpaceO: number,  // 单谱表下间距-外
 
 } & Frame
 
@@ -120,39 +120,39 @@ export type TabSlot = TabNote | TabRest
 
 export type Measure = {
 
-  id: string
+    id: string
 
-  notes: (StaffSlot | TabSlot | NoteNumber)[],
+    notes: (StaffSlot | TabSlot | NoteNumber)[],
 
-  barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
+    barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
 
-  barline_b?: Barline, // 后置小节线（音符之后、clef_b 之前）
+    barline_b?: Barline, // 后置小节线（音符之后、clef_b 之前）
 
-  clef_f?: Clef, // 前置谱号
+    clef_f?: Clef, // 前置谱号
 
-  clef_b?: Clef, // 后置谱号
+    clef_b?: Clef, // 后置谱号
 
-  keySignature_f?: KeySignature,
+    keySignature_f?: KeySignature,
 
-  keySignature_b?: KeySignature,
+    keySignature_b?: KeySignature,
 
-  timeSignature_f?: TimeSignature,
+    timeSignature_f?: TimeSignature,
 
-  timeSignature_b?: TimeSignature,
+    timeSignature_b?: TimeSignature,
 
-  /** 简谱：notesInfo 向上叠层；第 n 层与第 n+1 层中心距 = measureHeight + (floorSpan[n] ?? 0)，更高层 y 更小 */
+    /** 简谱：notesInfo 向上叠层；第 n 层与第 n+1 层中心距 = measureHeight + (floorSpan[n] ?? 0)，更高层 y 更小 */
 
-  floorSpan?: number[],
+    floorSpan?: number[],
 
-  /** 小节前反复符号（Coda / Segno，最多一个） */
+    /** 小节前反复符号（Coda / Segno，最多一个） */
 
-  startRepeat?: MeasureStartRepeat,
+    startRepeat?: MeasureStartRepeat,
 
-  /** 小节末反复符号（DC / DS / Fine 等，最多一个） */
+    /** 小节末反复符号（DC / DS / Fine 等，最多一个） */
 
-  endRepeat?: MeasureEndRepeat,
+    endRepeat?: MeasureEndRepeat,
 
-  affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
+    affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
 
 } & Frame
 
@@ -165,9 +165,9 @@ export type Measure = {
 
 export type AugmentationDot = {
 
-  id: string
+    id: string
 
-  count: 1 | 2 | 3,
+    count: 1 | 2 | 3,
 
 } & Frame
 
@@ -181,90 +181,90 @@ export type AugmentationDot = {
 
 export type DoubleNoteAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: DoubleNoteAffiliatedSymbolNameEnum,
+    name: DoubleNoteAffiliatedSymbolNameEnum,
 
-  /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
-  startId: string,
+    /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
+    startId: string,
 
-  /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
-  endId: string,
+    /** 五线谱 NotesInfo.id / 简谱 NotesNumberInfo.id */
+    endId: string,
 
-  data: {
+    data: {
 
-    slur?: {
+        slur?: {
 
-      relativeStartPoint: { x: number, y: number },
+            relativeStartPoint: { x: number, y: number },
 
-      relativeEndPoint: { x: number, y: number },
+            relativeEndPoint: { x: number, y: number },
 
-      relativeControlPoint: { x: number, y: number },
+            relativeControlPoint: { x: number, y: number },
 
-      thickness: number,
+            thickness: number,
 
-      type?: SlurTypeEnum,
-      relativeTextPoint?: { x: 0, y: 0 },
-    },
+            type?: SlurTypeEnum,
+            relativeTextPoint?: { x: 0, y: 0 },
+        },
 
-  }
+    }
 
 } & Frame
 
 
 export type DoubleMeasureAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: DoubleMeasureAffiliatedSymbolNameEnum,
+    name: DoubleMeasureAffiliatedSymbolNameEnum,
 
-  startId: string,
+    startId: string,
 
-  endId: string,
+    endId: string,
 
-  data: {
+    data: {
 
-    volta?: {
+        volta?: {
 
-      text: string
-      // [0]表示播放第一遍  [0,1]表示播放第一遍，第二遍，以此类推
-      value: number[]
-      /** 盒子高度（× measureHeight），默认 0.5 */
-      relativeX?: number
-      relativeY?: number
-      relativeW?: number
-      relativeH?: number
-      heightRatio?: number
-      // 是否开放左侧（是否隐藏左侧竖线）
-      openLeft?: boolean
-      // 是否开放右侧（是否隐藏右侧竖线）
-      openRight?: boolean
+            text: string
+            // [0]表示播放第一遍  [0,1]表示播放第一遍，第二遍，以此类推
+            value: number[]
+            /** 盒子高度（× measureHeight），默认 0.5 */
+            relativeX?: number
+            relativeY?: number
+            relativeW?: number
+            relativeH?: number
+            heightRatio?: number
+            // 是否开放左侧（是否隐藏左侧竖线）
+            openLeft?: boolean
+            // 是否开放右侧（是否隐藏右侧竖线）
+            openRight?: boolean
+
+        }
 
     }
-
-  }
 
 } & Frame
 
 
 export type SingleNoteAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: SingleNoteAffiliatedSymbolNameEnum,
+    name: SingleNoteAffiliatedSymbolNameEnum,
 
-  data: Record<string, never>
+    data: Record<string, never>
 
 } & Frame
 
 
 export type SingleMeasureAffiliatedSymbol = {
 
-  id: string
+    id: string
 
-  name: SingleMeasureAffiliatedSymbolNameEnum,
+    name: SingleMeasureAffiliatedSymbolNameEnum,
 
-  data: Record<string, never>
+    data: Record<string, never>
 
 } & Frame
 
@@ -273,9 +273,9 @@ export type SingleMeasureAffiliatedSymbol = {
 
 export type MeasureStartRepeat = {
 
-  id: string
+    id: string
 
-  type: MeasureStartRepeatEnum
+    type: MeasureStartRepeatEnum
 
 } & Frame
 
@@ -284,9 +284,9 @@ export type MeasureStartRepeat = {
 
 export type MeasureEndRepeat = {
 
-  id: string
+    id: string
 
-  type: MeasureEndRepeatEnum
+    type: MeasureEndRepeatEnum
 
 } & Frame
 
@@ -295,9 +295,9 @@ export type MeasureEndRepeat = {
 
 export type Barline = {
 
-  id: string
+    id: string
 
-  type: BarlineTypeEnum
+    type: BarlineTypeEnum
 
 } & Frame
 
@@ -305,9 +305,9 @@ export type Barline = {
 
 export type Clef = {
 
-  id: string
+    id: string
 
-  type: ClefTypeEnum
+    type: ClefTypeEnum
 
 } & Frame
 
@@ -315,9 +315,9 @@ export type Clef = {
 
 export type KeySignature = {
 
-  id: string
+    id: string
 
-  type: KeySignatureTypeEnum
+    type: KeySignatureTypeEnum
 
 } & Frame
 
@@ -325,17 +325,17 @@ export type KeySignature = {
 
 export type TimeSignature = {
 
-  id: string
+    id: string
 
-  type: TimeSignatureTypeEnum
+    type: TimeSignatureTypeEnum
 
 } & Frame
 
 export type Accidental = {
 
-  id: string
+    id: string
 
-  type: AccidentalTypeEnum
+    type: AccidentalTypeEnum
 
 } & Frame
 
@@ -346,54 +346,54 @@ export type Accidental = {
 
 export type NoteSymbol = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Note
+    type: NoteSymbolTypeEnum.Note
 
-  notesInfo: NotesInfo[]
+    notesInfo: NotesInfo[]
 
-  graceNotes?: NotesInfo[]
+    graceNotes?: NotesInfo[]
 
-  graceNotesAfter?: NotesInfo[]
+    graceNotesAfter?: NotesInfo[]
 
-  clef?: Clef
+    clef?: Clef
 
 } & Frame
 
 export type NoteRest = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Rest
+    type: NoteSymbolTypeEnum.Rest
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
 
-  clef?: Clef
+    clef?: Clef
 
 } & Frame
 
 
 export type NotesInfo = {
 
-  id: string
+    id: string
 
-  direction: 'up' | 'down'
+    direction: 'up' | 'down'
 
-  region: number
+    region: number
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  beamType: BeamTypeEnum
+    beamType: BeamTypeEnum
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 
-  accidental?: Accidental
+    accidental?: Accidental
 
 } & Frame
 
@@ -402,27 +402,27 @@ export type NotesInfo = {
 
 export type NotesNumberInfo = {
 
-  id: string
+    id: string
 
-  /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
+    /** 0=休止符, 1-7=do re mi fa sol la si, 'X'=节奏音符（无音高，仅节奏） */
 
-  syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
+    syllable: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 'X',
 
-  chronaxie: Chronaxie,
+    chronaxie: Chronaxie,
 
-  beamType: BeamTypeEnum,
+    beamType: BeamTypeEnum,
 
-  accidental?: Accidental,
+    accidental?: Accidental,
 
-  augmentationDot?: AugmentationDot,
+    augmentationDot?: AugmentationDot,
 
-  /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
+    /** 正数=音符上方的八度点（高八度），负数=下方的八度点（低八度），0=无 */
 
-  octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
+    octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
 
-  graceNotes?: NotesNumberInfo[]
+    graceNotes?: NotesNumberInfo[]
 
-  graceNotesAfter?: NotesNumberInfo[]
+    graceNotesAfter?: NotesNumberInfo[]
 
 }
 
@@ -431,78 +431,107 @@ export type NotesNumberInfo = {
 
 export type NoteNumber = {
 
-  id: string
+    id: string
 
-  notesInfo: NotesNumberInfo[]
+    notesInfo: NotesNumberInfo[]
 
-  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 
 } & Frame
 
 // TODO 之类后续三期可能改成 吉他/贝斯/尤克里里   因为tabNote在这三个谱子里是通用的
 // ==========================================吉他谱================================================
 
+export type Barre = {
+    /** 相对品，与 stringStates.finger 数字语义一致 */
+    fret: number,
+    /** 横按指法文字，下标与 stringStates 弦索引一致 */
+    text: string[],
+    /** 弦索引（0=1弦/细/右），横按起点 */
+    startStringNumber: number,
+    /** 弦索引，横按终点（粗弦侧）；start > end 无效 */
+    endStringNumber: number,
+}
+// finger指法提示， x o -1这三个表示没有按弦。-1是什么都没有。正整数表示相对品，0=第(baseFret+1)品。text是给正整数number用的, 按弦的圆圈显示的文本内容
+export type StringState = { finger: 'x' | 'o' | number, text: string }
+// 参数1：第几品（0=baseFret），参数2：第几弦，参数3：指法，string
+export type Finger = [number, number, string]
+export type tabChord = {
+    id: string,
+    width: number,
+    height: number,
+    stringCount: number
+    name: string
+    fretCount: number
+    baseFret: number
+    barres: Barre[],
+    tuning: NoteName[]
+    // 索引代表弦，比如索引0=从右往左第一弦，
+    stringStates: StringState[]
+} & Frame
 export type TabNote = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Note
+    type: NoteSymbolTypeEnum.Note
 
-  notesInfo: TabNoteInfo[]
+    notesInfo: TabNoteInfo[]
 
-  graceNotes?: TabNoteInfo[]
+    graceNotes?: TabNoteInfo[]
 
-  graceNotesAfter?: TabNoteInfo[]
+    graceNotesAfter?: TabNoteInfo[]
+
+    chord: tabChord
 
 } & Frame
 
 export type TabRest = {
 
-  id: string
+    id: string
 
-  type: NoteSymbolTypeEnum.Rest
+    type: NoteSymbolTypeEnum.Rest
 
-  chronaxie: Chronaxie
+    chronaxie: Chronaxie
 
-  augmentationDot?: AugmentationDot
+    augmentationDot?: AugmentationDot
 
-  affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+    affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
 
 
 } & Frame
 
 export type TabNoteInfoRegionRange = {
-  start: number
-  end: number
+    start: number
+    end: number
 }
 
 type TabNoteInfoCommon = {
-  id: string
-  chronaxie: Chronaxie
-  value: number // 品，-1代表x
-  beamType: BeamTypeEnum
-  augmentationDot?: AugmentationDot
-  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+    id: string
+    chronaxie: Chronaxie
+    value: number // 品，-1代表x
+    beamType: BeamTypeEnum
+    augmentationDot?: AugmentationDot
+    affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 } & Frame
 
 type TabNoteGeometryStyle = {
-  /** 箭杆与箭头描边厚度，默认 2 */
-  thickness?: number
-  /** 箭头总宽（用于 vDom.w 与 slot 中心对齐），默认 8 */
-  arrowWidth?: number
+    /** 箭杆与箭头描边厚度，默认 2 */
+    thickness?: number
+    /** 箭头总宽（用于 vDom.w 与 slot 中心对齐），默认 8 */
+    arrowWidth?: number
 }
 
 /** normal 用 region；琶音 / 扫弦用 regionRange */
 export type TabNoteInfo =
-  | (TabNoteInfoCommon & {
-  type: TabNoteInfoTypeEnum.Normal
-  region: number // 第几条线，0 是第一线
+    | (TabNoteInfoCommon & {
+    type: TabNoteInfoTypeEnum.Normal
+    region: number // 第几条线，0 是第一线
 })
-  | (TabNoteInfoCommon & {
-  type: TabNoteInfoTypeEnum.Arpeggio
-  regionRange: TabNoteInfoRegionRange
+    | (TabNoteInfoCommon & {
+    type: TabNoteInfoTypeEnum.Arpeggio
+    regionRange: TabNoteInfoRegionRange
 } & TabNoteGeometryStyle)
-  | (TabNoteInfoCommon & {
-  type: TabNoteInfoTypeEnum.Strumming
-  regionRange: TabNoteInfoRegionRange
+    | (TabNoteInfoCommon & {
+    type: TabNoteInfoTypeEnum.Strumming
+    regionRange: TabNoteInfoRegionRange
 } & TabNoteGeometryStyle)

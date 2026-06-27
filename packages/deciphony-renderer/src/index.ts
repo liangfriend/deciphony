@@ -1,6 +1,8 @@
 import MusicScoreVue from './components/musicScore.vue'
+import ChordVue from './components/chord.vue'
 
 export default MusicScoreVue
+export {ChordVue as Chord}
 
 /** 曲谱数据结构（MusicScore、Measure、NoteSymbol 等） */
 export type * from './types/MusicScoreType'

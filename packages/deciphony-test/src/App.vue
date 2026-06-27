@@ -12,12 +12,14 @@ import RenderXmlTest from "./views/renderXmlTest.vue";
 import TransferTest from "./views/transferTest.vue";
 import EngineTest from "./views/engineTest.vue";
 import SkinBuilder from "./views/skinBuilder.vue";
+import ChordBuilder from "./views/chordBuilder.vue";
 </script>
 
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <render-test></render-test>
+  <!--  <render-test></render-test>-->
+  <chord-builder></chord-builder>
   <!--  <render-play-test></render-play-test>-->
   <!--  <skin-builder></skin-builder>-->
   <!--  <render-xml-test></render-xml-test>-->

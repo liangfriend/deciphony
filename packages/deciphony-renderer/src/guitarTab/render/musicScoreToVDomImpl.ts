@@ -18,7 +18,6 @@ import {
     createGuitarTabColumnLayoutAdapter,
 } from "./layout/measureColumnLayoutAdapter";
 import {processBeam} from "./beam/processBeam";
-import {processGraceBeam} from "./beam/processGraceBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
 import {renderMeasureRepeat} from "@/render/repeat/renderMeasureRepeat";
 import {collectRelativeFrameMap, applyRelativeFramesToVDomRange} from "@/render/vdomFrame";
@@ -60,7 +59,7 @@ export function musicScoreToVDom(
     /**
      * 为何不只在渲染末尾调用一次 applyRelativeFramesToVDomRange？
      *
-     * 1) 符杠 / 倚音符杠（processBeam、processGraceBeam）在符号 vDom 生成之后立刻运行：读取 nodeIdMap 里
+     * 1) 符杠（processBeam）在符号 vDom 生成之后立刻运行：读取 nodeIdMap 里
      *    noteStem 的 x/y，拉长符干至符杠高度，再 push noteBeam（startPoint/endPoint 由符干接点算出）。
      *    若符干尚未施加 Frame 偏移，符杠会按「未偏移」的接点绘制，末尾再偏移符干也不会重算符杠，
      *    noteBeam 又无 targetId，无法靠 frameMap 补正 → 符杠与音符脱节。故阶段一必须在 processBeam 之前。
@@ -530,7 +529,7 @@ export function musicScoreToVDom(
                     {VDoms: vDoms, idMap: nodeIdMap, skinName: effectiveSkinName, skin, measureHeight},
                 );
                 /*
-                 * 【阶段一 · 小节符号】必须在 processBeam / processGraceBeam 之前 apply（见文件头「为何不只在末尾 apply」）。
+                 * 【阶段一 · 小节符号】必须在 processBeam 之前 apply（见文件头「为何不只在末尾 apply」）。
                  * Frame 不参与小节宽度、符干长度等布局公式，只改最终 vDom 几何。
                  *
                  * 本段 vDom：renderSymbol、renderMeasureRepeat、renderSingleMeasureAffiliatedSymbols。
@@ -545,17 +544,6 @@ export function musicScoreToVDom(
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
                 * */
                 processBeam({
-                    measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
-                    nodeIdMap,
-                    vDoms,
-                    symbolVDomsStartIdx,
-                    symbolVDomsLength: symbolVDoms.length,
-                    skin,
-                    measureHeight,
-                    measureLineWidth,
-                    skinName: effectiveSkinName,
-                });
-                processGraceBeam({
                     measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
                     nodeIdMap,
                     vDoms,

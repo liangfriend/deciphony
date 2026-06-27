@@ -1,7 +1,7 @@
 import type {VDom} from '@/types/common';
 
 /** 倚音相对主音符的缩放比例 */
-export const GRACE_NOTE_SCALE = 1;
+export const GRACE_NOTE_SCALE = 0.5;
 
 /** 为倚音 VDom 附加 scale，由 group.vue 以盒子中心缩放 skin 内容 */
 export function withGraceScale(v: VDom): VDom {

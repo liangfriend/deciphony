@@ -129,6 +129,16 @@ export enum GuitarTabSkinKeyEnum {
 
   /** 增时线（二分/全音符等） */
   Addline = 'addline',
+  /** 倚音减时线（与简谱 reduceLine_* 一致） */
+  ReduceLine_1 = 'reduceLine_1',
+  ReduceLine_2 = 'reduceLine_2',
+  ReduceLine_3 = 'reduceLine_3',
+  ReduceLine_4 = 'reduceLine_4',
+  ReduceLine_5 = 'reduceLine_5',
+  ReduceLine_6 = 'reduceLine_6',
+  /** 倚音托架（与简谱 grace_pedestal_* 一致） */
+  Grace_pedestal_before = 'grace_pedestal_before',
+  Grace_pedestal_after = 'grace_pedestal_after',
   // 附点
   AugmentationDot_1 = 'augmentationDot_1',
   AugmentationDot_2 = 'augmentationDot_2',

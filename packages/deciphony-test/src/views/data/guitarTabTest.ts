@@ -23,6 +23,10 @@ const noteInfoId1 = Date.now() + 5
 const noteInfoId2 = Date.now() + 7
 const noteInfoId3 = Date.now() + 10
 const noteInfoId4 = Date.now() + 11
+const graceBeforeId1 = Date.now() + 12
+const graceBeforeId2 = Date.now() + 13
+const graceAfterId1 = Date.now() + 14
+const graceAfterId2 = Date.now() + 15
 const noteSlapId1 = Date.now() + 30
 const noteSlapId2 = Date.now() + 31
 const noteSlapId3 = Date.now() + 32
@@ -150,7 +154,43 @@ const note2: TabNote = {
         beamType: BeamTypeEnum.None,
 
         affiliatedSymbols: []
-    }]
+    }],
+
+    graceNotes: [{
+        id: graceBeforeId1,
+        type: TabNoteInfoTypeEnum.Normal,
+        chronaxie: 16,
+        region: 4,
+        value: 4,
+        beamType: BeamTypeEnum.Combined,
+        affiliatedSymbols: [],
+    }, {
+        id: graceBeforeId2,
+        type: TabNoteInfoTypeEnum.Normal,
+        chronaxie: 16,
+        region: 2,
+        value: 5,
+        beamType: BeamTypeEnum.None,
+        affiliatedSymbols: [],
+    }],
+
+    graceNotesAfter: [{
+        id: graceAfterId1,
+        type: TabNoteInfoTypeEnum.Normal,
+        chronaxie: 16,
+        region: 2,
+        value: 7,
+        beamType: BeamTypeEnum.Combined,
+        affiliatedSymbols: [],
+    }, {
+        id: graceAfterId2,
+        type: TabNoteInfoTypeEnum.Normal,
+        chronaxie: 16,
+        region: 2,
+        value: 8,
+        beamType: BeamTypeEnum.None,
+        affiliatedSymbols: [],
+    }],
 
 
 }

@@ -374,6 +374,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
 
             const note = slot;
+            const tabNote = note as TabNote;
             const allNotesInfo = note.notesInfo;
 
             // 1) 普通符头居左；琶音/扫弦仅输出箭头 vDom
@@ -488,11 +489,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             };
 
             // 3) 前倚音
-            renderGraceNotesBefore(note.graceNotes, primaryHeadX, graceCtx);
+            renderGraceNotesBefore(tabNote.graceNotes, primaryHeadX, graceCtx);
 
 
             // 5) 后倚音
-            renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
+            renderGraceNotesAfter(tabNote.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
 
             // 6) 附点：仅普通音符
             allNotesInfo.forEach((n, niIdx) => {

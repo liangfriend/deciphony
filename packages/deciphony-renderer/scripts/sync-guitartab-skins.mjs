@@ -61,6 +61,60 @@ function makeTabHarmonicSkin(skinKey) {
   }
 }
 
+/** guitarTab 倚音减时线/托架：相对简谱永久缩小一半（坐标直接绘制，不用 transform scale） */
+const GRACE_REDUCE_LINE_Y = [0.25, 2.25, 3.75, 4.75, 5.75, 6.75]
+const GRACE_REDUCE_LINE_H = [5, 7.5, 9, 10, 11, 12]
+
+function makeGraceReduceLineSkin(lineCount) {
+  const lines = GRACE_REDUCE_LINE_Y.slice(0, lineCount)
+    .map((y) => `<line x1="0" y1="${y}" x2="node.w" y2="${y}" stroke="black" stroke-width="1"/>`)
+    .join('\n')
+  return {
+    content: lines,
+    w: 0,
+    h: GRACE_REDUCE_LINE_H[lineCount - 1],
+  }
+}
+
+const GUITAR_TAB_HALF_GRACE_SKINS = {
+  reduceLine_1: makeGraceReduceLineSkin(1),
+  reduceLine_2: makeGraceReduceLineSkin(2),
+  reduceLine_3: makeGraceReduceLineSkin(3),
+  reduceLine_4: makeGraceReduceLineSkin(4),
+  reduceLine_5: makeGraceReduceLineSkin(5),
+  reduceLine_6: makeGraceReduceLineSkin(6),
+  grace_pedestal_before: {
+    content: '<path d="M 3.5 0 A 3.5 5 0 0 0 7 5" stroke="black" stroke-width="1" fill="none"/>',
+    w: 7,
+    h: 5,
+  },
+  grace_pedestal_after: {
+    content: '<path d="M 0 5 A 3.5 5 0 0 0 3.5 0" stroke="black" stroke-width="1" fill="none"/>',
+    w: 7,
+    h: 5,
+  },
+}
+
+function buildHalvedGraceSkin(key) {
+  const half = GUITAR_TAB_HALF_GRACE_SKINS[key]
+  if (!half) return null
+  return {
+    ...half,
+    skinKey: key,
+  }
+}
+
+const GRACE_REDUCE_LINE_KEYS = new Set([
+  'reduceLine_1',
+  'reduceLine_2',
+  'reduceLine_3',
+  'reduceLine_4',
+  'reduceLine_5',
+  'reduceLine_6',
+  'grace_pedestal_before',
+  'grace_pedestal_after',
+])
+
 const enumKeys = parseEnumSkinKeys()
 const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
 const oldPack = data.guitarTab ?? {}
@@ -79,6 +133,17 @@ for (const key of enumKeys) {
   }
   if (key.startsWith('tab_harmonic_')) {
     newPack[key] = makeTabHarmonicSkin(key)
+    if (!oldPack[key]) added++
+    else kept++
+    continue
+  }
+  if (GRACE_REDUCE_LINE_KEYS.has(key)) {
+    const halfSkin = buildHalvedGraceSkin(key)
+    if (!halfSkin) {
+      console.warn(`missing half grace skin: ${key}`)
+      continue
+    }
+    newPack[key] = halfSkin
     if (!oldPack[key]) added++
     else kept++
     continue

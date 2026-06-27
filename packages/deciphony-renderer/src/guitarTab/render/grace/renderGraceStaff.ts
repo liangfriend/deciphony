@@ -1,333 +1,313 @@
 /**
-
- * 吉他谱倚音：NoteSymbol 级（graceNotes 为 NotesInfo[]）；VDom.scale 由 group.vue 缩放至 50%
-
+ * 吉他谱倚音：TabNote 级（graceNotes / graceNotesAfter）；音符与主音等大，减时线 + 托架（简谱式 beamType 连接）。
  */
 
-
 import {VDom} from "@/types/common";
-
 import type {GuitarTabSkinPack} from "@/types/common";
-
-import type {AugmentationDot, NoteSymbol, NotesInfo} from "@/types/MusicScoreType";
-
+import type {TabNote, TabNoteInfo} from "@/types/MusicScoreType";
 import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
-
 import type {NodeIdMap} from "../types";
-
 import {AUGMENTATION_DOT_GAP} from "../constants";
-
 import {
+    chronaxieToBeamLineCount,
     getAugmentationDotSkinKey,
+    getReduceLineLastLineY,
+    getReduceLineSkinKey,
     getTabNoteHeadSkinKey,
 } from "../utils/skinKey";
+import {getRenderableAugmentationDot} from "../utils/note";
+import {getTabNoteInfoRegion, isTabNoteHeadInfo} from "../utils/tabNoteInfo";
+import {GRACE_REDUCE_LINE_Y_OFFSET, graceNoteSpacing} from "@/render/graceNote";
+import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 
-import {renderGraceStemAndTail} from "../note/renderStemAndTail";
+const REDUCE_LINE_STROKE = 1;
 
-import {GRACE_NOTE_SCALE, graceNoteSpacing, withGraceScale} from "@/render/graceNote";
-
-import {scaledSpan} from "@/render/vdomScale";
-
+type GracePedestalSide = 'before' | 'after';
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
-
     let obj = map.get(id);
-
     if (!obj) {
-
         obj = {};
-
         map.set(id, obj);
-
     }
-
     obj[vdom.tag] = vdom;
-
 }
 
-
-function pushGrace(out: VDom[], v: VDom): void {
-    out.push(withGraceScale(v));
-}
-
-
-/** 估算单条倚音 NotesInfo 占位宽度（视觉缩放后） */
-
-export function estimateGraceNotesInfoWidth(
-    ni: NotesInfo,
-    skin: GuitarTabSkinPack,
-    measureHeight: number,
-): number {
-
-    const headItem = skin[getTabNoteHeadSkinKey(ni)];
-
-    let w = scaledSpan(headItem?.w ?? 0, GRACE_NOTE_SCALE);
-
-    if (ni.augmentationDot) {
-
-        const augSkin = skin[getAugmentationDotSkinKey(ni.augmentationDot)];
-
-        w += scaledSpan((AUGMENTATION_DOT_GAP * measureHeight) + (augSkin?.w ?? 0), GRACE_NOTE_SCALE);
-
-    }
-
-    return w;
-
-}
-
-
-export function graceBeforeWidth(
-    graceNotes: NotesInfo[] | undefined,
-    skin: GuitarTabSkinPack,
-    measureHeight: number,
-): number {
-
-    if (!graceNotes?.length) return 0;
-
-    const gap = graceNoteSpacing(measureHeight);
-
-    let total = gap;
-
-    for (let i = 0; i < graceNotes.length; i++) {
-
-        if (i > 0) total += gap;
-
-        total += estimateGraceNotesInfoWidth(graceNotes[i]!, skin, measureHeight);
-
-    }
-
-    return total;
-
-}
-
-
-export function graceAfterWidth(
-    graceNotesAfter: NotesInfo[] | undefined,
-    skin: GuitarTabSkinPack,
-    measureHeight: number,
-): number {
-
-    return graceBeforeWidth(graceNotesAfter, skin, measureHeight);
-
-}
-
-
-export type RenderGraceStaffParams = {
-
-    ni: NotesInfo;
-
-    headAnchorX: number;
-
-    noteCenterY: (region: number) => number;
-
-    measureY: number;
-
-    measureHeight: number;
-
-    measureLineWidth: number;
-
-    measureWidth: number;
-
-    skin: GuitarTabSkinPack;
-
-    skinName: string;
-
-    zIndex: number;
-
-    note: NoteSymbol;
-
-    idMap: NodeIdMap;
-
-    out: VDom[];
-
+type GraceReduceSlot = {
+    ni: TabNoteInfo;
+    visualLeft: number;
+    visualRight: number;
+    visualW: number;
+    noteBottom: number;
 };
 
-
-export function renderGraceNotesInfo(params: RenderGraceStaffParams): void {
-
-    const {
-
+function buildGraceReduceSlot(
+    ni: TabNoteInfo,
+    noteLeft: number,
+    noteCenterY: (region: number) => number,
+    skin: GuitarTabSkinPack,
+): GraceReduceSlot | null {
+    if (!isTabNoteHeadInfo(ni)) return null;
+    const headSkin = skin[getTabNoteHeadSkinKey(ni)];
+    if (!headSkin) return null;
+    const region = getTabNoteInfoRegion(ni);
+    const noteTop = noteCenterY(region) - headSkin.h / 2;
+    return {
         ni,
+        visualLeft: noteLeft,
+        visualRight: noteLeft + headSkin.w,
+        visualW: headSkin.w,
+        noteBottom: noteTop + headSkin.h,
+    };
+}
 
-        headAnchorX,
+function getGraceReduceLineBottom(slot: GraceReduceSlot, measureHeight: number): number {
+    const ch = slot.ni.chronaxie;
+    const lineTop = slot.noteBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
+    if (ch > 32) return lineTop;
+    return lineTop + getReduceLineLastLineY(ch) + REDUCE_LINE_STROKE;
+}
 
-        noteCenterY,
+function getGracePedestalTop(slot: GraceReduceSlot, measureHeight: number): number {
+    return getGraceReduceLineBottom(slot, measureHeight);
+}
 
-        measureHeight,
+function processGracePedestals(
+    slots: GraceReduceSlot[],
+    ctx: RenderGraceTabCtx,
+    side: GracePedestalSide,
+): void {
+    const {skin, skinName, zIndex, out, measureHeight} = ctx;
+    const skinKey = side === 'before'
+        ? GuitarTabSkinKeyEnum.Grace_pedestal_before
+        : GuitarTabSkinKeyEnum.Grace_pedestal_after;
+    const pedestalSkin = skin[skinKey];
+    if (!pedestalSkin) return;
 
-        measureLineWidth,
+    for (const slot of slots) {
+        if (!isTabNoteHeadInfo(slot.ni)) continue;
+        const pedW = pedestalSkin.w;
+        const x = side === 'before'
+            ? slot.visualRight - pedW
+            : slot.visualLeft;
+        out.push({
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x,
+            y: getGracePedestalTop(slot, measureHeight),
+            w: pedW,
+            h: pedestalSkin.h,
+            zIndex,
+            tag: 'gracePedestal',
+            skinName,
+            targetId: slot.ni.id,
+            skinKey,
+            dataComment: side === 'before' ? '前倚音托架' : '后倚音托架',
+        });
+    }
+}
 
-        measureWidth,
+function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceTabCtx): void {
+    const {skin, skinName, zIndex, out, measureHeight} = ctx;
+    for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]!;
+        const ni = slot.ni;
+        const ch = ni.chronaxie;
+        if (ch > 32) continue;
+        const reduceLineKey = getReduceLineSkinKey(ch);
+        const reduceLineSkin = skin[reduceLineKey];
+        if (!reduceLineSkin) continue;
 
-        skin,
+        const beamType = ni.beamType ?? BeamTypeEnum.None;
+        const myCount = chronaxieToBeamLineCount(ch);
+        let leftIdx = i;
+        let rightIdx = i;
+        if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
+            if (beamType === BeamTypeEnum.Combined) {
+                for (let j = i - 1; j >= 0; j--) {
+                    const s = slots[j]!;
+                    if (s.ni.chronaxie > 32) break;
+                    if (s.ni.beamType !== BeamTypeEnum.Combined) break;
+                    leftIdx = j;
+                }
+            }
+            for (let j = i + 1; j < slots.length; j++) {
+                const s = slots[j]!;
+                if (s.ni.chronaxie > 32) break;
+                if (s.ni.beamType !== BeamTypeEnum.Combined) break;
+                rightIdx = j;
+            }
+        }
+        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
+        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
+        const leftCount = leftSlot && leftSlot.ni.chronaxie <= 32
+            ? chronaxieToBeamLineCount(leftSlot.ni.chronaxie) : Infinity;
+        const rightCount = rightSlot && rightSlot.ni.chronaxie <= 32
+            ? chronaxieToBeamLineCount(rightSlot.ni.chronaxie) : Infinity;
 
-        skinName,
+        let lineLeft = slot.visualLeft;
+        let lineRight = slot.visualRight;
+        if (myCount < leftCount && leftSlot) {
+            lineLeft = leftSlot.visualRight;
+        }
+        if (myCount <= rightCount && rightSlot) {
+            lineRight = rightSlot.visualRight;
+        }
+        console.log('chicken', lineRight - lineLeft)
+        lineRight = Math.max(lineRight, lineLeft + slot.visualW);
 
-        zIndex,
+        const y = slot.noteBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
+        out.push({
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: lineLeft,
+            y,
+            w: lineRight - lineLeft,
+            h: reduceLineSkin.h,
+            zIndex,
+            tag: 'accidental',
+            skinName,
+            targetId: ni.id,
+            skinKey: reduceLineKey,
+            dataComment: '倚音减时线',
+        });
+    }
+}
 
-        note,
+/** 单条倚音占位宽度（与主音等大，无缩放） */
+export function estimateGraceTabNoteInfoWidth(
+    ni: TabNoteInfo,
+    skin: GuitarTabSkinPack,
+    measureHeight: number,
+): number {
+    const headItem = skin[getTabNoteHeadSkinKey(ni)];
+    let w = headItem?.w ?? 0;
+    const renderableDot = getRenderableAugmentationDot(ni.chronaxie, ni.augmentationDot);
+    if (renderableDot) {
+        const augSkin = skin[getAugmentationDotSkinKey(renderableDot)];
+        w += AUGMENTATION_DOT_GAP * measureHeight + (augSkin?.w ?? 0);
+    }
+    return w;
+}
 
-        idMap,
+export type RenderGraceTabCtx = {
+    noteCenterY: (region: number) => number;
+    measureY: number;
+    measureHeight: number;
+    measureLineWidth: number;
+    measureWidth: number;
+    skin: GuitarTabSkinPack;
+    skinName: string;
+    zIndex: number;
+    note: TabNote;
+    idMap: NodeIdMap;
+    out: VDom[];
+};
 
-        out,
-
-    } = params;
-
-    const directionUp = ni.direction === 'up';
+/** 渲染一条倚音（不含减时线 / 托架） */
+export function renderGraceTabNoteInfoAt(
+    ni: TabNoteInfo,
+    noteLeft: number,
+    ctx: RenderGraceTabCtx,
+): void {
+    const {noteCenterY, measureHeight, skin, skinName, zIndex, idMap, out} = ctx;
+    if (!isTabNoteHeadInfo(ni)) return;
 
     const headKey = getTabNoteHeadSkinKey(ni);
-
     const headItem = skin[headKey];
-
     if (!headItem) return;
 
+    const region = getTabNoteInfoRegion(ni);
+    const hcy = noteCenterY(region);
+    const ny = hcy - headItem.h / 2;
 
-    const headW = headItem.w;
-
-    const headH = headItem.h;
-
-    const ny = noteCenterY(ni.region) - headH / 2;
-
-    const hcy = noteCenterY(ni.region);
-
-
-    pushGrace(out, {
-
-        startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-
-        x: headAnchorX, y: ny, w: headW, h: headH, zIndex,
-
-        tag: 'noteHead', skinName, targetId: ni.id, skinKey: headKey, dataComment: '倚音音符头',
-
+    out.push({
+        startPoint: {x: 0, y: 0},
+        endPoint: {x: 0, y: 0},
+        special: {},
+        x: noteLeft,
+        y: ny,
+        w: headItem.w,
+        h: headItem.h,
+        zIndex,
+        tag: 'tabNoteNumber',
+        skinName,
+        targetId: ni.id,
+        skinKey: headKey,
+        dataComment: '倚音',
     });
-
     setNodeIdMap(idMap, ni.id, out[out.length - 1]!);
 
-
-    if (ni.augmentationDot) {
-
-        const augSkinKey = getAugmentationDotSkinKey(ni.augmentationDot as AugmentationDot);
-
+    const renderableDot = getRenderableAugmentationDot(ni.chronaxie, ni.augmentationDot);
+    if (renderableDot) {
+        const augSkinKey = getAugmentationDotSkinKey(renderableDot);
         const augSkin = skin[augSkinKey];
-
         if (augSkin) {
-
-            const augX = headAnchorX + headW + AUGMENTATION_DOT_GAP * measureHeight;
-
+            const augX = noteLeft + headItem.w + AUGMENTATION_DOT_GAP * measureHeight;
             let augY = hcy - augSkin.h / 2;
-
-            if (ni.region % 2 === 0) augY -= measureHeight / 8;
-
-            pushGrace(out, {
-
-                startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
-
-                x: augX, y: augY, w: augSkin.w, h: augSkin.h, zIndex,
-
-                tag: 'augmentationDot', skinName, targetId: ni.augmentationDot.id,
-
-                skinKey: augSkinKey, dataComment: '倚音附点',
-
+            if (region % 2 === 0) augY -= measureHeight / 8;
+            out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: augX,
+                y: augY,
+                w: augSkin.w,
+                h: augSkin.h,
+                zIndex,
+                tag: 'augmentationDot',
+                skinName,
+                targetId: renderableDot.id,
+                skinKey: augSkinKey,
+                dataComment: '倚音附点',
             });
-
         }
-
     }
-
-
-    const stemTailVDoms = renderGraceStemAndTail({
-
-        note,
-
-        headX: headAnchorX,
-
-        headY: ny,
-
-        headW,
-
-        headH,
-
-        measureY: params.measureY,
-
-        measureHeight,
-
-        measureWidth,
-
-        skin,
-
-        zIndex,
-
-        idMap,
-
-        chronaxie: ni.chronaxie,
-
-        direction: directionUp ? 'up' : 'down',
-
-        stemTargetId: ni.id,
-
-        skinName,
-
-    });
-
-    for (const v of stemTailVDoms) {
-
-        pushGrace(out, v);
-
-        if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
-
-    }
-
 }
 
-
+/** 前置倚音：index0 靠主音，整体向左扩散 */
 export function renderGraceNotesBefore(
-    graceNotes: NotesInfo[] | undefined,
-    primaryHeadX: number,
-    ctx: Omit<RenderGraceStaffParams, 'ni' | 'headAnchorX'>,
+    graceNotes: TabNoteInfo[] | undefined,
+    mainHeadX: number,
+    ctx: RenderGraceTabCtx,
 ): void {
-
     if (!graceNotes?.length) return;
-
     const gap = graceNoteSpacing(ctx.measureHeight);
-
-    let anchorX = primaryHeadX - gap;
-
-    for (let i = graceNotes.length - 1; i >= 0; i--) {
-
+    const reduceSlots: GraceReduceSlot[] = [];
+    let clusterRight = mainHeadX - gap;
+    for (let i = 0; i < graceNotes.length; i++) {
         const ni = graceNotes[i]!;
-
-        const w = estimateGraceNotesInfoWidth(ni, ctx.skin, ctx.measureHeight);
-
-        anchorX -= w;
-
-        renderGraceNotesInfo({...ctx, ni, headAnchorX: anchorX});
-
-        anchorX -= gap;
-
+        const gw = estimateGraceTabNoteInfoWidth(ni, ctx.skin, ctx.measureHeight);
+        const noteLeft = clusterRight - gw;
+        renderGraceTabNoteInfoAt(ni, noteLeft, ctx);
+        const slot = buildGraceReduceSlot(ni, noteLeft, ctx.noteCenterY, ctx.skin);
+        if (slot) reduceSlots.unshift(slot);
+        if (i < graceNotes.length - 1) clusterRight = noteLeft - gap;
     }
-
+    processGraceReduceLines(reduceSlots, ctx);
+    processGracePedestals(reduceSlots, ctx, 'before');
 }
 
-
+/** 后置倚音：向右扩散 */
 export function renderGraceNotesAfter(
-    graceNotesAfter: NotesInfo[] | undefined,
-    primaryHeadX: number,
-    primaryHeadW: number,
-    ctx: Omit<RenderGraceStaffParams, 'ni' | 'headAnchorX'>,
+    graceNotesAfter: TabNoteInfo[] | undefined,
+    mainHeadX: number,
+    mainHeadW: number,
+    ctx: RenderGraceTabCtx,
 ): void {
-
     if (!graceNotesAfter?.length) return;
-
     const gap = graceNoteSpacing(ctx.measureHeight);
-
-    let anchorX = primaryHeadX + primaryHeadW + gap;
-
-    for (const ni of graceNotesAfter) {
-
-        renderGraceNotesInfo({...ctx, ni, headAnchorX: anchorX});
-
-        anchorX += estimateGraceNotesInfoWidth(ni, ctx.skin, ctx.measureHeight) + gap;
-
+    const reduceSlots: GraceReduceSlot[] = [];
+    let noteLeft = mainHeadX + mainHeadW + gap;
+    for (let i = 0; i < graceNotesAfter.length; i++) {
+        const ni = graceNotesAfter[i]!;
+        renderGraceTabNoteInfoAt(ni, noteLeft, ctx);
+        const slot = buildGraceReduceSlot(ni, noteLeft, ctx.noteCenterY, ctx.skin);
+        if (slot) reduceSlots.push(slot);
+        noteLeft += estimateGraceTabNoteInfoWidth(ni, ctx.skin, ctx.measureHeight) + gap;
     }
-
+    processGraceReduceLines(reduceSlots, ctx);
+    processGracePedestals(reduceSlots, ctx, 'after');
 }

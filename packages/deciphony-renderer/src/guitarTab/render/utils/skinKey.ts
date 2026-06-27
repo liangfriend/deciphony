@@ -120,6 +120,26 @@ export function chronaxieToBeamLineCount(chronaxie: number): number {
     return map[chronaxie] ?? 1;
 }
 
+/** 减时线皮肤内最后一条线的 y（guitarTab 倚音皮肤为简谱一半，坐标已直接绘制） */
+const REDUCE_LINE_Y_BY_COUNT = [0.25, 2.25, 3.75, 4.75, 5.75, 6.75] as const;
+
+export function getReduceLineLastLineY(chronaxie: number): number {
+    const count = chronaxieToBeamLineCount(chronaxie);
+    return REDUCE_LINE_Y_BY_COUNT[Math.min(Math.max(count, 1), 6) - 1] ?? 0.25;
+}
+
+export function getReduceLineSkinKey(chronaxie: number): GuitarTabSkinKeyEnum {
+    const map: Record<number, GuitarTabSkinKeyEnum> = {
+        32: GuitarTabSkinKeyEnum.ReduceLine_1,
+        16: GuitarTabSkinKeyEnum.ReduceLine_2,
+        8: GuitarTabSkinKeyEnum.ReduceLine_3,
+        4: GuitarTabSkinKeyEnum.ReduceLine_4,
+        2: GuitarTabSkinKeyEnum.ReduceLine_5,
+        1: GuitarTabSkinKeyEnum.ReduceLine_6,
+    };
+    return map[chronaxie] ?? GuitarTabSkinKeyEnum.ReduceLine_1;
+}
+
 /** 连谱号类型 → 皮肤 key */
 export function getBracketSkinKey(type: BracketTypeEnum): GuitarTabSkinKeyEnum {
     const map: Record<BracketTypeEnum, GuitarTabSkinKeyEnum> = {

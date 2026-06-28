@@ -140,7 +140,7 @@ const note2: TabNote = {
         chronaxie: 128,
         region: 2, // 这个含义是第几条线， 0是第一线，1是第二线...
 
-        value: 6, // 品，-1代表x
+        value: 22, // 品，-1代表x
         bend: {
             id: Date.now() + 50,
             type: BendTypeEnum.BendRelease,

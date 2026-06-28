@@ -9,9 +9,8 @@ export enum MusicScoreTypeEnum {
 
     DrumNotation,          // 鼓谱
 
-    BassTab,          // 贝斯谱（TAB）
+    Tab4,          // 尤克里里/贝斯谱（TAB）
 
-    UkuleleTab,          // 尤克里里谱（TAB）
 }
 
 

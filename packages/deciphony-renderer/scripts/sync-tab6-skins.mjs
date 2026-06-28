@@ -28,12 +28,13 @@ function tabHarmonicLabel(skinKey) {
 
 function makeTabNoteSkin(skinKey) {
   const label = tabNoteLabel(skinKey)
-  const num = label === 'x' ? -1 : Number(label)
-  const w = num >= 10 ? 10 : 5
+  const isDouble = label.length >= 2
+  const translate = isDouble ? 'translate(0, 1)' : 'translate(2, 12)'
+  const w = isDouble ? 12 : 8
   return {
-    content: `<g transform="translate(0.0000, 9.0000)">\n        <text transform="scale(0.5)">${label}</text>\n</g>`,
+    content: `<g transform="${translate}">\n        <text transform="scale(0.7)">${label}</text>\n</g>`,
     w,
-    h: 11,
+    h: 16,
     skinKey,
     widthRatio: 10,
     widthRatioForMeasure: 10,
@@ -159,6 +160,13 @@ for (const key of Object.keys(oldPack)) {
 }
 
 data.tab6 = newPack
+if (data.tab4) {
+  for (const key of Object.keys(newPack)) {
+    if (key.startsWith('tab_note_')) {
+      data.tab4[key] = {...newPack[key]}
+    }
+  }
+}
 fs.writeFileSync(jsonPath, `${JSON.stringify(data, null, 2)}\n`)
 
 console.log(`tab6 synced: kept ${kept}, tabNote ${added + 28} total, removed ${removed} unused keys`)

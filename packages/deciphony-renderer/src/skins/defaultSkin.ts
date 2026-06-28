@@ -1,4 +1,5 @@
-import {NumberNotationSkinPack, SkinPack, StandardStaffSkinPack} from "@/types/common";
+import defaultJsonSkin from './default.json'
+import {NumberNotationSkinPack, SkinPack, StandardStaffSkinPack, Tab4SkinPack, Tab6SkinPack} from "@/types/common";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
@@ -3023,7 +3024,9 @@ const numberNotationSkin: NumberNotationSkinPack = {
 }
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,
-  numberNotation: numberNotationSkin
+  numberNotation: numberNotationSkin,
+  tab6: defaultJsonSkin.tab6 as Tab6SkinPack,
+  tab4: defaultJsonSkin.tab4 as Tab4SkinPack,
 };
 
 /** 将皮肤包中所有 fill="black"、stroke="black" 替换为目标颜色，并为隐式黑色元素包一层 g 以应用颜色 */
@@ -3054,6 +3057,8 @@ function applySkinColor(color: string): SkinPack {
   return {
     standardStaff: standardStaffSkin ? mapPack(standardStaffSkin, MusicScoreTypeEnum.StandardStaff) : undefined,
     numberNotation: numberNotationSkin ? mapPack(numberNotationSkin, MusicScoreTypeEnum.NumberNotation) : undefined,
+    tab6: defaultSkin.tab6 ? mapPack(defaultSkin.tab6, MusicScoreTypeEnum.Tab6) : undefined,
+    tab4: defaultSkin.tab4 ? mapPack(defaultSkin.tab4, MusicScoreTypeEnum.Tab4) : undefined,
   };
 }
 

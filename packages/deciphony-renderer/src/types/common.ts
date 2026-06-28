@@ -208,13 +208,15 @@ export type StandardStaffSkinPack = Record<StandardStaffSkinKeyEnum, SkinItem<St
 export type NumberNotationSkinPack = Record<NumberNotationSkinKeyEnum, SkinItem<NumberNotationSkinKeyEnum>>;
 /** 吉他谱单套皮肤包 */
 export type Tab6SkinPack = Record<Tab6SkinKeyEnum, SkinItem<Tab6SkinKeyEnum>>;
+export type Tab4SkinPack = Tab6SkinPack;
 
 /** 单套皮肤包：按曲谱模式嵌套，一谱一套 skinKey */
 export type SkinPack = {
     standardStaff?: StandardStaffSkinPack;
     numberNotation?: NumberNotationSkinPack;
-    tab6?: Tab6SkinPack
-};
+    tab6?: Tab6SkinPack;
+    tab4?: Tab4SkinPack;
+};;
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
 export type Skin = Record<string, SkinPack>;

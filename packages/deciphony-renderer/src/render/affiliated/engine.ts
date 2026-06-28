@@ -30,7 +30,7 @@ export type RenderAffiliatedContext = {
     idMap: NodeIdMap;
     skinName?: string;
     notationType?: MusicScoreTypeEnum;
-    /** 当前谱面的皮肤包（五线谱或简谱其一） */
+    /** ?????????????????? */
     skin?: Record<string, { w: number; h: number }>;
     measureHeight?: number;
 };
@@ -39,7 +39,7 @@ function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Slur;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6) {
+    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
         return Tab6SkinKeyEnum.Slur;
     }
     return StandardStaffSkinKeyEnum.Slur;
@@ -108,7 +108,7 @@ function resolveSkinSize(
     return {w: item.w, h: item.h || notationFallbackH};
 }
 
-/** slur 端点必须为 NotesInfo.id / NotesNumberInfo.id（与 noteHead / tabNoteNumber VDom.targetId 一致） */
+/** slur ????? NotesInfo.id / NotesNumberInfo.id?? noteHead / tabNoteNumber VDom.targetId ??? */
 function resolveNoteHeadByNotesInfoId(map: NodeIdMap, notesInfoId: string): VDom | undefined {
     const entry = map.get(notesInfoId);
     if (!entry) return undefined;
@@ -124,7 +124,7 @@ function noteAnchorPoint(
     extraY = 0,
 ) {
     const {dx, dy} = offsetPx(rule, measureHeight);
-    const anchorY = notationType === MusicScoreTypeEnum.Tab6
+    const anchorY = notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4
         ? noteHead.y + dy + extraY
         : noteHead.y + noteHead.h / 2 + dy + extraY;
     return {
@@ -166,7 +166,7 @@ function renderSlur(
         tag: 'affiliation',
         skinName: ctx.skinName ?? 'default',
         skinKey: slurSkinKey(ctx.notationType),
-        dataComment: '连音线',
+        dataComment: '???',
         special: {
             slur: slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur,
         },
@@ -213,7 +213,7 @@ function renderVolta(
         skinName: ctx.skinName ?? 'default',
         skinKey: voltaSkinKey(ctx.notationType),
         targetId: sym.id,
-        dataComment: '反复房子',
+        dataComment: '????',
     };
     ctx.VDoms.push(vdom);
     setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
@@ -267,7 +267,7 @@ function renderDoubleMeasureAffiliated(sym: DoubleMeasureAffiliatedSymbol, ctx: 
     }
 }
 
-/** musicScore.affiliatedSymbols：双音符 / 双小节 */
+/** musicScore.affiliatedSymbols???? / ??? */
 export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAffiliatedContext): void {
     for (const sym of musicScore.affiliatedSymbols ?? []) {
         const measureRule = DoubleMeasureAffiliatedSymbolRenderRule[sym.name as DoubleMeasureAffiliatedSymbolNameEnum];
@@ -282,7 +282,7 @@ export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: R
     }
 }
 
-/** 单音符附属：在音符头渲染完成后调用 */
+/** ????????????????? */
 export function renderSingleNoteAffiliatedSymbols(
     symbols: SingleNoteAffiliatedSymbol[] | undefined,
     noteHead: VDom,
@@ -310,7 +310,7 @@ export function renderSingleNoteAffiliatedSymbols(
     }
 }
 
-/** 单小节附属：measure.affiliatedSymbols */
+/** ??????measure.affiliatedSymbols */
 export function renderSingleMeasureAffiliatedSymbols(
     measure: Measure,
     measureX: number,

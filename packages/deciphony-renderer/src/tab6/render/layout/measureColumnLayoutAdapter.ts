@@ -1,5 +1,5 @@
 import type {Measure, StaffSlot} from '@/types/MusicScoreType';
-import type {GuitarTabSkinPack} from '@/types/common';
+import type {Tab6SkinPack} from '@/types/common';
 import type {ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
 import {
     getBarlineSkinKey,
@@ -7,14 +7,14 @@ import {
 } from '../utils/skinKey';
 import {
     getNoteHeadColumnWidthRatio,
-    getGuitarTabExtraOnsetRatios,
+    getTab6ExtraOnsetRatios,
     getSlotLayoutChronaxie,
 } from '../utils/note';
 import {isStaffSlot} from '../utils/staffSlot';
 
 export function computeStandardMeasureFixedWidths(
     measure: Measure,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): { prefixW: number; suffixW: number } {
     let prefixW = 0;
     if (measure.timeSignature_f) {
@@ -38,8 +38,8 @@ export function computeStandardMeasureFixedWidths(
     return {prefixW, suffixW};
 }
 
-export function createGuitarTabColumnLayoutAdapter(
-    skin: GuitarTabSkinPack,
+export function createTab6ColumnLayoutAdapter(
+    skin: Tab6SkinPack,
     measureHeight: number,
 ): ColumnLayoutSlotAdapter {
     return {
@@ -47,7 +47,7 @@ export function createGuitarTabColumnLayoutAdapter(
         getChronaxie: (note) => getSlotLayoutChronaxie(note as StaffSlot),
         getNoteWidthRatio: (note) => getNoteHeadColumnWidthRatio(note as StaffSlot, skin, measureHeight),
         getExtraOnsetRatios: (note, slotOnset) =>
-            getGuitarTabExtraOnsetRatios(note as StaffSlot, skin).map((e) => ({
+            getTab6ExtraOnsetRatios(note as StaffSlot, skin).map((e) => ({
                 onset: slotOnset + e.onsetOffset,
                 ratio: e.ratio,
             })),

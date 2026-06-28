@@ -1,19 +1,19 @@
 /**
  * 吉他谱普通音符符杠：符干向下；时值 / beamType 取 notes[0]；
- * 符杠斜率 = 组内首、末符干终点连线（见 guitarTabBeamLine.ts）。
+ * 符杠斜率 = 组内首、末符干终点连线（见 tab6BeamLine.ts）。
  */
 
-import type {GuitarTabSkinPack} from "@/types/common";
+import type {Tab6SkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import type {NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {getSlotBeamChronaxie, getSlotBeamType, getSlotStemTargetId} from "../utils/note";
 import {isNoteSymbol} from "../utils/staffSlot";
-import {computeGuitarTabBeamFromStemEnds, type StemEndPoint} from "./guitarTabBeamLine";
+import {computeTab6BeamFromStemEnds, type StemEndPoint} from "./tab6BeamLine";
 
 const BEAM_DIRECTION = 'down' as const;
 
@@ -103,7 +103,7 @@ export function processBeam(params: {
     vDoms: VDom[];
     symbolVDomsStartIdx: number;
     symbolVDomsLength: number;
-    skin: GuitarTabSkinPack;
+    skin: Tab6SkinPack;
     measureHeight: number;
     measureLineWidth: number;
     skinName?: string;
@@ -131,7 +131,7 @@ export function processBeam(params: {
         }
         if (stemEnds.length < 2) continue;
 
-        const {inclination, anchor} = computeGuitarTabBeamFromStemEnds(stemEnds);
+        const {inclination, anchor} = computeTab6BeamFromStemEnds(stemEnds);
         const beamCounts = group.map((note) => chronaxieToBeamLineCount(getSlotBeamChronaxie(note)));
         const lineCount = Math.max(...beamCounts);
         const nStems = stemEnds.length;
@@ -171,7 +171,7 @@ export function processBeam(params: {
                 zIndex: 1200,
                 tag: 'noteBeam',
                 skinName: skinNameForNodes,
-                skinKey: GuitarTabSkinKeyEnum.NoteBeam,
+                skinKey: Tab6SkinKeyEnum.NoteBeam,
                 targetId: '',
                 dataComment: '符杠',
             });

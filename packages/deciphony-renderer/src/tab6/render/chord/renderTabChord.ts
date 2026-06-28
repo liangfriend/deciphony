@@ -1,7 +1,7 @@
 import type {VDom} from '@/types/common';
-import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
+import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {tabChord} from '@/types/MusicScoreType';
-import {GUITAR_TAB_CHORD_Y_OFFSET_RATIO} from '../constants';
+import {TAB_6_CHORD_Y_OFFSET_RATIO} from '../constants';
 
 function tabChordToSpecial(chord: tabChord): NonNullable<VDom['special']['tabChord']> {
     const {
@@ -51,12 +51,12 @@ export function buildTabChordVDom(params: {
     const h = chord.height;
     return {
         x: slotCenterX,
-        y: measureY - h - measureHeight * GUITAR_TAB_CHORD_Y_OFFSET_RATIO,
+        y: measureY - h - measureHeight * TAB_6_CHORD_Y_OFFSET_RATIO,
         w,
         h,
         zIndex,
         tag: 'tabChord',
-        skinKey: GuitarTabSkinKeyEnum.TabChord,
+        skinKey: Tab6SkinKeyEnum.TabChord,
         skinName,
         targetId,
         startPoint: {x: 0, y: 0},

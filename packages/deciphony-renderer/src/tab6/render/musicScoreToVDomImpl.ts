@@ -4,7 +4,7 @@
 
 import {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 import {MusicScore, GrandStaff, SingleStaff, Measure, NoteSymbol} from "@/types/MusicScoreType";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
 import type {NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
@@ -15,7 +15,7 @@ import {buildLinkedMeasureColumnLayouts} from "@/render/layout/measureColumnLayo
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import {
     computeStandardMeasureFixedWidths,
-    createGuitarTabColumnLayoutAdapter,
+    createTab6ColumnLayoutAdapter,
 } from "./layout/measureColumnLayoutAdapter";
 import {processBeam} from "./beam/processBeam";
 import {renderMusicScoreAffiliatedSymbols, renderSingleMeasureAffiliatedSymbols} from "@/render/affiliated";
@@ -50,9 +50,9 @@ export function musicScoreToVDom(
     const sn = options?.skinName;
     const effectiveSkinName = sn && s && sn in s ? sn : 'default';
     const skinPack: SkinPack = s?.[effectiveSkinName] ?? defaultSkin;
-    const skin = skinPack.guitarTab ?? (defaultSkin.guitarTab as import("@/types/common").GuitarTabSkinPack);
-    const measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45;
-    const measureLineWidth = skin[GuitarTabSkinKeyEnum.Measure]?.w ?? 1;
+    const skin = skinPack.tab6 ?? (defaultSkin.tab6 as import("@/types/common").Tab6SkinPack);
+    const measureHeight = skin[Tab6SkinKeyEnum.Measure]?.h ?? 45;
+    const measureLineWidth = skin[Tab6SkinKeyEnum.Measure]?.w ?? 1;
     const vDoms: VDom[] = [];
     /** 曲谱 id → 累计 Frame；子级偏移 = 祖先 relative 之和 + 自身（见 vdomFrame collectRelativeFrameMap） */
     const relativeFrameMap = collectRelativeFrameMap(musicScore);
@@ -165,7 +165,7 @@ export function musicScoreToVDom(
 
         let linkedColumnLayoutsByMi: (MeasureColumnLayout | null)[][] = [];
         if (linkedStaff && maxMeasures > 0) {
-            const columnAdapter = createGuitarTabColumnLayoutAdapter(skin, measureHeight);
+            const columnAdapter = createTab6ColumnLayoutAdapter(skin, measureHeight);
             linkedColumnLayoutsByMi = new Array(maxMeasures);
             for (let mi = 0; mi < maxMeasures; mi++) {
                 const measuresAtMi = grandStaff.staves.map((s) => s.measures[mi] ?? null);
@@ -380,7 +380,7 @@ export function musicScoreToVDom(
             if (linkedStaff && i >= 1 && prevMeasureStartY !== undefined) {
                 const linkedBarlineY = prevMeasureStartY + measureHeight;
                 const linkedBarlineH = currentMeasureStartY - linkedBarlineY;
-                const linkedCloseLineKey = GuitarTabSkinKeyEnum.linked_close_line;
+                const linkedCloseLineKey = Tab6SkinKeyEnum.linked_close_line;
                 const linkedCloseLineItem = skin[linkedCloseLineKey];
                 vDoms.push({
                     startPoint: {x: 0, y: 0},
@@ -457,7 +457,7 @@ export function musicScoreToVDom(
             measureCurrentX = grandStaffX;
 
             // 单谱表开始要加一个闭合线，闭合第一小节左侧
-            const closeLineSkinKey = GuitarTabSkinKeyEnum.Close_line;
+            const closeLineSkinKey = Tab6SkinKeyEnum.Close_line;
             const closeLineItem = skin[closeLineSkinKey];
             vDoms.push({
                 startPoint: {x: 0, y: 0},
@@ -481,7 +481,7 @@ export function musicScoreToVDom(
                     startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
                     x: measureCurrentX, y: grandStaffCurrentY, w: measureWidth, h: measureHeight,
                     zIndex: 1000, tag: 'measure', skinName: effectiveSkinName, targetId: measure.id,
-                    dataComment: '小节', skinKey: GuitarTabSkinKeyEnum.Measure,
+                    dataComment: '小节', skinKey: Tab6SkinKeyEnum.Measure,
                 });
                 setNodeIdMap(nodeIdMap, measure.id, vDoms[vDoms.length - 1]);
                 measureCurrentX += measureWidth;

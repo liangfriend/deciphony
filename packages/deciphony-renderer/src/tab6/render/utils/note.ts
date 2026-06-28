@@ -1,5 +1,5 @@
 import type {AugmentationDot, Measure, NoteRest, NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
-import type {GuitarTabSkinPack} from "@/types/common";
+import type {Tab6SkinPack} from "@/types/common";
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import type {Chronaxie} from "@/types/common";
@@ -14,7 +14,7 @@ import {
     getTabNoteValue,
     getTimeSignatureSkinKey,
 } from "./skinKey";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import {isNoteRest, isNoteSymbol} from "./staffSlot";
 
 export type VoiceGroup = {
@@ -199,7 +199,7 @@ function getSlotTabNoteValue(slot: StaffSlot): number {
     return 0;
 }
 
-function getSlotHeadSkinKey(slot: StaffSlot): GuitarTabSkinKeyEnum {
+function getSlotHeadSkinKey(slot: StaffSlot): Tab6SkinKeyEnum {
     if (isNoteSymbol(slot) && slot.notesInfo[0]) {
         return getTabNoteHeadSkinKey(slot.notesInfo[0]);
     }
@@ -208,7 +208,7 @@ function getSlotHeadSkinKey(slot: StaffSlot): GuitarTabSkinKeyEnum {
 
 function getSlotSkinWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
     forMeasure: boolean,
 ): number {
     const chronaxie = getLayoutChronaxieForSlot(slot);
@@ -223,7 +223,7 @@ function getSlotSkinWidthRatio(
 
 function collectHeadSubWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
     pick: WidthPick,
     includeAugDot: boolean,
 ): number {
@@ -242,7 +242,7 @@ function collectHeadSubWidthRatio(
 
 function collectAugDotSubWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
     pick: WidthPick,
 ): number {
     let sub = 0;
@@ -266,8 +266,8 @@ function collectAugDotSubWidthRatio(
 /** 符头 onset 列：slot widthRatio + 附点等；有加时线时不含附点。倚音宽不参与列宽。 */
 export function getNoteHeadColumnWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
-    _measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45,
+    skin: Tab6SkinPack,
+    _measureHeight = skin[Tab6SkinKeyEnum.Measure]?.h ?? 45,
 ): number {
     const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
     return (
@@ -279,7 +279,7 @@ export function getNoteHeadColumnWidthRatio(
 /** 中间加时线 onset 列：仅皮肤 widthRatio */
 export function getAddLineOnlyColumnWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): number {
     return getSlotSkinWidthRatio(slot, skin, false);
 }
@@ -287,7 +287,7 @@ export function getAddLineOnlyColumnWidthRatio(
 /** 最后一条加时线 onset 列：皮肤 + 附点（若有） */
 export function getLastAddLineColumnWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): number {
     return (
         getSlotSkinWidthRatio(slot, skin, false)
@@ -297,7 +297,7 @@ export function getLastAddLineColumnWidthRatio(
 
 function getNoteHeadColumnWidthRatioForMeasure(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
     _measureHeight: number,
 ): number {
     const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
@@ -314,14 +314,14 @@ function getNoteHeadColumnWidthRatioForMeasure(
 
 function getAddLineOnlyColumnWidthRatioForMeasure(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): number {
     return getSlotSkinWidthRatio(slot, skin, true);
 }
 
 function getLastAddLineColumnWidthRatioForMeasure(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): number {
     return (
         getSlotSkinWidthRatio(slot, skin, true)
@@ -336,8 +336,8 @@ function getLastAddLineColumnWidthRatioForMeasure(
 /** 音符 / 休止符在小节内的宽度占比（符头 + 各加时线虚拟列） */
 export function getNoteWidthRatio(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
-    measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45,
+    skin: Tab6SkinPack,
+    measureHeight = skin[Tab6SkinKeyEnum.Measure]?.h ?? 45,
 ): number {
     const offsets = getSlotAddLineOnsetOffsets(slot);
     let acc = getNoteHeadColumnWidthRatio(slot, skin, measureHeight);
@@ -352,8 +352,8 @@ export function getNoteWidthRatio(
 /** 音符 / 休止符对小节在单谱表内宽度占比的系数 */
 export function getNoteWidthRatioForMeasure(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
-    measureHeight = skin[GuitarTabSkinKeyEnum.Measure]?.h ?? 45,
+    skin: Tab6SkinPack,
+    measureHeight = skin[Tab6SkinKeyEnum.Measure]?.h ?? 45,
 ): number {
     const offsets = getSlotAddLineOnsetOffsets(slot);
     let acc = getNoteHeadColumnWidthRatioForMeasure(slot, skin, measureHeight);
@@ -366,9 +366,9 @@ export function getNoteWidthRatioForMeasure(
 }
 
 /** 吉他谱列布局：为 slot 登记加时线虚拟 onset 的 widthRatio（不含 DEFAULT） */
-export function getGuitarTabExtraOnsetRatios(
+export function getTab6ExtraOnsetRatios(
     slot: StaffSlot,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): Array<{ onsetOffset: number; ratio: number }> {
     const offsets = getSlotAddLineOnsetOffsets(slot);
     return offsets.map((offset, index) => ({
@@ -412,9 +412,9 @@ export function resolveAugmentationDotAnchorXFromLayout(
 }
 
 /** 小节的宽度系数（五线谱：仅统计 StaffSlot） */
-export function getMeasureWidthRatio(measure: Measure, skin: GuitarTabSkinPack): number {
+export function getMeasureWidthRatio(measure: Measure, skin: Tab6SkinPack): number {
     let acc = 0;
-    acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[GuitarTabSkinKeyEnum.Measure]?.widthRatioForMeasure);
+    acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[Tab6SkinKeyEnum.Measure]?.widthRatioForMeasure);
     for (let i = 0; i < measure.notes.length; i++) {
         const slot = measure.notes[i];
         if (isNoteSymbol(slot) || isNoteRest(slot)) {

@@ -1,13 +1,13 @@
-import type {GuitarTabSkinPack} from '@/types/common';
+import type {Tab6SkinPack} from '@/types/common';
 import {VDom} from '@/types/common';
 import type {NoteSymbol, TabNoteInfo} from '@/types/MusicScoreType';
 import {getTabNoteStemAnchorRegion, isTabNoteHeadInfo} from '../utils/tabNoteInfo';
-import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
+import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {NodeIdMap} from '../types';
 import {
-  GUITAR_TAB_STEM_END_OFFSET_RATIO,
-  GUITAR_TAB_STEM_END_OFFSET_RATIO_WITH_TAIL,
-  GUITAR_TAB_STEM_START_OFFSET_RATIO,
+  TAB_6_STEM_END_OFFSET_RATIO,
+  TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL,
+  TAB_6_STEM_START_OFFSET_RATIO,
 } from '../constants';
 import {getNoteTailSkinKey} from '../utils/skinKey';
 import {GRACE_NOTE_SCALE} from '@/render/graceNote';
@@ -21,7 +21,7 @@ function getNoteTailYOffset(chronaxie: number, measureHeight: number): number {
   return 0;
 }
 
-export type RenderGuitarTabStemAndTailParams = {
+export type RenderTab6StemAndTailParams = {
   note: NoteSymbol;
   allNotesInfo: TabNoteInfo[];
   idMap: NodeIdMap;
@@ -29,7 +29,7 @@ export type RenderGuitarTabStemAndTailParams = {
   slotCenterX: number;
   measureY: number;
   measureHeight: number;
-  skin: GuitarTabSkinPack;
+  skin: Tab6SkinPack;
   zIndex: number;
   skinName?: string;
   noteCenterY: (region: number) => number;
@@ -43,7 +43,7 @@ function renderStemFromHeadAnchor(params: {
   measureHeight: number;
   chronaxie: number;
   targetId: string;
-  skin: GuitarTabSkinPack;
+  skin: Tab6SkinPack;
   zIndex: number;
   skinName: string;
   isGrace?: boolean;
@@ -63,14 +63,14 @@ function renderStemFromHeadAnchor(params: {
   const out: VDom[] = [];
   if (chronaxie >= 256) return out;
 
-  const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
+  const stemSkin = skin[Tab6SkinKeyEnum.NoteStem];
   if (!stemSkin) return out;
 
-  const stemStartY = headCenterY + GUITAR_TAB_STEM_START_OFFSET_RATIO * measureHeight;
+  const stemStartY = headCenterY + TAB_6_STEM_START_OFFSET_RATIO * measureHeight;
   const hasTail = chronaxie <= 32;
   const stemEndOffsetRatio = hasTail
-    ? GUITAR_TAB_STEM_END_OFFSET_RATIO_WITH_TAIL
-    : GUITAR_TAB_STEM_END_OFFSET_RATIO;
+    ? TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL
+    : TAB_6_STEM_END_OFFSET_RATIO;
   const stemEndY = measureY + measureHeight + stemEndOffsetRatio * measureHeight;
   const stemW = stemSkin.w * (isGrace ? GRACE_NOTE_SCALE : 1);
   const stemX = headCenterX - stemW / 2;
@@ -88,7 +88,7 @@ function renderStemFromHeadAnchor(params: {
     tag: 'noteStem',
     skinName,
     targetId,
-    skinKey: GuitarTabSkinKeyEnum.NoteStem,
+    skinKey: Tab6SkinKeyEnum.NoteStem,
     dataComment: isGrace ? '倚音符干' : '符干',
   });
 
@@ -121,8 +121,8 @@ function renderStemFromHeadAnchor(params: {
 /**
  * 吉他谱 slot 符干符尾：锚 region = 全体 region / regionRange 端点最小；x = slot 中心。
  */
-export function renderGuitarTabStemAndTailForSlot(
-  params: RenderGuitarTabStemAndTailParams,
+export function renderTab6StemAndTailForSlot(
+  params: RenderTab6StemAndTailParams,
 ): VDom[] {
   const {
     allNotesInfo,
@@ -176,7 +176,7 @@ export type RenderStemAndTailParams = {
   measureY: number;
   measureHeight: number;
   measureWidth: number;
-  skin: GuitarTabSkinPack;
+  skin: Tab6SkinPack;
   zIndex: number;
   idMap: NodeIdMap;
   chronaxie?: number;

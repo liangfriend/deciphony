@@ -2105,7 +2105,7 @@
       "skinKey": "cut"
     }
   },
-  "guitarTab": {
+  "tab6": {
     "measure": {
       "content": "\n      <rect x=\"0\" y=\"0\" width=\"node.w\" height=\"node.h\" stroke=\"transparent\" fill=\"transparent\" />\n      <line x1=\"0\" y1=\"0.5\" x2=\"node.w\" y2=\"0.5\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"0\" y1=\"11.5\" x2=\"node.w\" y2=\"11.5\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"0\" y1=\"22.5\" x2=\"node.w\" y2=\"22.5\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"0\" y1=\"33.5\" x2=\"node.w\" y2=\"33.5\" stroke=\"black\" stroke-width=\"1\" />\n      <line x1=\"0\" y1=\"44.5\" x2=\"node.w\" y2=\"44.5\" stroke=\"black\" stroke-width=\"1\" />\n<line x1=\"0\" y1=\"55.5\" x2=\"node.w\" y2=\"55.5\" stroke=\"black\" stroke-width=\"1\" />\n",
       "w": 1,

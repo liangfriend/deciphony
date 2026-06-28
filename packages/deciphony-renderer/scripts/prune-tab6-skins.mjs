@@ -18,9 +18,9 @@ const REMOVE_KEYS = new Set([
 ])
 
 const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
-const pack = data.guitarTab
+const pack = data.tab6
 if (!pack) {
-  console.error('guitarTab section not found')
+  console.error('tab6 section not found')
   process.exit(1)
 }
 
@@ -33,4 +33,4 @@ for (const key of [...REMOVE_KEYS]) {
 }
 
 fs.writeFileSync(jsonPath, `${JSON.stringify(data, null, 2)}\n`)
-console.log(`removed ${removed} guitarTab skin keys`)
+console.log(`removed ${removed} tab6 skin keys`)

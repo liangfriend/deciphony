@@ -2,7 +2,7 @@
 /**
  * 由两个首尾相连的三次贝塞尔曲线构成；每段末端有箭头（方向由起终点 y 判断，向上 y 减小）。
  *
- * 推弦 1～2 个阶段（period_one / period_two），高度常量见 GUITAR_TAB_BEND_*_RATIO × measureHeight。
+ * 推弦 1～2 个阶段（period_one / period_two），高度常量见 TAB_6_BEND_*_RATIO × measureHeight。
  *
  * BendTypeEnum 几何（SVG：向上 = y 减小）：
  * - Bend：仅阶段1，音符中心 → (slotEndX, noteCenterY - h1)

@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import MusicScore from 'deciphony-renderer'
-import data from './data/guitarTabTest'
+import data from './data/tab6Test'
 
 const initialData = JSON.parse(JSON.stringify(data))
 const musicScoreData = ref(initialData)

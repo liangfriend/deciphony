@@ -3,7 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
-const enumPath = path.join(root, '../src/guitarTab/enums/guitarTabSkinKeyEnum.ts')
+const enumPath = path.join(root, '../src/tab6/enums/tab6SkinKeyEnum.ts')
 const jsonPath = path.join(root, '../src/skins/default.json')
 
 /** 从枚举文件提取 skinKey 字符串（去重） */
@@ -61,7 +61,7 @@ function makeTabHarmonicSkin(skinKey) {
   }
 }
 
-/** guitarTab 倚音减时线/托架：相对简谱永久缩小一半（坐标直接绘制，不用 transform scale） */
+/** tab6 倚音减时线/托架：相对简谱永久缩小一半（坐标直接绘制，不用 transform scale） */
 const GRACE_REDUCE_LINE_Y = [0.25, 2.25, 3.75, 4.75, 5.75, 6.75]
 const GRACE_REDUCE_LINE_H = [5, 7.5, 9, 10, 11, 12]
 
@@ -76,7 +76,7 @@ function makeGraceReduceLineSkin(lineCount) {
   }
 }
 
-const GUITAR_TAB_HALF_GRACE_SKINS = {
+const TAB_6_HALF_GRACE_SKINS = {
   reduceLine_1: makeGraceReduceLineSkin(1),
   reduceLine_2: makeGraceReduceLineSkin(2),
   reduceLine_3: makeGraceReduceLineSkin(3),
@@ -96,7 +96,7 @@ const GUITAR_TAB_HALF_GRACE_SKINS = {
 }
 
 function buildHalvedGraceSkin(key) {
-  const half = GUITAR_TAB_HALF_GRACE_SKINS[key]
+  const half = TAB_6_HALF_GRACE_SKINS[key]
   if (!half) return null
   return {
     ...half,
@@ -117,7 +117,7 @@ const GRACE_REDUCE_LINE_KEYS = new Set([
 
 const enumKeys = parseEnumSkinKeys()
 const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
-const oldPack = data.guitarTab ?? {}
+const oldPack = data.tab6 ?? {}
 const newPack = {}
 
 let added = 0
@@ -158,10 +158,10 @@ for (const key of Object.keys(oldPack)) {
   if (!enumKeys.has(key)) removed++
 }
 
-data.guitarTab = newPack
+data.tab6 = newPack
 fs.writeFileSync(jsonPath, `${JSON.stringify(data, null, 2)}\n`)
 
-console.log(`guitarTab synced: kept ${kept}, tabNote ${added + 28} total, removed ${removed} unused keys`)
+console.log(`tab6 synced: kept ${kept}, tabNote ${added + 28} total, removed ${removed} unused keys`)
 console.log(`enum keys: ${enumKeys.size}, pack keys: ${Object.keys(newPack).length}`)
 
 const missing = [...enumKeys].filter((k) => !newPack[k])

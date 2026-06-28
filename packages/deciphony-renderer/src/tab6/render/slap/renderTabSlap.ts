@@ -1,5 +1,5 @@
 import type {VDom} from '@/types/common';
-import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
+import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 
 export function buildTabSlapVDom(params: {
   startPoint: { x: number; y: number };
@@ -18,7 +18,7 @@ export function buildTabSlapVDom(params: {
     h,
     zIndex,
     tag: 'tabSlap',
-    skinKey: GuitarTabSkinKeyEnum.Tab_slap,
+    skinKey: Tab6SkinKeyEnum.Tab_slap,
     skinName,
     targetId,
     startPoint,

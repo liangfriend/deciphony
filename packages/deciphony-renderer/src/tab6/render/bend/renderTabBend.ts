@@ -1,12 +1,12 @@
 import {BendTypeEnum} from '@/enums/musicScoreEnum';
-import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
+import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {VDom} from '@/types/common';
 import type {Bend} from '@/types/MusicScoreType';
 import {
-  GUITAR_TAB_BEND_PERIOD_ONE_HEIGHT_RATIO,
-  GUITAR_TAB_BEND_PERIOD_TWO_HEIGHT_RATIO,
-  GUITAR_TAB_BEND_TEXT_OFFSET_RATIO,
-  GUITAR_TAB_BEND_THICKNESS_RATIO,
+  TAB_6_BEND_PERIOD_ONE_HEIGHT_RATIO,
+  TAB_6_BEND_PERIOD_TWO_HEIGHT_RATIO,
+  TAB_6_BEND_TEXT_OFFSET_RATIO,
+  TAB_6_BEND_THICKNESS_RATIO,
 } from '../constants';
 import {formatBendSemitoneLabel} from './formatBendSemitone';
 
@@ -49,7 +49,7 @@ function buildPeriod(
   measureHeight: number,
 ): BendPeriodSpecial {
   const {cp1, cp2} = controlPoints(start, end, prebend);
-  const textOffset = measureHeight * GUITAR_TAB_BEND_TEXT_OFFSET_RATIO;
+  const textOffset = measureHeight * TAB_6_BEND_TEXT_OFFSET_RATIO;
   return {
     relativeStartPoint: start,
     relativeEndPoint: end,
@@ -107,8 +107,8 @@ export function buildTabBendVDom(params: {
   zIndex: number;
 }): VDom | null {
   const {bend, noteCenterX, noteCenterY, slotEndX, measureHeight, skinName, zIndex} = params;
-  const h1 = measureHeight * GUITAR_TAB_BEND_PERIOD_ONE_HEIGHT_RATIO;
-  const h2 = measureHeight * GUITAR_TAB_BEND_PERIOD_TWO_HEIGHT_RATIO;
+  const h1 = measureHeight * TAB_6_BEND_PERIOD_ONE_HEIGHT_RATIO;
+  const h2 = measureHeight * TAB_6_BEND_PERIOD_TWO_HEIGHT_RATIO;
   const start: Pt = {x: noteCenterX, y: noteCenterY};
   const prebend = isPrebendType(bend.type);
   const periodOneEnd = resolvePeriodOneEnd(bend.type, noteCenterX, noteCenterY, slotEndX, h1);
@@ -131,14 +131,14 @@ export function buildTabBendVDom(params: {
     endPoint: period_two?.relativeEndPoint ?? period_one.relativeEndPoint,
     zIndex,
     tag: 'bend',
-    skinKey: GuitarTabSkinKeyEnum.Bend,
+    skinKey: Tab6SkinKeyEnum.Bend,
     skinName,
     targetId: bend.id,
     special: {
       bend: {
         period_one,
         ...(period_two ? {period_two} : {}),
-        thickness: Math.max(1, measureHeight * GUITAR_TAB_BEND_THICKNESS_RATIO),
+        thickness: Math.max(1, measureHeight * TAB_6_BEND_THICKNESS_RATIO),
         type: bend.type,
       },
     },

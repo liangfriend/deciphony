@@ -3,9 +3,9 @@
  */
 
 import {VDom} from "@/types/common";
-import type {GuitarTabSkinPack} from "@/types/common";
+import type {Tab6SkinPack} from "@/types/common";
 import type {TabNote, TabNoteInfo} from "@/types/MusicScoreType";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {AUGMENTATION_DOT_GAP} from "../constants";
 import {
@@ -45,7 +45,7 @@ function buildGraceReduceSlot(
     ni: TabNoteInfo,
     noteLeft: number,
     noteCenterY: (region: number) => number,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
 ): GraceReduceSlot | null {
     if (!isTabNoteHeadInfo(ni)) return null;
     const headSkin = skin[getTabNoteHeadSkinKey(ni)];
@@ -79,8 +79,8 @@ function processGracePedestals(
 ): void {
     const {skin, skinName, zIndex, out, measureHeight} = ctx;
     const skinKey = side === 'before'
-        ? GuitarTabSkinKeyEnum.Grace_pedestal_before
-        : GuitarTabSkinKeyEnum.Grace_pedestal_after;
+        ? Tab6SkinKeyEnum.Grace_pedestal_before
+        : Tab6SkinKeyEnum.Grace_pedestal_after;
     const pedestalSkin = skin[skinKey];
     if (!pedestalSkin) return;
 
@@ -179,7 +179,7 @@ function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceTabCt
 /** 单条倚音占位宽度（与主音等大，无缩放） */
 export function estimateGraceTabNoteInfoWidth(
     ni: TabNoteInfo,
-    skin: GuitarTabSkinPack,
+    skin: Tab6SkinPack,
     measureHeight: number,
 ): number {
     const headItem = skin[getTabNoteHeadSkinKey(ni)];
@@ -198,7 +198,7 @@ export type RenderGraceTabCtx = {
     measureHeight: number;
     measureLineWidth: number;
     measureWidth: number;
-    skin: GuitarTabSkinPack;
+    skin: Tab6SkinPack;
     skinName: string;
     zIndex: number;
     note: TabNote;

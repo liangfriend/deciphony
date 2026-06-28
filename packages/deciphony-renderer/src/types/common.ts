@@ -1,7 +1,7 @@
 // 虚拟DOM节点类型：供开发者用 tag 区分点击目标，不参与 skin 查找
 import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
-import type {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import type {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {BendTypeEnum, SlurTypeEnum} from "@/enums/musicScoreEnum";
 import type {NoteName} from "@/enums/musicScoreEnum";
 import {
@@ -16,7 +16,7 @@ import {
 import type {Barre, StringState} from "@/types/MusicScoreType";
 
 /** 按曲谱模式区分的 skinKey 联合类型 */
-export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum | GuitarTabSkinKeyEnum;
+export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum | Tab6SkinKeyEnum;
 
 /** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
 export type VDomTagType =
@@ -207,13 +207,13 @@ export type StandardStaffSkinPack = Record<StandardStaffSkinKeyEnum, SkinItem<St
 /** 简谱单套皮肤包 */
 export type NumberNotationSkinPack = Record<NumberNotationSkinKeyEnum, SkinItem<NumberNotationSkinKeyEnum>>;
 /** 吉他谱单套皮肤包 */
-export type GuitarTabSkinPack = Record<GuitarTabSkinKeyEnum, SkinItem<GuitarTabSkinKeyEnum>>;
+export type Tab6SkinPack = Record<Tab6SkinKeyEnum, SkinItem<Tab6SkinKeyEnum>>;
 
 /** 单套皮肤包：按曲谱模式嵌套，一谱一套 skinKey */
 export type SkinPack = {
     standardStaff?: StandardStaffSkinPack;
     numberNotation?: NumberNotationSkinPack;
-    guitarTab?: GuitarTabSkinPack
+    tab6?: Tab6SkinPack
 };
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */

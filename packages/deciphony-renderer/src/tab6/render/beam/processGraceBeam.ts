@@ -8,16 +8,16 @@
  * - 符杠接点 x 用 graceStemBeamAttachX（组内缘），绘制段界仍用符干中心 + overlap 嵌入。
  */
 
-import type {GuitarTabSkinPack} from "@/types/common";
+import type {Tab6SkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
 import type {NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {isNoteSymbol} from "../utils/staffSlot";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
-import {computeGuitarTabBeamFromStemEnds} from "./guitarTabBeamLine";
+import {computeTab6BeamFromStemEnds} from "./tab6BeamLine";
 import {GRACE_NOTE_SCALE} from "@/render/graceNote";
 
 /**
@@ -121,7 +121,7 @@ export function processGraceBeam(params: {
     /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */
     symbolVDomsStartIdx: number;
     symbolVDomsLength: number;
-    skin: GuitarTabSkinPack;
+    skin: Tab6SkinPack;
     measureHeight: number;
     measureLineWidth: number;
     skinName?: string;
@@ -157,8 +157,8 @@ export function processGraceBeam(params: {
         }
         if (stemEnds.length < 2) continue;
 
-        const {inclination, anchor} = computeGuitarTabBeamFromStemEnds(stemEnds);
-        const stemSkin = skin[GuitarTabSkinKeyEnum.NoteStem];
+        const {inclination, anchor} = computeTab6BeamFromStemEnds(stemEnds);
+        const stemSkin = skin[Tab6SkinKeyEnum.NoteStem];
         const stemHalfW = stemSkin ? stemSkin.w / 2 : 0;
         const beamCounts = visualOrder.map((ni) => chronaxieToBeamLineCount(ni.chronaxie));
         const lineCount = Math.max(...beamCounts);
@@ -242,7 +242,7 @@ export function processGraceBeam(params: {
                 zIndex: 1200,
                 tag: 'noteBeam',
                 skinName: skinNameForNodes,
-                skinKey: GuitarTabSkinKeyEnum.NoteBeam,
+                skinKey: Tab6SkinKeyEnum.NoteBeam,
                 targetId: '',
                 dataComment: '倚音符杠',
             });

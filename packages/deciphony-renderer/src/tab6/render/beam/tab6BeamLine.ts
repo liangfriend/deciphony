@@ -5,7 +5,7 @@
 export type StemEndPoint = { x: number; y: number };
 
 /** 由首末符干终点 (x,y) 得符杠直线：y = anchor.y + inclination * (x - anchor.x) */
-export function computeGuitarTabBeamFromStemEnds(
+export function computeTab6BeamFromStemEnds(
     stemEnds: StemEndPoint[],
 ): { inclination: number; anchor: StemEndPoint } {
     const first = stemEnds[0]!;

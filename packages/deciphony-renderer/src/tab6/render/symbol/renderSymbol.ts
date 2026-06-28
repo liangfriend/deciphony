@@ -4,7 +4,7 @@
 
 import {VDom} from "@/types/common";
 import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot, tabChord, TabNote, TabNoteInfo} from "@/types/MusicScoreType";
-import {GuitarTabSkinKeyEnum} from "@/guitarTab/enums/guitarTabSkinKeyEnum";
+import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {AUGMENTATION_DOT_GAP} from "../constants";
 import {
@@ -25,14 +25,14 @@ import {
     resolveAugmentationDotAnchorXFromLayout,
 } from "../utils/note";
 import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
-import {renderGuitarTabStemAndTailForSlot} from "../note/renderStemAndTail";
+import {renderTab6StemAndTailForSlot} from "../note/renderStemAndTail";
 import {
     renderGraceNotesAfter,
     renderGraceNotesBefore,
 } from "../grace/renderGraceStaff";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {buildMeasureColumnLayout, computeSlotOnset} from "@/render/layout/measureColumnLayout";
-import {createGuitarTabColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
+import {createTab6ColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 import {TabNoteInfoTypeEnum} from "@/enums/musicScoreEnum";
 import {
     getTabNoteInfoRegion,
@@ -73,7 +73,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     const z = 1200;
 
     type RightPart = {
-        skinKey: typeof GuitarTabSkinKeyEnum[keyof typeof GuitarTabSkinKeyEnum];
+        skinKey: typeof Tab6SkinKeyEnum[keyof typeof Tab6SkinKeyEnum];
         tag: VDom['tag'];
         dataComment: string;
         targetId: string;
@@ -128,7 +128,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     * */
     const pushSymbol = (
         x: number,
-        skinKey: typeof GuitarTabSkinKeyEnum[keyof typeof GuitarTabSkinKeyEnum],
+        skinKey: typeof Tab6SkinKeyEnum[keyof typeof Tab6SkinKeyEnum],
         tag: VDom['tag'],
         dataComment: string,
         targetId: string,
@@ -167,7 +167,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     }
 
     const notes = measure.notes;
-    const columnAdapter = createGuitarTabColumnLayoutAdapter(skin, measureHeight);
+    const columnAdapter = createTab6ColumnLayoutAdapter(skin, measureHeight);
     const layout =
         columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter);
     const domainStartX = measureX + layout.noteDomainStartOffset;
@@ -240,7 +240,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     ): void {
         const addLineCount = getAddLineCount(chronaxie, augmentationDot);
         if (addLineCount <= 0) return;
-        const addLineSkin = skin[GuitarTabSkinKeyEnum.Addline];
+        const addLineSkin = skin[Tab6SkinKeyEnum.Addline];
         if (!addLineSkin) return;
         const lineY = measureY + measureHeight / 2 - addLineSkin.h / 2;
         for (let k = 0; k < addLineCount; k++) {
@@ -258,7 +258,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 tag: 'addLine',
                 skinName: skinNameForNodes,
                 targetId,
-                skinKey: GuitarTabSkinKeyEnum.Addline,
+                skinKey: Tab6SkinKeyEnum.Addline,
                 dataComment: '加时线',
             });
         }
@@ -329,7 +329,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     if (renderableDot) {
                         const augSkinKey = getAugmentationDotSkinKey(renderableDot);
                         const augSkin = skin[augSkinKey];
-                        const addLineSkin = skin[GuitarTabSkinKeyEnum.Addline];
+                        const addLineSkin = skin[Tab6SkinKeyEnum.Addline];
                         if (augSkin) {
                             const anchorX = resolveAugmentationDotAnchorXFromLayout(
                                 layout,
@@ -385,8 +385,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     const arrowWidth = resolveTabArrowWidth(info);
                     const isArpeggio = info.type === TabNoteInfoTypeEnum.Arpeggio;
                     const skinKey = isArpeggio
-                        ? GuitarTabSkinKeyEnum.Arpeggio
-                        : GuitarTabSkinKeyEnum.Strumming;
+                        ? Tab6SkinKeyEnum.Arpeggio
+                        : Tab6SkinKeyEnum.Strumming;
                     const geomStyle = {thickness, arrowWidth};
                     const vdom: VDom = {
                         startPoint: {
@@ -507,7 +507,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 const augSkinKey = getAugmentationDotSkinKey(renderableDot);
                 const augSkin = skin[augSkinKey];
                 if (!augSkin) return;
-                const addLineSkin = skin[GuitarTabSkinKeyEnum.Addline];
+                const addLineSkin = skin[Tab6SkinKeyEnum.Addline];
                 const anchorX = niIdx === 0 && hasAddLines
                     ? resolveAugmentationDotAnchorXFromLayout(
                         layout,
@@ -548,7 +548,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             }
 
             // 7) 符干符尾：锚 region 取全体 region / regionRange 端点最小值；x 对齐 slot 中心
-            const stemTailVDoms = renderGuitarTabStemAndTailForSlot({
+            const stemTailVDoms = renderTab6StemAndTailForSlot({
                 note,
                 allNotesInfo: allNotesInfo as TabNoteInfo[],
                 idMap,
@@ -583,7 +583,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 export function getBarlineFXInMeasure(
     measure: import("@/types/MusicScoreType").Measure,
     measureX: number,
-    skin: import("@/types/common").GuitarTabSkinPack,
+    skin: import("@/types/common").Tab6SkinPack,
 ): number {
     let prefixW = 0;
 
@@ -599,9 +599,9 @@ export function getBarlineXInMeasure(
     measure: import("@/types/MusicScoreType").Measure,
     measureX: number,
     measureWidth: number,
-    skin: import("@/types/common").GuitarTabSkinPack,
+    skin: import("@/types/common").Tab6SkinPack,
 ): number {
-    const rightKeys: typeof GuitarTabSkinKeyEnum[keyof typeof GuitarTabSkinKeyEnum][] = [];
+    const rightKeys: typeof Tab6SkinKeyEnum[keyof typeof Tab6SkinKeyEnum][] = [];
     if (measure.barline_b) rightKeys.push(getBarlineSkinKey(measure.barline_b.type));
     if (measure.timeSignature_b) rightKeys.push(getTimeSignatureSkinKey(measure.timeSignature_b.type));
     let suffixW = 0;

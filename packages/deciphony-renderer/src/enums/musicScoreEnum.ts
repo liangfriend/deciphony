@@ -5,7 +5,7 @@ export enum MusicScoreTypeEnum {
 
     NumberNotation,      // 简谱（数字谱）
 
-    GuitarTab,           // 吉他谱（TAB）
+    Tab6,           // 吉他谱（TAB）
 
     DrumNotation,          // 鼓谱
 

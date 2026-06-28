@@ -1,5 +1,5 @@
-/** 五线谱皮肤 key：一谱一套，仅用于 guitarTab */
-export enum GuitarTabSkinKeyEnum {
+/** 五线谱皮肤 key：一谱一套，仅用于 tab6 */
+export enum Tab6SkinKeyEnum {
   Measure = 'measure',
 
   // 闭合线（单谱表第一小节左侧）

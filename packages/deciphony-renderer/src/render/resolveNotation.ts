@@ -1,20 +1,20 @@
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
-import {musicScoreToVDom as musicScoreToVDomGuitarTab} from '@/guitarTab/render/musicScoreToVDom'
+import {musicScoreToVDom as musicScoreToVDomTab6} from '@/tab6/render/musicScoreToVDom'
 import {musicScoreToVDom as musicScoreToVDomNumber} from '@/numberNotation/render/musicScoreToVDom'
 import {musicScoreToVDom as musicScoreToVDomStandard} from '@/standardStaff/render/musicScoreToVDom'
-import type {GuitarTabSkinPack, NumberNotationSkinPack, SkinPack, StandardStaffSkinPack} from '@/types/common'
+import type {Tab6SkinPack, NumberNotationSkinPack, SkinPack, StandardStaffSkinPack} from '@/types/common'
 
 export type MusicScoreToVDomFn = typeof musicScoreToVDomStandard
 
 export type NotationSkinPack =
   | StandardStaffSkinPack
   | NumberNotationSkinPack
-  | GuitarTabSkinPack
+  | Tab6SkinPack
 
 const MUSIC_SCORE_TO_VDOM: Partial<Record<MusicScoreTypeEnum, MusicScoreToVDomFn>> = {
   [MusicScoreTypeEnum.StandardStaff]: musicScoreToVDomStandard,
   [MusicScoreTypeEnum.NumberNotation]: musicScoreToVDomNumber,
-  [MusicScoreTypeEnum.GuitarTab]: musicScoreToVDomGuitarTab,
+  [MusicScoreTypeEnum.Tab6]: musicScoreToVDomTab6,
 }
 
 /** 按曲谱类型选择 musicScoreToVDom 实现；未注册类型回退五线谱 */
@@ -30,8 +30,8 @@ export function resolveNotationPack(
   switch (type) {
     case MusicScoreTypeEnum.NumberNotation:
       return pack.numberNotation
-    case MusicScoreTypeEnum.GuitarTab: {
-      return pack.guitarTab
+    case MusicScoreTypeEnum.Tab6: {
+      return pack.tab6
     }
 
     default:

@@ -20,7 +20,7 @@ import {
 } from '@/enums/musicScoreEnum';
 import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSkinKeyEnum';
 import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
-import {GuitarTabSkinKeyEnum} from '@/guitarTab/enums/guitarTabSkinKeyEnum';
+import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {NodeIdMap} from '@/standardStaff/render/types';
 
 const AFFILIATED_Z = 1200;
@@ -39,8 +39,8 @@ function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Slur;
     }
-    if (notationType === MusicScoreTypeEnum.GuitarTab) {
-        return GuitarTabSkinKeyEnum.Slur;
+    if (notationType === MusicScoreTypeEnum.Tab6) {
+        return Tab6SkinKeyEnum.Slur;
     }
     return StandardStaffSkinKeyEnum.Slur;
 }
@@ -124,7 +124,7 @@ function noteAnchorPoint(
     extraY = 0,
 ) {
     const {dx, dy} = offsetPx(rule, measureHeight);
-    const anchorY = notationType === MusicScoreTypeEnum.GuitarTab
+    const anchorY = notationType === MusicScoreTypeEnum.Tab6
         ? noteHead.y + dy + extraY
         : noteHead.y + noteHead.h / 2 + dy + extraY;
     return {

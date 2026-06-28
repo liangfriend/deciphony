@@ -17,7 +17,7 @@ export type RenderSymbolParams = {
     measureWidth: number;
     measureHeight: number;
     measureLineWidth: number;
-    skin: import("@/types/common").GuitarTabSkinPack;
+    skin: import("@/types/common").Tab6SkinPack;
     idMap: NodeIdMap;
     skinName?: string;
     /** 连谱预计算的列布局；缺省时 renderSymbol 内按单谱表规则构建 */

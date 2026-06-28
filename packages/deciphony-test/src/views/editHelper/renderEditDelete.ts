@@ -62,11 +62,9 @@ function collectNotesInfoIdsInMeasure(measure: Measure): string[] {
             continue
         }
         if (isNoteNumberSlot(slot)) {
-            for (const info of slot.notesInfo) {
-                ids.push(info.id)
-                for (const g of info.graceNotes ?? []) ids.push(g.id)
-                for (const g of info.graceNotesAfter ?? []) ids.push(g.id)
-            }
+            for (const info of slot.notesInfo) ids.push(info.id)
+            for (const g of slot.graceNotes ?? []) ids.push(g.id)
+            for (const g of slot.graceNotesAfter ?? []) ids.push(g.id)
         }
     }
     return ids

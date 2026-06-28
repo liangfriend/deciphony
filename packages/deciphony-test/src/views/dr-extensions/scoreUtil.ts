@@ -838,8 +838,6 @@ function forEachNoteEndpointId(measure: Measure, visit: (id: string) => void): v
     }
     const visitNotesNumberInfo = (ni: NotesNumberInfo) => {
         visit(ni.id)
-        for (const g of ni.graceNotes ?? []) visitNotesNumberInfo(g)
-        for (const g of ni.graceNotesAfter ?? []) visitNotesNumberInfo(g)
     }
 
     for (const slot of measure.notes) {
@@ -851,6 +849,8 @@ function forEachNoteEndpointId(measure: Measure, visit: (id: string) => void): v
         } else {
             const nn = slot as NoteNumber
             for (const ni of nn.notesInfo) visitNotesNumberInfo(ni)
+            for (const g of nn.graceNotes ?? []) visitNotesNumberInfo(g)
+            for (const g of nn.graceNotesAfter ?? []) visitNotesNumberInfo(g)
         }
     }
 }

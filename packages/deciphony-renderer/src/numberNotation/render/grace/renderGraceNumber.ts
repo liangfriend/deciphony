@@ -1,5 +1,5 @@
 /**
- * 简谱倚音：NotesNumberInfo 级（graceNotes 挂在主音 notesInfo 上）；时值/符杠取自倚音自身
+ * 简谱倚音：NoteNumber 级（graceNotes / graceNotesAfter）；host 为主音 notesInfo 供八度/层对齐；时值/符杠取自倚音自身
  * 倚音符号一律在视觉坐标（缩放后）下排布，写入 VDom 前再换算为 center-scale 布局盒。
  */
 

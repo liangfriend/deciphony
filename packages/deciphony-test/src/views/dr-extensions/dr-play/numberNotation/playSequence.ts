@@ -95,17 +95,17 @@ function appendNoteNumberSequence(
 ): Unit256 {
   const slotDuration = getSlotAdvanceDuration(note)
 
-  for (const ni of note.notesInfo) {
-    appendGraceNotesBefore(seq, ni.graceNotes, playTime, staveIndex, keySignature, noteStaveIndex)
+  appendGraceNotesBefore(seq, note.graceNotes, playTime, staveIndex, keySignature, noteStaveIndex)
 
+  for (const ni of note.notesInfo) {
     if (hasPitch(ni)) {
       const duration = getDuration(ni.chronaxie, getInfoDotCount(ni))
       const midi = getNoteNumberMidi(ni, keySignature)
       pushPitchItem(seq, noteStaveIndex, staveIndex, {note_id: ni.id, midi, duration, playTime})
     }
-
-    appendGraceNotesAfter(seq, ni.graceNotesAfter, playTime, slotDuration, staveIndex, keySignature, noteStaveIndex)
   }
+
+  appendGraceNotesAfter(seq, note.graceNotesAfter, playTime, slotDuration, staveIndex, keySignature, noteStaveIndex)
 
   return playTime + slotDuration
 }

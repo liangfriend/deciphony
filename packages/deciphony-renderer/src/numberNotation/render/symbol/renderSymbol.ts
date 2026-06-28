@@ -406,13 +406,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
 
         const primaryHeadVDom = allNotes[0] ? idMap.get(allNotes[0].id)?.noteNumber : undefined;
-
-        for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
-          const gn = allNotes[stackIdx]!;
-          const gnHeadVDom = idMap.get(gn.id)?.noteNumber;
-          const gnHeadX = gnHeadVDom?.x ?? slotX;
-          renderGraceNotesNumberBefore(gn.graceNotes, gn, gnHeadX, {...graceCtx, floorIndex: stackIdx});
+        const primaryInfo = allNotes[0];
+        if (primaryInfo && primaryHeadVDom) {
+          renderGraceNotesNumberBefore(
+            note.graceNotes,
+            primaryInfo,
+            primaryHeadVDom.x,
+            {...graceCtx, floorIndex: 0},
+          );
         }
+
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
@@ -529,13 +532,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             measureHeight,
           });
         }
-        for (let gi = 0; gi < allNotes.length; gi++) {
-          const gn = allNotes[gi]!;
-          const gnHeadVDom = idMap.get(gn.id)?.noteNumber;
-          const gnHeadX = gnHeadVDom?.x ?? slotX;
-          const gnNumSkin = skin[getSyllableSkinKey(gn.syllable)];
-          const gnHeadW = gnHeadVDom?.w ?? gnNumSkin?.w ?? referenceW;
-          renderGraceNotesNumberAfter(gn.graceNotesAfter, gn, gnHeadX, gnHeadW, {...graceCtx, floorIndex: gi});
+        if (primaryInfo && primaryHeadVDom) {
+          const primaryNumSkin = skin[getSyllableSkinKey(primaryInfo.syllable)];
+          const primaryHeadW = primaryHeadVDom.w ?? primaryNumSkin?.w ?? referenceW;
+          renderGraceNotesNumberAfter(
+            note.graceNotesAfter,
+            primaryInfo,
+            primaryHeadVDom.x,
+            primaryHeadW,
+            {...graceCtx, floorIndex: 0},
+          );
         }
       }
 

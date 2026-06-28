@@ -422,10 +422,6 @@ export type NotesNumberInfo = {
 
     octaveDot: -5 | -4 | -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6
 
-    graceNotes?: NotesNumberInfo[]
-
-    graceNotesAfter?: NotesNumberInfo[]
-
 } & Frame
 
 
@@ -436,6 +432,10 @@ export type NoteNumber = {
     id: string
 
     notesInfo: NotesNumberInfo[]
+
+    graceNotes?: NotesNumberInfo[]
+
+    graceNotesAfter?: NotesNumberInfo[]
 
     affiliatedSymbols: SingleNoteAffiliatedSymbol[]
 

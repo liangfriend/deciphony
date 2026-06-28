@@ -32,12 +32,12 @@ export function isSlurNotesInfoEndpoint(musicScore: MusicScore, endpointId: stri
             const note = slot as NoteNumber
             for (const ni of note.notesInfo) {
               if (ni.id === endpointId) return true
-              for (const g of ni.graceNotes ?? []) {
-                if (g.id === endpointId) return true
-              }
-              for (const g of ni.graceNotesAfter ?? []) {
-                if (g.id === endpointId) return true
-              }
+            }
+            for (const g of note.graceNotes ?? []) {
+              if (g.id === endpointId) return true
+            }
+            for (const g of note.graceNotesAfter ?? []) {
+              if (g.id === endpointId) return true
             }
             continue
           }

@@ -14,14 +14,14 @@ const secondNote = data.grandStaffs[0]?.staves[0]?.measures[0]?.notes[1]
 if (isNoteNumber(secondNote)) {
     const host = secondNote.notesInfo[0]
     if (host) {
-        host.graceNotes = [
+        secondNote.graceNotes = [
             createNotesNumberInfo(2, {
                 octaveDot: host.octaveDot,
                 chronaxie: 16,
                 beamType: BeamTypeEnum.None,
             }),
         ]
-        host.graceNotesAfter = [
+        secondNote.graceNotesAfter = [
             createNotesNumberInfo(4, {
                 octaveDot: host.octaveDot,
                 chronaxie: 16,

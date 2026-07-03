@@ -99,6 +99,14 @@ export function chronaxieToBeamLineCount(chronaxie: number): number {
   return map[chronaxie] ?? 1;
 }
 
+/** 减时线皮肤内最后一条线的 y（与 default 皮肤 reduceLine_* 一致） */
+const REDUCE_LINE_Y_BY_COUNT = [0.5, 4.5, 7.5, 9.5, 11.5, 13.5] as const;
+
+export function getReduceLineLastLineY(chronaxie: number): number {
+  const count = chronaxieToBeamLineCount(chronaxie);
+  return REDUCE_LINE_Y_BY_COUNT[Math.min(Math.max(count, 1), 6) - 1] ?? 0.5;
+}
+
 export function getAccidentalSkinKey(type: AccidentalTypeEnum): NumberNotationSkinKeyEnum {
   const map: Record<AccidentalTypeEnum, NumberNotationSkinKeyEnum> = {
     [AccidentalTypeEnum.Sharp]: NumberNotationSkinKeyEnum.Sharp,

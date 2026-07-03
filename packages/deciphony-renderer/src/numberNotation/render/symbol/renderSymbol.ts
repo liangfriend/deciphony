@@ -40,7 +40,6 @@ import {
   resolveAugmentationDotAnchorXFromLayout,
 } from "../utils/note";
 import {
-  graceNoteNumberBeforeWidth,
   renderGraceNotesNumberAfter,
   renderGraceNotesNumberBefore,
 } from "../grace/renderGraceNumber";
@@ -297,15 +296,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      // 数字头 x：同 onset 列内各时值共用整列 slotW 居中
-      let graceBeforeW = 0;
-      if (!isRestSlot) {
-        for (const ni of note.notesInfo) {
-          graceBeforeW = Math.max(graceBeforeW, graceNoteNumberBeforeWidth(ni.graceNotes, ni, skin, measureHeight));
-        }
-      }
+      // 数字头 x：同 onset 列内居左（主音符不受倚音影响）
       const slotOnset = computeSlotOnset(measure, i, columnAdapter);
-      const slotX = slotStartX + graceBeforeW;
+      const slotX = slotStartX;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
@@ -412,18 +405,22 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           if (!firstHeadVDom) firstHeadVDom = vdom;
         }
 
-        const primaryHeadVDom = allNotes[0] ? idMap.get(allNotes[0].id)?.noteHead : undefined;
-        const headX = primaryHeadVDom?.x ?? slotX;
-
-        for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
-          const gn = allNotes[stackIdx]!;
-          renderGraceNotesNumberBefore(gn.graceNotes, gn, headX, {...graceCtx, floorIndex: stackIdx});
+        const primaryHeadVDom = allNotes[0] ? idMap.get(allNotes[0].id)?.noteNumber : undefined;
+        const primaryInfo = allNotes[0];
+        if (primaryInfo && primaryHeadVDom) {
+          renderGraceNotesNumberBefore(
+            note.graceNotes,
+            primaryInfo,
+            primaryHeadVDom.x,
+            {...graceCtx, floorIndex: 0},
+          );
         }
+
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
           const numItem = skin[numKey];
-          const headVDom = idMap.get(n.id)?.noteHead;
+          const headVDom = idMap.get(n.id)?.noteNumber;
           const noteHeadX = headVDom?.x ?? slotX;
           const noteHeadW = headVDom?.w ?? numItem?.w ?? referenceW;
           const hcy = floorCenterY(measureY, measureHeight, stackIdx, measure.floorSpan);
@@ -535,9 +532,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             measureHeight,
           });
         }
-        for (let gi = 0; gi < allNotes.length; gi++) {
-          const gn = allNotes[gi]!;
-          renderGraceNotesNumberAfter(gn.graceNotesAfter, gn, headX, referenceW, {...graceCtx, floorIndex: gi});
+        if (primaryInfo && primaryHeadVDom) {
+          const primaryNumSkin = skin[getSyllableSkinKey(primaryInfo.syllable)];
+          const primaryHeadW = primaryHeadVDom.w ?? primaryNumSkin?.w ?? referenceW;
+          renderGraceNotesNumberAfter(
+            note.graceNotesAfter,
+            primaryInfo,
+            primaryHeadVDom.x,
+            primaryHeadW,
+            {...graceCtx, floorIndex: 0},
+          );
         }
       }
 

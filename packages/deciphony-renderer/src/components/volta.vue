@@ -22,9 +22,9 @@ const w = computed(() => props.vDom.w);
 const h = computed(() => props.vDom.h);
 const voltaData = computed(() => props.vDom.special?.volta ?? {});
 /** openLeft/openRight 为 true 时隐藏对应侧竖线（开放该侧） */
-const openLeft = computed(() => Boolean(voltaData.value.openLeft));
-const openRight = computed(() => Boolean(voltaData.value.openRight));
-const labelText = computed(() => String(voltaData.value.text ?? ''));
+const openLeft = computed(() => Boolean(voltaData.value?.openLeft));
+const openRight = computed(() => Boolean(voltaData.value?.openRight));
+const labelText = computed(() => String(voltaData.value?.text ?? ''));
 </script>
 
 <template>

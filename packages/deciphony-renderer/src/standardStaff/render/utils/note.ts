@@ -15,10 +15,6 @@ import {
   getTimeSignatureSkinKey,
 } from "./skinKey";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
-import {
-  graceAfterWidth,
-  graceBeforeWidth,
-} from "@/standardStaff/render/grace/renderGraceStaff";
 import {isNoteRest, isNoteSymbol} from "./staffSlot";
 
 export type VoiceGroup = {
@@ -94,28 +90,16 @@ export function getChronaxieWidthCoefficient(chronaxie: number): number {
   return 1;
 }
 
-function graceWidthRatioForNote(
-  note: NoteSymbol,
-  skin: StandardStaffSkinPack,
-  measureHeight: number,
-): number {
-  const before = graceBeforeWidth(note.graceNotes, skin, measureHeight);
-  const after = graceAfterWidth(note.graceNotesAfter, skin, measureHeight);
-  return (before + after) / measureHeight * 4;
-}
-
 function collectSlotSubWidthRatio(
   slot: StaffSlot,
   skin: StandardStaffSkinPack,
   pick: (item: { widthRatio?: number; widthRatioForMeasure?: number } | undefined, data?: number) => number,
-  measureHeight = 45,
 ): number {
   let sub = 0;
   if (slot.clef) {
     sub += pick(skin[getClefSkinKey(slot.clef.type, false)], slot.clef.widthRatio) + CLEF_NOTE_GAP_RATIO;
   }
   if (isNoteSymbol(slot)) {
-    sub += graceWidthRatioForNote(slot, skin, measureHeight);
     for (const ni of slot.notesInfo) {
       if (ni.accidental) {
         sub += pick(skin[getAccidentalSkinKey(ni.accidental.type)], ni.accidental.widthRatio);
@@ -134,14 +118,14 @@ function collectSlotSubWidthRatio(
 export function getNoteWidthRatio(
   slot: StaffSlot,
   skin: StandardStaffSkinPack,
-  measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
+  _measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
   const slotChronaxie = getSlotChronaxie(slot);
   const isRest = isNoteRest(slot);
   const slotSkinKey = isRest ? getRestSkinKey(slotChronaxie) : getNoteHeadSkinKey(slotChronaxie);
   const slotW = resolveWidthRatio(slot.widthRatio, skin[slotSkinKey]?.widthRatio);
   const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), measureHeight);
+  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio));
   return base + sub;
 }
 
@@ -149,7 +133,7 @@ export function getNoteWidthRatio(
 export function getNoteWidthRatioForMeasure(
   slot: StaffSlot,
   skin: StandardStaffSkinPack,
-  measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
+  _measureHeight = skin[StandardStaffSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
   const slotChronaxie = getSlotChronaxie(slot);
   const isRest = isNoteRest(slot);
@@ -157,7 +141,7 @@ export function getNoteWidthRatioForMeasure(
   // 音符带widthRatio优先用音符的，否则用皮肤包的
   const slotW = resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure);
   const base = slotW * getChronaxieWidthCoefficient(slotChronaxie);
-  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure), measureHeight);
+  const sub = collectSlotSubWidthRatio(slot, skin, (item, data) => resolveWidthRatio(data, item?.widthRatioForMeasure));
   return base + sub;
 }
 

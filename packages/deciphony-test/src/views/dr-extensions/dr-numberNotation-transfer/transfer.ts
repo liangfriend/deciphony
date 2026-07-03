@@ -164,17 +164,6 @@ function convertNoteSymbolToNoteNumber(
     staffNotesInfoToNumberInfo(ni, state, scope, priority),
   )
 
-  if (note.graceNotes?.length && notesInfo[0]) {
-    notesInfo[0].graceNotes = note.graceNotes.map((g) =>
-      staffNotesInfoToNumberInfo(g, state, scope, priority),
-    )
-  }
-  if (note.graceNotesAfter?.length && notesInfo[0]) {
-    notesInfo[0].graceNotesAfter = note.graceNotesAfter.map((g) =>
-      staffNotesInfoToNumberInfo(g, state, scope, priority),
-    )
-  }
-
   return {
     id: note.id,
     relativeX: note.relativeX,
@@ -182,6 +171,12 @@ function convertNoteSymbolToNoteNumber(
     relativeW: note.relativeW,
     relativeH: note.relativeH,
     notesInfo,
+    graceNotes: note.graceNotes?.map((g) =>
+      staffNotesInfoToNumberInfo(g, state, scope, priority),
+    ),
+    graceNotesAfter: note.graceNotesAfter?.map((g) =>
+      staffNotesInfoToNumberInfo(g, state, scope, priority),
+    ),
     affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
@@ -259,21 +254,16 @@ function convertNoteNumberToNoteSymbol(
     relativeH: note.relativeH,
     type: NoteSymbolTypeEnum.Note,
     notesInfo,
+    graceNotes: note.graceNotes?.map((g) =>
+      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
+    ),
+    graceNotesAfter: note.graceNotesAfter?.map((g) =>
+      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
+    ),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
   }
 
-  const lead = note.notesInfo[0]
-  if (lead?.graceNotes?.length) {
-    symbol.graceNotes = lead.graceNotes.map((g) =>
-      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
-    )
-  }
-  if (lead?.graceNotesAfter?.length) {
-    symbol.graceNotesAfter = lead.graceNotesAfter.map((g) =>
-      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
-    )
-  }
   return symbol
 }
 

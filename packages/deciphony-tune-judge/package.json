@@ -1,0 +1,33 @@
+{
+  "name": "deciphony-tune-judge",
+  "version": "0.0.1",
+  "description": "演唱音高与标准序列对比测评",
+  "author": "liam",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b --clean && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+  },
+  "keywords": [
+    "pitch",
+    "music",
+    "evaluation"
+  ],
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "recorder-core": "^1.3.25011100"
+  }
+}

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import {computed} from 'vue'
 import avatar from '../../assets/resume/avatar.jpg'
 import jieShang from '../../assets/resume/jieShang.png'
 import jieShang2 from '../../assets/resume/jieShang2.png'
@@ -11,6 +12,81 @@ const contact = {
   github: 'https://github.com/liangfriend',
 }
 
+/** 满分 100；初级 60 / 中级 80 / 高级 95 */
+const abilityLevels = [
+  {label: '初级', value: 60, color: '#5b8c5a'},
+  {label: '中级', value: 80, color: '#c48a2a'},
+  {label: '高级', value: 95, color: '#b54a4a'},
+]
+
+const abilities = [
+  {name: '前端', score: 85},
+  {name: '后端', score: 65},
+  {name: '人工智能', score: 50},
+  {name: '音乐编程', score: 95},
+  {name: '网页3D', score: 70},
+  {name: '桌面应用', score: 70},
+]
+
+const radarSize = 280
+const radarMax = 100
+const radarCx = radarSize / 2
+const radarCy = radarSize / 2
+const radarRadius = 96
+
+function radarPoint(index: number, score: number) {
+  const angle = (-Math.PI / 2) + (index * 2 * Math.PI) / abilities.length
+  const r = (Math.min(score, radarMax) / radarMax) * radarRadius
+  return {
+    x: radarCx + r * Math.cos(angle),
+    y: radarCy + r * Math.sin(angle),
+  }
+}
+
+function ringPoints(score: number) {
+  return abilities
+      .map((_, i) => {
+        const p = radarPoint(i, score)
+        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
+      })
+      .join(' ')
+}
+
+const radarRings = computed(() => [
+  ...abilityLevels.map((l) => ({
+    value: l.value,
+    color: l.color,
+    points: ringPoints(l.value),
+  })),
+  {
+    value: radarMax,
+    color: '#8fa3b8',
+    points: ringPoints(radarMax),
+  },
+])
+
+const radarAxes = computed(() =>
+    abilities.map((item, i) => {
+      const tip = radarPoint(i, radarMax)
+      const labelR = radarRadius + 28
+      const angle = (-Math.PI / 2) + (i * 2 * Math.PI) / abilities.length
+      return {
+        name: item.name,
+        score: item.score,
+        x2: tip.x,
+        y2: tip.y,
+        lx: radarCx + labelR * Math.cos(angle),
+        ly: radarCy + labelR * Math.sin(angle),
+      }
+    }),
+)
+
+const radarDataPoints = computed(() =>
+    abilities.map((_, i) => radarPoint(i, abilities[i].score))
+        .map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+        .join(' '),
+)
+
 /** 与 介绍.md 一致，不精简 */
 const summary =
     '我是个擅长音乐编程的前端工程师，也擅长 node 做后端的 electron pc 应用的开发。'
@@ -19,14 +95,14 @@ const highlight =
     '对音乐编程充满热情。理解神经网路，能通过人工智能建模实现更复杂的需求。擅长抽离功能为插件，丰富任职公司的核心技术。'
 
 const motivation =
-    '我期望一个能最大化发挥我个人技术的价值的公司。国内的音乐教育软件目前不是很成熟，例如ipad上有一个打谱软件，可以通过触屏笔来手绘音符实现打谱。但是安卓端，或者说中国，目前没有这样方便的打谱软件。我希望自己在赚钱的同时，也确确实实实现自己的社会价值。'
+    '我期望加入一家能真正发挥我技术长处的团队。国内音乐教育软件仍有很大提升空间——例如 iPad 上已有可通过触控笔手绘音符完成打谱的产品，而安卓端乃至国内整体，仍缺少同等便捷的方案。我希望在创造商业价值的同时，也能切实推动音乐工具的进步，实现个人的社会价值。'
 const noticeHandover =
     '无'
 
 const skills = [
-  {group: '前端', items: 'Vue、Three'},
-  {group: '后端', items: 'Express、Electron'},
-  {group: '其它', items: '乐理知识、Cnn模型、Transformer模型'},
+  {group: '前端', items: 'Vue、ThreeJs、React'},
+  {group: '后端', items: 'Node、Express、Electron'},
+  {group: '其它', items: '乐理知识、Cnn模型、Transformer模型、3D建模'},
 ]
 
 const experiences = [
@@ -143,24 +219,82 @@ const projects = [
   <div class="page">
     <article class="resume">
       <header class="top">
-        <img :src="avatar" alt="梁友谊" class="avatar"/>
-        <div class="identity">
-          <h1>梁友谊</h1>
-          <p class="summary">{{ summary }}</p>
-          <p class="meta-line">
-            出生日期 2001.5.11 · 辽宁营口 · 辽宁工业大学 2019.9—2023.6 统招本科
-          </p>
+        <div class="top-left">
+          <div class="identity">
+            <img :src="avatar" alt="梁友谊" class="avatar"/>
+            <h1>梁友谊</h1>
+            <p class="summary">{{ summary }}</p>
+            <p class="meta-line">
+              出生日期 2001.5.11 · 辽宁营口 · 辽宁工业大学 2019.9—2023.6 统招本科
+            </p>
+            <ul class="contact">
+              <li><b>手机</b>{{ contact.phone }}（{{ contact.phoneNote }}）</li>
+              <li><b>邮箱</b>{{ contact.email }}</li>
+              <li>
+                <b>GitHub</b>
+                <a :href="contact.github" target="_blank" rel="noopener">github.com/liangfriend</a>
+              </li>
+              <li><b>其它</b>C1 驾照 · 雅思 6.0</li>
+              <li><b>期望薪资</b>15-20K</li>
+            </ul>
+          </div>
         </div>
-        <ul class="contact">
-          <li><b>手机</b>{{ contact.phone }}（{{ contact.phoneNote }}）</li>
-          <li><b>邮箱</b>{{ contact.email }}</li>
-          <li>
-            <b>GitHub</b>
-            <a :href="contact.github" target="_blank" rel="noopener">github.com/liangfriend</a>
-          </li>
-          <li><b>其它</b>C1 驾照 · 雅思 6.0</li>
-          <li><b>期望薪资</b>15-20K</li>
-        </ul>
+        <div class="radar">
+          <div class="radar-title">能力雷达</div>
+          <svg
+              class="radar-svg"
+              :viewBox="`0 0 ${radarSize} ${radarSize}`"
+              role="img"
+              aria-label="能力六边形图"
+          >
+            <polygon
+                v-for="ring in radarRings"
+                :key="ring.value"
+                :points="ring.points"
+                class="radar-ring"
+                :class="{ 'radar-ring-outer': ring.value === radarMax }"
+                :style="{ stroke: ring.color }"
+            />
+            <line
+                v-for="(axis, i) in radarAxes"
+                :key="`axis-${i}`"
+                :x1="radarCx"
+                :y1="radarCy"
+                :x2="axis.x2"
+                :y2="axis.y2"
+                class="radar-axis"
+            />
+            <polygon :points="radarDataPoints" class="radar-area"/>
+            <circle
+                v-for="(axis, i) in radarAxes"
+                :key="`dot-${i}`"
+                :cx="radarPoint(i, axis.score).x"
+                :cy="radarPoint(i, axis.score).y"
+                r="3.5"
+                class="radar-dot"
+            />
+            <text
+                v-for="(axis, i) in radarAxes"
+                :key="`label-${i}`"
+                :x="axis.lx"
+                :y="axis.ly"
+                class="radar-label"
+                text-anchor="middle"
+                dominant-baseline="middle"
+            >{{ axis.name }}
+            </text>
+            <text
+                v-for="level in abilityLevels"
+                :key="level.label"
+                :x="radarCx + 10"
+                :y="radarCy - (level.value / radarMax) * radarRadius + 3"
+                class="radar-level"
+                text-anchor="start"
+                :fill="level.color"
+            >{{ level.label }}
+            </text>
+          </svg>
+        </div>
       </header>
 
       <section class="row-two">
@@ -186,9 +320,15 @@ const projects = [
       <section class="panel panel-full">
         <h2>插件</h2>
         <div class="plugin-grid">
-          <div v-for="p in plugins" :key="p.name" class="plugin-card">
+          <div v-for="p in plugins.slice(0, 4)" :key="p.name" class="plugin-card">
             <h3>{{ p.name }}</h3>
-            <p v-for="(para, i) in p.paragraphs" :key="i">{{ para }}</p>
+            <p v-for="(para, j) in p.paragraphs" :key="j">{{ para }}</p>
+          </div>
+        </div>
+        <div class="plugin-grid plugin-grid-rest print-break-before">
+          <div v-for="p in plugins.slice(4)" :key="p.name" class="plugin-card">
+            <h3>{{ p.name }}</h3>
+            <p v-for="(para, j) in p.paragraphs" :key="j">{{ para }}</p>
           </div>
         </div>
       </section>
@@ -223,10 +363,10 @@ const projects = [
             </div>
           </div>
         </div>
-        <div class="other-proj">
-          <h3>其它项目</h3>
-          <p>{{ otherProjects }}</p>
-        </div>
+        <!--        <div class="other-proj">-->
+        <!--          <h3>其它项目</h3>-->
+        <!--          <p>{{ otherProjects }}</p>-->
+        <!--        </div>-->
       </section>
 
       <section class="statement">
@@ -241,7 +381,7 @@ const projects = [
       </section>
 
       <footer class="notice">
-        <p><strong>请注意：</strong>{{ noticeHandover }}</p>
+        <!--        <p><strong>请注意：</strong>{{ noticeHandover }}</p>-->
       </footer>
     </article>
   </div>
@@ -273,17 +413,23 @@ const projects = [
 
 .top {
   display: grid;
-  grid-template-columns: 110px 1fr auto;
-  gap: 20px 28px;
+  grid-template-columns: 1fr 300px;
+  gap: 20px 36px;
   align-items: center;
   padding: 24px 32px;
   background: #f5f8fc;
   border-bottom: 3px solid #1a365d;
 }
 
+.top-left {
+  min-width: 0;
+}
+
 .avatar {
+  display: block;
   width: 110px;
   height: 110px;
+  margin: 0 0 14px;
   object-fit: cover;
   border: 1px solid #b8c4d4;
   border-radius: 4px;
@@ -306,7 +452,7 @@ const projects = [
 }
 
 .meta-line {
-  margin: 0;
+  margin: 0 0 12px;
   font-size: 14px;
   color: #4a627a;
 }
@@ -316,9 +462,8 @@ const projects = [
   margin: 0;
   padding: 0;
   font-size: 14px;
-  text-align: right;
+  text-align: left;
   line-height: 1.7;
-  min-width: 300px;
 }
 
 .contact b {
@@ -330,6 +475,64 @@ const projects = [
 .contact a {
   color: #1a4a7a;
   text-decoration: none;
+}
+
+.radar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a365d;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.radar-svg {
+  width: 280px;
+  height: 280px;
+  display: block;
+}
+
+.radar-ring {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.radar-ring-outer {
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+}
+
+.radar-axis {
+  stroke: #d0d9e4;
+  stroke-width: 1;
+}
+
+.radar-area {
+  fill: rgba(26, 54, 93, 0.22);
+  stroke: #1a365d;
+  stroke-width: 2;
+}
+
+.radar-dot {
+  fill: #1a365d;
+}
+
+.radar-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #1e3a5f;
+}
+
+.radar-level {
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
 }
 
 h2 {
@@ -569,7 +772,8 @@ h2 {
   color: #1a365d;
 }
 
-@media (max-width: 900px) {
+/* 仅屏幕窄屏生效；打印预览视口常 <900px，勿用 max-width  alone 以免打印变竖排 */
+@media screen and (max-width: 900px) {
   .page {
     padding: 12px;
   }
@@ -593,9 +797,9 @@ h2 {
     font-size: 28px;
   }
 
-  .contact {
-    min-width: 0;
-    text-align: left;
+  .radar-svg {
+    width: 240px;
+    height: 240px;
   }
 
   .row-two {
@@ -656,6 +860,227 @@ h2 {
     height: auto;
     min-height: 0;
     max-height: 480px;
+  }
+}
+</style>
+
+<style>
+/* 打印/导出 PDF：A4；压紧间距，两页内放下（P1: 头图+经历+4插件；P2: 余下插件+项目+亮点） */
+@media print {
+  @page {
+    size: A4;
+    margin: 6mm;
+  }
+
+  html,
+  body,
+  #app {
+    height: auto !important;
+    width: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .page {
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    display: block !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+  }
+
+  .resume {
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .top {
+    display: grid !important;
+    grid-template-columns: 1fr 200px !important;
+    gap: 8px 16px !important;
+    align-items: start !important;
+    padding: 10px 14px !important;
+  }
+
+  .top-left {
+    display: block !important;
+  }
+
+  .avatar {
+    width: 64px !important;
+    height: 64px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .identity h1 {
+    font-size: 22px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .summary {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .meta-line,
+  .contact {
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+  }
+
+  .meta-line {
+    margin-bottom: 6px !important;
+  }
+
+  .radar-title {
+    font-size: 11px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .radar-svg {
+    width: 180px !important;
+    height: 180px !important;
+  }
+
+  h2 {
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .row-two {
+    grid-template-columns: 160px 1fr !important;
+  }
+
+  .panel {
+    padding: 10px 14px !important;
+  }
+
+  .skill-row {
+    margin-bottom: 4px !important;
+    font-size: 11px !important;
+  }
+
+  .exp + .exp {
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+  }
+
+  .exp-co {
+    font-size: 13px !important;
+  }
+
+  .exp p,
+  .plugin-card p,
+  .proj-card p,
+  .stmt-block p {
+    font-size: 11px !important;
+    margin-bottom: 3px !important;
+    line-height: 1.4 !important;
+  }
+
+  .exp-note {
+    margin-top: 4px !important;
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .plugin-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px 12px !important;
+  }
+
+  .plugin-grid-rest {
+    margin-top: 0 !important;
+  }
+
+  .plugin-card {
+    padding: 8px 10px !important;
+  }
+
+  .plugin-card h3 {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .proj-grid {
+    gap: 10px !important;
+  }
+
+  .proj-card {
+    padding: 8px 10px !important;
+  }
+
+  .proj-title {
+    margin-bottom: 4px !important;
+  }
+
+  .proj-title h3 {
+    font-size: 13px !important;
+  }
+
+  .statement {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stmt-block {
+    padding: 10px 14px !important;
+  }
+
+  .notice {
+    padding: 6px 14px !important;
+  }
+
+  /* 大区块允许分页；整段插件区不再整块下推，避免第一页留白 */
+  .panel,
+  .panel-full,
+  .projects,
+  .row-two {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .plugin-card,
+  .proj-card,
+  .exp,
+  .stmt-block,
+  .top {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* 第 5 个插件起换到第二页 */
+  .print-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .shots {
+    gap: 8px !important;
+    margin-top: 6px !important;
+  }
+
+  .shots img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    max-height: 120px !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .shots-one img {
+    max-height: 150px !important;
+  }
+
+  .shots-tall img {
+    max-height: 220px !important;
   }
 }
 </style>

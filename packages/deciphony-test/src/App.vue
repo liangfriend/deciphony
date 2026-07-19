@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import RenderTest from "./views/renderTest.vue";
+import Resume from "./views/resume/index.vue";
 import DrEdit from "./views/dr-render-extensions/dr-edit/index.vue";
 import WebAudioTest from "./views/webAudioTest.vue";
 import ElectronMessage from "./views/electronMessage.vue";
@@ -18,7 +18,8 @@ import ChordBuilder from "./views/chordBuilder.vue";
 <template>
 
   <!--  <ui-test></ui-test>-->
-  <render-test></render-test>
+  <resume></resume>
+  <!--  <render-test></render-test>-->
   <!--  <chord-builder></chord-builder>-->
   <!--  <render-play-test></render-play-test>-->
   <!--  <skin-builder></skin-builder>-->

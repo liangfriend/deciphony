@@ -20,7 +20,6 @@
     "deciphony-core": "workspace:*",
     "deciphony-player": "workspace:*",
     "deciphony-renderer": "workspace:*",
-    "deciphony-transfer": "workspace:*",
     "deciphony-ui": "workspace:*",
     "typescript": "^5.0.2",
     "vite": "^7.0.4",

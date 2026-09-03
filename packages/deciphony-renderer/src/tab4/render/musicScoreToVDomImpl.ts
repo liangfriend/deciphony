@@ -184,6 +184,7 @@ export function musicScoreToVDom(
                     noteDomainW,
                     maxPrefixW,
                     columnAdapter,
+                    measureHeight,
                 );
             }
         }

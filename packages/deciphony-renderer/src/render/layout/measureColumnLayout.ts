@@ -8,22 +8,65 @@ import type {Measure} from '@/types/MusicScoreType';
 /** 每 onset 格基础 widthRatio（与音符 ratio 相加） */
 export const DEFAULT_CELL_BASE_WIDTH_RATIO = 10;
 
+function paddingPx(ratio: number, measureHeight: number): number {
+  if (!Number.isFinite(measureHeight) || measureHeight <= 0) return 0;
+  if (!Number.isFinite(ratio) || ratio <= 0) return 0;
+  return ratio * measureHeight;
+}
+
+/**
+ * 变宽左内边距（相对 measureHeight）。
+ * 前置定宽符号到第一列变宽符号之间的距离；计入变宽区内，从音符列可分配宽度中扣除。
+ */
+export const NOTE_DOMAIN_LEFT_PADDING_RATIO = 0.2;
+
+/**
+ * 变宽右内边距（相对 measureHeight）。
+ * 最后一列变宽符号到后置定宽符号之间的距离；计入变宽区内。
+ * 暂无视觉需求，默认 0；布局仍扣除，便于以后改常量即可生效。
+ */
+export const NOTE_DOMAIN_RIGHT_PADDING_RATIO = 0;
+
+export function getNoteDomainLeftPadding(measureHeight: number): number {
+  return paddingPx(NOTE_DOMAIN_LEFT_PADDING_RATIO, measureHeight);
+}
+
+export function getNoteDomainRightPadding(measureHeight: number): number {
+  return paddingPx(NOTE_DOMAIN_RIGHT_PADDING_RATIO, measureHeight);
+}
+
+function withNoteDomainInnerPadding(
+  noteDomainW: number,
+  noteDomainStartOffset: number,
+  measureHeight: number,
+): { noteDomainW: number; noteDomainStartOffset: number } {
+  const domainW = Math.max(0, noteDomainW);
+  const leftPad = Math.min(getNoteDomainLeftPadding(measureHeight), domainW);
+  const afterLeft = domainW - leftPad;
+  const rightPad = Math.min(getNoteDomainRightPadding(measureHeight), afterLeft);
+  return {
+    noteDomainW: afterLeft - rightPad,
+    noteDomainStartOffset: noteDomainStartOffset + leftPad,
+  };
+}
+
 export type SlotColumnGeometry = {
-  /** 相对变宽区起点的列起始 x */
+  /** 相对音符列区起点的列起始 x（变宽区已扣除左右内边距） */
   startInDomain: number;
   /** 列宽 */
   width: number;
 };
 
 export type MeasureColumnLayout = {
-  /** 变宽区起点相对 measureX 的偏移（单谱表为 prefixW；连谱为同列 max prefixW） */
+  /** 音符列区起点相对 measureX 的偏移（prefixW/maxPrefixW + 左内边距） */
   noteDomainStartOffset: number;
+  /** 音符列可分配宽度（变宽区扣除左右内边距） */
   noteDomainW: number;
   /** 小节（连谱为同列 max）音符/休止符时值总和，用于 64 格插值 */
   totalChronaxie: number;
-  /** 有音符起始的 onset → 列起点（相对变宽区） */
+  /** 有音符起始的 onset → 列起点（相对音符列区） */
   onsetStartInDomain: ReadonlyMap<number, number>;
-  /** 有音符起始的 onset → 列几何（相对变宽区） */
+  /** 有音符起始的 onset → 列几何（相对音符列区） */
   onsetColumnGeometry: ReadonlyMap<number, SlotColumnGeometry>;
   /** 与 measure.notes 下标对齐；非布局 slot 为 null */
   slotGeometries: (SlotColumnGeometry | null)[];
@@ -178,7 +221,7 @@ export function computeSlotOnset(
 }
 
 /**
- * 变宽区内 chronaxie 位置 → x（相对变宽区起点）。
+ * 音符列区内 chronaxie 位置 → x（相对列区起点，已含左右内边距）。
  * 优先用 onset 列起点；否则按 totalChronaxie 比例插值（64 格边界）。
  */
 export function resolveXInDomainAtChronaxie(
@@ -194,7 +237,7 @@ export function resolveXInDomainAtChronaxie(
 }
 
 /**
- * 简谱加时线 x（相对变宽区起点）：取 onset 列几何左缘。
+ * 简谱加时线 x（相对音符列区起点）：取 onset 列几何左缘。
  */
 export function resolveAddLineXInSlot(
   layout: MeasureColumnLayout,
@@ -205,7 +248,7 @@ export function resolveAddLineXInSlot(
 }
 
 /**
- * 简谱增/休止符加时线 x（相对变宽区起点）。
+ * 简谱增/休止符加时线 x（相对音符列区起点）。
  * 对齐目标 64 格所在列内锚点：列起点 + 列宽/2 - symbolW/2（与同 onset 符头 slotX 一致）。
  * 无 onset 列时取 [chronaxie-64, chronaxie] 时轴段中心再居中。
  */
@@ -232,13 +275,15 @@ export function buildMeasureColumnLayout(
   noteDomainW: number,
   noteDomainStartOffset: number,
   adapter: ColumnLayoutSlotAdapter,
+  measureHeight: number,
 ): MeasureColumnLayout {
   // 这里子所以传数组，是因为可能存在连谱模式，所以需要合并多个谱表的小节列布局，而这个函数是通用的
+  const padded = withNoteDomainInnerPadding(noteDomainW, noteDomainStartOffset, measureHeight);
   const ratioByOnset = mergeOnsetRatios([measure], adapter);
-  const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, noteDomainW);
+  const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, padded.noteDomainW);
   return {
-    noteDomainStartOffset,
-    noteDomainW,
+    noteDomainStartOffset: padded.noteDomainStartOffset,
+    noteDomainW: padded.noteDomainW,
     totalChronaxie: measureTotalChronaxie(measure, adapter),
     onsetStartInDomain: onsetStartsFromGeometry(geometryByOnset),
     onsetColumnGeometry: geometryByOnset,
@@ -255,16 +300,18 @@ export function buildLinkedMeasureColumnLayouts(
   noteDomainW: number,
   noteDomainStartOffset: number,
   adapter: ColumnLayoutSlotAdapter,
+  measureHeight: number,
 ): (MeasureColumnLayout | null)[] {
   const present = measures.filter((m): m is Measure => !!m);
+  const padded = withNoteDomainInnerPadding(noteDomainW, noteDomainStartOffset, measureHeight);
   const ratioByOnset = mergeOnsetRatios(present, adapter);
-  const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, noteDomainW);
+  const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, padded.noteDomainW);
 
   return measures.map((measure) => {
     if (!measure) return null;
     return {
-      noteDomainStartOffset,
-      noteDomainW,
+      noteDomainStartOffset: padded.noteDomainStartOffset,
+      noteDomainW: padded.noteDomainW,
       totalChronaxie: maxMeasureTotalChronaxie(measures, adapter),
       onsetStartInDomain: onsetStartsFromGeometry(geometryByOnset),
       onsetColumnGeometry: geometryByOnset,

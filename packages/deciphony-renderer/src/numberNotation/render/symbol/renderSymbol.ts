@@ -208,7 +208,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   const notes = measure.notes as NoteNumber[];
   const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
   const layout =
-    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter);
+    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter, measureHeight);
   const domainStartX = measureX + layout.noteDomainStartOffset;
 
   type SlotInfo = {

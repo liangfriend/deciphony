@@ -204,7 +204,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   const notes = measure.notes;
   const columnAdapter = createStandardStaffColumnLayoutAdapter(skin, measureHeight);
   const layout =
-    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter);
+    columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter, measureHeight);
   const domainStartX = measureX + layout.noteDomainStartOffset;
   /*
   * 定义音符中心点坐标获取函数

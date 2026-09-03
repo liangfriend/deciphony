@@ -1,26 +1,13 @@
 <script lang="ts" setup>
-import Resume from "./views/resume/index.vue";
-import DrEdit from "./views/dr-render-extensions/dr-edit/index.vue";
-import WebAudioTest from "./views/webAudioTest.vue";
-import ElectronMessage from "./views/electronMessage.vue";
-
-import PlayerTest from "./views/playerTest.vue";
-import RenderPlayTest from "./views/renderPlayTest.vue";
-import RenderEditTest from "./views/renderEditTest.vue";
-import RenderTitleTest from "./views/renderTitleTest.vue";
-import RenderXmlTest from "./views/renderXmlTest.vue";
-import TransferTest from "./views/transferTest.vue";
-import EngineTest from "./views/engineTest.vue";
-import SkinBuilder from "./views/skinBuilder.vue";
-import ChordBuilder from "./views/chordBuilder.vue";
+import RenderTest from "./views/renderTest.vue";
 </script>
 
 <template>
 
   <!--  <ui-test></ui-test>-->
-<!--  <resume></resume>-->
-  <!--  <render-test></render-test>-->
-    <chord-builder></chord-builder>
+  <!--  <resume></resume>-->
+  <render-test></render-test>
+  <!--    <chord-builder></chord-builder>-->
   <!--  <render-play-test></render-play-test>-->
   <!--  <skin-builder></skin-builder>-->
   <!--  <render-xml-test></render-xml-test>-->

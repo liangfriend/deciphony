@@ -119,12 +119,21 @@ export type SingleStaff = {
 export type StaffSlot = NoteSymbol | NoteRest;
 export type TabSlot = TabNote | TabRest
 
+/** 绑定在音符槽位上的歌词（含 Frame 偏移） */
+export type Lyrics = {
+    text: string
+} & Frame
+
+/** 小节内音符槽：五线 / tab / 简谱；lyrics 必选（可为空数组） */
+export type MeasureNoteSlot = (StaffSlot | TabSlot | NoteNumber) & {
+    lyrics: Lyrics[]
+}
 
 export type Measure = {
 
     id: string
 
-    notes: (StaffSlot | TabSlot | NoteNumber)[],
+    notes: MeasureNoteSlot[],
 
     barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
 

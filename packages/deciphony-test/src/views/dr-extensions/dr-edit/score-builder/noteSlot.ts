@@ -1,5 +1,5 @@
 import {isNoteRest, isNoteSymbol} from 'deciphony-renderer';
-import type {Measure, NoteNumber, NoteRest, NotesInfo, NoteSymbol, StaffSlot} from 'deciphony-renderer';
+import type {Measure, MeasureNoteSlot, NoteNumber, NoteRest, NotesInfo, NoteSymbol, StaffSlot} from 'deciphony-renderer';
 import {assertIndex} from './id';
 import {createNoteNumber, createNoteRest, createNoteSymbol, createNotesInfo, createNotesNumberInfo} from './factories';
 import type {CreateNoteNumberOptions, CreateNoteRestOptions, CreateNoteSymbolOptions} from './types';
@@ -8,15 +8,15 @@ import type {CreateNoteNumberOptions, CreateNoteRestOptions, CreateNoteSymbolOpt
 export function insertNoteSlot(
     measure: Measure,
     at: number,
-    slot: StaffSlot | NoteNumber,
-): StaffSlot | NoteNumber {
+    slot: MeasureNoteSlot,
+): MeasureNoteSlot {
     assertIndex('noteIndex', at, measure.notes.length + 1);
     measure.notes.splice(at, 0, slot);
     return slot;
 }
 
 /** 移除小节内指定下标的音符位 */
-export function removeNoteSlot(measure: Measure, noteIndex: number): StaffSlot | NoteNumber {
+export function removeNoteSlot(measure: Measure, noteIndex: number): MeasureNoteSlot {
     assertIndex('noteIndex', noteIndex, measure.notes.length);
     const [removed] = measure.notes.splice(noteIndex, 1);
     return removed!;

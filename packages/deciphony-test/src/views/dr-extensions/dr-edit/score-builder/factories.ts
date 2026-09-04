@@ -22,6 +22,7 @@ import type {
     DoubleNoteAffiliatedSymbol,
     GrandStaff,
     KeySignature,
+    Lyrics,
     Measure,
     MeasureEndRepeat,
     MeasureStartRepeat,
@@ -284,12 +285,21 @@ export function createNotesInfo(options: CreateNotesInfoOptions): NotesInfo {
     };
 }
 
+/** 新建歌词项；缺省 Frame 归零 */
+export function createLyrics(text = '', partial?: Partial<Omit<Lyrics, 'text'>>): Lyrics {
+    return {
+        ...ZERO_FRAME,
+        text,
+        ...partial,
+    };
+}
+
 function mapGraceList(list: CreateNotesInfoOptions[] | undefined): NotesInfo[] | undefined {
     if (!list?.length) return undefined;
     return list.map((g) => createNotesInfo(g));
 }
 
-export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSymbol {
+export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSymbol & {lyrics: Lyrics[]} {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
     const widthRatioForMeasure = options.widthRatioForMeasure ?? widthRatio;
 
@@ -310,7 +320,7 @@ export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSym
         throw new Error('createNoteSymbol：请提供 region 或 notesInfo');
     }
 
-    const note: NoteSymbol = {
+    const note: NoteSymbol & {lyrics: Lyrics[]} = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Note,
@@ -319,6 +329,7 @@ export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSym
         widthRatioForMeasure,
         graceNotes: mapGraceList(options.graceNotes),
         graceNotesAfter: mapGraceList(options.graceNotesAfter),
+        lyrics: options.lyrics ?? [],
     };
     if (options.clef != null) {
         note.clef = createClef(options.clef);
@@ -326,10 +337,10 @@ export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSym
     return note;
 }
 
-export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest {
+export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest & {lyrics: Lyrics[]} {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
     const augmentationDot = resolveAugmentationDot(options.augmentationDot);
-    const rest: NoteRest = {
+    const rest: NoteRest & {lyrics: Lyrics[]} = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Rest,
@@ -337,6 +348,7 @@ export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest {
         affiliatedSymbols: options.affiliatedSymbols ?? [],
         widthRatio,
         widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
+        lyrics: options.lyrics ?? [],
         ...(augmentationDot ? {augmentationDot} : {}),
     };
     if (options.clef != null) {
@@ -366,7 +378,7 @@ export function createNotesNumberInfo(
     };
 }
 
-export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber {
+export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber & {lyrics: Lyrics[]} {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
     const chronaxie = options.chronaxie ?? 64;
     const beamType = options.beamType ?? BeamTypeEnum.None;
@@ -402,6 +414,7 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber {
         affiliatedSymbols: [],
         widthRatio,
         widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
+        lyrics: options.lyrics ?? [],
     };
 }
 

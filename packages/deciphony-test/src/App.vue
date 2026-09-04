@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import RenderTitleTest from "./views/renderTitleTest.vue";
+import RenderLyricsTest from "./views/renderLyricsTest.vue";
 </script>
 
 <template>
@@ -14,7 +14,8 @@ import RenderTitleTest from "./views/renderTitleTest.vue";
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <transfer-test></transfer-test>-->
   <!--  <engine-test></engine-test>-->
-  <render-title-test></render-title-test>
+  <!--  <render-title-test></render-title-test>-->
+  <render-lyrics-test></render-lyrics-test>
   <!--  <dr-edit></dr-edit>-->
 
   <!--    <electron-message></ele/ctron-message>-->

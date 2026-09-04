@@ -134,6 +134,7 @@ export type CreateNoteSymbolOptions = {
   accidental?: AccidentalTypeEnum;
   graceNotes?: CreateNotesInfoOptions[];
   graceNotesAfter?: CreateNotesInfoOptions[];
+  lyrics?: import('deciphony-renderer').Lyrics[];
 };
 
 export type CreateNoteRestOptions = {
@@ -143,6 +144,7 @@ export type CreateNoteRestOptions = {
   clef?: ClefTypeEnum;
   augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   affiliatedSymbols?: NoteRest['affiliatedSymbols'];
+  lyrics?: import('deciphony-renderer').Lyrics[];
 };
 
 export type CreateNoteNumberOptions = {
@@ -155,6 +157,7 @@ export type CreateNoteNumberOptions = {
   augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   widthRatio?: number;
   widthRatioForMeasure?: number;
+  lyrics?: import('deciphony-renderer').Lyrics[];
   notesInfo?: Array<{
     syllable: NotesNumberInfo['syllable'];
     octaveDot?: NotesNumberInfo['octaveDot'];

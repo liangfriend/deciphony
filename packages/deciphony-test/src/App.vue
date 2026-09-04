@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import RenderTest from "./views/renderTest.vue";
+import RenderTitleTest from "./views/renderTitleTest.vue";
 </script>
 
 <template>
 
   <!--  <ui-test></ui-test>-->
   <!--  <resume></resume>-->
-  <render-test></render-test>
+  <!--  <render-test></render-test>-->
   <!--    <chord-builder></chord-builder>-->
   <!--  <render-play-test></render-play-test>-->
   <!--  <skin-builder></skin-builder>-->
@@ -14,7 +14,7 @@ import RenderTest from "./views/renderTest.vue";
   <!--  <render-edit-test></render-edit-test>-->
   <!--  <transfer-test></transfer-test>-->
   <!--  <engine-test></engine-test>-->
-  <!--  <render-title-test></render-title-test>-->
+  <render-title-test></render-title-test>
   <!--  <dr-edit></dr-edit>-->
 
   <!--    <electron-message></ele/ctron-message>-->

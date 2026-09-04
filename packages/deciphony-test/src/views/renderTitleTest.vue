@@ -1,20 +1,21 @@
 <script lang="ts" setup>
-import musicScoreVue from 'deciphony-renderer'
 import type {MusicScore} from 'deciphony-renderer'
+import musicScoreVue from 'deciphony-renderer'
 import {computed, reactive, ref} from 'vue'
 import {
   createGrandStaff,
   createMusicScore,
-  createNoteSymbol,
   createNotesInfo,
+  createNoteSymbol,
 } from './dr-extensions/dr-edit/score-builder'
-import {TitleSlot, type TitleMode} from './dr-extensions/dr-title'
+import {drTitle, type TitleMode} from './dr-extensions/dr-title'
 
 const mode = ref<TitleMode>('edit')
+const extensions = [drTitle({mode})]
 
 const musicScoreData = reactive<MusicScore>(
-  (() => {
-    const score = createMusicScore({width: 800, height: 600, topSpaceHeight: 24})
+    (() => {
+      const score = createMusicScore({width: 800, height: 600, topSpaceHeight: 24})
       score.title = '示例曲谱'
       score.subTitle = '副标题可选'
       score.author = '佚名'
@@ -56,20 +57,20 @@ const metaPreview = computed(() => ({
         </button>
       </div>
       <p class="title-test__hint">
-        布局：topSpaceHeight 顶部留白 → t 插槽（slotConfig.t.h）→ 曲谱。字段均可选，清空输入会变为 undefined。
+        通过 :extensions="[drTitle({ mode })]" 挂载，无需手写 #t 或 slotConfig.t.h。
       </p>
       <pre class="title-test__json">{{ JSON.stringify(metaPreview, null, 2) }}</pre>
     </aside>
 
     <div class="title-test__score">
       <musicScoreVue
-        :data="musicScoreData"
-        :slot-config="{ t: { h: 96 } }"
-        skin-name="default"
+          :data="musicScoreData"
+          :extensions="extensions"
+          skin-name="default"
       >
-        <template #t="{ node }">
-          <TitleSlot :mode="mode" :music-score="musicScoreData" :node="node"/>
-        </template>
+        <!--        <template #t>-->
+        <!--          <text>a</text>-->
+        <!--        </template>-->
       </musicScoreVue>
     </div>
   </div>

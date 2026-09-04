@@ -10,6 +10,11 @@ export type * from './types/MusicScoreType'
 /** 渲染通用类型（VDom、Skin、Frame 等） */
 export type * from './types/common'
 
+/** 扩展贡献声明 */
+export type * from './types/extension'
+export {mergeSlotConfig} from './render/mergeSlotConfig'
+export {fanoutExtensionEvent} from './render/fanoutExtensionEvent'
+
 /** 曲谱相关枚举 */
 export * from './enums/musicScoreEnum'
 

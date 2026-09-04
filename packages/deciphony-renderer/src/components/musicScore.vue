@@ -46,7 +46,14 @@
         <TabSlap v-else-if="node.tag === 'tabSlap'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Bend v-else-if="node.tag === 'bend'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
-
+          <component
+              v-for="item in extensionsForSlot(node.slotName)"
+              :key="`${item.name}:${node.targetId}`"
+              :is="item.component"
+              :music-score="data"
+              :node="node"
+              v-bind="resolveExtensionProps(item.extension)"
+          />
         </slot>
         <Group v-else :node="node" :notation-type="data.type" :skin="skin"/>
       </g>
@@ -55,9 +62,11 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, ref, watch, onMounted} from 'vue'
+import {computed, onMounted, ref, watch, type Component} from 'vue'
 import {resolveMusicScoreToVDom} from '@/render/resolveNotation'
 import {applyVDomUpdate, diffAndMergeVDom} from '@/render/update'
+import {mergeSlotConfig} from '@/render/mergeSlotConfig'
+import {fanoutExtensionEvent} from '@/render/fanoutExtensionEvent'
 import defaultSkin from '@/skins/default.json'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import Group from './group.vue'
@@ -72,14 +81,17 @@ import Bend from './bend.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
 import type {MusicScore} from '@/types/MusicScoreType'
-import type {Skin, SkinPack, SlotConfig, VDom} from '@/types/common'
+import type {Skin, SkinPack, SlotConfig, SlotName, VDom} from '@/types/common'
+import type {DrExtension, DrExtensionEvents} from '@/types/extension'
 
 const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming', 'tabChord', 'tabSlap', 'bend'])
 
 const props = defineProps<{
   data: MusicScore
-  /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关 */
+  /** 插槽配置，由扩展插件组合提供（如歌词、符号注释等），可随意开关；会覆盖 extensions 里的同名字段 */
   slotConfig?: SlotConfig
+  /** 扩展贡献：自动合并 slotConfig，并在对应插槽渲染组件 */
+  extensions?: DrExtension[]
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
   skin?: Skin
   skinName?: string
@@ -103,6 +115,51 @@ const effectiveSkinName = computed(() => {
 onMounted(() => {
 })
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
+
+type SlotExtensionItem = {
+  name: string
+  component: Component
+  extension: DrExtension
+}
+
+const mergedSlotConfig = computed(() =>
+    mergeSlotConfig(
+        (props.extensions ?? []).flatMap((ext) => ext.slotConfig ? [ext.slotConfig] : []),
+        props.slotConfig,
+    ),
+)
+
+const slotContributions = computed(() => {
+  const map = new Map<SlotName, SlotExtensionItem[]>()
+  for (const ext of props.extensions ?? []) {
+    if (!ext.slots) continue
+    for (const [slotName, component] of Object.entries(ext.slots) as [SlotName, Component | undefined][]) {
+      if (!component) continue
+      const list = map.get(slotName) ?? []
+      list.push({name: ext.name, component, extension: ext})
+      map.set(slotName, list)
+    }
+  }
+  return map
+})
+
+function extensionsForSlot(slotName?: SlotName): SlotExtensionItem[] {
+  if (!slotName) return []
+  return slotContributions.value.get(slotName) ?? []
+}
+
+function resolveExtensionProps(ext: DrExtension): Record<string, unknown> {
+  const raw = ext.props
+  if (!raw) return {}
+  return typeof raw === 'function' ? raw() : raw
+}
+
+function dispatchExtension<K extends keyof DrExtensionEvents>(
+  name: K,
+  ...args: Parameters<NonNullable<DrExtensionEvents[K]>>
+) {
+  fanoutExtensionEvent(props.extensions, name, ...args)
+}
 
 const emit = defineEmits<{
   renderMusicScore: [vDom: VDom[]]
@@ -130,26 +187,32 @@ function findElementByVDom(node: VDom): SVGElement | null {
 }
 
 function onDrClick(event: MouseEvent, node: VDom) {
+  dispatchExtension('dr-click', event, node)
   emit('dr-click', event, node)
 }
 
 function onDrDown(event: PointerEvent, node: VDom) {
+  dispatchExtension('dr-down', event, node)
   emit('dr-down', event, node)
 }
 
 function onDrUp(event: PointerEvent, node: VDom) {
+  dispatchExtension('dr-up', event, node)
   emit('dr-up', event, node)
 }
 
 function onDrMove(event: PointerEvent, node: VDom) {
+  dispatchExtension('dr-move', event, node)
   emit('dr-move', event, node)
 }
 
 function onDrEnter(event: PointerEvent, node: VDom) {
+  dispatchExtension('dr-enter', event, node)
   emit('dr-enter', event, node)
 }
 
 function onDrLeave(event: PointerEvent, node: VDom) {
+  dispatchExtension('dr-leave', event, node)
   emit('dr-leave', event, node)
 }
 
@@ -161,27 +224,41 @@ function syncTopHover(event: PointerEvent) {
   const node = resolveTopVDom(event)
   const prev = topHoverVDom.value
   if (prev === node) return
-  if (prev) emit('top-leave', event, prev)
-  if (node) emit('top-enter', event, node)
+  if (prev) {
+    dispatchExtension('top-leave', event, prev)
+    emit('top-leave', event, prev)
+  }
+  if (node) {
+    dispatchExtension('top-enter', event, node)
+    emit('top-enter', event, node)
+  }
   topHoverVDom.value = node
 }
 
 function onTopClick(event: MouseEvent) {
-  emit('top-click', event, resolveTopVDom(event))
+  const node = resolveTopVDom(event)
+  dispatchExtension('top-click', event, node)
+  emit('top-click', event, node)
 }
 
 function onTopDown(event: PointerEvent) {
   syncTopHover(event)
-  emit('top-down', event, resolveTopVDom(event))
+  const node = resolveTopVDom(event)
+  dispatchExtension('top-down', event, node)
+  emit('top-down', event, node)
 }
 
 function onTopUp(event: PointerEvent) {
-  emit('top-up', event, resolveTopVDom(event))
+  const node = resolveTopVDom(event)
+  dispatchExtension('top-up', event, node)
+  emit('top-up', event, node)
 }
 
 function onTopMove(event: PointerEvent) {
   syncTopHover(event)
-  emit('top-move', event, resolveTopVDom(event))
+  const node = resolveTopVDom(event)
+  dispatchExtension('top-move', event, node)
+  emit('top-move', event, node)
 }
 
 function onTopSvgEnter(event: PointerEvent) {
@@ -190,7 +267,10 @@ function onTopSvgEnter(event: PointerEvent) {
 
 function onTopSvgLeave(event: PointerEvent) {
   const prev = topHoverVDom.value
-  if (prev) emit('top-leave', event, prev)
+  if (prev) {
+    dispatchExtension('top-leave', event, prev)
+    emit('top-leave', event, prev)
+  }
   topHoverVDom.value = null
 }
 
@@ -198,12 +278,13 @@ const musicScoreToVDom = computed(() => resolveMusicScoreToVDom(notationType.val
 
 // data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
 watch(
-    [data, () => props.slotConfig, skinPackForLayout, effectiveSkinName],
+    [data, mergedSlotConfig, skinPackForLayout, effectiveSkinName],
     ([d, slotConfig]) => {
       const next = d
           ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
           : []
       vDom.value = diffAndMergeVDom(vDom.value, next)//next//
+      dispatchExtension('renderMusicScore', vDom.value)
       emit('renderMusicScore', vDom.value)
     },
     {immediate: true, deep: true}

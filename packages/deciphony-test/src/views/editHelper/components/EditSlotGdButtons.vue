@@ -3,6 +3,8 @@ import type {VDom} from 'deciphony-renderer'
 import AddGrandStaffButton from './AddGrandStaffButton.vue'
 import DeleteGrandStaffButton from './DeleteGrandStaffButton.vue'
 
+defineOptions({inheritAttrs: false})
+
 /** g-d 插槽：复谱表删除 + 添加按钮组合 */
 defineProps<{ node: VDom }>()
 </script>

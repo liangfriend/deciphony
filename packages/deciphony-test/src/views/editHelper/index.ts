@@ -79,6 +79,8 @@ export {
   type VoltaHandlePoints,
 } from './renderEditVoltaDrag'
 export {useRenderEdit, type MusicScoreComponentExpose} from './useRenderEdit'
+export {useDrEdit, EDIT_SLOT_CONFIG} from './useDrEdit'
+export {DR_EDIT_INJECTION_KEY, type DrEditApi} from './editInject'
 
 // —— 五线谱 ——
 export {

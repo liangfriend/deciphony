@@ -168,7 +168,7 @@ vDom 按 `tag` 分流渲染：
 `AFFILIATION_TAGS = ['slot', 'affiliation', 'beam', 'noteBeam']`
 
 - **Group**：measure、clef、keySignature、timeSignature、barline、rest、noteHead、noteStem、noteTail、addLine、accidental、space 等
-- **slot**：插槽内容由父组件具名插槽提供（#m, #g, #s 等）
+- **slot**：插槽内容由父组件具名插槽提供（#m, #g, #s 等）；未提供时用 `:extensions` 的 `slots` 作默认内容。手写具名插槽覆盖扩展组件；事件顺序见 [扩展挂载.md](./扩展挂载.md)。
 
 ---
 

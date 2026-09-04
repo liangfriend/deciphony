@@ -1,14 +1,16 @@
 <script lang="ts" setup>
 import type {MusicScore, VDom} from 'deciphony-renderer'
-import {computed} from 'vue'
+import {computed, unref, type MaybeRef} from 'vue'
 import {readTitleField, writeTitleField, type TitleFieldKey} from '../titleFields'
 import type {TitleMode} from '../types'
 
 const props = defineProps<{
   node: VDom
   musicScore: MusicScore
-  mode: TitleMode
+  mode: MaybeRef<TitleMode>
 }>()
+
+const titleMode = computed(() => unref(props.mode))
 
 const slotW = computed(() => props.node.w)
 const slotH = computed(() => props.node.h)
@@ -24,7 +26,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 <template>
   <g class="dr-title-slot">
-    <template v-if="mode === 'show'">
+    <template v-if="titleMode === 'show'">
       <text
         v-if="musicScore.title"
         class="dr-title-slot__title"

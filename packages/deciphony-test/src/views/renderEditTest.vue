@@ -8,14 +8,10 @@ import initialData from './data/其多列简谱'
 import {
   AddNoteStatePanel,
   AddNumberStatePanel,
-  EditSlotGdButtons,
-  EditSlotSdButtons,
-  GhostNotePreview,
-  GhostNumberPreview,
   PropertyPanel,
   SlurDragHandles,
   VoltaDragHandles,
-  useRenderEdit,
+  useDrEdit,
 } from './editHelper'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
@@ -25,25 +21,17 @@ const isNumberNotation = computed(
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
 
 const {
+  extension: editExtension,
   scoreRootRef,
   selectedItem,
   addNoteState,
-  activeGhostPreview,
   propertyPanelKind,
   slurHandlePoints,
   voltaHandlePoints,
-  handleDrClick,
-  handleDrEnter,
-  handleDrLeave,
-  handleDrDown,
-  handleDrUp,
   handleSlurHandleDown,
   handleVoltaHandleDown,
-  handleTopMove,
-  handleTopUp,
-  handleRenderMusicScore,
   deleteSelected,
-} = useRenderEdit(musicScoreData, {musicScoreRef})
+} = useDrEdit(musicScoreData, {musicScoreRef})
 
 function onKeyDown(event: KeyboardEvent) {
   if (event.key !== 'Delete' && event.key !== 'Backspace') return
@@ -81,47 +69,9 @@ onBeforeUnmount(() => {
               ref="musicScoreRef"
               class="play-test__score-svg"
               :data="musicScoreData"
-              :slot-config="{'g-r':{w:50},'g-l':{w:50},'g-d':{h:40},'s-d':{h:20}}"
+              :extensions="[editExtension]"
               skin-name="default"
-              @renderMusicScore="handleRenderMusicScore"
-              @dr-click="handleDrClick"
-              @dr-down="handleDrDown"
-              @dr-enter="handleDrEnter"
-              @dr-leave="handleDrLeave"
-              @dr-up="handleDrUp"
-              @top-move="handleTopMove"
-              @top-up="handleTopUp"
-          >
-            <template #g-d="{ node }">
-              <EditSlotGdButtons :node="node"/>
-            </template>
-            <template #s-d="{ node }">
-              <EditSlotSdButtons :node="node"/>
-            </template>
-            <template #m="{ node }">
-              <rect
-                  v-if="selectedItem?.measure?.id === node.slotData?.measure?.id"
-                  class="measure-selection-frame dr-selected-highlight"
-                  :height="node.h"
-                  :width="node.w"
-                  fill="white"
-                  fill-opacity="0.01"
-                  pointer-events="none"
-              />
-              <GhostNumberPreview
-                  v-if="isNumberNotation"
-                  :measure-id="selectedItem?.measure?.id"
-                  :node="node"
-                  :preview="activeGhostPreview"
-              />
-              <GhostNotePreview
-                  v-else
-                  :measure-id="selectedItem?.measure?.id"
-                  :node="node"
-                  :preview="activeGhostPreview"
-              />
-            </template>
-          </musicScoreVue>
+          />
           <svg
               v-if="slurHandlePoints || voltaHandlePoints"
               class="play-test__affiliated-drag-layer"

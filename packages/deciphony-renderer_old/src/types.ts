@@ -3,10 +3,10 @@ import {
     MsSymbolContainerTypeEnum,
     OrderTypeEnum,
     ReserveMsSymbolType
-} from "deciphony-core";
-import {MsType, MusicScore} from "deciphony-core";
+} from "@deciphony/core";
+import {MsType, MusicScore} from "@deciphony/core";
 import {Ref} from "vue";
-import {MsTypeNameEnum} from "deciphony-core";
+import {MsTypeNameEnum} from "@deciphony/core";
 import {DragType} from "@/enum";
 
 export declare interface MouseDownData {

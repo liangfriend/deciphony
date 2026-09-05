@@ -12,7 +12,7 @@ import {
     NoteHead,
     NoteTail,
     SingleStaff
-} from "deciphony-core";
+} from "@deciphony/core";
 import {MsSymbolInformationMap,} from "@/constant";
 import {
     getWidthConstantInMeasure,

@@ -9,7 +9,7 @@ import {
     NoteSymbolTypeEnum, SingleNoteAffiliatedSymbol, SlurTypeEnum, TabNote,
     TabNoteInfo,
     TabNoteInfoTypeEnum,
-} from "deciphony-renderer";
+} from "@deciphony/renderer";
 import {createGrandStaff, createMusicScore,} from "./scoreBuilder";
 // 曲谱结构
 

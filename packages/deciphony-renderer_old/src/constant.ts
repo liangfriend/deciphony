@@ -8,7 +8,7 @@ import {
     MsSymbolCategoryEnum,
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 import {MsSymbolInformation} from "@/types";
 import {computed, ref} from "vue";
 

@@ -1,4 +1,4 @@
-import {APlayer} from 'deciphony-player'
+import {APlayer} from '@deciphony/player'
 import {AudioNode, AudioNodePlayer} from '@/types'
 
 export function useAudioNodePlayer(audioNode: AudioNode): AudioNodePlayer {

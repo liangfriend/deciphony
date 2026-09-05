@@ -30,26 +30,35 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": true,
     "paths": {
-      "deciphony-renderer": [
+      "@deciphony/renderer": [
         "../deciphony-renderer/src/index.ts"
+      ],
+      "@deciphony/work": [
+        "../deciphony-work/src/index.ts"
+      ],
+      "@deciphony/extensions": [
+        "../deciphony-extensions/src/index.ts"
+      ],
+      "@deciphony/extensions/*": [
+        "../deciphony-extensions/src/*"
       ],
       "j-player": [
         "../j-player/src/index.ts"
       ],
-      "deciphony-player": [
-        "node_modules/deciphony-player/src/index.ts"
+      "@deciphony/player": [
+        "../deciphony-player/src/index.ts"
       ],
-      "deciphony-ui": [
-        "node_modules/deciphony-ui/src/index.ts"
+      "@deciphony/ui": [
+        "../deciphony-ui/src/index.ts"
       ],
-      "deciphony-core": [
-        "node_modules/deciphony-core/src/index.ts"
+      "@deciphony/core": [
+        "../deciphony-core/src/index.ts"
       ],
-      "deciphony-core/utils": [
-        "node_modules/deciphony-core/src/utils/*.ts"
+      "@deciphony/core/utils": [
+        "../deciphony-core/src/utils/*.ts"
       ],
       "@assets/*": [
-        "node_modules/deciphony-ui/src/assets/*"
+        "../deciphony-ui/src/assets/*"
       ],
       "@/*": [
         "../deciphony-renderer/src/*"

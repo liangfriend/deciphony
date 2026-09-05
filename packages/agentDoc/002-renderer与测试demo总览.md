@@ -1,7 +1,7 @@
-# 002 - deciphony-renderer 与测试 Demo 总览
+# 002 - @deciphony/renderer 与测试 Demo 总览
 
 > 日期：2025-02-24  
-> 目的：Agent 快速定位 deciphony-renderer 曲谱组件及其测试入口
+> 目的：Agent 快速定位 @deciphony/renderer 曲谱组件及其测试入口
 
 ## 一、路径说明
 
@@ -12,7 +12,7 @@
 | renderer 的测试页 | `packages/deciphony-test/src/views/renderTest.vue` | 调用 music-score 的测试页 |
 | Agent 文档 | `packages/agentDoc/` | 本目录，供 Agent 阅读与续写 |
 
-## 二、deciphony-renderer 核心结构
+## 二、@deciphony/renderer 核心结构
 
 ```
 packages/deciphony-renderer/
@@ -51,5 +51,5 @@ packages/deciphony-renderer/
 ## 五、Agent 续写建议
 
 1. 修改曲谱逻辑时，优先阅读 `001-代码结构理解.md` 了解数据流
-2. 新增符号或插槽时，参考 `deciphony-renderer/doc/` 下规范
+2. 新增符号或插槽时，参考 `@deciphony/renderer/doc/` 下规范
 3. 测试改动时，在 `renderTest.vue` 中切换 `happyBirthday` 数据或添加用例

@@ -1,4 +1,4 @@
-import type {VDom} from 'deciphony-renderer'
+import type {VDom} from '@deciphony/renderer'
 
 /** g-d / s-d 插槽内结构按钮的尺寸与定位（仅 UI 布局，数据变更走 renderEditSlotActions → dr-edit） */
 export const ADD_GRAND_STAFF_BTN_W = 96

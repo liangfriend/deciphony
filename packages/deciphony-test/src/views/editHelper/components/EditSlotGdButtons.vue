@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type {VDom} from 'deciphony-renderer'
+import type {VDom} from '@deciphony/renderer'
 import AddGrandStaffButton from './AddGrandStaffButton.vue'
 import DeleteGrandStaffButton from './DeleteGrandStaffButton.vue'
 

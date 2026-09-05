@@ -17,8 +17,8 @@ deciphony第一版的五线谱打谱包括进行中的简线转换。虽然可�
 
 
 + packages
-  + deciphony-player 内置将五线谱，简谱数据等转换为播放数据的函数
-  + deciphony-renderer 五线谱，简谱数据， 只负责展示
+  + @deciphony/player 内置将五线谱，简谱数据等转换为播放数据的函数
+  + @deciphony/renderer 五线谱，简谱数据， 只负责展示
 
 
 
@@ -59,7 +59,7 @@ deciphony第一版的五线谱打谱包括进行中的简线转换。虽然可�
 
 #### 外置函数
 
-+ 曲谱播放函数（这个把曲谱类型转换成deciphony-player的播放序列）
++ 曲谱播放函数（这个把曲谱类型转换成@deciphony/player的播放序列）
 
 
 
@@ -69,7 +69,7 @@ deciphony第一版的五线谱打谱包括进行中的简线转换。虽然可�
 
 需要同步开发的其它插件
 
-#### deciphony-player
+#### @deciphony/player
 
 #### white-board
 

@@ -1,4 +1,4 @@
-import {MsTypeNameEnum, MusicScore, type Slur, Volta} from "deciphony-core";
+import {MsTypeNameEnum, MusicScore, type Slur, Volta} from "@deciphony/core";
 import {getMeasureLeftToMusicScore, getSlotLeftToMeasure} from "@/utils/leftUtil";
 import {getMeasureWidth, getMsSymbolSlotWidth} from "@/utils/widthUtil";
 import {
@@ -6,8 +6,8 @@ import {
     getMinMsSymbolTopBetweenMsSymbolContainer,
     getMinMsSymbolTopInMeasure
 } from "@/utils/topUtil";
-import {getDataWithIndex, getTarget, traverseMeasure} from "deciphony-core";
-import {SlurPosition} from "deciphony-core";
+import {getDataWithIndex, getTarget, traverseMeasure} from "@deciphony/core";
+import {SlurPosition} from "@deciphony/core";
 import {VoltaPosition} from "../../../deciphony-core/src";
 
 export function voltaRect(volta: Volta, musicScore: MusicScore, voltaPosition: VoltaPosition, componentWidth: number, componentHeight: number) {

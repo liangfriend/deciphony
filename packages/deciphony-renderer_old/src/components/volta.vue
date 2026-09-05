@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import {computed, PropType} from "vue";
-import {Volta} from "deciphony-core";
+import {Volta} from "@deciphony/core";
 
 const props = defineProps({
     volta: {

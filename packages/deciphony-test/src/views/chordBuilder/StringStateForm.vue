@@ -42,7 +42,7 @@
 
 <script lang="ts" setup>
 import {computed, watch} from 'vue'
-import type {StringState} from 'deciphony-renderer'
+import type {StringState} from '@deciphony/renderer'
 
 type FingerMode = 'none' | 'o' | 'x' | 'fret'
 

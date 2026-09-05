@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {computed, CSSProperties, onBeforeUnmount, onMounted, PropType, ref} from 'vue'
 import {parseAndFormatDimension} from '../../utils/commonUtil'
-import {AccidentalEnum, midiToNoteName, noteNameToHelmholtz, noteNameToNoteString} from "deciphony-core";
+import {AccidentalEnum, midiToNoteName, noteNameToHelmholtz, noteNameToNoteString} from "@deciphony/core";
 import vDrag from '../../directivces/drag';
 import {KeyCodeEnum} from "../../types/enum";
 import {defaultCodeConfig} from "../../utils/constant";

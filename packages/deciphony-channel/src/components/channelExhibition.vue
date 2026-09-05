@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick, computed, watchEffect} from "vue"
-import {PlayerManager, AudioPlayer} from "deciphony-player";
+import {PlayerManager, AudioPlayer} from "@deciphony/player";
 import ChannelWindow from "./channelWindow.vue";
 import {ChannlWindowRef, HighlightItem} from "@core/types";
 

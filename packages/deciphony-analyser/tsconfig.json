@@ -30,7 +30,7 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": true,
     "paths": {
-      "deciphony-core": "deciphony-core"
+      "@deciphony/core": ["../deciphony-core/src/index.ts"]
     }
   },
   "include": [

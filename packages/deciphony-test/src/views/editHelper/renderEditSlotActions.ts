@@ -1,14 +1,14 @@
 /**
  * 插槽按钮 → dr-edit 的桥接：默认小节数等产品策略放 editHelper，不污染 dr-edit 底层 API。
  */
-import type {GrandStaff, SingleStaff, SlotData} from 'deciphony-renderer'
+import type {GrandStaff, SingleStaff, SlotData} from '@deciphony/renderer'
 import {
     addMeasure,
     deleteGrandStaff,
     deleteSingleStaff,
     insertGrandStaff,
     insertSingleStaff,
-} from '../dr-extensions/dr-edit/edit-util';
+} from '@deciphony/extensions/dr-edit';
 
 /** 新增复谱表时，默认单谱表的小节数 */
 const NEW_GRAND_STAFF_MEASURE_COUNT = 4;

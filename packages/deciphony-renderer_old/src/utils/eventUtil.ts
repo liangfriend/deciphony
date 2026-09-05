@@ -6,7 +6,7 @@ import {
     ReserveMsSymbolType,
     StaffPositionTypeEnum,
     StaffRegionEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
     Measure,
     MsSymbol,
@@ -22,23 +22,23 @@ import {
     SpanSymbol,
     StaffRegion,
     VirtualSymbolContainerType
-} from "deciphony-core";
+} from "@deciphony/core";
 
 import {Ref} from 'vue';
-import {msSymbolContainerTemplate, msSymbolTemplate} from "deciphony-core";
+import {msSymbolContainerTemplate, msSymbolTemplate} from "@deciphony/core";
 import {
     getBeamGroup,
     getDataWithIndex,
     getSingleStaffRelatedSpanSymbolList, indexToStaffRegion, staffRegionToIndex,
     updateSpanSymbolView
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
     addMsSymbol,
     addMsSymbolContainer,
     changeNoteStemDirection,
     changeNoteTailDirection,
     updateBeamGroupNote
-} from "deciphony-core";
+} from "@deciphony/core";
 import {MsState} from "../types";
 
 

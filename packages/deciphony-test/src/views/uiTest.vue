@@ -3,7 +3,7 @@ import {onMounted, ref} from "vue";
 import brokenHeartSrc from '../assets/my_broken_heart.mp3'
 import brokenHeartImg from '../assets/xiDuoChuan.jpg'
 import whiteboardJson from '../assets/whiteboard.json'
-import {KeyCodeEnum} from "deciphony-ui";
+import {KeyCodeEnum} from "@deciphony/ui";
 
 const dsModelBoxRef = ref(null)
 

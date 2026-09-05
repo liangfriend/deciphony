@@ -1,0 +1,31 @@
+---
+description: @deciphony/work (sjw 课件内容区) 架构与开发规范
+globs: packages/deciphony-work/**
+alwaysApply: false
+---
+
+# @deciphony/work
+
+改本包前先读 `packages/deciphony-work/AGENTS.md`（完整约定）。摘要如下：
+
+## 职责
+
+- **做**：单页内容区（`SJWPDF`）、资源缓存、`.sjw` 导入导出、放置框编辑（移/拉/转）
+- **不做**：左侧缩略图栏、曲谱内部记谱编辑（归 `@deciphony/renderer`）
+
+## 硬规则
+
+1. 曲谱 → `page.scores` + `Score.vue`；多媒体 → `page.elements` + `ElementNode.vue`（勿混放）
+2. 放置几何以**中心**为基准（`EditFrame.vue`）；拉伸对侧同步、中心不动
+3. 静态资源：`loadAsset(file, name?)` → `{id, name}`；页面引用存 **id**。`addImage`/`setBackground` 等按 id（无缓存则失败），或 `*FromFile` 内部先载入
+4. 背景为图片 `background.src`（资源 id），不是纯色
+5. `addImage` 用资源原始宽高；`addScore` 用 `MusicScore.width/height` 初始化框；拉伸只改框
+6. 音频用自定义 `AudioPlayer`，不用原生 controls
+7. 页面 svg：`viewBox` = 逻辑宽高，`preserveAspectRatio="none"`
+8. 新 API/类型同步导出 `src/index.ts`，并更新 `AGENTS.md` / `doc/`
+
+## 入口
+
+- 组件：`SJWPDF.vue` → `Page.vue`
+- 类型：`src/types/types.ts`
+- 宿主测试：`packages/deciphony-test/src/views/workTest.vue`

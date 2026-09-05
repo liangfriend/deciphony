@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import musicScoreVue from 'deciphony-renderer'
-import {MusicScoreTypeEnum} from 'deciphony-renderer'
-import type {MusicScore} from 'deciphony-renderer'
+import musicScoreVue from '@deciphony/renderer'
+import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import type {MusicScore} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/其多列简谱'

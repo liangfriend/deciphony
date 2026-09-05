@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {computed, CSSProperties, PropType} from "vue";
-import {MsSymbol, TimeSignatureMsSymbol} from "deciphony-core";
-import {MsSymbolTypeEnum} from "deciphony-core";
+import {MsSymbol, TimeSignatureMsSymbol} from "@deciphony/core";
+import {MsSymbolTypeEnum} from "@deciphony/core";
 
 const props = defineProps({
     timeSignature: {

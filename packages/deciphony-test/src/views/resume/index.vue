@@ -146,7 +146,7 @@ const plugins = [
     ]
   },
   {
-    name: 'deciphony-player(网页音符播放器插件)',
+    name: '@deciphony/player(网页音符播放器插件)',
     paragraphs: [
       '基于 web-audio 开发 js 音频播放器，对标 toneJs。在功能广度上，没有 toneJs 对 webAudio 的节点实现的那么全面，',
       '但是性能更高。在 6x cpu 减速情况下，仍流畅运行；20x cpu 减速下出现卡顿，但是仍准时运行。',
@@ -154,7 +154,7 @@ const plugins = [
     ],
   },
   {
-    name: 'deciphony-renderer(网页曲谱组件)',
+    name: '@deciphony/renderer(网页曲谱组件)',
     paragraphs: [
       '自研网页曲谱展示技术，目前实现了五线谱、简谱、Tab6（吉他谱）、Tab4（尤克里里 & 贝斯谱）。',
       '通过算法优化，拥有极快的渲染速度。',
@@ -163,14 +163,14 @@ const plugins = [
     ],
   },
   {
-    name: 'deciphony-tune-judge(演唱测评插件)',
+    name: '@deciphony/tune-judge(演唱测评插件)',
     paragraphs: [
       '基于 web-audio 的演唱测评插件，接收麦克风流信息和一段谱子的midi数据，通过内置的音高检测功能实时返回演唱评分。',
       '类似全民K歌的功能',
     ],
   },
   {
-    name: 'deciphony-engine(视觉小说游戏引擎)',
+    name: '@deciphony/engine(视觉小说游戏引擎)',
     paragraphs: [
       '节点拖拽式的可视化编辑器。通过鼠标拖拽实现一个视觉小说游戏',
       '内置存档，场景跳转等游戏创作流程的基本能力。让普通人也能做游戏',
@@ -193,7 +193,7 @@ const projects = [
     fullRow: true,
     paragraphs: [
       '具有游戏 & 工具双性质的软件。',
-      '基于自研的 deciphony-player & deciphony-renderer 实现的一个打谱软件。',
+      '基于自研的 @deciphony/player & @deciphony/renderer 实现的一个打谱软件。',
       '支持简谱线谱的一键切换。支持曲谱皮肤自定义、单行模式转换等等。',
       '支持 musicxml 格式的输入输出。谱子可以直接进入练习模式，连接 midi 设备进行跟弹，并实时展示评分。',
       '内置识谱小游戏，通过不断练习能提升玩家的钢琴素养.',
@@ -205,7 +205,7 @@ const projects = [
     tag: '游戏平台',
     fullRow: true,
     paragraphs: [
-      '基于自研的 deciphony-engine 开发的游戏管理平台，用户可以开发自己的游戏并发布。',
+      '基于自研的 @deciphony/engine 开发的游戏管理平台，用户可以开发自己的游戏并发布。',
       '分为软件和后台管理两部分，用户可以发布自己的游戏到云端。',
     ],
     shots: [talePlant],

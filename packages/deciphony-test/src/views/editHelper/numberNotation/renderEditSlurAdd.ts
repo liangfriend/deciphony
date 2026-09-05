@@ -1,6 +1,6 @@
-import type {Measure, MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from 'deciphony-renderer'
-import {createSlur} from '../../dr-extensions/dr-edit/score-builder'
-import {isNoteNumberSlot, isSlotRestLike} from '../../dr-extensions/dr-edit/score-builder/noteSlot'
+import type {Measure, MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from '@deciphony/renderer'
+import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
+import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import type {NumberHeadEditSlot} from './renderEditNumberHeadProperties'
 
 export type SlurSpan = 2 | 3 | 4

@@ -1,4 +1,4 @@
-import type {DrExtension, MusicScore, SlotConfig} from 'deciphony-renderer'
+import type {DrExtension, MusicScore, SlotConfig} from '@deciphony/renderer'
 import type {Ref} from 'vue'
 import {provide} from 'vue'
 import type {MusicScoreComponentExpose} from './useRenderEdit'

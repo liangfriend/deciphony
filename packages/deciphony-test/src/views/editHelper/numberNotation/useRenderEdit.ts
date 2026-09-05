@@ -1,10 +1,10 @@
-import type {MusicScore, SlotData, VDom} from 'deciphony-renderer'
+import type {MusicScore, SlotData, VDom} from '@deciphony/renderer'
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
     vdomDomId,
     vdomSelectionKey,
-} from 'deciphony-renderer'
+} from '@deciphony/renderer'
 import type {Ref} from 'vue'
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {DEFAULT_ADD_NUMBER_STATE, type AddNumberState} from './renderEditNumberAddState'
@@ -551,9 +551,9 @@ export function useNumberNotationRenderEdit(
         noteHeadDragSession.value = createNumberHeadDragSession(
             event,
             slot as SlotData & {
-                info: import('deciphony-renderer').NotesNumberInfo
-                note: import('deciphony-renderer').NoteNumber
-                measure: import('deciphony-renderer').Measure
+                info: import('@deciphony/renderer').NotesNumberInfo
+                note: import('@deciphony/renderer').NoteNumber
+                measure: import('@deciphony/renderer').Measure
             },
         )
         el.setPointerCapture(event.pointerId)

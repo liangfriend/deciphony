@@ -1,5 +1,5 @@
 {
-  "name": "deciphony-player",
+  "name": "@deciphony/player-old",
   "version": "1.0.50",
   "description": "",
   "type": "module",
@@ -20,7 +20,7 @@
     "prepublishOnly": "npm version patch"
   },
   "peerDependencies": {
-    "deciphony-core": "^0.0.32"
+    "@deciphony/core": "workspace:*"
   },
   "keywords": [],
   "author": "",

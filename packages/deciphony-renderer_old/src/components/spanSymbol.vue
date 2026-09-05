@@ -4,11 +4,11 @@ import type {
     MusicScore,
     Slur,
     SpanSymbol, Volta
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
     MsTypeNameEnum, MusicScoreShowModeEnum,
     SpanSymbolTypeEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 
 import voltaVue from './volta.vue'
 import slurVue from './slur.vue'

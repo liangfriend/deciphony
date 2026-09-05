@@ -34,7 +34,7 @@ export const useAudioManagerStore = defineStore('audioManager', () => {
 
   function destory(nodeId: number) {
     const player = audioNodePlayerMap.value.get(nodeId)
-    // TODO 后续更新deciphony-player destory方法
+    // TODO 后续更新@deciphony/player destory方法
     player?.stop()
   }
 

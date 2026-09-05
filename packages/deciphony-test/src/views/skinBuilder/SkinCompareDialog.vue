@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
-import musicScoreVue from 'deciphony-renderer'
-import type {MusicScore} from 'deciphony-renderer'
+import musicScoreVue from '@deciphony/renderer'
+import type {MusicScore} from '@deciphony/renderer'
 import type {Skin, SkinPack, SlotConfig} from '@/types/common'
 import skinExhibitStandardStaff from '../data/skinExhibitStandardStaff'
 import skinExhibitNumberNotation from '../data/skinExhibitNumberNotation'

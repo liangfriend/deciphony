@@ -1,0 +1,83 @@
+{
+  "name": "@deciphony/extensions",
+  "version": "0.0.1",
+  "description": "@deciphony/renderer 官方扩展集（标题、歌词、编辑构建、播放、MusicXML/简谱转换等）",
+  "type": "module",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.vue"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./dr-title": {
+      "types": "./dist/dr-title/index.d.ts",
+      "import": "./dist/dr-title/index.js",
+      "default": "./src/dr-title/index.ts"
+    },
+    "./dr-lyrics": {
+      "default": "./src/dr-lyrics/index.ts"
+    },
+    "./dr-edit": {
+      "default": "./src/dr-edit/index.ts"
+    },
+    "./dr-edit/score-builder": {
+      "default": "./src/dr-edit/score-builder.ts"
+    },
+    "./dr-edit/score-builder/*": {
+      "default": "./src/dr-edit/score-builder/*.ts"
+    },
+    "./dr-play": {
+      "default": "./src/dr-play/index.ts"
+    },
+    "./dr-play-highlight": {
+      "default": "./src/dr-play-highlight/index.ts"
+    },
+    "./dr-musicxml-transfer": {
+      "default": "./src/dr-musicxml-transfer/index.ts"
+    },
+    "./dr-numberNotation-transfer": {
+      "default": "./src/dr-numberNotation-transfer/index.ts"
+    },
+    "./score-util": {
+      "default": "./src/scoreUtil.ts"
+    }
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0",
+    "@deciphony/renderer": "*",
+    "fast-xml-parser": "^5.0.0",
+    "xmlbuilder": "^15.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@deciphony/renderer": "workspace:*",
+    "fast-xml-parser": "^5.8.0",
+    "sass": "^1.83.0",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.3.4",
+    "vue-tsc": "^3.0.5",
+    "xmlbuilder": "^15.1.1"
+  },
+  "keywords": [
+    "deciphony",
+    "extensions"
+  ],
+  "license": "ISC",
+  "packageManager": "pnpm@10.14.0"
+}

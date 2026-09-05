@@ -10,7 +10,7 @@ import type {
   SingleStaff,
 
   SpanSymbol
-} from "deciphony-core";
+} from "@deciphony/core";
 import MeasureContainer from "./components/measureContainer.vue";
 
 import MsSymbolContainer
@@ -20,14 +20,14 @@ import SpanSymbolVue from "./components/spanSymbol.vue";
 import {
   mapGenerate,
   setMultipleStavesIndex
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
   ChronaxieEnum,
   MsMode,
   MsSymbolContainerTypeEnum,
   MsSymbolTypeEnum, MusicScoreShowModeEnum,
   ReserveMsSymbolType,
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
   eventConstant,
   handleMouseMoveSelected,
@@ -41,9 +41,9 @@ import {
 } from "./utils/eventUtil";
 import VirtualSymbolContainer
   from "./components/virtualSymbolContainer.vue";
-import {msSymbolTemplate} from "deciphony-core";
+import {msSymbolTemplate} from "@deciphony/core";
 import {MusicScoreRef, ReserveMsSymbolMapType, StyleMapItem} from "./types";
-import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "deciphony-core";
+import {numberNotationToStandardStaff, standardStaffToNumberNotation} from "@deciphony/core";
 import {useSkin} from "@/composables/useSkin";
 
 

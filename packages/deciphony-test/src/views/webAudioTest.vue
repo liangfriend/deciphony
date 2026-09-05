@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, onBeforeUnmount, ref} from "vue";
-import {WindInstrumentPlayer} from "deciphony-player";
-import {WindInstrumentEnum} from "deciphony-player";
+import {WindInstrumentPlayer} from "@deciphony/player";
+import {WindInstrumentEnum} from "@deciphony/player";
 
 const player = ref<WindInstrumentPlayer | null>(null);
 

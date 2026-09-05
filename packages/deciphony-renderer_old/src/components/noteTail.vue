@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed, CSSProperties, inject, PropType, Ref} from "vue";
-import {getBeamGroup,} from "deciphony-core";
+import {getBeamGroup,} from "@deciphony/core";
 import {
     BeamGroup,
     type Measure,
@@ -10,8 +10,8 @@ import {
     NoteHead,
     NoteTail,
     type SingleStaff
-} from "deciphony-core";
-import {ChronaxieEnum, MsSymbolTypeEnum} from "deciphony-core";
+} from "@deciphony/core";
+import {ChronaxieEnum, MsSymbolTypeEnum} from "@deciphony/core";
 
 
 import {getMsSymbolHeight} from "../utils/heightUtil";

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type {MusicScore} from 'deciphony-renderer'
-import musicScoreVue from 'deciphony-renderer'
+import type {MusicScore} from '@deciphony/renderer'
+import musicScoreVue from '@deciphony/renderer'
 import {computed, reactive, ref} from 'vue'
 import {
   createGrandStaff,
@@ -8,8 +8,8 @@ import {
   createMusicScore,
   createNotesInfo,
   createNoteSymbol,
-} from './dr-extensions/dr-edit/score-builder'
-import {drLyrics, type LyricsMode} from './dr-extensions/dr-lyrics'
+} from '@deciphony/extensions/dr-edit/score-builder'
+import {drLyrics, type LyricsMode} from '@deciphony/extensions/dr-lyrics'
 
 const mode = ref<LyricsMode>('edit')
 const showRowIndex = ref(true)

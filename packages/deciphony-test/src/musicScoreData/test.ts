@@ -1,4 +1,4 @@
-import type {MusicScore} from 'deciphony-core'
+import type {MusicScore} from '@deciphony/core'
 
 const data: MusicScore = {
     "showMode": 1,

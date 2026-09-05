@@ -41,7 +41,7 @@ import type {
   MusicScore,
   SingleStaff,
   WidthConstant
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
   getMeasureWidth,
 } from "../utils/widthUtil";

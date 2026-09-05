@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import {ref} from 'vue'
-import MusicScore from 'deciphony-renderer'
+import MusicScore from '@deciphony/renderer'
 import data from './data/其多列'
 
 const initialData = JSON.parse(JSON.stringify(data))

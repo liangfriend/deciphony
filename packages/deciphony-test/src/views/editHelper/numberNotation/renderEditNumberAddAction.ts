@@ -1,6 +1,6 @@
-import type {Chronaxie, Measure, MusicScore, NoteNumber, NotesNumberInfo, SlotData, VDom} from 'deciphony-renderer'
-import {createNoteNumber, createNotesNumberInfo} from '../../dr-extensions/dr-edit/score-builder/factories'
-import {isNoteNumberSlot, isSlotRestLike} from '../../dr-extensions/dr-edit/score-builder/noteSlot'
+import type {Chronaxie, Measure, MusicScore, NoteNumber, NotesNumberInfo, SlotData, VDom} from '@deciphony/renderer'
+import {createNoteNumber, createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
+import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import {
   DEFAULT_ADD_NUMBER_STATE,
   syllableForAddState,

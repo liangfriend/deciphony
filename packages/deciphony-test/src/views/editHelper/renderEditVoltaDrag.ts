@@ -1,5 +1,5 @@
-import {DoubleMeasureAffiliatedSymbolNameEnum} from 'deciphony-renderer'
-import type {DoubleMeasureAffiliatedSymbol, MusicScore, SlotData, VDom} from 'deciphony-renderer'
+import {DoubleMeasureAffiliatedSymbolNameEnum} from '@deciphony/renderer'
+import type {DoubleMeasureAffiliatedSymbol, MusicScore, SlotData, VDom} from '@deciphony/renderer'
 
 export type VoltaHandleKind = 'left' | 'right' | 'center'
 

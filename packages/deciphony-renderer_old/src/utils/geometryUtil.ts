@@ -1,10 +1,10 @@
 // 复合性aspectRatiao获取
 
 
-import {MsSymbol} from "deciphony-core";
-import {MsSymbolTypeEnum} from "deciphony-core";
+import {MsSymbol} from "@deciphony/core";
+import {MsSymbolTypeEnum} from "@deciphony/core";
 import {MsSymbolInformationMap} from "@/constant";
-import {MusicScore} from "deciphony-core";
+import {MusicScore} from "@deciphony/core";
 
 function getMultipleAspectRatio(msSymbol: MsSymbol): number {
     const information = MsSymbolInformationMap[msSymbol.type]

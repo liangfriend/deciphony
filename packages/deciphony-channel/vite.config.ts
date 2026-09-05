@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [vue(), tailwindcss(),],
     resolve: {
         alias: {
-            '@deciphony-player': path.resolve(__dirname, './node_modules/deciphony-player/src/index.ts'),
+            '@deciphony/player': path.resolve(__dirname, '../deciphony-player/src/index.ts'),
         }
     },
 })

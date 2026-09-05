@@ -1,4 +1,4 @@
-import {StandardStaffSkinKeyEnum} from 'deciphony-renderer'
+import {StandardStaffSkinKeyEnum} from '@deciphony/renderer'
 import type {SkinSymbolCategory} from '../theme/types'
 
 const CLEF_KEYS = new Set<string>([

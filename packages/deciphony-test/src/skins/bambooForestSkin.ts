@@ -1,4 +1,4 @@
-import type {SkinPack} from 'deciphony-renderer'
+import type {SkinPack} from '@deciphony/renderer'
 import {buildThemedSkinPack} from './build/buildThemedSkinPack'
 import {bambooForestTheme} from './theme/bambooForestTheme'
 

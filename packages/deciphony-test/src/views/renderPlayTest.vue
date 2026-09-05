@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import musicScoreVue from 'deciphony-renderer'
-import {startJPlayer, activeContext, NPlayer, PlaySequence} from 'deciphony-player'
+import musicScoreVue from '@deciphony/renderer'
+import {startJPlayer, activeContext, NPlayer, PlaySequence} from '@deciphony/player'
 import data from './data/其多列'
 import piano from '../assets/toneColor/accoustic_grand_piano.json'
 import {onBeforeUnmount, onMounted, ref} from "vue";
-import {getDrPlaySequence} from "./dr-extensions/dr-play/play-util";
-import {usePlayHighlight, type MusicScoreHighlightExpose} from './dr-extensions/dr-play-highlight'
+import {getDrPlaySequence} from '@deciphony/extensions/dr-play';
+import {usePlayHighlight, type MusicScoreHighlightExpose} from '@deciphony/extensions/dr-play-highlight'
 import {bambooForestSkin, glacierSkin} from '../skins'
 
 const skinName = ref<'default' | 'bambooForest' | 'glacier'>('default')

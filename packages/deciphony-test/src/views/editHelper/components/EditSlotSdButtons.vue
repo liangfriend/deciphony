@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type {VDom} from 'deciphony-renderer'
+import type {VDom} from '@deciphony/renderer'
 import AddMeasureButton from './AddMeasureButton.vue'
 import AddSingleStaffButton from './AddSingleStaffButton.vue'
 import DeleteSingleStaffButton from './DeleteSingleStaffButton.vue'

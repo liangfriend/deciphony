@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {AudioPlayer, TonePlayer, ToneSequence} from 'deciphony-player'
+import {AudioPlayer, TonePlayer, ToneSequence} from '@deciphony/player'
 import sample from '../assets/sample-3s.mp3'
 import {onMounted, ref} from "vue";
 import piano from "../assets/piano";

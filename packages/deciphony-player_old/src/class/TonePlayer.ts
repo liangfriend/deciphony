@@ -1,5 +1,5 @@
 import {ToneColor, ToneDuration, ToneSequence} from "../types/types";
-import {ChronaxieEnum, TimeSignature} from "deciphony-core";
+import {ChronaxieEnum, TimeSignature} from "@deciphony/core";
 import {base64ToArrayBuffer, toneDurationToTimestamp} from "../utils/baseUtil";
 import {PauseModeEnum} from "../types/enum";
 

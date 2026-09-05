@@ -1,5 +1,5 @@
 {
-  "name": "deciphony-core",
+  "name": "@deciphony/core",
   "version": "0.0.32",
   "description": "",
   "type": "module",

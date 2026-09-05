@@ -13,7 +13,7 @@ const COMPONENTS_DIRS = [
 // Read package.json for package name fallback
 const pkgPath = path.join(ROOT, 'package.json');
 const pkg = fs.existsSync(pkgPath) ? JSON.parse(fs.readFileSync(pkgPath, 'utf8')) : {};
-const packageName = pkg.name || 'deciphony-ui';
+const packageName = pkg.name || '@deciphony/ui';
 
 // optional mapping file path
 const mapFile = path.join(ROOT, 'scripts', 'global-dts.map.json');

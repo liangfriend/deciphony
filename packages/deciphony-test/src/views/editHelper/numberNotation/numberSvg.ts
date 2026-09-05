@@ -1,5 +1,5 @@
-import type {Chronaxie} from 'deciphony-renderer'
-import type {NotesNumberInfo} from 'deciphony-renderer'
+import type {Chronaxie} from '@deciphony/renderer'
+import type {NotesNumberInfo} from '@deciphony/renderer'
 
 const SYLLABLE_LABEL: Record<NotesNumberInfo['syllable'], string> = {
   0: '0',

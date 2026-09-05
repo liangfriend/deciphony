@@ -10,12 +10,12 @@ import {
     StaffRegion,
     MultipleStaves,
     getDataWithIndex, staffRegionToIndex, traverseMusicScore, getMainMsSymbol, ChronaxieEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 import {getMsSymbolHeight} from "./heightUtil";
 import {MsSymbolInformationMap} from "@/constant";
 import {MsSymbolInformation, VariableWidthSymbolInfo} from "@/types";
 import {getHeightMultiplier, getSpace} from "@/utils/geometryUtil";
-import {ClefEnum, forEachMsSymbolContainer} from "deciphony-core";
+import {ClefEnum, forEachMsSymbolContainer} from "@deciphony/core";
 
 export function staffRegionToTop(region: StaffRegion, measureHeight: number): number {
     return measureHeight * ((7 - staffRegionToIndex(region)) * 2) / 16

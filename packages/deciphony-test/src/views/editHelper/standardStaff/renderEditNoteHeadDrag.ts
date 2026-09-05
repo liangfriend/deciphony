@@ -1,4 +1,4 @@
-import type {Measure, NoteSymbol, NotesInfo, SlotData, VDom} from 'deciphony-renderer'
+import type {Measure, NoteSymbol, NotesInfo, SlotData, VDom} from '@deciphony/renderer'
 import {
     type MeasureBounds,
     pointerToSvg,

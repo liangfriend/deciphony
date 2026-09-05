@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type {VDom} from 'deciphony-renderer'
+import type {VDom} from '@deciphony/renderer'
 import {computed} from 'vue'
 import type {GhostNumberPreview as GhostNumberPreviewState} from '../renderEditNumberAddAction'
 

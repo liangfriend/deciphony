@@ -1,14 +1,14 @@
 import {
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum
-} from "deciphony-core";
-import {MsSymbol, MusicScore, NoteDot, NoteHead, NoteStem} from "deciphony-core";
+} from "@deciphony/core";
+import {MsSymbol, MusicScore, NoteDot, NoteHead, NoteStem} from "@deciphony/core";
 import {MsSymbolInformationMap} from "../constant";
 import {getSlotTopToMeasure} from "./topUtil";
 import {
     getBeamGroup,
     getDataWithIndex, staffRegionToIndex
-} from "deciphony-core";
+} from "@deciphony/core";
 import {getHeightMultiplier} from "@/utils/geometryUtil";
 
 export function getNoteStemHeight(noteStem: NoteStem, musicScore: MusicScore) {

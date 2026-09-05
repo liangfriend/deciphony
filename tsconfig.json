@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "deciphony-player/*": [
+      "@deciphony/player/*": [
         "packages/deciphony-player/src/*"
       ]
     }

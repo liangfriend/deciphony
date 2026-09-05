@@ -1,5 +1,5 @@
-import {MusicScoreTypeEnum} from 'deciphony-renderer'
-import type {MusicScore} from 'deciphony-renderer'
+import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import type {MusicScore} from '@deciphony/renderer'
 import type {Ref} from 'vue'
 import {useNumberNotationRenderEdit, type MusicScoreComponentExpose} from './numberNotation/useRenderEdit'
 import {useStandardStaffRenderEdit} from './standardStaff/useRenderEdit'

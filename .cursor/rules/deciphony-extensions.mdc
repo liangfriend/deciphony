@@ -1,0 +1,14 @@
+---
+description: @deciphony/extensions 包约定（renderer 扩展集）
+globs: packages/deciphony-extensions/**
+alwaysApply: false
+---
+
+# @deciphony/extensions
+
+完整说明见 `packages/deciphony-extensions/AGENTS.md`。
+
+- 扩展源码在本包 `src/`，宿主用 `@deciphony/extensions/<子路径>` + Vite alias，勿再拷贝到业务仓
+- `dr-edit` 与 `dr-edit/score-builder` 分路径导入（同名 API）
+- peer：`vue`、`@deciphony/renderer`；MusicXML 需 `fast-xml-parser`、`xmlbuilder`
+- 宿主 UI（如 test 的 editHelper）不放入本包

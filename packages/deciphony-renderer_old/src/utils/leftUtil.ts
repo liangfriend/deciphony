@@ -8,8 +8,8 @@ import type {
     NoteHead,
     NoteTail,
     SingleStaff
-} from "deciphony-core";
-import {getBeamGroup, getDataWithIndex, getMainMsSymbol} from "deciphony-core";
+} from "@deciphony/core";
+import {getBeamGroup, getDataWithIndex, getMainMsSymbol} from "@deciphony/core";
 import {
     getMeasureWidth,
     getMsSymbolContainerWidth,
@@ -21,7 +21,7 @@ import {
     MsSymbolContainerTypeEnum,
     MsSymbolTypeEnum,
     MusicScoreShowModeEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 import {getWidthConstantInMeasure} from "../utils/widthConstantUtil";
 import {MsSymbolInformationMap} from "../constant";
 

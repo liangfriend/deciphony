@@ -1,4 +1,4 @@
-import type {DoubleMeasureAffiliatedSymbol, MusicScore, SlotData} from 'deciphony-renderer'
+import type {DoubleMeasureAffiliatedSymbol, MusicScore, SlotData} from '@deciphony/renderer'
 
 export type VoltaEditSlot = SlotData & {
   musicScore: MusicScore

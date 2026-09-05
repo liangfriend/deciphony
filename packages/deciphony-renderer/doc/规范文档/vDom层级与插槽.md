@@ -1,6 +1,6 @@
 # VDom 层级、插槽与符号规范
 
-本文档整理 deciphony-renderer 中 vDom 的结构、默认 zIndex 层级、插槽类型及符号类型。
+本文档整理 @deciphony/renderer 中 vDom 的结构、默认 zIndex 层级、插槽类型及符号类型。
 
 ---
 

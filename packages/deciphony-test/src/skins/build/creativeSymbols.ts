@@ -1,5 +1,5 @@
-import {StandardStaffSkinKeyEnum} from 'deciphony-renderer'
-import type {SkinItem} from 'deciphony-renderer'
+import {StandardStaffSkinKeyEnum} from '@deciphony/renderer'
+import type {SkinItem} from '@deciphony/renderer'
 import type {SkinTheme} from '../theme/types'
 
 const STAFF_YS = [0.5, 11.5, 22.5, 33.5, 44.5]

@@ -4,14 +4,14 @@ import {
     KeySignatureMsSymbol,
     MsSymbol,
     type MusicScore
-} from "deciphony-core";
+} from "@deciphony/core";
 import {
     ClefEnum,
     KeySignatureEnum,
     MsSymbolTypeEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 
-import {getMsSymbolClef} from "deciphony-core";
+import {getMsSymbolClef} from "@deciphony/core";
 
 
 const props = defineProps({

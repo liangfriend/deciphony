@@ -1,4 +1,4 @@
-import type {Chronaxie} from 'deciphony-renderer'
+import type {Chronaxie} from '@deciphony/renderer'
 
 /** 小节添加模式：待插入的符号类型 */
 export type AddNoteSlotKind = 'note' | 'rest'

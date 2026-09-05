@@ -148,8 +148,8 @@
 
 <script lang="ts" setup>
 import {computed, ref, watch} from 'vue'
-import {Chord, NoteName} from 'deciphony-renderer'
-import type {Barre, tabChord} from 'deciphony-renderer'
+import {Chord, NoteName} from '@deciphony/renderer'
+import type {Barre, tabChord} from '@deciphony/renderer'
 import StringStateForm from './chordBuilder/StringStateForm.vue'
 import {CHORD_DEFAULTS, CHORD_PREVIEW_SCALE_DEFAULT} from './chordBuilder/constants'
 

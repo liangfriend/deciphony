@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import musicScoreVue from 'deciphony-renderer'
-import type {MusicScore} from 'deciphony-renderer'
+import musicScoreVue from '@deciphony/renderer'
+import type {MusicScore} from '@deciphony/renderer'
 import {reactive, ref} from 'vue'
 import initialData from './data/其多列'
-import {getXmlJson, musicScoreToXml, xmlToMusicScore} from './dr-extensions/dr-musicxml-transfer'
+import {getXmlJson, musicScoreToXml, xmlToMusicScore} from '@deciphony/extensions/dr-musicxml-transfer'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
 

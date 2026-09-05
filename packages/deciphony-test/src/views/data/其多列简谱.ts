@@ -1,7 +1,7 @@
-import {BeamTypeEnum, KeySignatureTypeEnum} from 'deciphony-renderer'
+import {BeamTypeEnum, KeySignatureTypeEnum} from '@deciphony/renderer'
 import staffData from './其多列'
 import {convertStandardStaffToNumberNotation, isNoteNumber} from './scoreBuilder'
-import {createNotesNumberInfo} from '../dr-extensions/dr-edit/score-builder/factories'
+import {createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
 
 /**
  * 「其多列」简谱版：结构与五线谱版一致（双复谱表、多列、反复与连音线），

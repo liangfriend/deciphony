@@ -9,7 +9,7 @@ import {
   MeasureStartRepeatEnum,
   MusicScore,
   TimeSignatureTypeEnum
-} from "deciphony-renderer";
+} from "@deciphony/renderer";
 import {
   createBarline,
   createClef,

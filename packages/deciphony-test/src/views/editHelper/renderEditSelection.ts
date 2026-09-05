@@ -13,7 +13,7 @@ import {
     locateNotesInfoById,
     locateNotesNumberInfoById,
     locateSingleStaff,
-} from '../dr-extensions/dr-edit/score-builder/locate'
+} from '@deciphony/extensions/dr-edit/score-builder/locate'
 
 const MEASURE_SYMBOL_KEYS = [
     'barline_f',

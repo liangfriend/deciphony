@@ -1,5 +1,5 @@
-import {DoubleNoteAffiliatedSymbolNameEnum} from 'deciphony-renderer'
-import type {DoubleNoteAffiliatedSymbol, MusicScore, SlotData, VDom} from 'deciphony-renderer'
+import {DoubleNoteAffiliatedSymbolNameEnum} from '@deciphony/renderer'
+import type {DoubleNoteAffiliatedSymbol, MusicScore, SlotData, VDom} from '@deciphony/renderer'
 
 export type SlurHandleKind = 'start' | 'control' | 'end'
 

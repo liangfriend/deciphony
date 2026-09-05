@@ -1,4 +1,4 @@
-import type {SlotData} from 'deciphony-renderer'
+import type {SlotData} from '@deciphony/renderer'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
 import {isSlurSelected} from './renderEditSlurDrag'

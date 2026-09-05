@@ -1,4 +1,4 @@
-import {isNoteRest, isNoteSymbol} from 'deciphony-renderer'
+import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
 import type {
     Measure,
     MusicScore,
@@ -8,9 +8,9 @@ import type {
     NotesNumberInfo,
     NoteSymbol,
     SlotData,
-} from 'deciphony-renderer'
-import {deleteMeasure} from '../dr-extensions/dr-edit/edit-util'
-import {isNoteNumberSlot, isSlotRestLike} from '../dr-extensions/dr-edit/score-builder/noteSlot'
+} from '@deciphony/renderer'
+import {deleteMeasure} from '@deciphony/extensions/dr-edit'
+import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {removeVolta} from './renderEditMeasureProperties'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'

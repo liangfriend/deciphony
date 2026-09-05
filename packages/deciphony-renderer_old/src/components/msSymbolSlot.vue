@@ -5,7 +5,7 @@ import type {
   MsSymbolContainer,
   MultipleStaves, MusicScore,
   SingleStaff,
-} from "deciphony-core";
+} from "@deciphony/core";
 import {computed, CSSProperties, onMounted, PropType} from "vue";
 import msSymbolVue from "./msSymbol.vue";
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import GameView from 'deciphony-engine'
+import GameView from '@deciphony/engine'
 import {ref, computed} from 'vue'
 import data from './data/test.json'
 

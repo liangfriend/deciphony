@@ -1,6 +1,6 @@
 import {defaultSkin} from '@/skins/defaultSkin'
-import type {SkinItem, SkinPack, NumberNotationSkinPack, StandardStaffSkinPack} from 'deciphony-renderer'
-import {NumberNotationSkinKeyEnum, StandardStaffSkinKeyEnum} from 'deciphony-renderer'
+import type {SkinItem, SkinPack, NumberNotationSkinPack, StandardStaffSkinPack} from '@deciphony/renderer'
+import {NumberNotationSkinKeyEnum, StandardStaffSkinKeyEnum} from '@deciphony/renderer'
 import type {SkinTheme} from '../theme/types'
 import {getStandardStaffCategory} from './categories'
 import {

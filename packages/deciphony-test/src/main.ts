@@ -1,8 +1,8 @@
 // main.ts
 import {createApp} from 'vue'
 import App from './App.vue'
-// import DsUI from 'deciphony-ui'
-// import 'deciphony-ui/css'
+// import DsUI from '@deciphony/ui'
+// import '@deciphony/ui/css'
 import './style.css'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'

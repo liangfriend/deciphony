@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type {Chronaxie} from 'deciphony-renderer'
+import type {Chronaxie} from '@deciphony/renderer'
 import {
   ADD_NUMBER_KIND_OPTIONS,
   CHRONAXIE_OPTIONS,

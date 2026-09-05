@@ -44,7 +44,7 @@ import {
   getDiatonicDegreeFromC,
   getKeySignatureAccidental,
   getNoteMidi,
-} from '../dr-extensions/scoreUtil';
+} from '@deciphony/extensions/score-util';
 
 // —— 常量 ——
 

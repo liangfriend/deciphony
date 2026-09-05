@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type {Measure, SlotData} from 'deciphony-renderer'
-import {BarlineTypeEnum} from 'deciphony-renderer'
+import type {Measure, SlotData} from '@deciphony/renderer'
+import {BarlineTypeEnum} from '@deciphony/renderer'
 import {computed, ref, watch} from 'vue'
 import {
   BARLINE_OPTIONS,

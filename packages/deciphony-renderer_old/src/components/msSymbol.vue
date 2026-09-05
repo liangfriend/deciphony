@@ -13,7 +13,7 @@ import {
     NoteHead,
     type SingleStaff,
     SolmizationEnum
-} from "deciphony-core";
+} from "@deciphony/core";
 import {getMsSymbolAspectRatio} from "@/utils/geometryUtil";
 import {getMsSymbolHeight} from "@/utils/heightUtil";
 import {getMsSymbolWidth} from "@/utils/widthUtil";

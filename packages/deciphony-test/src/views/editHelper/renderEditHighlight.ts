@@ -1,5 +1,5 @@
 import type {Ref} from 'vue'
-import type {SlotData} from 'deciphony-renderer'
+import type {SlotData} from '@deciphony/renderer'
 import {HIGHLIGHT_CLASS} from './constants'
 
 export type EditHighlightRefs = {

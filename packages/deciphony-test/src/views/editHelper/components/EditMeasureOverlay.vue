@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {MusicScoreTypeEnum} from 'deciphony-renderer'
-import type {MusicScore, VDom} from 'deciphony-renderer'
+import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import type {MusicScore, VDom} from '@deciphony/renderer'
 import {computed, inject} from 'vue'
 import {DR_EDIT_INJECTION_KEY} from '../editInject'
 import GhostNotePreview from '../standardStaff/components/GhostNotePreview.vue'

@@ -1,4 +1,4 @@
-import {KeySignatureTypeEnum} from 'deciphony-renderer'
+import {KeySignatureTypeEnum} from '@deciphony/renderer'
 import standardData from './skinExhibitStandardStaff'
 import {convertStandardStaffToNumberNotation} from './scoreBuilder'
 

@@ -1,5 +1,5 @@
-import {StandardStaffSkinKeyEnum} from 'deciphony-renderer'
-import type {SkinItem} from 'deciphony-renderer'
+import {StandardStaffSkinKeyEnum} from '@deciphony/renderer'
+import type {SkinItem} from '@deciphony/renderer'
 import type {SkinTheme} from '../theme/types'
 import {buildCreativeContent} from './creativeSymbols'
 import {themedRecolor} from './svgUtils'

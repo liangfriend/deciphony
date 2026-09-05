@@ -1,5 +1,5 @@
 {
-  "name": "deciphony-channel",
+  "name": "@deciphony/channel",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
-    "deciphony-player": "workspace:*",
+    "@deciphony/player": "workspace:*",
     "tailwindcss": "^4.1.13",
     "vue": "^3.5.18"
   },

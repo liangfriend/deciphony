@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed, PropType} from "vue";
-import type {Slur} from "deciphony-core";
+import type {Slur} from "@deciphony/core";
 
 const props = defineProps({
     slur: {

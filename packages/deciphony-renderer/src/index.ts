@@ -22,6 +22,15 @@ export * from './enums/musicScoreEnum'
 export {StandardStaffSkinKeyEnum} from './standardStaff/enums/standardStaffSkinKeyEnum'
 export {NumberNotationSkinKeyEnum} from './numberNotation/enums/numberNotationSkinKeyEnum'
 
+/** 默认皮肤与 content 模板 */
+export {defaultSkin} from './skins/defaultSkin'
+export {applySkinContentTemplate} from './render/skinContent'
+export {
+  getNoteHeadSkinKey,
+  getRestSkinKey,
+  getNoteTailSkinKey,
+} from './standardStaff/render/utils/skinKey'
+
 /** 五线谱音符位 / 休止符位判别 */
 export {isNoteRest, isNoteSymbol, isStaffSlot} from './standardStaff/render/utils/staffSlot'
 

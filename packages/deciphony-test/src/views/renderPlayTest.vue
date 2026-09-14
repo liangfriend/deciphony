@@ -3,28 +3,26 @@ import musicScoreVue from '@deciphony/renderer'
 import {startJPlayer, activeContext, NPlayer, PlaySequence} from '@deciphony/player'
 import data from './data/其多列'
 import piano from '../assets/toneColor/accoustic_grand_piano.json'
-import {onBeforeUnmount, onMounted, ref} from "vue";
-import {getDrPlaySequence} from '@deciphony/extensions/dr-play';
-import {usePlayHighlight, type MusicScoreHighlightExpose} from '@deciphony/extensions/dr-play-highlight'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {getDrPlaySequence} from '@deciphony/extensions/dr-play'
+import {drPlayHighlight} from '@deciphony/extensions/dr-play-highlight'
 import {bambooForestSkin, glacierSkin} from '../skins'
 
 const skinName = ref<'default' | 'bambooForest' | 'glacier'>('default')
 const customSkins = {bambooForest: bambooForestSkin, glacier: glacierSkin}
 
 const musicScoreData = data
-const musicScoreRef = ref<MusicScoreHighlightExpose | null>(null)
-const {
-  handleRenderMusicScore,
-  handleProgressStart,
-  handlePlaybackEnd,
-  handlePlaybackStop,
-  handlePlaybackPause,
-} = usePlayHighlight({
-  musicScoreRef,
+const musicScoreRef = ref<{
+  findElementByVDom: (node: import('@deciphony/renderer').VDom) => SVGElement | null
+} | null>(null)
+
+const playHighlight = drPlayHighlight({
+  findElementByVDom: (node) => musicScoreRef.value?.findElementByVDom(node) ?? null,
   getBpm: () => 120,
   getBeatUnit: () => 4,
   getRate: () => 1,
 })
+const extensions = [playHighlight]
 
 let nplayer: NPlayer | null = null
 
@@ -33,7 +31,7 @@ function toPlaySequence(): PlaySequence {
   const drSeq = getDrPlaySequence(musicScoreData)
 
   let curPlayTime = -Infinity
-  const playSeq = drSeq.map((it, i) => {
+  const playSeq = drSeq.map((it) => {
     let start = false
     if (curPlayTime !== it.playTime) {
       start = true
@@ -41,9 +39,7 @@ function toPlaySequence(): PlaySequence {
     }
     return {
       id: it.note_id,
-      // real_duration为0时虽然高亮，但不应该发声
       midi: it.real_duration === 0 ? 0 : it.midi,
-      // real_duration为0时也应该让其以正常情况高亮
       duration: it.real_duration ? it.real_duration : it.duration,
       playTime: it.playTime,
       toneColor: 'piano',
@@ -57,7 +53,7 @@ function toPlaySequence(): PlaySequence {
       end: false,
     }
   })
-  playSeq[playSeq.length - 1].end = true
+  playSeq[playSeq.length - 1]!.end = true
   return playSeq
 }
 
@@ -67,34 +63,33 @@ onMounted(async () => {
   await nplayer.addToneColor('piano', piano)
   nplayer.setPlaySequence(toPlaySequence())
   nplayer.onProgressStart = (_progress, data) => {
-    handleProgressStart(data)
+    playHighlight.handleProgressStart(data)
   }
   nplayer.onEnd = () => {
-    handlePlaybackEnd()
+    playHighlight.handlePlaybackEnd()
   }
-  console.log('chicken', customSkins)
 })
 
 onBeforeUnmount(() => {
+  playHighlight.handlePlaybackStop()
   nplayer?.dispose()
   nplayer = null
 })
 
 async function handlePlay() {
   if (!nplayer) return
-  // 浏览器自动播放策略：用户手势内恢复音频上下文
   await activeContext()
   await nplayer.play()
 }
 
 function handlePause() {
   nplayer?.pause()
-  handlePlaybackPause()
+  playHighlight.handlePlaybackPause()
 }
 
 function handleStop() {
   nplayer?.stop()
-  handlePlaybackStop()
+  playHighlight.handlePlaybackStop()
 }
 </script>
 
@@ -104,10 +99,10 @@ function handleStop() {
       <musicScoreVue
         ref="musicScoreRef"
         :data="musicScoreData"
+        :extensions="extensions"
         :skin="skinName === 'default' ? undefined : customSkins"
         :skin-name="skinName"
         :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
-        @renderMusicScore="handleRenderMusicScore"
       />
     </div>
     <div class="play-test__panel">

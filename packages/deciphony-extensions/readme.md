@@ -11,7 +11,8 @@
 | `@deciphony/extensions/dr-edit` | 谱表/小节增删（edit-util） |
 | `@deciphony/extensions/dr-edit/score-builder` | 曲谱工厂 / 定位 / 插入 |
 | `@deciphony/extensions/dr-play` | 播放序列 |
-| `@deciphony/extensions/dr-play-highlight` | 播放高亮 |
+| `@deciphony/extensions/dr-play-highlight` | 播放高亮（`drPlayHighlight` 放入 `:extensions`） |
+| `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML ↔ MusicScore |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线 ↔ 简谱 |
 | `@deciphony/extensions/score-util` | 调号/音高/小节位置等工具 |

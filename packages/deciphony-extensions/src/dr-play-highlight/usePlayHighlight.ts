@@ -1,59 +1,34 @@
 import type {VDom} from '@deciphony/renderer'
 import type {Ref} from 'vue'
-import {onBeforeUnmount, ref} from 'vue'
-import {createPlayHighlight} from './playHighlight'
-import {createPlayHighlightScheduler, type PlayHighlightProgressData} from './playHighlightScheduler'
+import {onBeforeUnmount} from 'vue'
+import {drPlayHighlight, type DrPlayHighlightExtension} from './drPlayHighlight'
 
 export type MusicScoreHighlightExpose = {
-    findElementByVDom: (node: VDom) => SVGElement | null
+  findElementByVDom: (node: VDom) => SVGElement | null
 }
 
 export type UsePlayHighlightOptions = {
-    musicScoreRef: Ref<MusicScoreHighlightExpose | null>
-    getBpm?: () => number
-    getBeatUnit?: () => number
-    getRate?: () => number
+  musicScoreRef: Ref<MusicScoreHighlightExpose | null>
+  getBpm?: () => number
+  getBeatUnit?: () => number
+  getRate?: () => number
 }
 
 /**
- * 播放高亮 composable：配合 musicScore 的 renderMusicScore 与 NPlayer onProgressStart。
+ * @deprecated 优先用 `drPlayHighlight` 放进 `:extensions`，经 `on.renderMusicScore` 同步。
+ * 本 composable 仍返回可放入 extensions 的扩展实例。
  */
-export function usePlayHighlight(options: UsePlayHighlightOptions) {
-    const vDomList = ref<VDom[]>([])
+export function usePlayHighlight(options: UsePlayHighlightOptions): DrPlayHighlightExtension {
+  const ext = drPlayHighlight({
+    findElementByVDom: (node) => options.musicScoreRef.value?.findElementByVDom(node) ?? null,
+    getBpm: options.getBpm,
+    getBeatUnit: options.getBeatUnit,
+    getRate: options.getRate,
+  })
 
-    const playHighlight = createPlayHighlight({
-        getVDomList: () => vDomList.value,
-        findElementByVDom: (node) => options.musicScoreRef.value?.findElementByVDom(node) ?? null,
-    })
+  onBeforeUnmount(() => {
+    ext.handlePlaybackStop()
+  })
 
-    const scheduler = createPlayHighlightScheduler({
-        addNoteHighlight: playHighlight.addNoteHighlight,
-        removeNoteHighlight: playHighlight.removeNoteHighlight,
-        clearHighlight: playHighlight.clearHighlight,
-        getBpm: options.getBpm ?? (() => 120),
-        getBeatUnit: options.getBeatUnit,
-        getRate: options.getRate,
-    })
-
-    function handleRenderMusicScore(list: VDom[]) {
-        vDomList.value = list
-        playHighlight.rebindAfterRender()
-    }
-
-    onBeforeUnmount(() => {
-        scheduler.handlePlaybackStop()
-    })
-
-    return {
-        vDomList,
-        handleRenderMusicScore,
-        handleProgressStart: scheduler.handleProgressStart,
-        handlePlaybackEnd: scheduler.handlePlaybackEnd,
-        handlePlaybackStop: scheduler.handlePlaybackStop,
-        handlePlaybackPause: scheduler.handlePlaybackPause,
-        setBpm: scheduler.setBpm,
-        ...playHighlight,
-    }
+  return ext
 }
-
-export type {PlayHighlightProgressData}

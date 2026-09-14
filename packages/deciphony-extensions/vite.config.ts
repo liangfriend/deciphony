@@ -17,6 +17,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@deciphony/renderer': path.resolve(rendererSrc, 'index.ts'),
+      '@deciphony/player': path.resolve(__dirname, '../deciphony-player/src/index.ts'),
       '@': rendererSrc,
     },
   },
@@ -30,6 +31,7 @@ export default defineConfig({
         'dr-edit/score-builder': path.resolve(__dirname, './src/dr-edit/score-builder.ts'),
         'dr-play/index': path.resolve(__dirname, './src/dr-play/index.ts'),
         'dr-play-highlight/index': path.resolve(__dirname, './src/dr-play-highlight/index.ts'),
+        'dr-time-offset/index': path.resolve(__dirname, './src/dr-time-offset/index.ts'),
         'dr-musicxml-transfer/index': path.resolve(__dirname, './src/dr-musicxml-transfer/index.ts'),
         'dr-numberNotation-transfer/index': path.resolve(
           __dirname,
@@ -40,7 +42,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@deciphony/renderer', 'fast-xml-parser', 'xmlbuilder'],
+      external: ['vue', '@deciphony/renderer', '@deciphony/player', 'fast-xml-parser', 'xmlbuilder'],
     },
   },
 })

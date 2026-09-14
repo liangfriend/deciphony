@@ -14,7 +14,8 @@
 | `@deciphony/extensions/dr-edit` | 锚点增删谱表/小节（edit-util） |
 | `@deciphony/extensions/dr-edit/score-builder` | 工厂 / 插入删除 / 定位 |
 | `@deciphony/extensions/dr-play` | 播放序列 |
-| `@deciphony/extensions/dr-play-highlight` | 播放高亮 |
+| `@deciphony/extensions/dr-play-highlight` | 播放高亮（`drPlayHighlight` → `:extensions`，`on.renderMusicScore`） |
+| `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`；反复展开 + `data[timeProp]: number[]` 遍次） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线↔简谱 |
 | `@deciphony/extensions/score-util` | 音高/调号工具 |
@@ -37,3 +38,4 @@ peer：`vue`、`@deciphony/renderer`；MusicXML 另需 `fast-xml-parser`、`xmlb
 - 新扩展：在 `src/` 下新增目录 + `index.ts`，并更新本文件与 `readme.md`、根 `package.json` exports
 - 内部交叉引用用相对路径；对宿主只暴露子路径
 - `editHelper` 等宿主 UI 留在 test，不要塞进本包
+- 事件监听走扩展 `on`（如 `renderMusicScore`），不要在宿主组件上再挂一份同名 `@renderMusicScore`（除非宿主另有用途）

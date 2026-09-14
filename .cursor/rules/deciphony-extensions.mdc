@@ -10,5 +10,7 @@ alwaysApply: false
 
 - 扩展源码在本包 `src/`，宿主用 `@deciphony/extensions/<子路径>` + Vite alias，勿再拷贝到业务仓
 - `dr-edit` 与 `dr-edit/score-builder` 分路径导入（同名 API）
-- peer：`vue`、`@deciphony/renderer`；MusicXML 需 `fast-xml-parser`、`xmlbuilder`
+- `dr-time-offset` 导出 `TimeOffsetEditor`（需要曲谱的独立组件，不挂 musicScore `:extensions`）
+- peer：`vue`、`@deciphony/renderer`、`@deciphony/player`；MusicXML 需 `fast-xml-parser`、`xmlbuilder`
 - 宿主 UI（如 test 的 editHelper）不放入本包
+- 事件监听走扩展 `on`（如 `renderMusicScore`），不要在宿主上再挂同名 `@renderMusicScore`

@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import {computed, inject, onBeforeUnmount, onMounted, ref, type Ref} from 'vue'
+import {computed, inject, onBeforeUnmount, onMounted, ref} from 'vue'
 import MusicScoreVue from '@deciphony/renderer'
 import {drLyrics} from '@deciphony/extensions/dr-lyrics'
 import {drTitle} from '@deciphony/extensions/dr-title'
-import {
-  usePlayHighlight,
-  type MusicScoreHighlightExpose,
-} from '@deciphony/extensions/dr-play-highlight'
+import {drPlayHighlight} from '@deciphony/extensions/dr-play-highlight'
 import type {SScore} from '../types/types'
 import type {ScorePlayHost} from '../play/scorePlayback'
 import EditFrame from './EditFrame.vue'
@@ -27,23 +24,22 @@ type ScoreRegistry = {
   unregister: (scoreId: string) => void
 }
 
+type MusicScoreExpose = {
+  findElementByVDom: (node: import('@deciphony/renderer').VDom) => SVGElement | null
+}
+
 const registry = inject<ScoreRegistry | null>('sjwScoreRegistry', null)
 const getBpm = inject<() => number>('sjwGetBpm', () => 120)
 
-const musicScoreRef = ref<MusicScoreHighlightExpose | null>(null)
-/** 进入 SJWPDF 的曲谱固定展示：标题/歌词均不可编辑 */
-const extensions = [drTitle({mode: 'show'}), drLyrics({mode: 'show'})]
+const musicScoreRef = ref<MusicScoreExpose | null>(null)
 
-const {
-  handleRenderMusicScore,
-  handleProgressStart,
-  handlePlaybackEnd,
-  handlePlaybackStop,
-  handlePlaybackPause,
-} = usePlayHighlight({
-  musicScoreRef: musicScoreRef as Ref<MusicScoreHighlightExpose | null>,
+const playHighlight = drPlayHighlight({
+  findElementByVDom: (node) => musicScoreRef.value?.findElementByVDom(node) ?? null,
   getBpm,
 })
+
+/** 进入 SJWPDF 的曲谱固定展示；高亮经 extensions.on.renderMusicScore */
+const extensions = [drTitle({mode: 'show'}), drLyrics({mode: 'show'}), playHighlight]
 
 const naturalW = computed(() => props.score.musicScore.width || 1)
 const naturalH = computed(() => props.score.musicScore.height || 1)
@@ -53,14 +49,15 @@ const scaleY = computed(() => props.score.height / naturalH.value)
 onMounted(() => {
   registry?.register({
     scoreId: props.score.id,
-    handleProgressStart,
-    handlePlaybackEnd,
-    handlePlaybackStop,
-    handlePlaybackPause,
+    handleProgressStart: playHighlight.handleProgressStart,
+    handlePlaybackEnd: playHighlight.handlePlaybackEnd,
+    handlePlaybackStop: playHighlight.handlePlaybackStop,
+    handlePlaybackPause: playHighlight.handlePlaybackPause,
   })
 })
 
 onBeforeUnmount(() => {
+  playHighlight.handlePlaybackStop()
   registry?.unregister(props.score.id)
 })
 </script>
@@ -92,7 +89,6 @@ onBeforeUnmount(() => {
             ref="musicScoreRef"
             :data="score.musicScore"
             :extensions="extensions"
-            @renderMusicScore="handleRenderMusicScore"
           />
         </div>
       </div>

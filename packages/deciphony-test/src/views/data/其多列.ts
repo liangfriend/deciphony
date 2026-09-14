@@ -5,8 +5,6 @@ import {
   ClefTypeEnum,
   KeySignatureTypeEnum,
   DoubleNoteAffiliatedSymbolNameEnum,
-  MeasureEndRepeatEnum,
-  MeasureStartRepeatEnum,
   MusicScore,
   TimeSignatureTypeEnum
 } from "@deciphony/renderer";
@@ -80,14 +78,6 @@ const measure3 = data.grandStaffs[0].staves[0].measures[1]
 const noteSymbol31 = createNoteSymbol({region: 5, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 const noteSymbol32 = createNoteSymbol({region: 3, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
 const noteSymbol33 = createNoteSymbol({region: 3, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
-measure3.startRepeat = {
-  id: crypto.randomUUID(),
-  type: MeasureStartRepeatEnum.Segno,
-  relativeX: 0,
-  relativeY: 0,
-  relativeW: 0,
-  relativeH: 0,
-}
 measure3.notes.push(noteSymbol31)
 measure3.notes.push(noteSymbol32)
 measure3.notes.push(noteSymbol33)
@@ -205,14 +195,6 @@ const noteSymbol12_1 = createNoteSymbol({region: 1, chronaxie: 32, direction: 'u
 const noteSymbol12_2 = createNoteSymbol({region: -1, chronaxie: 32, direction: 'up', beamType: BeamTypeEnum.Combined,})
 const noteSymbol12_3 = createNoteSymbol({region: -1, chronaxie: 64, direction: 'up', beamType: BeamTypeEnum.None,})
 measure12_.barline_b = barline12
-measure9.endRepeat = {
-  id: crypto.randomUUID(),
-  type: MeasureEndRepeatEnum.DS,
-  relativeX: 0,
-  relativeY: 0,
-  relativeW: 0,
-  relativeH: 0,
-}
 measure12_.notes.push(noteSymbol12_1)
 measure12_.notes.push(noteSymbol12_2)
 measure12_.notes.push(noteSymbol12_3)

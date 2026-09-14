@@ -80,7 +80,7 @@ SScore = SElementBase & { musicScore: MusicScore } // 完整 renderer JSON
 
 - `addScore`：框的 `width/height` ← `musicScore.width/height`；`musicScore` 用 `structuredClone`
 - 拉伸**只改框**尺寸；固有宽高不变；`Score.vue` 用 CSS `scale` 铺满
-- `Score.vue` 接入 `dr-title` / `dr-lyrics`（**固定 show**，与 SJWPDF edit/show 无关）；播放：`dr-play` + `dr-play-highlight` + `NPlayer`
+- `Score.vue` 接入 `dr-title` / `dr-lyrics` / `drPlayHighlight`（固定 show；高亮走 extensions.on）；播放：`dr-play` + `NPlayer`
 - 页面 edit 只动放置框；曲谱内容在 SJWPDF 内不可编辑
 - SJWPDF 暴露：`play(index?)` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer`
 

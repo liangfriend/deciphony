@@ -46,6 +46,9 @@
     "./dr-play-highlight": {
       "default": "./src/dr-play-highlight/index.ts"
     },
+    "./dr-time-offset": {
+      "default": "./src/dr-time-offset/index.ts"
+    },
     "./dr-musicxml-transfer": {
       "default": "./src/dr-musicxml-transfer/index.ts"
     },
@@ -59,12 +62,14 @@
   "peerDependencies": {
     "vue": "^3.3.0",
     "@deciphony/renderer": "*",
+    "@deciphony/player": "*",
     "fast-xml-parser": "^5.0.0",
     "xmlbuilder": "^15.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",
     "@deciphony/renderer": "workspace:*",
+    "@deciphony/player": "workspace:*",
     "fast-xml-parser": "^5.8.0",
     "sass": "^1.83.0",
     "typescript": "^5.9.2",

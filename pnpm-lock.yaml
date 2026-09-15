@@ -292,6 +292,9 @@ importers:
       '@deciphony/renderer':
         specifier: workspace:*
         version: link:../deciphony-renderer
+      '@deciphony/tune-judge':
+        specifier: workspace:*
+        version: link:../deciphony-tune-judge
       '@deciphony/ui':
         specifier: workspace:*
         version: link:../deciphony-ui

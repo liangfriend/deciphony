@@ -23,6 +23,7 @@
     "@deciphony/ui": "workspace:*",
     "@deciphony/work": "workspace:*",
     "@deciphony/extensions": "workspace:*",
+    "@deciphony/tune-judge": "workspace:*",
     "@deciphony/finger": "workspace:*",
     "typescript": "^5.0.2",
     "vite": "^7.0.4",

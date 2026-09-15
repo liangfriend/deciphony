@@ -3,15 +3,15 @@ import {computed, onBeforeUnmount, reactive, ref} from 'vue'
 import musicScoreVue from '@deciphony/renderer'
 import {APlayer, startJPlayer} from '@deciphony/player'
 import {
-  TimeOffsetEditor,
   buildFlattenStaffRows,
   collectHighlightIdsAtTime,
   createNotePassMap,
-  resetNotePassMap,
   DEFAULT_TIME_PROP,
+  resetNotePassMap,
+  TimeOffsetEditor,
 } from '@deciphony/extensions/dr-time-offset'
 import {drPlayHighlight} from '@deciphony/extensions/dr-play-highlight'
-import sampleScore from './data/其多列'
+import sampleScore from './data/其多列简谱'
 
 const musicScore = reactive(structuredClone(sampleScore))
 const audioUrl = ref('')
@@ -153,21 +153,21 @@ onBeforeUnmount(() => {
     <section class="to-test__panel">
       <h2 class="to-test__h2">谱音同步编辑</h2>
       <TimeOffsetEditor
-        :audio-url="audioUrl"
-        :music-score="musicScore"
-        :px-per-second="pxPerSecond"
-        :sample-rate="sampleRate"
-        :time-prop-name="timePropName"
-        @change="onEditorChange"
+          :audio-url="audioUrl"
+          :music-score="musicScore"
+          :px-per-second="pxPerSecond"
+          :sample-rate="sampleRate"
+          :time-prop-name="timePropName"
+          @change="onEditorChange"
       />
     </section>
 
     <section class="to-test__panel">
       <h2 class="to-test__h2">原谱预览 + 伴奏高亮</h2>
       <musicScoreVue
-        ref="musicScoreRef"
-        :data="musicScore"
-        :extensions="extensions"
+          ref="musicScoreRef"
+          :data="musicScore"
+          :extensions="extensions"
       />
     </section>
   </div>

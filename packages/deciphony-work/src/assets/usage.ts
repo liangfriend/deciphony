@@ -27,6 +27,22 @@ export function findAssetUsages(data: SJW, filename: string): AssetUsage[] {
         usages.push({pageId: page.id, elementId: el.id, field: 'src'})
       }
     }
+    for (const sc of page.scores ?? []) {
+      if (sc.vocalPerformance?.src === filename) {
+        usages.push({
+          pageId: page.id,
+          scoreId: sc.id,
+          field: 'vocalPerformance',
+        })
+      }
+      if (sc.accompaniment?.src === filename) {
+        usages.push({
+          pageId: page.id,
+          scoreId: sc.id,
+          field: 'accompaniment',
+        })
+      }
+    }
   }
   return usages
 }
@@ -45,12 +61,17 @@ export function clearAssetUsages(data: SJW, filename: string): void {
       delete page.background
     }
     const list = page.elements
-    if (!list?.length) continue
-    for (let i = list.length - 1; i >= 0; i--) {
-      const el = list[i]!
-      if ((el.type === 'image' || el.type === 'audio') && el.src === filename) {
-        list.splice(i, 1)
+    if (list?.length) {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const el = list[i]!
+        if ((el.type === 'image' || el.type === 'audio') && el.src === filename) {
+          list.splice(i, 1)
+        }
       }
+    }
+    for (const sc of page.scores ?? []) {
+      if (sc.vocalPerformance?.src === filename) delete sc.vocalPerformance
+      if (sc.accompaniment?.src === filename) delete sc.accompaniment
     }
   }
 }

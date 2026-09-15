@@ -27,16 +27,23 @@ const props = withDefaults(
     selected?: boolean
     /** 内容区可拖移；音频或文本编辑中为 false */
     moveOnBody?: boolean
+    /**
+     * 非编辑态是否铺透明命中层（用于曲谱等 pointer-events:none 的内容右键）。
+     * 音频/文本等可交互内容勿开，否则会挡住播放控件。
+     */
+    showHitOverlay?: boolean
   }>(),
   {
     selected: false,
     moveOnBody: true,
+    showHitOverlay: false,
   },
 )
 
 const emit = defineEmits<{
   select: []
   bodyDblclick: [ev: MouseEvent]
+  contextmenu: [ev: MouseEvent]
 }>()
 
 const svgRoot = inject<Ref<SVGSVGElement | null> | null>('sjwSvgRoot', null)
@@ -82,6 +89,7 @@ function clientToSvg(clientX: number, clientY: number): {x: number; y: number} {
 
 function onMoveStart(ev: PointerEvent) {
   if (!props.editable) return
+  if (ev.button !== 0) return
   ev.stopPropagation()
   ev.preventDefault()
   emit('select')
@@ -109,6 +117,7 @@ function onMoveStart(ev: PointerEvent) {
 /** 中心固定拉伸：半宽/半高 = |中心→指针| 在局部轴上的投影（按角限象限取号） */
 function onResizeStart(ev: PointerEvent, corner: Corner) {
   if (!props.editable) return
+  if (ev.button !== 0) return
   ev.stopPropagation()
   ev.preventDefault()
   emit('select')
@@ -167,6 +176,7 @@ function onResizeStart(ev: PointerEvent, corner: Corner) {
 
 function onRotateStart(ev: PointerEvent) {
   if (!props.editable) return
+  if (ev.button !== 0) return
   ev.stopPropagation()
   ev.preventDefault()
   emit('select')
@@ -198,11 +208,28 @@ function onBodyDblclick(ev: MouseEvent) {
   ev.stopPropagation()
   emit('bodyDblclick', ev)
 }
+
+function onContextMenu(ev: MouseEvent) {
+  ev.preventDefault()
+  ev.stopPropagation()
+  emit('contextmenu', ev)
+}
 </script>
 
 <template>
-  <g class="sjw-edit-frame" :transform="transform">
+  <g class="sjw-edit-frame" :transform="transform" @contextmenu="onContextMenu">
     <slot/>
+
+    <!-- 仅曲谱等只读内容需要：避免挡住音频播放等交互 -->
+    <rect
+      v-if="!editable && showHitOverlay"
+      fill="transparent"
+      :height="h"
+      :width="w"
+      x="0"
+      y="0"
+      @contextmenu="onContextMenu"
+    />
 
     <template v-if="editable">
       <rect
@@ -213,6 +240,7 @@ function onBodyDblclick(ev: MouseEvent) {
         x="0"
         y="0"
         style="cursor: move"
+        @contextmenu="onContextMenu"
         @dblclick="onBodyDblclick"
         @pointerdown="onMoveStart"
       />
@@ -227,6 +255,7 @@ function onBodyDblclick(ev: MouseEvent) {
         x="0"
         y="0"
         style="cursor: move"
+        @contextmenu="onContextMenu"
         @pointerdown="onMoveStart"
       />
 

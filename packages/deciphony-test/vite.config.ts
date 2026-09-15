@@ -13,7 +13,7 @@ export default defineConfig({
     host: '0.0.0.0', // 可选，允许局域网访问
     open: true, // 可选，启动后自动打开浏览器
   },
-  assetsInclude: ['**/*.glb'],
+  assetsInclude: ['**/*.glb', '**/*.sjw'],
   resolve: {
     alias: {
       '@deciphony/renderer': path.resolve(rendererSrc, 'index.ts'),
@@ -22,6 +22,7 @@ export default defineConfig({
       '@deciphony/engine': path.resolve(__dirname, '../deciphony-engine/src/index.ts'),
       '@deciphony/work': path.resolve(__dirname, '../deciphony-work/src/index.ts'),
       '@deciphony/extensions': path.resolve(__dirname, '../deciphony-extensions/src'),
+      '@deciphony/tune-judge': path.resolve(__dirname, '../deciphony-tune-judge/src/index.ts'),
       '@deciphony/finger': path.resolve(__dirname, '../deciphony-finger/src/index.ts'),
       '@assets': path.resolve(__dirname, '../deciphony-ui/src/assets'),
       // 必须与 @deciphony/renderer 指向同一份源码，否则 @/ 与包入口会被 Vite 当成两个模块实例

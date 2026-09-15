@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
-import type {MusicScore} from '@deciphony/renderer'
+import {MusicScoreTypeEnum, type MusicScore} from '@deciphony/renderer'
 import {APlayer, startJPlayer} from '@deciphony/player'
 import {autoAlignTimeOffsets} from '../autoAlign'
 import {
@@ -8,6 +8,7 @@ import {
   DEFAULT_TIME_PROP,
   FLATTEN_LINE_GAP,
   FLATTEN_STAFF_PAD_Y,
+  FLATTEN_STEM_LENGTH,
   MAX_SYNC_SECONDS,
   WAVEFORM_HEIGHT,
 } from '../constants'
@@ -64,9 +65,16 @@ const waveWidth = computed(() => {
   const dur = audioDuration.value > 0 ? Math.min(audioDuration.value, MAX_SYNC_SECONDS) : 0
   return Math.max(1, Math.ceil(dur * px.value))
 })
-const flattenRowH = 4 * FLATTEN_LINE_GAP + FLATTEN_STAFF_PAD_Y * 2
+const flattenRowH = computed(() => {
+  if (props.musicScore.type === MusicScoreTypeEnum.NumberNotation) {
+    return 56 + FLATTEN_STAFF_PAD_Y * 2
+  }
+  return 4 * FLATTEN_LINE_GAP + FLATTEN_STAFF_PAD_Y * 2 + FLATTEN_STEM_LENGTH * 0.35
+})
 const playheadH = computed(
-  () => WAVEFORM_HEIGHT + Math.max(scoreLayoutError.value ? 0 : 1, rows.value.length) * flattenRowH,
+  () =>
+    WAVEFORM_HEIGHT +
+    Math.max(scoreLayoutError.value ? 0 : 1, rows.value.length) * flattenRowH.value,
 )
 
 /** 前奏时间（秒），重置对齐时加到理论时间上 */
@@ -237,6 +245,7 @@ defineExpose({
           :px-per-second="px"
           :revision="revision"
           :rows="rows"
+          :score-type="musicScore.type"
           :time-prop-name="timeProp"
           @time-change="bump"
         />

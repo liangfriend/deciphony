@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import SJWPDF, {Page, type SJW, type SjwMode} from '@deciphony/work'
+import SJWPDF, {
+  DrawToolEnum,
+  Page,
+  type ElementContextMenuItem,
+  type ElementContextMenuPayload,
+  type SJW,
+  type SjwMode,
+} from '@deciphony/work'
 import {computed, nextTick, onMounted, reactive, ref} from 'vue'
 import mockSjw from './data/mockSjw'
 import sampleScore from './data/其多列'
@@ -7,6 +14,7 @@ import imgXiDuo from '../assets/resources/xiDuoChuan.jpg'
 import imgVue from '../assets/resources/vue.svg'
 import audioSample from '../assets/resources/sample-3s.mp3'
 import piano from '../assets/toneColor/accoustic_grand_piano.json'
+import demoSjwUrl from '../assets/未命名作品.sjw?url'
 
 const data = reactive(structuredClone(mockSjw) as SJW)
 const pageIndex = ref(0)
@@ -19,6 +27,53 @@ const toneReady = ref(false)
 /** 演示：先 loadAsset 再用 id 添加 */
 const lastLoadedAssetId = ref('')
 
+const contextMenu = ref<ElementContextMenuItem[]>([])
+
+function onBeforeContextMenu(ctx: ElementContextMenuPayload) {
+  if (ctx.kind === 'score') {
+    contextMenu.value = [
+      {
+        text: '查看目标信息',
+        callback: (p) => {
+          const v = p.vocalPerformance
+          const a = p.accompaniment
+          status.value =
+            `右键曲谱 · id=${p.score?.id}` +
+            ` · 范唱=${v ? `${v.name}(${v.src})` : '无'}` +
+            ` · 伴奏=${a ? `${a.name}(${a.src})` : '无'}`
+        },
+      },
+      {
+        text: '复制曲谱 id',
+        callback: (p) => {
+          const id = p.score?.id ?? ''
+          void navigator.clipboard?.writeText(id)
+          status.value = `已复制 id：${id}`
+        },
+      },
+    ]
+    return
+  }
+  contextMenu.value = [
+    {
+      text: '查看目标信息',
+      callback: (p) => {
+        if (p.element) {
+          status.value = `右键 ${p.element.type} · id=${p.element.id} · page=${p.pageIndex} · mode=${p.mode}`
+        }
+      },
+    },
+    {
+      text: '复制元素 id',
+      callback: (p) => {
+        const id = p.element?.id ?? ''
+        void navigator.clipboard?.writeText(id)
+        status.value = `已复制 id：${id}`
+      },
+    },
+  ]
+}
+
 const pages = computed(() => data.pages)
 const currentPage = computed(() => data.pages[pageIndex.value] ?? null)
 
@@ -26,18 +81,29 @@ onMounted(async () => {
   await nextTick()
   const pdf = pdfRef.value
   if (!pdf) return
-  // 初始化载入钢琴音色；默认曲谱 scores[0]
-  if (!(currentPage.value?.scores?.length)) {
-    pdf.addScore({
-      x: 40,
-      y: 80,
-      musicScore: structuredClone(sampleScore),
-    })
+  try {
+    const res = await fetch(demoSjwUrl)
+    const blob = await res.blob()
+    const loaded = await pdf.loadSjw(blob)
+    Object.assign(data, structuredClone(loaded))
+    pageIndex.value = 0
+    refreshAssets()
+    status.value = `已加载 未命名作品.sjw · 页 ${data.pages.length} · 资源 ${assetNames.value.length}`
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+    if (!(currentPage.value?.scores?.length)) {
+      pdf.addScore({
+        x: 40,
+        y: 80,
+        musicScore: structuredClone(sampleScore),
+      })
+    }
   }
   await pdf.addToneColor('piano', piano as Record<number, string>)
   pdf.setToneColorName('piano')
   toneReady.value = true
-  status.value = '已加载 piano 音色；可播放 scores[0]'
+  if (!status.value) status.value = '已加载 piano 音色；可播放 scores[0]'
+  else status.value += '；已加载 piano 音色'
 })
 
 function selectPage(index: number) {
@@ -196,7 +262,29 @@ async function handlePlay() {
   if (!pdf) return
   try {
     await pdf.play(0)
-    status.value = '播放 scores[0]'
+    status.value = '播放曲谱 MIDI scores[0]'
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
+async function handlePlayAccompaniment() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  try {
+    await pdf.playAccompaniment(0)
+    status.value = '播放伴奏 scores[0]（互斥停曲谱/范唱）'
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
+async function handlePlayVocal() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  try {
+    await pdf.playVocal(0)
+    status.value = '播放范唱 scores[0]（互斥停曲谱/伴奏）'
   } catch (e) {
     status.value = e instanceof Error ? e.message : String(e)
   }
@@ -248,6 +336,34 @@ function onLoaded(payload: {data: SJW}) {
   pageIndex.value = 0
   refreshAssets()
 }
+
+function startDrawSession() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  pdf.startDraw()
+  pdf.setTool(DrawToolEnum.Pen, {color: '#222222', lineWidth: 3})
+  status.value = '绘制中：笔'
+}
+
+function usePen() {
+  pdfRef.value?.setTool(DrawToolEnum.Pen, {color: '#222222', lineWidth: 3})
+  status.value = '工具：笔'
+}
+
+function useEraser() {
+  pdfRef.value?.setTool(DrawToolEnum.Eraser, {lineWidth: 24})
+  status.value = '工具：橡皮'
+}
+
+function endDrawSession() {
+  pdfRef.value?.endDraw()
+  status.value = '已结束绘制'
+}
+
+function clearPageDrawings() {
+  pdfRef.value?.clearDrawings()
+  status.value = '已清空笔迹'
+}
 </script>
 
 <template>
@@ -261,7 +377,9 @@ function onLoaded(payload: {data: SJW}) {
         <button type="button" @click="toggleMode">
           {{ mode === 'edit' ? '切到展示模式' : '切到编辑模式' }}
         </button>
-        <button :disabled="!toneReady" type="button" @click="handlePlay">播放</button>
+        <button :disabled="!toneReady" type="button" @click="handlePlay">曲谱播放</button>
+        <button :disabled="!toneReady" type="button" @click="handlePlayAccompaniment">伴奏播放</button>
+        <button :disabled="!toneReady" type="button" @click="handlePlayVocal">范唱播放</button>
         <button type="button" @click="handlePause">暂停</button>
         <button type="button" @click="handleStop">停止</button>
         <button type="button" @click="addDemoImage">添加图片(FromFile)</button>
@@ -271,6 +389,11 @@ function onLoaded(payload: {data: SJW}) {
         <button type="button" @click="setBackgroundByLastId">按上次id设背景</button>
         <button type="button" @click="clearDemoBackground">清背景</button>
         <button type="button" @click="addDemoScore">添加曲谱</button>
+        <button type="button" @click="startDrawSession">开始绘制</button>
+        <button type="button" @click="usePen">笔</button>
+        <button type="button" @click="useEraser">橡皮</button>
+        <button type="button" @click="endDrawSession">结束绘制</button>
+        <button type="button" @click="clearPageDrawings">清空笔迹</button>
         <button type="button" @click="checkAssets">检测资源引用</button>
         <button type="button" @click="exportDemo">导出 sjw</button>
         <label class="work-test__import">
@@ -359,9 +482,11 @@ function onLoaded(payload: {data: SJW}) {
       <div class="work-test__content">
         <SJWPDF
           ref="pdfRef"
+          :context-menu="contextMenu"
           :data="data"
           :mode="mode"
           :page-index="pageIndex"
+          @before-context-menu="onBeforeContextMenu"
           @loaded="onLoaded"
         />
       </div>

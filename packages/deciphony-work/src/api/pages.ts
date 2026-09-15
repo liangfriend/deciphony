@@ -29,6 +29,7 @@ export function createEmptyPage(options: AddPageOptions = {}): SPage {
     height: options.height ?? DEFAULT_PAGE_HEIGHT,
     scores: [],
     elements: [],
+    drawings: [],
   }
   if (options.background !== undefined) page.background = options.background
   if (options.thumbnail !== undefined) page.thumbnail = options.thumbnail

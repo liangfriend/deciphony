@@ -3,6 +3,7 @@ import {
   BeamTypeEnum,
   ClefTypeEnum,
   KeySignatureTypeEnum,
+  Lyrics,
   Measure,
   MusicScore,
   MusicScoreTypeEnum,
@@ -50,6 +51,17 @@ const GRACE_CHRONAXIE = 32 as const
 
 function cloneScore(score: MusicScore): MusicScore {
   return JSON.parse(JSON.stringify(score)) as MusicScore
+}
+
+/** 深拷贝槽位自定义字段（data / lyrics） */
+function cloneSlotUserData(slot: {
+  data?: Object
+  lyrics?: Lyrics[]
+}): {data: Object; lyrics: Lyrics[]} {
+  return {
+    data: structuredClone(slot.data ?? {}),
+    lyrics: structuredClone(slot.lyrics ?? []),
+  }
 }
 
 function isNumberRest(note: NoteNumber): boolean {
@@ -180,6 +192,7 @@ function convertNoteSymbolToNoteNumber(
     affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
+    ...cloneSlotUserData(note),
   }
 }
 
@@ -198,6 +211,9 @@ function convertRestToNoteNumber(rest: NoteRest): NoteNumber {
   note.relativeW = rest.relativeW
   note.relativeH = rest.relativeH
   note.affiliatedSymbols = rest.affiliatedSymbols ?? []
+  const extras = cloneSlotUserData(rest)
+  note.data = extras.data
+  note.lyrics = extras.lyrics
   return note
 }
 
@@ -262,6 +278,7 @@ function convertNoteNumberToNoteSymbol(
     ),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
+    ...cloneSlotUserData(note),
   }
 
   return symbol
@@ -280,6 +297,7 @@ function convertNoteNumberToRest(note: NoteNumber): NoteRest {
     affiliatedSymbols: note.affiliatedSymbols,
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
+    ...cloneSlotUserData(note),
   }
   if (lead?.augmentationDot) rest.augmentationDot = lead.augmentationDot
   return rest

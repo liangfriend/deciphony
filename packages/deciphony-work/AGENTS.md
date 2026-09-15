@@ -23,17 +23,21 @@ packages/deciphony-work/
     功能文档.md             产品能力清单
     页面渲染结构.md         三层 + 模式 + 元素约定
     文件加载.md             .sjw zip 结构与资源映射
+    曲谱范唱伴奏.md         范唱/伴奏缓存、引用、播放与删除
+    右键菜单.md             context-menu / beforeContextMenu
   src/
     index.ts                对外导出（改 API 必改这里）
-    types/types.ts          SJW / SPage / SElement / SScore
+    types/types.ts          SJW / SPage / SElement / SScore / DrawStroke
+    enums/drawToolEnum.ts   DrawToolEnum（pen / eraser）
     constants/elementDefaults.ts   非图片默认宽高
     api/elements.ts         addText / addImage / addAudio
     api/scores.ts           addScore / removeScore
     api/pages.ts            addPage / insertPage / removePage
+    draw/paintStrokes.ts    笔迹重绘（含橡皮 destination-out）
     assets/                 资源缓存、sjw 导入导出、图片尺寸
     components/
       SJWPDF.vue            内容区入口 + expose API + 资源缓存
-      Page.vue              单页三层；挂 scores + elements
+      Page.vue              单页三层；挂 scores + elements + 绘制层
       EditFrame.vue         通用编辑框（移/拉/转）
       ElementNode.vue       多媒体节点
       Score.vue             曲谱节点（musicScore + dr-title/dr-lyrics 展示 + 播放高亮注册）
@@ -46,7 +50,7 @@ packages/deciphony-work/
 ### SJW / 页面
 
 - `SJW`：`{ name, author, pages, assetNames? }`（assetNames：id → 自定义名称）
-- `SPage`：`width/height`、`background?: { src: 资源id }`、`thumbnail?`、`scores?`、`elements?`
+- `SPage`：`width/height`、`background?: { src: 资源id }`、`thumbnail?`、`scores?`、`elements?`、`drawings?`（绘制层笔迹）
 - **曲谱与多媒体分栏**：曲谱只进 `scores`，多媒体只进 `elements`。不要把 MusicScore 塞进 `elements`。
 
 ### 放置框 `SElementBase`
@@ -70,19 +74,39 @@ packages/deciphony-work/
 
 背景：`background.src` = 资源 id；`setBackground(id)` / `setBackgroundFromFile` / `clearBackground`。无背景时白底。
 
+### drawings（绘制层笔迹）
+
+```ts
+page.drawings?: DrawStroke[]  // { tool, color?, lineWidth, points: [x,y][] }
+```
+
+- 透明 canvas；橡皮：`destination-out`
+- 持久化在 **work.json**（随 `.sjw` 导入导出），不是独立资源文件
+- SJWPDF：`startDraw` / `endDraw` / `setTool(tool, { color?, lineWidth? })` / `clearDrawings`
+- 工具枚举：`DrawToolEnum.Pen` | `DrawToolEnum.Eraser`；仅 `startDraw` 后 canvas 才接收指针
+- `setTool` 第二参数：笔触等选项，目前支持 `lineWidth`（笔触宽度）、`color`（仅笔）
+
 新增多媒体类型：先扩 `types.ts` + `api/elements.ts` + `ElementNode.vue`，默认尺寸放 `elementDefaults.ts`。
 
 ### scores（独立迭代）
 
 ```ts
-SScore = SElementBase & { musicScore: MusicScore } // 完整 renderer JSON
+SScore = SElementBase & {
+  musicScore: MusicScore
+  vocalPerformance?: ScoreAudioRef  // { src, name, author? }
+  accompaniment?: ScoreAudioRef
+}
+// ScoreAudioRef.src = zip 根目录唯一文件名（资源缓存 id）
 ```
 
 - `addScore`：框的 `width/height` ← `musicScore.width/height`；`musicScore` 用 `structuredClone`
+- 范唱/伴奏：见 `doc/曲谱范唱伴奏.md`（`loadAsset` → score 存 `src`；播放互斥；删曲谱清孤儿音频）
+- 右键曲谱：`ctx.vocalPerformance` / `ctx.accompaniment` 为 `ResolvedScoreAudio`（含 `url`、`file`）
 - 拉伸**只改框**尺寸；固有宽高不变；`Score.vue` 用 CSS `scale` 铺满
 - `Score.vue` 接入 `dr-title` / `dr-lyrics` / `drPlayHighlight`（固定 show；高亮走 extensions.on）；播放：`dr-play` + `NPlayer`
 - 页面 edit 只动放置框；曲谱内容在 SJWPDF 内不可编辑
-- SJWPDF 暴露：`play(index?)` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer`
+- 播放：SJWPDF 暴露 `play` / `playAccompaniment` / `playVocal` / `pause` / `stop`（三者互斥）/ `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer` / `getAPlayer`
+- 伴奏高亮：`slot.data.accompaniment: number[]`；范唱：`slot.data.vocalPerformance: number[]`（与 dr-time-offset 展平一致）
 
 ## 渲染结构
 
@@ -90,7 +114,7 @@ SScore = SElementBase & { musicScore: MusicScore } // 完整 renderer JSON
 
 1. **背景 canvas** — 图片背景（`background.src` → resolveSrc）或白底
 2. **svg** — `viewBox` 与页面宽高一致，`preserveAspectRatio="none"`；内挂 `scores` 再 `elements`
-3. **绘制 canvas** — 笔迹预留；默认 `pointer-events: none`
+3. **绘制 canvas** — 透明笔迹层；默认 `pointer-events: none`；`startDraw` 后可画；数据在 `page.drawings`
 
 模式 `mode: 'show' | 'edit'`：
 
@@ -118,15 +142,17 @@ work.json
 
 ## SJWPDF 对外契约
 
-Props：`data: SJW`、`pageIndex: number`、`mode?: 'show'|'edit'`
+Props：`data: SJW`、`pageIndex: number`、`mode?: 'show'|'edit'`、`contextMenu?: ElementContextMenuItem[]`
 
 Expose（宿主 `ref` 调用）大致包括：
 
 - 页面：`addPage` / `insertPage` / `removePage`
 - 背景：`setBackground` / `setBackgroundFromFile` / `clearBackground`
 - 元素：`addText` / `addImage` / `addImageFromFile` / `addAudio` / `addAudioFromFile` / `removeElement`
+- 元素右键：prop `context-menu` + 事件 `beforeContextMenu`（打开前改 props）；内置删除仅 edit；整区拦截浏览器右键；见 `doc/右键菜单.md`
 - 曲谱：`addScore` / `removeScore`
-- 播放：`play` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer`
+- 绘制：`startDraw` / `endDraw` / `setTool(tool, options?)` / `clearDrawings` / `isDrawing` / `getTool`
+- 播放：`play` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`
 - 资源：`loadAsset` / `listAssets` / `removeAsset` / `resolveSrc` / …
 - IO：`loadSjw` / `exportSjw`
 
@@ -146,15 +172,18 @@ Expose（宿主 `ref` 调用）大致包括：
 
 ## 未做 / 预留（勿假装已完成）
 
-- 视频放置、背景图资源、笔迹绘制层交互
+- 视频放置、背景图资源
 - 曲谱框内的记谱编辑（应走 renderer 扩展 / 独立编辑流）
 - http 资源的缓存与离线打包策略
 - 多页连续滚动（当前一页一显）
+- 绘制层：更多工具、压感、撤销栈（当前仅 pen / eraser + drawings 向量持久化）
 
 ## 相关文档
 
 - `doc/功能文档.md` — 产品目标
 - `doc/页面渲染结构.md` — 布局与模式
 - `doc/文件加载.md` — sjw 格式
+- `doc/曲谱范唱伴奏.md` — 范唱/伴奏使用逻辑
+- `doc/右键菜单.md` — 元素/曲谱右键
 - `依赖关系.md` — renderer / player
 - 宿主：`packages/deciphony-test/src/views/workTest.vue`

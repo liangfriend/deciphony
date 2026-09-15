@@ -1,7 +1,22 @@
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, provide, ref} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch} from 'vue'
 import type {ToneColor} from '@deciphony/player'
-import type {RemoveAssetOptions, SJW, SPage, SjwMode} from '../types/types'
+import {DrawToolEnum} from '../enums/drawToolEnum'
+import type {
+  DrawBrushOptions,
+  RemoveAssetOptions,
+  SJW,
+  SPage,
+  SElement,
+  SScore,
+  ScoreAudioRef,
+  SjwMode,
+} from '../types/types'
+import type {
+  ElementContextMenuItem,
+  ElementContextMenuPayload,
+  ResolvedScoreAudio,
+} from '../types/contextMenu'
 import {
   addAudio,
   addImage,
@@ -12,7 +27,13 @@ import {
   type AddTextOptions,
 } from '../api/elements'
 import {setBackground, clearBackground} from '../api/background'
-import {addScore, removeScore, type AddScoreOptions} from '../api/scores'
+import {
+  addScore,
+  collectScoreAudioSrcs,
+  removeScore,
+  type AddScoreHostOptions,
+  type AddScoreOptions,
+} from '../api/scores'
 import {
   addPage,
   insertPage,
@@ -22,7 +43,12 @@ import {
 import {createAssetStore} from '../assets/assetStore'
 import {buildSjwBlob, downloadSjw, parseSjw} from '../assets/sjwIO'
 import {createScorePlayback, type ScorePlayHost} from '../play/scorePlayback'
+import type {ContextMenuEntry} from '../types/contextMenu'
+import ContextMenu from './ContextMenu.vue'
 import Page from './Page.vue'
+
+/** 白板四周留白，保证滚动内容区始终大于 page */
+const PAGE_GUTTER_PX = 48
 
 const props = withDefaults(
   defineProps<{
@@ -31,23 +57,194 @@ const props = withDefaults(
     pageIndex: number
     /** show | edit，编辑模式显示通用编辑框 */
     mode?: SjwMode
+    /**
+     * 元素右键自定义菜单项（自带「删除」）。
+     * 回调入参含 element / page / pageIndex / data / mode。
+     */
+    contextMenu?: ElementContextMenuItem[]
   }>(),
   {
     mode: 'show',
+    contextMenu: () => [],
   },
 )
 
 const emit = defineEmits<{
   loaded: [payload: {data: SJW}]
+  /**
+   * 打开自定义菜单前触发；payload 与菜单项 callback 相同。
+   * 可在此同步改写 `:context-menu`，随后按最新 props 弹菜单。
+   */
+  beforeContextMenu: [payload: ElementContextMenuPayload]
 }>()
 
 const store = createAssetStore()
 const scoreHosts = ref(new Map<string, ScorePlayHost>())
+const rootRef = ref<HTMLElement | null>(null)
+const pageRef = ref<InstanceType<typeof Page> | null>(null)
+
+type OpenMenu = {
+  x: number
+  y: number
+  kind: 'element' | 'score'
+  element?: SElement
+  score?: SScore
+}
+
+const openMenu = ref<OpenMenu | null>(null)
 
 const currentPage = computed<SPage | null>(() => {
   const list = props.data.pages ?? []
   return list[props.pageIndex] ?? null
 })
+
+function resolveScoreAudio(ref: ScoreAudioRef | undefined): ResolvedScoreAudio | undefined {
+  if (!ref) return undefined
+  return {
+    src: ref.src,
+    name: ref.name,
+    author: ref.author,
+    url: store.resolveSrc(ref.src),
+    file: store.getAsset(ref.src),
+  }
+}
+
+function buildContextPayload(menu: OpenMenu): ElementContextMenuPayload {
+  const payload: ElementContextMenuPayload = {
+    kind: menu.kind,
+    element: menu.element,
+    score: menu.score,
+    page: requirePage(),
+    pageIndex: props.pageIndex,
+    data: props.data,
+    mode: props.mode,
+  }
+  if (menu.kind === 'score' && menu.score) {
+    payload.vocalPerformance = resolveScoreAudio(menu.score.vocalPerformance)
+    payload.accompaniment = resolveScoreAudio(menu.score.accompaniment)
+  }
+  return payload
+}
+
+/** SJWPDF 层：范唱/伴奏可传 File 或已有 ScoreAudioRef */
+function resolveScoreAudioInput(
+  input: AddScoreHostOptions['vocalPerformance'],
+): ScoreAudioRef | undefined {
+  if (!input) return undefined
+  if ('src' in input && typeof (input as ScoreAudioRef).src === 'string') {
+    const ref = input as ScoreAudioRef
+    requireAsset(ref.src)
+    return {
+      src: ref.src,
+      name: ref.name,
+      ...(ref.author !== undefined ? {author: ref.author} : {}),
+    }
+  }
+  if ('assetId' in input && input.assetId) {
+    requireAsset(input.assetId)
+    const rec = store.getAssetRecord(input.assetId)!
+    return {
+      src: input.assetId,
+      name: input.name ?? rec.name,
+      ...(input.author !== undefined ? {author: input.author} : {}),
+    }
+  }
+  if ('file' in input && input.file) {
+    const rec = loadAsset(input.file, input.name)
+    return {
+      src: rec.id,
+      name: input.name ?? rec.name,
+      ...(input.author !== undefined ? {author: input.author} : {}),
+    }
+  }
+  throw new Error('范唱/伴奏需提供 src、assetId 或 file')
+}
+
+function menuEntries(menu: OpenMenu): ContextMenuEntry[] {
+  const payload = buildContextPayload(menu)
+  const customs: ContextMenuEntry[] = (props.contextMenu ?? [])
+    .filter((item) => item.visible?.(payload) !== false)
+    .map((item) => {
+      const disabled =
+        typeof item.disabled === 'function'
+          ? item.disabled(payload)
+          : !!item.disabled
+      return {
+        text: item.text,
+        disabled,
+        action: () => item.callback(payload),
+      }
+    })
+  // 展示模式不提供删除
+  if (props.mode !== 'edit') return customs
+  return [
+    ...customs,
+    {
+      text: '删除',
+      danger: true,
+      action: () => {
+        if (menu.kind === 'score' && menu.score) {
+          removeScoreAndOrphanAudios(menu.score.id)
+        } else if (menu.element) {
+          removeElement(requirePage(), menu.element.id)
+        }
+      },
+    },
+  ]
+}
+
+async function tryOpenMenu(menu: OpenMenu) {
+  const payload = buildContextPayload(menu)
+  emit('beforeContextMenu', payload)
+  await nextTick()
+  if (menuEntries(menu).length === 0) {
+    openMenu.value = null
+    return
+  }
+  openMenu.value = menu
+}
+
+function onElementContextmenu(payload: {element: SElement; event: MouseEvent}) {
+  const {element, event} = payload
+  tryOpenMenu({
+    kind: 'element',
+    x: event.clientX,
+    y: event.clientY,
+    element,
+  })
+}
+
+function onScoreContextmenu(payload: {score: SScore; event: MouseEvent}) {
+  const {score, event} = payload
+  tryOpenMenu({
+    kind: 'score',
+    x: event.clientX,
+    y: event.clientY,
+    score,
+  })
+}
+
+function closeContextMenu() {
+  openMenu.value = null
+}
+
+/**
+ * 删除曲谱；若范唱/伴奏资源已无其它引用，则从缓存中删除。
+ */
+function removeScoreAndOrphanAudios(scoreId: string): boolean {
+  const page = requirePage()
+  const score = page.scores?.find((s) => s.id === scoreId)
+  if (!score) return false
+  const audioSrcs = collectScoreAudioSrcs(score)
+  const ok = removeScore(page, scoreId)
+  if (!ok) return false
+  for (const src of audioSrcs) {
+    if (store.isUsed(props.data, src)) continue
+    store.removeAsset(src, props.data)
+  }
+  store.syncAssetNamesToData(props.data)
+  return true
+}
 
 function requirePage(): SPage {
   const page = currentPage.value
@@ -64,6 +261,7 @@ function requireAsset(assetId: string) {
 const playback = createScorePlayback({
   getScores: () => currentPage.value?.scores ?? [],
   getHost: (scoreId) => scoreHosts.value.get(scoreId),
+  resolveSrc: (src) => store.resolveSrc(src),
 })
 
 provide('sjwScoreRegistry', {
@@ -97,6 +295,51 @@ function loadAsset(file: File, name?: string) {
   store.syncAssetNamesToData(props.data)
   return {id: rec.id, name: rec.name}
 }
+
+function getPageEl(): HTMLElement | null {
+  const el = (pageRef.value as {$el?: unknown} | null)?.$el
+  return el instanceof HTMLElement ? el : null
+}
+
+/** 将白板滚到滚动视口正中 */
+function centerPageInView() {
+  const scroller = rootRef.value
+  const pageEl = getPageEl()
+  if (!scroller || !pageEl) return
+
+  const sRect = scroller.getBoundingClientRect()
+  const pRect = pageEl.getBoundingClientRect()
+  const pageLeft = pRect.left - sRect.left + scroller.scrollLeft
+  const pageTop = pRect.top - sRect.top + scroller.scrollTop
+
+  scroller.scrollLeft = pageLeft + pageEl.offsetWidth / 2 - scroller.clientWidth / 2
+  scroller.scrollTop = pageTop + pageEl.offsetHeight / 2 - scroller.clientHeight / 2
+}
+
+async function scheduleCenterPage() {
+  await nextTick()
+  requestAnimationFrame(() => {
+    centerPageInView()
+  })
+}
+
+onMounted(() => {
+  scheduleCenterPage()
+})
+
+watch(
+  () =>
+    [
+      props.pageIndex,
+      currentPage.value?.id,
+      currentPage.value?.width,
+      currentPage.value?.height,
+    ] as const,
+  () => {
+    closeContextMenu()
+    scheduleCenterPage()
+  },
+)
 
 onBeforeUnmount(() => {
   playback.dispose()
@@ -174,8 +417,34 @@ defineExpose({
   },
 
   removeElement: (elementId: string) => removeElement(requirePage(), elementId),
-  addScore: (options: AddScoreOptions) => addScore(requirePage(), options),
-  removeScore: (scoreId: string) => removeScore(requirePage(), scoreId),
+  /**
+   * 添加曲谱。范唱/伴奏可传：
+   * - `{ src, name, author? }` 已缓存资源
+   * - `{ assetId, name?, author? }` 已缓存 id
+   * - `{ file, name?, author? }` 自动 loadAsset 写入 zip 根目录
+   */
+  addScore: (options: AddScoreHostOptions) => {
+    const vocalPerformance = resolveScoreAudioInput(options.vocalPerformance)
+    const accompaniment = resolveScoreAudioInput(options.accompaniment)
+    const opts: AddScoreOptions = {
+      x: options.x,
+      y: options.y,
+      musicScore: options.musicScore,
+    }
+    if (options.rotation !== undefined) opts.rotation = options.rotation
+    if (options.id !== undefined) opts.id = options.id
+    if (vocalPerformance) opts.vocalPerformance = vocalPerformance
+    if (accompaniment) opts.accompaniment = accompaniment
+    return addScore(requirePage(), opts)
+  },
+  /** 删除曲谱；范唱/伴奏若已无其它引用则从缓存删除 */
+  removeScore: (scoreId: string) => removeScoreAndOrphanAudios(scoreId),
+  /** 解析曲谱范唱/伴奏（含 url、file） */
+  resolveScoreAudio: (ref: ScoreAudioRef | undefined) => resolveScoreAudio(ref),
+  getScoreAudios: (score: SScore) => ({
+    vocalPerformance: resolveScoreAudio(score.vocalPerformance),
+    accompaniment: resolveScoreAudio(score.accompaniment),
+  }),
 
   addPage: (options?: AddPageOptions) => addPage(props.data, options),
   insertPage: (index: number, options?: AddPageOptions) =>
@@ -219,7 +488,33 @@ defineExpose({
   loadSjw,
   exportSjw,
 
+  /** 开始绘制：顶层透明 canvas 接收指针 */
+  startDraw: () => pageRef.value?.startDraw(),
+  /** 结束绘制：canvas 不再拦截指针 */
+  endDraw: () => pageRef.value?.endDraw(),
+  /** 切换工具；第二参数为笔触等选项（如 lineWidth） */
+  setTool: (tool: DrawToolEnum, options?: DrawBrushOptions) =>
+    pageRef.value?.setTool(tool, options),
+  /**
+   * @deprecated 同 setTool
+   * 设置画笔并切到该工具。
+   * @param tool 工具枚举（DrawToolEnum.Pen | DrawToolEnum.Eraser）
+   * @param options color（仅笔）、lineWidth（笔触宽度）
+   */
+  setBrush: (tool: DrawToolEnum, options?: DrawBrushOptions) =>
+    pageRef.value?.setTool(tool, options),
+  clearDrawings: () => pageRef.value?.clearDrawings(),
+  isDrawing: () => pageRef.value?.isDrawing() ?? false,
+  getTool: () => pageRef.value?.getTool() ?? DrawToolEnum.Pen,
+
+  /** 将当前白板滚到视口居中 */
+  centerPage: () => scheduleCenterPage(),
+
   play: (scoreIndex = 0) => playback.play(scoreIndex),
+  /** 伴奏播放（APlayer + slot.data.accompaniment 高亮）；与曲谱/范唱互斥 */
+  playAccompaniment: (scoreIndex = 0) => playback.playAccompaniment(scoreIndex),
+  /** 范唱播放（APlayer + slot.data.vocalPerformance 高亮）；与曲谱/伴奏互斥 */
+  playVocal: (scoreIndex = 0) => playback.playVocal(scoreIndex),
   pause: () => playback.pause(),
   stop: () => playback.stop(),
   addToneColor: (name: string, toneColor: ToneColor) => playback.addToneColor(name, toneColor),
@@ -228,15 +523,39 @@ defineExpose({
   setBpm: (bpm: number) => playback.setBpm(bpm),
   getBpm: () => playback.getBpm(),
   getPlayer: () => playback.getPlayer(),
+  getAPlayer: () => playback.getAPlayer(),
+  getPlaybackMode: () => playback.getMode(),
 })
 </script>
 
 <template>
-  <div class="sjw-pdf">
-    <div v-if="currentPage" class="sjw-pdf__page-wrap">
-      <Page :mode="mode" :page="currentPage" :resolve-src="store.resolveSrc"/>
+  <div ref="rootRef" class="sjw-pdf" @contextmenu.prevent>
+    <div
+      v-if="currentPage"
+      class="sjw-pdf__page-wrap"
+      :style="{
+        '--sjw-page-w': `${currentPage.width}px`,
+        '--sjw-page-h': `${currentPage.height}px`,
+        '--sjw-page-gutter': `${PAGE_GUTTER_PX}px`,
+      }"
+    >
+      <Page
+        ref="pageRef"
+        :mode="mode"
+        :page="currentPage"
+        :resolve-src="store.resolveSrc"
+        @element-contextmenu="onElementContextmenu"
+        @score-contextmenu="onScoreContextmenu"
+      />
     </div>
     <div v-else class="sjw-pdf__empty">无页面</div>
+    <ContextMenu
+      v-if="openMenu"
+      :items="menuEntries(openMenu)"
+      :x="openMenu.x"
+      :y="openMenu.y"
+      @close="closeContextMenu"
+    />
   </div>
 </template>
 
@@ -247,14 +566,23 @@ defineExpose({
   min-height: 0;
   overflow: auto;
   box-sizing: border-box;
-  padding: 24px;
   background: #f0f2f5;
   color: #303133;
 }
 
 .sjw-pdf__page-wrap {
-  display: flex;
-  justify-content: center;
+  /*
+   * 内容区被白板撑开，且四周至少留 gutter，故永远比白板大；
+   * 同时 min 铺满视口，小页时也能居中摆放。
+   */
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: var(--sjw-page-gutter, 48px);
+  width: max(100%, calc(var(--sjw-page-w, 0px) + 2 * var(--sjw-page-gutter, 48px)));
+  height: max(100%, calc(var(--sjw-page-h, 0px) + 2 * var(--sjw-page-gutter, 48px)));
+  min-width: 100%;
+  min-height: 100%;
 }
 
 .sjw-pdf__empty {

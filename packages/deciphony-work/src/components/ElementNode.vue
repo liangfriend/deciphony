@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: []
+  contextmenu: [ev: MouseEvent]
 }>()
 
 const textEditing = ref(false)
@@ -78,6 +79,7 @@ function onBodyDblclick() {
     :move-on-body="element.type !== 'audio' && !textEditing"
     :selected="selected"
     @body-dblclick="onBodyDblclick"
+    @contextmenu="emit('contextmenu', $event)"
     @select="emit('select')"
   >
     <image
@@ -96,7 +98,11 @@ function onBodyDblclick() {
       x="0"
       y="0"
     >
-      <div xmlns="http://www.w3.org/1999/xhtml" class="sjw-el__box">
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        class="sjw-el__box"
+        @contextmenu.prevent.stop="emit('contextmenu', $event)"
+      >
         <AudioPlayer :src="resolveSrc(element.src)"/>
       </div>
     </foreignObject>
@@ -107,7 +113,11 @@ function onBodyDblclick() {
       x="0"
       y="0"
     >
-      <div xmlns="http://www.w3.org/1999/xhtml" class="sjw-el__box">
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        class="sjw-el__box"
+        @contextmenu.prevent.stop="emit('contextmenu', $event)"
+      >
         <textarea
           v-if="textEditing"
           ref="inputRef"

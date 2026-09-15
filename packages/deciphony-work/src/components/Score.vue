@@ -17,6 +17,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: []
+  contextmenu: [ev: MouseEvent]
 }>()
 
 type ScoreRegistry = {
@@ -53,6 +54,9 @@ onMounted(() => {
     handlePlaybackEnd: playHighlight.handlePlaybackEnd,
     handlePlaybackStop: playHighlight.handlePlaybackStop,
     handlePlaybackPause: playHighlight.handlePlaybackPause,
+    addNoteHighlight: playHighlight.addNoteHighlight,
+    removeNoteHighlight: playHighlight.removeNoteHighlight,
+    clearHighlight: playHighlight.clearHighlight,
   })
 })
 
@@ -68,6 +72,8 @@ onBeforeUnmount(() => {
     :element="score"
     :move-on-body="true"
     :selected="selected"
+    show-hit-overlay
+    @contextmenu="emit('contextmenu', $event)"
     @select="emit('select')"
   >
     <foreignObject
@@ -76,7 +82,11 @@ onBeforeUnmount(() => {
       x="0"
       y="0"
     >
-      <div xmlns="http://www.w3.org/1999/xhtml" class="sjw-score">
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        class="sjw-score"
+        @contextmenu.prevent.stop="emit('contextmenu', $event)"
+      >
         <div
           class="sjw-score__inner"
           :style="{

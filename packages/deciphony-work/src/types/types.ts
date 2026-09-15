@@ -1,9 +1,28 @@
 import type {MusicScore} from '@deciphony/renderer'
+import type {DrawToolEnum} from '../enums/drawToolEnum'
 
 /** 页面背景：缓存资源 id（与图片/音频相同） */
 export type SPageBackground = {
   /** 资源缓存 id，如 `21546134543.png` */
   src: string
+}
+
+/** 单笔笔迹（页面坐标）；随 work.json 持久化进 .sjw */
+export type DrawStroke = {
+  tool: DrawToolEnum
+  /** 画笔颜色；橡皮忽略 */
+  color?: string
+  lineWidth: number
+  /** 折线点 [x, y][]，相对页面逻辑宽高 */
+  points: [number, number][]
+}
+
+/** setTool / setBrush 第二参数 */
+export type DrawBrushOptions = {
+  /** 画笔颜色（仅 pen） */
+  color?: string
+  /** 笔触宽度（线宽 / 橡皮直径） */
+  lineWidth?: number
 }
 
 /** 放置公共字段（多媒体 + 曲谱框） */
@@ -54,6 +73,22 @@ export type SElement = STextElement | SImageElement | SAudioElement
  */
 export type SScore = SElementBase & {
   musicScore: MusicScore
+  /** 范唱音频（资源在 .sjw 根目录，src = 唯一文件名 id） */
+  vocalPerformance?: ScoreAudioRef
+  /** 伴奏音频 */
+  accompaniment?: ScoreAudioRef
+}
+
+/**
+ * 曲谱关联音频（持久化在 work.json；文件本体进 zip 根目录，与图片/音频相同）。
+ */
+export type ScoreAudioRef = {
+  /** 资源唯一 id / zip 内文件名，如 `1730123456789.mp3` */
+  src: string
+  /** 音频展示名称 */
+  name: string
+  /** 作者 */
+  author?: string
 }
 
 /** SJWPDF / Page 模式 */
@@ -71,6 +106,11 @@ export type SPage = {
   /** 曲谱列表（与 elements 分开，便于后续独立迭代） */
   scores?: SScore[]
   elements?: SElement[]
+  /**
+   * 绘制层笔迹（透明 canvas）。
+   * 持久化在 work.json，导入导出 .sjw 时随页面一起读写。
+   */
+  drawings?: DrawStroke[]
 }
 
 export type SJW = {
@@ -102,5 +142,7 @@ export type RemoveAssetOptions = {
 export type AssetUsage = {
   pageId: string
   elementId?: string
-  field: 'thumbnail' | 'src' | 'background'
+  /** scoreId：曲谱关联范唱/伴奏 */
+  scoreId?: string
+  field: 'thumbnail' | 'src' | 'background' | 'vocalPerformance' | 'accompaniment'
 }

@@ -30,6 +30,10 @@ export {
   getRestSkinKey,
   getNoteTailSkinKey,
 } from './standardStaff/render/utils/skinKey'
+export {
+  getSyllableSkinKey,
+  getReduceLineSkinKey,
+} from './numberNotation/render/utils/skinKey'
 
 /** 五线谱音符位 / 休止符位判别 */
 export {isNoteRest, isNoteSymbol, isStaffSlot} from './standardStaff/render/utils/staffSlot'

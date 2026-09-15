@@ -13,6 +13,7 @@ export * from './dr-play'
 export * from './dr-play-highlight'
 export * from './dr-musicxml-transfer'
 export * from './dr-numberNotation-transfer'
+export * from './chord-builder'
 export * from './scoreUtil'
 
 // dr-edit 与 score-builder 存在同名函数（如 insertMeasure），请走子路径：

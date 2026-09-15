@@ -1,45 +1,3 @@
-<template>
-  <div class="string-state-form">
-    <div class="form-header">
-      <h3 class="subsection-title">按弦 stringStates</h3>
-      <span class="form-hint">索引 0=1弦(右/细) → {{ stringCount - 1 }}={{ stringCount }}弦(左/粗)</span>
-    </div>
-    <div class="string-rows">
-      <div v-for="row in rows" :key="row.index" class="string-row">
-        <span class="string-label">{{ row.index + 1 }}弦</span>
-        <label class="field">
-          <span>状态</span>
-          <select :value="row.mode" @change="onModeChange(row.index, ($event.target as HTMLSelectElement).value)">
-            <option value="none">不显示 (-1)</option>
-            <option value="o">空弦 (o)</option>
-            <option value="x">闷音 (x)</option>
-            <option value="fret">按弦 (数字)</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>相对品</span>
-          <input
-            :value="row.fretValue"
-            type="number"
-            min="0"
-            :disabled="row.mode !== 'fret'"
-            @input="onFretChange(row.index, ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label class="field">
-          <span>text</span>
-          <input
-            :value="row.text"
-            type="text"
-            :disabled="row.mode !== 'fret'"
-            @input="onTextChange(row.index, ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script lang="ts" setup>
 import {computed, watch} from 'vue'
 import type {StringState} from '@deciphony/renderer'
@@ -92,8 +50,12 @@ watch(
   () => props.stringCount,
   (count) => {
     const normalized = normalizeStates(props.modelValue, count)
-    if (normalized.length !== props.modelValue.length
-      || normalized.some((s, i) => s.finger !== props.modelValue[i]?.finger || s.text !== props.modelValue[i]?.text)) {
+    if (
+      normalized.length !== props.modelValue.length ||
+      normalized.some(
+        (s, i) => s.finger !== props.modelValue[i]?.finger || s.text !== props.modelValue[i]?.text,
+      )
+    ) {
       emit('update:modelValue', normalized)
     }
   },
@@ -101,7 +63,7 @@ watch(
 
 function patchState(index: number, patch: Partial<StringState>) {
   const next = normalizeStates(props.modelValue, props.stringCount)
-  next[index] = {...next[index], ...patch}
+  next[index] = {...next[index]!, ...patch}
   emit('update:modelValue', next)
 }
 
@@ -131,6 +93,48 @@ function onTextChange(index: number, text: string) {
   patchState(index, {text})
 }
 </script>
+
+<template>
+  <div class="string-state-form">
+    <div class="form-header">
+      <h3 class="subsection-title">按弦 stringStates</h3>
+      <span class="form-hint">索引 0=1弦(右/细) → {{ stringCount - 1 }}={{ stringCount }}弦(左/粗)</span>
+    </div>
+    <div class="string-rows">
+      <div v-for="row in rows" :key="row.index" class="string-row">
+        <span class="string-label">{{ row.index + 1 }}弦</span>
+        <label class="field">
+          <span>状态</span>
+          <select :value="row.mode" @change="onModeChange(row.index, ($event.target as HTMLSelectElement).value)">
+            <option value="none">不显示 (-1)</option>
+            <option value="o">空弦 (o)</option>
+            <option value="x">闷音 (x)</option>
+            <option value="fret">按弦 (数字)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>相对品</span>
+          <input
+            :value="row.fretValue"
+            type="number"
+            min="0"
+            :disabled="row.mode !== 'fret'"
+            @input="onFretChange(row.index, ($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <label class="field">
+          <span>text</span>
+          <input
+            :value="row.text"
+            type="text"
+            :disabled="row.mode !== 'fret'"
+            @input="onTextChange(row.index, ($event.target as HTMLInputElement).value)"
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .string-state-form {

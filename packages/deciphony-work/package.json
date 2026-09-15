@@ -17,6 +17,9 @@
     "dev": "vite",
     "build": "vite build"
   },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

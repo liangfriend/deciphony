@@ -1110,3 +1110,14 @@ export function getNoteNumberMidi(noteNumberInfo: NotesNumberInfo): number {
     const semitone = (((baseSemitone + accOffset) % 12) + 12) % 12
     return (octaveDot + 5) * 12 + semitone
 }
+
+/**
+ * 各复谱表的单谱表数量是否不一致（无法安全 mergeGrandStaff）
+ */
+export function hasGrandStaffSingleStaffMismatch(musicScore: MusicScore): boolean {
+    if (musicScore.grandStaffs.length === 0) return false
+
+    const staffCounts = musicScore.grandStaffs.map((gs) => gs.staves.length)
+    const expectedCount = staffCounts[0]!
+    return staffCounts.some((count) => count !== expectedCount)
+}

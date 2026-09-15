@@ -18,6 +18,7 @@
 | `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`；反复展开 + `data[timeProp]: number[]` 遍次） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线↔简谱 |
+| `@deciphony/extensions/chord-builder` | 和弦图编辑器（`ChordBuilder`，props: `chord: tabChord`） |
 | `@deciphony/extensions/score-util` | 音高/调号工具 |
 | `@deciphony/extensions` | 根 barrel（不含 dr-edit，避免与 score-builder 同名冲突） |
 

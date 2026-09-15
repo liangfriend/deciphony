@@ -1,4 +1,4 @@
-import { _audioContext } from './ContextManager';
+import {_audioContext} from './ContextManager';
 import {
   Intensity,
   MetronomeColor,
@@ -7,26 +7,19 @@ import {
   MetronomeSequenceItem,
   TimeSignature
 } from './types';
-import { toSeconds } from './sequenceUtils';
-import { v4 as uuidv4 } from 'uuid';
+import {toSeconds} from './sequenceUtils';
+import {v4 as uuidv4} from 'uuid';
 
 class MPlayer {
   private _gainNode: GainNode;
-  private _state: 'stopped' | 'playing' | 'paused' = 'stopped';
   private _endNotePauseMark: boolean; // 最后一个音符暂停时的标记
   private _endNoteRemainTime: number; // 最后一个音符暂停时的剩余播放时间
   private _sequence: MetronomeSequence = [];
-  private _bpm = 120;
-  private _beatUnit = 4;
-  private _sequenceGenOption: MetronomeSequenceGenOption = {
-    // MPlayer独有的，baseSequence应该是原有的几倍
-    copyCount: 1
-  };
   private _sourceMap: Map<string, { source: AudioBufferSourceNode; playContextTime: number }> =
-    new Map();
+      new Map();
   private _timerMap: Map<
-    string,
-    { timerId: ReturnType<typeof setTimeout>; playContextTime: number }
+      string,
+      { timerId: ReturnType<typeof setTimeout>; playContextTime: number }
   > = new Map();
   /** 以 256 分音符为粒度的曲谱位置 */
   private _startPosition = 0;
@@ -35,20 +28,12 @@ class MPlayer {
   private _anchorContextTime = 0;
   private _sequenceCopyCount = 5;
   private _baseSequence: MetronomeSequence = [];
-
-  private _timeSignature: TimeSignature = '4/4';
-  private _rate = 1;
   private _checkTimer: NodeJS.Timeout | null = null;
   private _checkTime = 50;
   private _checkDuration = 500;
-
-  private _onProgressStart: ((progress: number, data: any) => void) | null = null; // 过程回调(开始播放)
-  private _onProgressEnd: ((progress: number, data: any) => void) | null = null; // 过程回调(播放完成)
-  private _onEnd: (() => void) | null = null;
   private _metronomeColorMap = new Map<string, MetronomeColor>();
-  private _metronomeColor = '';
-  private _loop: boolean = true;
   private _bufferCache = new Map<string, AudioBuffer>();
+
   constructor(option: {
     checkTime: number;
     checkDuration: number;
@@ -60,8 +45,8 @@ class MPlayer {
     this._checkDuration = option.checkDuration ?? 500;
     if (option.sequenceGenOption?.copyCount != null) {
       this._sequenceGenOption.copyCount = Math.max(
-        1,
-        Math.floor(option.sequenceGenOption.copyCount)
+          1,
+          Math.floor(option.sequenceGenOption.copyCount)
       );
     }
     this._gainNode = this._context.createGain();
@@ -69,8 +54,50 @@ class MPlayer {
     this._generateSequence();
   }
 
+  private _state: 'stopped' | 'playing' | 'paused' = 'stopped';
+
+  get state() {
+    return this._state;
+  }
+
+  private _bpm = 120;
+
+  get bpm() {
+    return this._bpm;
+  }
+
+  set bpm(value: number) {
+    if (this._bpm === value) return;
+    this._bpm = Math.max(1, value);
+    if (this._state === 'playing') {
+      this._clearFutureSourcesAndTimers();
+      this._check();
+    }
+  }
+
+  private _beatUnit = 4;
+
+  get beatUnit() {
+    return this._beatUnit;
+  }
+
+  set beatUnit(value: number) {
+    if (this._beatUnit === value) return;
+    this._beatUnit = Math.max(1, value);
+    this._generateSequence();
+    if (this._state === 'playing') {
+      this._clearFutureSourcesAndTimers();
+      this._check();
+    }
+  }
+
+  private _sequenceGenOption: MetronomeSequenceGenOption = {
+    // MPlayer独有的，baseSequence应该是原有的几倍
+    copyCount: 1
+  };
+
   get sequenceGenOption(): Readonly<MetronomeSequenceGenOption> {
-    return { ...this._sequenceGenOption };
+    return {...this._sequenceGenOption};
   }
 
   set sequenceGenOption(opt: Partial<MetronomeSequenceGenOption>) {
@@ -84,29 +111,95 @@ class MPlayer {
       this._check();
     }
   }
-  get state() {
-    return this._state;
+
+  private _timeSignature: TimeSignature = '4/4';
+
+  get timeSignature(): TimeSignature {
+    return this._timeSignature;
   }
+
+  set timeSignature(ts: TimeSignature) {
+    this._timeSignature = ts;
+    this._generateSequence();
+    if (this._state === 'playing') {
+      this.stop();
+      // 节拍器播放过程中改timeSignature有时候会出现停止的现象。节拍器理论上不应该播放过程中更改，要不然第几拍没法续上
+      // this._clearFutureSourcesAndTimers();
+      // this._check();
+    }
+  }
+
+  private _rate = 1;
+
+  get rate() {
+    return this._rate;
+  }
+
+  set rate(rate: number) {
+    if (this._rate === rate) return;
+    const oldRate = this._rate;
+    this._rate = rate;
+    this._clearFutureSourcesAndTimers();
+    const deltaSec = this._context.currentTime - this._anchorContextTime;
+    this._currentPosition += (deltaSec * this._bpm * 256 * oldRate) / (60 * this._beatUnit);
+    this._anchorContextTime = this._context.currentTime;
+    this._check();
+  }
+
+  private _onProgressStart: ((progress: number, data: any) => void) | null = null; // 过程回调(开始播放)
+
+  set onProgressStart(cb: (progress: number, data: any) => void) {
+    this._onProgressStart = cb;
+  }
+
+  private _onProgressEnd: ((progress: number, data: any) => void) | null = null; // 过程回调(播放完成)
+
+  set onProgressEnd(cb: (progress: number, data: any) => void) {
+    this._onProgressEnd = cb;
+  }
+
+  private _onEnd: (() => void) | null = null;
+
+  set onEnd(cb: () => void) {
+    this._onEnd = cb;
+  }
+
+  private _metronomeColor = '';
+
+  get metronomeColor() {
+    return this._metronomeColor;
+  }
+
+  set metronomeColor(name: string) {
+    this._metronomeColor = name;
+  }
+
+  private _loop: boolean = true;
+
+  get loop() {
+    return this._loop;
+  }
+
+  set loop(loop: boolean) {
+    this._loop = loop;
+    if (!loop) {
+      this._clearFutureSourcesAndTimers();
+    }
+  }
+
+  get volume() {
+    return this._gainNode.gain.value;
+  }
+
+  set volume(volume: number) {
+    this._gainNode.gain.value = volume * 3;
+  }
+
   private get _context(): AudioContext {
     if (!_audioContext) {
       throw new Error('先调用startJPlayer激活音频上下文');
     }
     return _audioContext;
-  }
-
-  /** 秒 → 256 时值单位 (考虑 rate) */
-  private _secTo256(sec: number): number {
-    return (sec * this._bpm * 256 * this._rate) / (60 * this._beatUnit);
-  }
-
-  /** 256 时值单位 → 秒 (考虑 rate，用于调度偏移) */
-  private _256ToSecWithRate(dur: number): number {
-    return (dur * this._beatUnit * 60) / (256 * this._bpm * this._rate);
-  }
-
-  /** 256 时值单位 → 秒 (不含 rate，用于音符持续时长) */
-  private _256ToSec(dur: number): number {
-    return toSeconds(dur, this._bpm, this._beatUnit);
   }
 
   async addMetronomeColor(name: string, metronomeColor: MetronomeColor): Promise<void> {
@@ -122,97 +215,84 @@ class MPlayer {
         const buffer = await ctx.decodeAudioData(arrayBuffer);
         this._bufferCache.set(cacheKey, buffer);
       } catch (err) {
-        console.warn('MPlayer addMetronomeColor decodeAudioData failed', { name, intensity, err });
+        console.warn('MPlayer addMetronomeColor decodeAudioData failed', {name, intensity, err});
       }
     }
   }
 
-  set volume(volume: number) {
-    this._gainNode.gain.value = volume;
-  }
-  get volume() {
-    return this._gainNode.gain.value;
-  }
-
-  set bpm(value: number) {
-    if (this._bpm === value) return;
-    this._bpm = Math.max(1, value);
-    if (this._state === 'playing') {
-      this._clearFutureSourcesAndTimers();
-      this._check();
-    }
-  }
-  get bpm() {
-    return this._bpm;
-  }
-
-  set beatUnit(value: number) {
-    if (this._beatUnit === value) return;
-    this._beatUnit = Math.max(1, value);
-    this._generateSequence();
-    if (this._state === 'playing') {
-      this._clearFutureSourcesAndTimers();
-      this._check();
-    }
-  }
-  get beatUnit() {
-    return this._beatUnit;
-  }
-
-  set rate(rate: number) {
-    if (this._rate === rate) return;
-    const oldRate = this._rate;
-    this._rate = rate;
-    this._clearFutureSourcesAndTimers();
-    const deltaSec = this._context.currentTime - this._anchorContextTime;
-    this._currentPosition += (deltaSec * this._bpm * 256 * oldRate) / (60 * this._beatUnit);
+  async play() {
+    if (this._state === 'playing') return;
+    this._state = 'playing';
+    this._startPosition = this._pausePosition;
+    this._currentPosition = this._startPosition;
     this._anchorContextTime = this._context.currentTime;
+    if (this._endNotePauseMark) {
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          this.stop();
+          resolve({});
+        }, this._endNoteRemainTime * 1000);
+      });
+    }
     this._check();
   }
-  get rate() {
-    return this._rate;
-  }
 
-  set loop(loop: boolean) {
-    this._loop = loop;
-    if (!loop) {
-      this._clearFutureSourcesAndTimers();
+  pause() {
+    if (this._state !== 'playing') return;
+    this._state = 'paused';
+    if (this._checkTimer) {
+      clearInterval(this._checkTimer);
+      this._checkTimer = null;
     }
-  }
-  get loop() {
-    return this._loop;
-  }
-
-  set metronomeColor(name: string) {
-    this._metronomeColor = name;
-  }
-  get metronomeColor() {
-    return this._metronomeColor;
-  }
-
-  set onProgressStart(cb: (progress: number, data: any) => void) {
-    this._onProgressStart = cb;
-  }
-  set onProgressEnd(cb: (progress: number, data: any) => void) {
-    this._onProgressEnd = cb;
-  }
-
-  set onEnd(cb: () => void) {
-    this._onEnd = cb;
-  }
-
-  set timeSignature(ts: TimeSignature) {
-    this._timeSignature = ts;
-    this._generateSequence();
-    if (this._state === 'playing') {
-      this.stop();
-      // 节拍器播放过程中改timeSignature有时候会出现停止的现象。节拍器理论上不应该播放过程中更改，要不然第几拍没法续上
-      // this._clearFutureSourcesAndTimers();
-      // this._check();
+    const deltaSec = this._context.currentTime - this._anchorContextTime;
+    this._pausePosition = this._currentPosition + this._secTo256(deltaSec);
+    /* 如果loop=false且sequence.length为0,说明到了最后一个了，因为无法触发onEnd，所以要加一个标记*/
+    if (this._sequence.length === 1 && !this._loop) {
+      this._endNotePauseMark = true;
+      const playContextTime = this._sourceMap.get(this._sequence[0].id)?.playContextTime;
+      if (playContextTime) {
+        this._endNoteRemainTime =
+            this._256ToSecWithRate(this._sequence[0].duration) -
+            (this._context.currentTime - playContextTime);
+      }
     }
+    this._clearAllSourcesAndTimers();
   }
-  get timeSignature(): TimeSignature {
-    return this._timeSignature;
+
+  stop() {
+    if (this._state === 'stopped') return;
+    this._state = 'stopped';
+    this._endNotePauseMark = false;
+    this._endNoteRemainTime = 0;
+    this._onEnd?.();
+    this._sequence = [];
+    if (this._checkTimer) {
+      clearInterval(this._checkTimer);
+      this._checkTimer = null;
+    }
+    this._pausePosition = 0;
+    this._clearAllSourcesAndTimers();
+  }
+
+  dispose() {
+    this.stop();
+    this._bufferCache.clear();
+    this._metronomeColorMap.clear();
+  }
+
+  /** 秒 → 256 时值单位 (考虑 rate) */
+  private _secTo256(sec: number): number {
+    return (sec * this._bpm * 256 * this._rate) / (60 * this._beatUnit);
+  }
+
+  /** 256 时值单位 → 秒 (考虑 rate，用于调度偏移) */
+  private _256ToSecWithRate(dur: number): number {
+    return (dur * this._beatUnit * 60) / (256 * this._bpm * this._rate);
+  }
+
+  /** 256 时值单位 → 秒 (不含 rate，用于音符持续时长) */
+  private _256ToSec(dur: number): number {
+    return toSeconds(dur, this._bpm, this._beatUnit);
   }
 
   /**
@@ -353,7 +433,7 @@ class MPlayer {
         intensity,
         duration: tickDur,
         playTime: i * tickDur,
-        data: { beatIndex: i },
+        data: {beatIndex: i},
         end: false
       });
     }
@@ -371,7 +451,7 @@ class MPlayer {
           intensity: src.intensity,
           duration: src.duration,
           playTime: c * roundDur + src.playTime,
-          data: { beatIndex: i },
+          data: {beatIndex: i},
           end: false
         });
       }
@@ -382,6 +462,7 @@ class MPlayer {
     this._sequence = [];
     this._fillSequence();
   }
+
   // 如果loop=false,需要删减多余的序列，虽然fireOnEnd会在最后一个音符处结束播放，但是下一个音符是有可能在onEnd之前触发的。
   private _fillSequence() {
     if (this._baseSequence.length === 0) return;
@@ -403,9 +484,9 @@ class MPlayer {
 
       const firstEndInBase = this._baseSequence.findIndex((item) => item.end);
       const boundedBase =
-        firstEndInBase === -1
-          ? this._baseSequence
-          : this._baseSequence.slice(0, firstEndInBase + 1);
+          firstEndInBase === -1
+              ? this._baseSequence
+              : this._baseSequence.slice(0, firstEndInBase + 1);
       this._sequence = boundedBase.map((elem: MetronomeSequenceItem) => ({
         ...elem,
         id: uuidv4()
@@ -417,13 +498,13 @@ class MPlayer {
     const needRounds = Math.max(0, this._sequenceCopyCount - currentRounds);
     const fillCount = Math.ceil(needRounds);
     const roundDur =
-      this._baseSequence[this._baseSequence.length - 1].playTime +
-      this._baseSequence[this._baseSequence.length - 1].duration;
+        this._baseSequence[this._baseSequence.length - 1].playTime +
+        this._baseSequence[this._baseSequence.length - 1].duration;
     let nextStart = 0;
     if (this._sequence.length) {
       nextStart =
-        this._sequence[this._sequence.length - 1].playTime +
-        this._sequence[this._sequence.length - 1].duration;
+          this._sequence[this._sequence.length - 1].playTime +
+          this._sequence[this._sequence.length - 1].duration;
     }
     for (let i = 0; i < fillCount; i++) {
       const seq = JSON.parse(JSON.stringify(this._baseSequence)) as MetronomeSequence;
@@ -434,23 +515,6 @@ class MPlayer {
       });
       this._sequence = this._sequence.concat(seq);
     }
-  }
-
-  async play() {
-    if (this._state === 'playing') return;
-    this._state = 'playing';
-    this._startPosition = this._pausePosition;
-    this._currentPosition = this._startPosition;
-    this._anchorContextTime = this._context.currentTime;
-    if (this._endNotePauseMark) {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          this.stop();
-          resolve({});
-        }, this._endNoteRemainTime * 1000);
-      });
-    }
-    this._check();
   }
 
   private _check() {
@@ -473,8 +537,8 @@ class MPlayer {
   private _clearFutureSourcesAndTimers() {
     const now = this._context.currentTime;
     const keepSources = new Map<
-      string,
-      { source: AudioBufferSourceNode; playContextTime: number }
+        string,
+        { source: AudioBufferSourceNode; playContextTime: number }
     >();
     this._sourceMap.forEach((entry, id) => {
       if (entry.playContextTime < now) {
@@ -488,8 +552,8 @@ class MPlayer {
     this._sourceMap = keepSources;
 
     const keepTimers = new Map<
-      string,
-      { timerId: ReturnType<typeof setTimeout>; playContextTime: number }
+        string,
+        { timerId: ReturnType<typeof setTimeout>; playContextTime: number }
     >();
     this._timerMap.forEach((entry, id) => {
       if (entry.playContextTime < now) {
@@ -526,9 +590,9 @@ class MPlayer {
     const checkWindow = this._secTo256(this._checkDuration / 1000);
     const filtered = this._sequence.filter((e: MetronomeSequenceItem) => {
       return (
-        !this._sourceMap.has(e.id) &&
-        e.playTime >= this._currentPosition &&
-        e.playTime < this._currentPosition + checkWindow
+          !this._sourceMap.has(e.id) &&
+          e.playTime >= this._currentPosition &&
+          e.playTime < this._currentPosition + checkWindow
       );
     });
     for (const e of filtered) {
@@ -545,7 +609,7 @@ class MPlayer {
       source.connect(this._gainNode);
       source.start(contextPlayTime);
       source.stop(contextPlayTime + durationSec);
-      this._sourceMap.set(e.id, { source, playContextTime: contextPlayTime });
+      this._sourceMap.set(e.id, {source, playContextTime: contextPlayTime});
 
       const itemEnd = e.end;
       source.onended = () => {
@@ -555,7 +619,7 @@ class MPlayer {
         }
         // 如果希望播放完再回调，可以把onProgress迁移到这里
         const progress = this._256ToSec(
-          this._currentPosition +
+            this._currentPosition +
             this._secTo256(this._context.currentTime - this._anchorContextTime)
         );
         this._onProgressEnd && this._onProgressEnd(progress, e.data);
@@ -566,58 +630,15 @@ class MPlayer {
           this._timerMap.delete(e.id);
           // 如果希望播放前再回调，可以把onProgress迁移到这里
           const progress = this._256ToSec(
-            this._currentPosition +
+              this._currentPosition +
               this._secTo256(this._context.currentTime - this._anchorContextTime)
           );
 
           this._onProgressStart && this._onProgressStart(progress, e.data);
         }, offsetSec * 1000); // setTimout和source.onended不一定哪个会先执行，所以这里可能有不一致的行为，+100确保onEnd先执行,+100我去掉了，使用者自己去处理
-        this._timerMap.set(e.id, { timerId, playContextTime: contextPlayTime });
+        this._timerMap.set(e.id, {timerId, playContextTime: contextPlayTime});
       }
     }
-  }
-
-  pause() {
-    if (this._state !== 'playing') return;
-    this._state = 'paused';
-    if (this._checkTimer) {
-      clearInterval(this._checkTimer);
-      this._checkTimer = null;
-    }
-    const deltaSec = this._context.currentTime - this._anchorContextTime;
-    this._pausePosition = this._currentPosition + this._secTo256(deltaSec);
-    /* 如果loop=false且sequence.length为0,说明到了最后一个了，因为无法触发onEnd，所以要加一个标记*/
-    if (this._sequence.length === 1 && !this._loop) {
-      this._endNotePauseMark = true;
-      const playContextTime = this._sourceMap.get(this._sequence[0].id)?.playContextTime;
-      if (playContextTime) {
-        this._endNoteRemainTime =
-          this._256ToSecWithRate(this._sequence[0].duration) -
-          (this._context.currentTime - playContextTime);
-      }
-    }
-    this._clearAllSourcesAndTimers();
-  }
-
-  stop() {
-    if (this._state === 'stopped') return;
-    this._state = 'stopped';
-    this._endNotePauseMark = false;
-    this._endNoteRemainTime = 0;
-    this._onEnd?.();
-    this._sequence = [];
-    if (this._checkTimer) {
-      clearInterval(this._checkTimer);
-      this._checkTimer = null;
-    }
-    this._pausePosition = 0;
-    this._clearAllSourcesAndTimers();
-  }
-
-  dispose() {
-    this.stop();
-    this._bufferCache.clear();
-    this._metronomeColorMap.clear();
   }
 }
 

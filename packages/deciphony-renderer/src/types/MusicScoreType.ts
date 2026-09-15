@@ -55,6 +55,8 @@ export type MusicScore = {
 
   bpm?: number // 拍速
 
+  data: Object // 自定义数据
+
 }
 
 export type GrandStaff = {
@@ -72,6 +74,8 @@ export type GrandStaff = {
   linkedStaff?: boolean
 
   bracket?: Bracket
+
+  data: Object // 自定义数据
 
 } & Frame
 
@@ -105,6 +109,8 @@ export type SingleStaff = {
   dSpaceI: number,  // 单谱表下间距-内
 
   dSpaceO: number,  // 单谱表下间距-外
+
+  data: Object // 自定义数据
 
 } & Frame
 
@@ -160,6 +166,8 @@ export type Measure = {
   endRepeat?: MeasureEndRepeat,
 
   affiliatedSymbols: (SingleMeasureAffiliatedSymbol)[] // 单小节附属型
+
+  data: Object // 自定义数据
 
 } & Frame
 

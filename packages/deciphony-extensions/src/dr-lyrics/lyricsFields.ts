@@ -33,7 +33,8 @@ export function collectStaffSlots(staff: SingleStaff | null | undefined): Measur
 export function maxLyricsRowCount(staff: SingleStaff | null | undefined): number {
   let max = 0
   for (const slot of collectStaffSlots(staff)) {
-    max = Math.max(max, slot.lyrics?.length ?? 0)
+    if (!Array.isArray(slot.lyrics)) slot.lyrics = []
+    max = Math.max(max, slot.lyrics.length)
   }
   return max
 }
@@ -68,6 +69,7 @@ export function findNoteAnchorInSlot(
  * 已有项一律保留，清空文本也不会裁掉尾部空项（['','',''] 保持长度）。
  */
 export function writeSlotLyricLine(slot: MeasureNoteSlot, rowIndex: number, text: string): void {
+  if (!Array.isArray(slot.lyrics)) slot.lyrics = []
   const next = slot.lyrics.map((item) => ({...item}))
   while (next.length <= rowIndex) {
     next.push(emptyLyrics())
@@ -80,6 +82,7 @@ export function writeSlotLyricLine(slot: MeasureNoteSlot, rowIndex: number, text
 }
 
 export function readSlotLyricLine(slot: MeasureNoteSlot, rowIndex: number): string {
+  if (!Array.isArray(slot.lyrics)) slot.lyrics = []
   return slot.lyrics[rowIndex]?.text ?? ''
 }
 
@@ -87,6 +90,7 @@ export function readSlotLyricOffset(
   slot: MeasureNoteSlot,
   rowIndex: number,
 ): {relativeX: number; relativeY: number} {
+  if (!Array.isArray(slot.lyrics)) slot.lyrics = []
   const item = slot.lyrics[rowIndex]
   return {
     relativeX: item?.relativeX ?? 0,
@@ -103,6 +107,7 @@ export function addLyricRow(staff: SingleStaff | null | undefined): number {
   if (!slots.length) return 0
   const target = maxLyricsRowCount(staff) + 1
   for (const slot of slots) {
+    if (!Array.isArray(slot.lyrics)) slot.lyrics = []
     const next = slot.lyrics.map((item) => ({...item}))
     while (next.length < target) {
       next.push(emptyLyrics())
@@ -120,6 +125,7 @@ export function addLyricRow(staff: SingleStaff | null | undefined): number {
 export function removeLyricRow(staff: SingleStaff | null | undefined, rowIndex: number): number {
   if (rowIndex < 0) return maxLyricsRowCount(staff)
   for (const slot of collectStaffSlots(staff)) {
+    if (!Array.isArray(slot.lyrics)) slot.lyrics = []
     if (slot.lyrics.length <= rowIndex) continue
     const next = slot.lyrics.map((item) => ({...item}))
     next.splice(rowIndex, 1)

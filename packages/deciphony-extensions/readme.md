@@ -15,6 +15,7 @@
 | `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML ↔ MusicScore |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线 ↔ 简谱 |
+| `@deciphony/extensions/chord-builder` | 和弦图编辑器（`ChordBuilder`，传入 `chord: tabChord`） |
 | `@deciphony/extensions/score-util` | 调号/音高/小节位置等工具 |
 
 也可 `import { … } from '@deciphony/extensions'` 使用根 barrel。

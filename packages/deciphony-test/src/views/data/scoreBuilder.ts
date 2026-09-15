@@ -86,11 +86,11 @@ export type NotePath = MeasurePath & {
 // —— 选项 ——
 
 export type CreateMusicScoreOptions = Partial<
-  Pick<MusicScore, 'id' | 'type' | 'title' | 'bpm' | 'width' | 'height' | 'topSpaceHeight'>
+  Pick<MusicScore, 'id' | 'type' | 'title' | 'description' | 'bpm' | 'width' | 'height' | 'topSpaceHeight' | 'data'>
 >;
 
 export type InsertGrandStaffOptions = Partial<
-  Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket'>
+  Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket' | 'data'>
 > & {
   /** 默认 true：同时创建一个带空小节的单谱表 */
   withDefaultStaff?: boolean;
@@ -98,7 +98,7 @@ export type InsertGrandStaffOptions = Partial<
 };
 
 export type InsertSingleStaffOptions = Partial<
-  Pick<SingleStaff, 'uSpaceI' | 'dSpaceI' | 'uSpaceO' | 'dSpaceO'>
+  Pick<SingleStaff, 'uSpaceI' | 'dSpaceI' | 'uSpaceO' | 'dSpaceO' | 'data'>
 > & {
   withDefaultMeasure?: boolean;
   at?: number;
@@ -332,13 +332,15 @@ export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
     throw new Error('insertNote / createNoteSymbol：请提供 region 或 notesInfo');
   }
 
-  const note: NoteSymbol = {
+  const note: NoteSymbol & {lyrics: []; data: Object} = {
     ...ZERO_FRAME,
     id: newId(),
     type: NoteSymbolTypeEnum.Note,
     notesInfo,
     widthRatio,
     widthRatioForMeasure,
+    lyrics: [],
+    data: {},
   };
   if (opts.clef != null) {
     note.clef = createClef(opts.clef);
@@ -348,7 +350,7 @@ export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
 
 export function createNoteRest(opts: InsertRestOptions = {}): NoteRest {
   const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
-  const rest: NoteRest = {
+  const rest: NoteRest & {lyrics: []; data: Object} = {
     ...ZERO_FRAME,
     id: newId(),
     type: NoteSymbolTypeEnum.Rest,
@@ -356,6 +358,8 @@ export function createNoteRest(opts: InsertRestOptions = {}): NoteRest {
     affiliatedSymbols: opts.affiliatedSymbols ?? [],
     widthRatio,
     widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
+    lyrics: [],
+    data: {},
     ...(opts.augmentationDot ? {augmentationDot: opts.augmentationDot} : {}),
   };
   if (opts.clef != null) {
@@ -408,6 +412,8 @@ export function createNoteNumber(opts: InsertNoteNumberOptions): NoteNumber {
     affiliatedSymbols: [],
     widthRatio,
     widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
+    lyrics: [],
+    data: {},
   };
 }
 
@@ -431,6 +437,7 @@ export function createEmptyMeasure(partial?: InsertMeasureOptions): Measure {
     widthRatioForMeasure:
       partial?.widthRatioForMeasure ?? DEFAULT_SPACING.measureWidthRatioForMeasure,
     barline_b: createBarline(barline ?? BarlineTypeEnum.Single_barline),
+    data: {},
     ...rest,
   };
 
@@ -484,6 +491,7 @@ export function createSingleStaff(partial?: InsertSingleStaffOptions): SingleSta
     dSpaceI: partial?.dSpaceI ?? DEFAULT_SPACING.singleStaff.dSpaceI,
     uSpaceO: partial?.uSpaceO ?? DEFAULT_SPACING.singleStaff.uSpaceO,
     dSpaceO: partial?.dSpaceO ?? DEFAULT_SPACING.singleStaff.dSpaceO,
+    data: {},
     ...rest,
   };
 }
@@ -497,6 +505,7 @@ export function createGrandStaff(partial?: InsertGrandStaffOptions): GrandStaff 
     staves: withDefaultStaff ? [createSingleStaff()] : [],
     uSpace: partial?.uSpace ?? DEFAULT_SPACING.grandStaff.uSpace,
     dSpace: partial?.dSpace ?? DEFAULT_SPACING.grandStaff.dSpace,
+    data: {},
     ...rest,
   };
 }
@@ -508,12 +517,14 @@ export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicSc
     id: options.id ?? newId(),
     type: options.type ?? MusicScoreTypeEnum.StandardStaff,
     title: options.title ?? '',
+    description: options.description ?? '',
     bpm: options.bpm ?? 120,
     topSpaceHeight: options.topSpaceHeight ?? 0,
     width: options.width ?? 800,
     height: options.height ?? 400,
     grandStaffs: [],
     affiliatedSymbols: [],
+    data: options.data ?? {},
   };
 }
 

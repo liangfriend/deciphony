@@ -1,7 +1,12 @@
 <script lang="ts" setup>
-import RenderTimeOffsetTest from "./views/renderTimeOffsetTest.vue";
+import ChordBuilder from "./views/chordBuilder.vue";
 </script>
 
 <template>
-  <RenderTimeOffsetTest/>
+  <!--  <FingerTest/>-->
+  <!--  <render-time-offset-test></render-time-offset-test>-->
+  <!--  <render-lyrics-test></render-lyrics-test>-->
+  <!--  <render-play-test></render-play-test>-->
+  <!--  <work-test></work-test>-->
+  <chord-builder></chord-builder>
 </template>

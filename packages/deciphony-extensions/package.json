@@ -17,46 +17,61 @@
     "dev": "vite",
     "build": "vite build"
   },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./dr-title": {
       "types": "./dist/dr-title/index.d.ts",
-      "import": "./dist/dr-title/index.js",
-      "default": "./src/dr-title/index.ts"
+      "import": "./dist/dr-title/index.js"
     },
     "./dr-lyrics": {
-      "default": "./src/dr-lyrics/index.ts"
+      "types": "./dist/dr-lyrics/index.d.ts",
+      "import": "./dist/dr-lyrics/index.js"
     },
     "./dr-edit": {
-      "default": "./src/dr-edit/index.ts"
+      "types": "./dist/dr-edit/index.d.ts",
+      "import": "./dist/dr-edit/index.js"
     },
     "./dr-edit/score-builder": {
-      "default": "./src/dr-edit/score-builder.ts"
-    },
-    "./dr-edit/score-builder/*": {
-      "default": "./src/dr-edit/score-builder/*.ts"
+      "types": "./dist/dr-edit/score-builder.d.ts",
+      "import": "./dist/dr-edit/score-builder.js"
     },
     "./dr-play": {
-      "default": "./src/dr-play/index.ts"
+      "types": "./dist/dr-play/index.d.ts",
+      "import": "./dist/dr-play/index.js"
     },
     "./dr-play-highlight": {
-      "default": "./src/dr-play-highlight/index.ts"
+      "types": "./dist/dr-play-highlight/index.d.ts",
+      "import": "./dist/dr-play-highlight/index.js"
     },
     "./dr-time-offset": {
-      "default": "./src/dr-time-offset/index.ts"
+      "types": "./dist/dr-time-offset/index.d.ts",
+      "import": "./dist/dr-time-offset/index.js"
     },
     "./dr-musicxml-transfer": {
-      "default": "./src/dr-musicxml-transfer/index.ts"
+      "types": "./dist/dr-musicxml-transfer/index.d.ts",
+      "import": "./dist/dr-musicxml-transfer/index.js"
     },
     "./dr-numberNotation-transfer": {
-      "default": "./src/dr-numberNotation-transfer/index.ts"
+      "types": "./dist/dr-numberNotation-transfer/index.d.ts",
+      "import": "./dist/dr-numberNotation-transfer/index.js"
+    },
+    "./chord-builder": {
+      "types": "./dist/chord-builder/index.d.ts",
+      "import": "./dist/chord-builder/index.js"
     },
     "./score-util": {
-      "default": "./src/scoreUtil.ts"
+      "types": "./dist/score-util.d.ts",
+      "import": "./dist/score-util.js"
+    },
+    "./css": {
+      "import": "./dist/extensions.css"
     }
   },
   "peerDependencies": {

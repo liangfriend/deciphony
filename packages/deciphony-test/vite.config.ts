@@ -22,6 +22,7 @@ export default defineConfig({
       '@deciphony/engine': path.resolve(__dirname, '../deciphony-engine/src/index.ts'),
       '@deciphony/work': path.resolve(__dirname, '../deciphony-work/src/index.ts'),
       '@deciphony/extensions': path.resolve(__dirname, '../deciphony-extensions/src'),
+      '@deciphony/finger': path.resolve(__dirname, '../deciphony-finger/src/index.ts'),
       '@assets': path.resolve(__dirname, '../deciphony-ui/src/assets'),
       // 必须与 @deciphony/renderer 指向同一份源码，否则 @/ 与包入口会被 Vite 当成两个模块实例
       '@': rendererSrc,

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.8086 -0.364 2.1726 0.728" fill="none">
+  <defs>
+    <linearGradient id="skin-ring3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7d8c1"/>
+      <stop offset="26%" stop-color="#f1c7a6"/>
+      <stop offset="62%" stop-color="#e6ae87"/>
+      <stop offset="100%" stop-color="#cf8d63"/>
+    </linearGradient>
+    <linearGradient id="edge-ring3" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.33" y2="0">
+      <stop offset="0%" stop-color="#c07f56" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#c07f56" stop-opacity="1"/>
+    </linearGradient>
+    <clipPath id="clip-ring3">
+      <path d="M 0 -0.308 L -1.5 -0.287 A 0.2526 0.287 0 0 0 -1.5 0.287 L 0 0.308 A 0.308 0.308 0 0 0 0 -0.308 Z"/>
+    </clipPath>
+  </defs>
+  <g class="part" data-part="ring-3" data-facing="left">
+    <path class="skin" d="M 0 -0.308 L -1.5 -0.287 A 0.2526 0.287 0 0 0 -1.5 0.287 L 0 0.308 A 0.308 0.308 0 0 0 0 -0.308 Z"/>
+    <g clip-path="url(#clip-ring3)">
+      <ellipse class="shine" cx="-0.69" cy="-0.1492" rx="0.54" ry="0.0459"/>
+      <ellipse class="nail" cx="-1.2954" cy="-0.0402" rx="0.33" ry="0.1665"/>
+      <ellipse class="nail-shine" cx="-1.3746" cy="-0.0968" rx="0.1056" ry="0.0333"/>
+    </g>
+    <path class="edge" d="M 0 -0.308 L -1.5 -0.287 A 0.2526 0.287 0 0 0 -1.5 0.287 L 0 0.308"/>
+  </g>
+  <style>
+    .skin { fill: url(#skin-ring3); }
+    .shine { fill: #fff6ee; opacity: 0.26; }
+    .crease { fill: none; stroke: #c4835f; stroke-width: 0.0214; stroke-linecap: round; opacity: 0.42; }
+    .edge { fill: none; stroke: url(#edge-ring3); stroke-width: 0.0252; stroke-linecap: butt; opacity: 0.9; }
+    .nail { fill: #fbe9e0; stroke: #d3a08a; stroke-width: 0.0176; opacity: 0.95; }
+    .nail-shine { fill: #fff; opacity: 0.45; }
+  </style>
+</svg>

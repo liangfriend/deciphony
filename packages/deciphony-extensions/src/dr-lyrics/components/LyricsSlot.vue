@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type {MeasureNoteSlot, MusicScore, VDom} from '@deciphony/renderer'
-import {computed, unref, watch, type MaybeRef, type Ref} from 'vue'
+import {computed, unref, type MaybeRef, type Ref} from 'vue'
 import {
+  LYRICS_EDIT_MIN_ROWS,
   LYRICS_INPUT_H,
-  LYRICS_PAD_BOTTOM,
   LYRICS_PAD_TOP,
   LYRICS_ROW_GAP,
   LYRICS_ROW_INDEX_X,
@@ -28,8 +28,6 @@ const props = defineProps<{
   vDomList: Ref<VDom[]> | VDom[]
   /** 最前方是否显示行号（1. 2.） */
   showRowIndex?: MaybeRef<boolean>
-  /** 由扩展传入的 reactive slotConfig['g-d']，用于同步高度 */
-  syncSlotHeight?: (h: number) => void
 }>()
 
 defineOptions({inheritAttrs: false})
@@ -41,17 +39,15 @@ const vDomList = computed(() => unref(props.vDomList) ?? [])
 const grandStaff = computed(() => props.node.slotData?.grandStaff ?? null)
 const staff = computed(() => getLyricsStaff(grandStaff.value))
 const slots = computed(() => collectStaffSlots(staff.value))
+/** slotData 下首谱表至少有一个音符/休止符槽位，才允许加歌词行 */
+const canAddLyricRow = computed(() => slots.value.length > 0)
 
-const rowCount = computed(() => maxLyricsRowCount(staff.value))
-
-watch(
-  rowCount,
-  (rows) => {
-    const safeRows = Math.max(rows, 1)
-    const h = LYRICS_PAD_TOP + safeRows * LYRICS_ROW_GAP + LYRICS_PAD_BOTTOM
-    props.syncSlotHeight?.(h)
-  },
-  {immediate: true},
+const dataRowCount = computed(() => maxLyricsRowCount(staff.value))
+/** 编辑态至少 1 行，便于空谱直接输入；g-d 高度由宿主常量控制，不随行数变化 */
+const rowCount = computed(() =>
+  lyricsMode.value === 'edit'
+    ? Math.max(dataRowCount.value, LYRICS_EDIT_MIN_ROWS)
+    : dataRowCount.value,
 )
 
 type Cell = {
@@ -89,12 +85,17 @@ function onCellInput(slot: MeasureNoteSlot, rowIndex: number, event: Event) {
 }
 
 function onAddRow() {
+  if (!canAddLyricRow.value) return
   addLyricRow(staff.value)
 }
 
-function onRemoveRow(rowIndex: number) {
-  removeLyricRow(staff.value, rowIndex)
+/** 删除最后一行歌词 */
+function onRemoveLastRow() {
+  if (dataRowCount.value <= 1) return
+  removeLyricRow(staff.value, dataRowCount.value - 1)
 }
+
+const canRemoveLyricRow = computed(() => dataRowCount.value > 1)
 
 const rowIndexLabels = computed(() => {
   const rows = rowCount.value
@@ -109,13 +110,9 @@ const rowIndexLabels = computed(() => {
   return out
 })
 
-/** 每行删除按钮位置（行号右侧） */
-const rowDeleteControls = computed(() =>
-  rowIndexLabels.value.map((item) => ({
-    ...item,
-    x: showRowIndex.value ? LYRICS_ROW_INDEX_X + 22 : LYRICS_ROW_INDEX_X,
-  })),
-)
+/** 操作行：歌词下方一行，右侧放删行 / 加行 */
+const controlsY = computed(() => LYRICS_PAD_TOP + rowCount.value * LYRICS_ROW_GAP)
+const controlsX = computed(() => Math.max(0, props.node.w - 88))
 </script>
 
 <template>
@@ -162,40 +159,33 @@ const rowDeleteControls = computed(() =>
       </foreignObject>
 
       <foreignObject
-        v-for="item in rowDeleteControls"
-        :key="`del-${item.rowIndex}`"
-        :height="18"
-        :width="22"
-        :x="item.x"
-        :y="item.y"
-      >
-        <button
-          class="dr-lyrics-slot__del"
-          type="button"
-          title="删除本行"
-          xmlns="http://www.w3.org/1999/xhtml"
-          @click.stop="onRemoveRow(item.rowIndex)"
-          @pointerdown.stop
-        >
-          −
-        </button>
-      </foreignObject>
-
-      <foreignObject
         :height="20"
-        :width="56"
-        :x="Math.max(0, node.w - 60)"
-        y="2"
+        :width="84"
+        :x="controlsX"
+        :y="controlsY"
       >
-        <button
-          class="dr-lyrics-slot__add"
-          type="button"
-          xmlns="http://www.w3.org/1999/xhtml"
-          @click.stop="onAddRow"
-          @pointerdown.stop
-        >
-          +行
-        </button>
+        <div class="dr-lyrics-slot__controls" xmlns="http://www.w3.org/1999/xhtml">
+          <button
+            class="dr-lyrics-slot__del"
+            type="button"
+            :disabled="!canRemoveLyricRow"
+            :title="canRemoveLyricRow ? '删除最后一行歌词' : '至少保留一行歌词'"
+            @click.stop="onRemoveLastRow"
+            @pointerdown.stop
+          >
+            −行
+          </button>
+          <button
+            class="dr-lyrics-slot__add"
+            type="button"
+            :disabled="!canAddLyricRow"
+            :title="canAddLyricRow ? '添加歌词行' : '当前复谱表没有音符，无法添加歌词行'"
+            @click.stop="onAddRow"
+            @pointerdown.stop
+          >
+            +行
+          </button>
+        </div>
       </foreignObject>
     </template>
   </g>
@@ -233,6 +223,13 @@ const rowDeleteControls = computed(() =>
   border-color: #409eff;
 }
 
+.dr-lyrics-slot__controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 100%;
+}
+
 .dr-lyrics-slot__add,
 .dr-lyrics-slot__del {
   padding: 0 6px;
@@ -245,9 +242,15 @@ const rowDeleteControls = computed(() =>
   cursor: pointer;
 }
 
+.dr-lyrics-slot__add:disabled,
+.dr-lyrics-slot__del:disabled {
+  color: #c0c4cc;
+  background: #f5f7fa;
+  border-color: #e4e7ed;
+  cursor: not-allowed;
+}
+
 .dr-lyrics-slot__del {
-  width: 100%;
-  padding: 0;
   color: #f56c6c;
 }
 </style>

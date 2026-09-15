@@ -43,7 +43,7 @@ let curFrequent = 0;
 
 let audioContext: AudioContext;
 let analyser: AnalyserNode;
-let dataArray: Float32Array;
+let dataArray: Float32Array<ArrayBuffer>;
 let source: MediaStreamAudioSourceNode | undefined;
 /** 增益 0：把 analyser 挂到 destination，保证麦克风采样子图与播放图一起被稳定调度（听不到声音） */
 let micSilentTap: GainNode | undefined;

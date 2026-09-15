@@ -86,18 +86,18 @@ export type LocatedNotesNumberInfo = NotesNumberInfoPath & {
 // —— 创建选项 ——
 
 export type CreateMusicScoreOptions = Partial<
-  Pick<MusicScore, 'id' | 'type' | 'title' | 'bpm' | 'width' | 'height' | 'topSpaceHeight'>
+  Pick<MusicScore, 'id' | 'type' | 'title' | 'description' | 'bpm' | 'width' | 'height' | 'topSpaceHeight' | 'data'>
 >;
 
 export type CreateGrandStaffOptions = Partial<
-  Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket'>
+  Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket' | 'data'>
 > & {
   withDefaultStaff?: boolean;
   notationType?: import('@deciphony/renderer').MusicScoreTypeEnum;
 };
 
 export type CreateSingleStaffOptions = Partial<
-  Pick<SingleStaff, 'uSpaceI' | 'dSpaceI' | 'uSpaceO' | 'dSpaceO'>
+  Pick<SingleStaff, 'uSpaceI' | 'dSpaceI' | 'uSpaceO' | 'dSpaceO' | 'data'>
 > & {
   withDefaultMeasure?: boolean;
   notationType?: import('@deciphony/renderer').MusicScoreTypeEnum;
@@ -110,6 +110,7 @@ export type CreateMeasureOptions = {
   keySignature?: KeySignatureTypeEnum;
   barline?: BarlineTypeEnum;
   widthRatioForMeasure?: number;
+  data?: Object;
 };
 
 export type CreateNotesInfoOptions = {
@@ -135,6 +136,7 @@ export type CreateNoteSymbolOptions = {
   graceNotes?: CreateNotesInfoOptions[];
   graceNotesAfter?: CreateNotesInfoOptions[];
   lyrics?: import('@deciphony/renderer').Lyrics[];
+  data?: Object;
 };
 
 export type CreateNoteRestOptions = {
@@ -145,6 +147,7 @@ export type CreateNoteRestOptions = {
   augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   affiliatedSymbols?: NoteRest['affiliatedSymbols'];
   lyrics?: import('@deciphony/renderer').Lyrics[];
+  data?: Object;
 };
 
 export type CreateNoteNumberOptions = {
@@ -158,6 +161,7 @@ export type CreateNoteNumberOptions = {
   widthRatio?: number;
   widthRatioForMeasure?: number;
   lyrics?: import('@deciphony/renderer').Lyrics[];
+  data?: Object;
   notesInfo?: Array<{
     syllable: NotesNumberInfo['syllable'];
     octaveDot?: NotesNumberInfo['octaveDot'];

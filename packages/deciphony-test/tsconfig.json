@@ -42,6 +42,9 @@
       "@deciphony/extensions/*": [
         "../deciphony-extensions/src/*"
       ],
+      "@deciphony/finger": [
+        "../deciphony-finger/src/index.ts"
+      ],
       "j-player": [
         "../j-player/src/index.ts"
       ],

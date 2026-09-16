@@ -19,7 +19,19 @@ class NPlayer {
   > = new Map(); // 存储timerMap
   private _triggerSourceMap: Map<
       string,
-      { source: AudioBufferSourceNode; gainNode: GainNode; playContextTime: number }
+      {
+        source: AudioBufferSourceNode;
+        gainNode: GainNode;
+        playContextTime: number;
+        /** trigger 是否带了有效 duration（决定 R 用 trigger 还是 release） */
+        hasDuration: boolean;
+        normalGain: number;
+        onEnd?: () => void;
+        /** 软释放兜底定时器；immediate / 被顶替时必须清掉，否则会误删新音 */
+        cleanupTimer?: ReturnType<typeof setTimeout>;
+        /** stop() 是否已调用（BufferSource 只能 stop 一次） */
+        stopCalled: boolean;
+      }
   > = new Map(); // 存储单音符播放时的sourceMap
   /** 以 256 分音符为粒度的曲谱位置 */
   private _startPosition: Unit256 = 0; // 播放状态变为playing时的时间
@@ -256,11 +268,27 @@ class NPlayer {
   }
 
   // ===========================================单音符播放======================================================
+  /**
+   * 立即播放单个采样音符。
+   * 包络规则见 `doc/单音符包络.md`：A/D + 峰值倍率在 trigger；R 在有 duration 时用 trigger.release，否则用 release().release。
+   */
   trigger(param: {
     id?: string;
     midi: number;
     toneColor: string;
+    /** 维持段音量（线性），默认 1；实际 gain = volume * 3 */
     volume?: number;
+    /** 峰值 = volume * peakVolume，默认 1.2；0 视为未设置 → 1.2 */
+    peakVolume?: number;
+    /** Attack 秒：0→峰值；0 / 不传 = 无 */
+    attack?: number;
+    /** Decay 秒：峰值→volume；0 / 不传 = 无 */
+    decay?: number;
+    /**
+     * Release 秒：仅当设置了有效 duration 时生效（duration 结束后淡出）。
+     * 0 / 不传 = 无淡出，到点即停。
+     */
+    release?: number;
     offset?: number;
     duration?: number;
     onEnd?: () => void;
@@ -272,48 +300,172 @@ class NPlayer {
           `NPlayer.trigger: 无 buffer，请先 addToneColor('${param.toneColor}', …) 且包含 midi ${param.midi}`
       );
     }
-    this.release({id});
+    // 同 id 重触发：立刻掐断旧音，不做软释放
+    this.release({id, immediate: true});
+
+    const volume = param.volume != null ? param.volume : 1;
+    const peakMul =
+        param.peakVolume != null && param.peakVolume > 0 ? param.peakVolume : 1.2;
+    const normalGain = volume * 3;
+    const peakGain = normalGain * peakMul;
+    const attack = param.attack != null && param.attack > 0 ? param.attack : 0;
+    const decay = param.decay != null && param.decay > 0 ? param.decay : 0;
+    const triggerRelease =
+        param.release != null && param.release > 0 ? param.release : 0;
+    const hasDuration = param.duration != null && param.duration > 0;
+    const durationSec = hasDuration ? param.duration! : 0;
+
     const source = this._context.createBufferSource();
     source.buffer = buffer;
     const gainNode = this._context.createGain();
-    gainNode.gain.value = (param.volume != null ? param.volume : 1) * 3;
     source.connect(gainNode);
     gainNode.connect(this._context.destination);
+
     const delay = Math.max(0, param.offset ?? 0);
-    const playContextTime = this._context.currentTime + delay;
-    const playSec = param.duration != null && param.duration > 0 ? param.duration : buffer.duration;
-    source.start(playContextTime);
-    source.stop(playContextTime + playSec);
-    source.onended = () => {
-      source.onended = null;
-      try {
-        source.disconnect();
-      } catch {
-        /* noop */
-      }
-      try {
-        gainNode.disconnect();
-      } catch {
-        /* noop */
-      }
-      param.onEnd?.();
-      this._triggerSourceMap.delete(id);
+    const t0 = this._context.currentTime + delay;
+    this._scheduleTriggerEnvelope(gainNode.gain, t0, {
+      attack,
+      decay,
+      peakGain,
+      normalGain,
+    });
+
+    const entry: {
+      source: AudioBufferSourceNode;
+      gainNode: GainNode;
+      playContextTime: number;
+      hasDuration: boolean;
+      normalGain: number;
+      onEnd?: () => void;
+      cleanupTimer?: ReturnType<typeof setTimeout>;
+      stopCalled: boolean;
+    } = {
+      source,
+      gainNode,
+      playContextTime: t0,
+      hasDuration,
+      normalGain,
+      onEnd: param.onEnd,
+      stopCalled: false,
     };
-    this._triggerSourceMap.set(id, {source, gainNode, playContextTime});
+
+    const cleanup = () => {
+      // 已被同 id 新音顶替：只拆本节点，勿动 map
+      if (this._triggerSourceMap.get(id) !== entry) {
+        this._disconnectTriggerNodes(entry);
+        return;
+      }
+      this._finalizeTriggerEntry(id, entry, true);
+    };
+    source.onended = cleanup;
+
+    source.start(t0);
+
+    if (hasDuration) {
+      const sustainEnd = t0 + durationSec;
+      if (triggerRelease > 0) {
+        gainNode.gain.setValueAtTime(normalGain, sustainEnd);
+        gainNode.gain.linearRampToValueAtTime(0.0001, sustainEnd + triggerRelease);
+        this._stopTriggerSource(entry, sustainEnd + triggerRelease);
+      } else {
+        this._stopTriggerSource(entry, sustainEnd);
+      }
+    }
+    // 无 duration：不预 stop，留给 release() 首次 stop，或播完 buffer 自然 onended
+
+    this._triggerSourceMap.set(id, entry);
     return id;
   }
 
-  // 通过baseSequence和copyCount填充sequence,
-
-  release(param: { id: string }) {
+  /**
+   * 停止单音符。
+   * - trigger 带了 duration：忽略 release，立刻停止（定时包络已由 trigger.R 负责）。
+   * - 否则：用本参数 `release`（秒）软淡出；0 / 不传 / immediate → 立刻停。
+   */
+  release(param: { id: string; release?: number; immediate?: boolean }) {
     const entry = this._triggerSourceMap.get(param.id);
     if (!entry) return;
-    entry.source.onended = null;
+
+    if (entry.cleanupTimer != null) {
+      clearTimeout(entry.cleanupTimer);
+      entry.cleanupTimer = undefined;
+    }
+
+    const softRelease =
+        !param.immediate &&
+        !entry.hasDuration &&
+        param.release != null &&
+        param.release > 0;
+
+    if (!softRelease) {
+      entry.source.onended = null;
+      this._silenceTriggerEntry(entry);
+      this._stopTriggerSource(entry);
+      this._finalizeTriggerEntry(param.id, entry, false);
+      return;
+    }
+
+    const now = this._context.currentTime;
+    const r = param.release!;
+    const g = entry.gainNode.gain;
     try {
-      entry.source.stop();
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(Math.max(g.value, 0.0001), now);
+      g.linearRampToValueAtTime(0.0001, now + r);
     } catch {
       /* noop */
     }
+    this._stopTriggerSource(entry, now + r);
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      if (entry.cleanupTimer != null) {
+        clearTimeout(entry.cleanupTimer);
+        entry.cleanupTimer = undefined;
+      }
+      // 同 id 已被新 trigger 替换：只拆旧节点
+      if (this._triggerSourceMap.get(param.id) !== entry) {
+        this._disconnectTriggerNodes(entry);
+        return;
+      }
+      this._finalizeTriggerEntry(param.id, entry, true);
+    };
+    entry.source.onended = finish;
+    entry.cleanupTimer = setTimeout(finish, Math.ceil(r * 1000) + 50);
+  }
+
+  /** BufferSource.stop 只能成功一次 */
+  private _stopTriggerSource(
+      entry: {source: AudioBufferSourceNode; stopCalled: boolean},
+      when?: number,
+  ) {
+    if (entry.stopCalled) return;
+    try {
+      if (when != null) entry.source.stop(when);
+      else entry.source.stop();
+      entry.stopCalled = true;
+    } catch {
+      entry.stopCalled = true;
+    }
+  }
+
+  private _silenceTriggerEntry(entry: {gainNode: GainNode}) {
+    const now = this._context.currentTime;
+    try {
+      const g = entry.gainNode.gain;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(0, now);
+    } catch {
+      /* noop */
+    }
+  }
+
+  private _disconnectTriggerNodes(entry: {
+    source: AudioBufferSourceNode;
+    gainNode: GainNode;
+  }) {
     try {
       entry.source.disconnect();
     } catch {
@@ -324,12 +476,66 @@ class NPlayer {
     } catch {
       /* noop */
     }
-    this._triggerSourceMap.delete(param.id);
   }
+
+  private _finalizeTriggerEntry(
+      id: string,
+      entry: {
+        source: AudioBufferSourceNode;
+        gainNode: GainNode;
+        onEnd?: () => void;
+        cleanupTimer?: ReturnType<typeof setTimeout>;
+      },
+      callOnEnd: boolean,
+  ) {
+    entry.source.onended = null;
+    if (entry.cleanupTimer != null) {
+      clearTimeout(entry.cleanupTimer);
+      entry.cleanupTimer = undefined;
+    }
+    this._disconnectTriggerNodes(entry);
+    if (this._triggerSourceMap.get(id) === entry) {
+      this._triggerSourceMap.delete(id);
+    }
+    if (callOnEnd) entry.onEnd?.();
+  }
+
+  /** Attack / Decay 调度：0 表示该段不存在 */
+  private _scheduleTriggerEnvelope(
+      gain: AudioParam,
+      t0: number,
+      opts: { attack: number; decay: number; peakGain: number; normalGain: number },
+  ) {
+    const {attack, decay, peakGain, normalGain} = opts;
+    gain.cancelScheduledValues(t0);
+
+    if (attack > 0 && decay > 0) {
+      gain.setValueAtTime(0, t0);
+      gain.linearRampToValueAtTime(peakGain, t0 + attack);
+      gain.linearRampToValueAtTime(normalGain, t0 + attack + decay);
+      return;
+    }
+    if (attack > 0) {
+      // 仅 A：缓升到峰值，结束瞬间切到维持音量
+      gain.setValueAtTime(0, t0);
+      gain.linearRampToValueAtTime(peakGain, t0 + attack);
+      gain.setValueAtTime(normalGain, t0 + attack);
+      return;
+    }
+    if (decay > 0) {
+      // 仅 D：直接峰值，再缓降到维持音量
+      gain.setValueAtTime(peakGain, t0);
+      gain.linearRampToValueAtTime(normalGain, t0 + decay);
+      return;
+    }
+    gain.setValueAtTime(normalGain, t0);
+  }
+
+  // 通过baseSequence和copyCount填充sequence,
 
   releaseAll() {
     for (const id of [...this._triggerSourceMap.keys()]) {
-      this.release({id});
+      this.release({id, immediate: true});
     }
   }
 

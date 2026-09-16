@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/work",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "sjw 课件展示与产出",
   "type": "module",
   "main": "./dist/index.cjs.js",

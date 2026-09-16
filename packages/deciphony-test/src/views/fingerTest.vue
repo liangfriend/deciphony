@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
-import {Finger, FINGER_PART_LIST} from '@deciphony/finger'
+import {Finger, FINGER_PART_LIST, type FingerMode} from '@deciphony/finger'
 
 const duration = ref(0.25)
 const fingerSize = ref(42)
+const mode = ref<FingerMode>('edit')
 
 const pose = reactive({
   thumbF: [520, 430, 38, -18] as number[],
@@ -57,48 +58,63 @@ const galleryItems = computed(() =>
 <template>
   <div class="finger-test">
     <h1>Finger Test</h1>
-    <p class="hint">通过 <code>@deciphony/finger</code> 引用；pose 变化时用 transform 插值过渡。</p>
+    <p class="hint">
+      编辑模式：蓝点=跟点拖拽，橙点=关节旋转。展示模式仅插值播放 pose。
+    </p>
 
     <div class="toolbar">
+      <button
+        type="button"
+        :class="{active: mode === 'edit'}"
+        @click="mode = 'edit'"
+      >编辑</button>
+      <button
+        type="button"
+        :class="{active: mode === 'show'}"
+        @click="mode = 'show'"
+      >展示</button>
       <button type="button" @click="applyPreset('open')">张开</button>
       <button type="button" @click="applyPreset('fist')">握拳</button>
       <button type="button" @click="applyPreset('point')">指向</button>
       <label>
         size
-        <input v-model.number="fingerSize" type="range" min="16" max="72" />
+        <input v-model.number="fingerSize" max="72" min="16" type="range"/>
         {{ fingerSize }}
       </label>
       <label>
         duration
-        <input v-model.number="duration" type="range" min="0" max="1.2" step="0.05" />
+        <input v-model.number="duration" max="1.2" min="0" step="0.05" type="range"/>
         {{ duration }}s
       </label>
     </div>
 
     <div class="stage">
       <Finger
-        :width="720"
-        :height="560"
-        :thumb-f="pose.thumbF"
-        :index-f="pose.indexF"
-        :middle-f="pose.middleF"
-        :ring-f="pose.ringF"
-        :little-f="pose.littleF"
+        v-model:thumb-f="pose.thumbF"
+        v-model:index-f="pose.indexF"
+        v-model:middle-f="pose.middleF"
+        v-model:ring-f="pose.ringF"
+        v-model:little-f="pose.littleF"
         :duration="duration"
         :finger-size="fingerSize"
+        :height="560"
+        :mode="mode"
+        :width="720"
       />
     </div>
+
+    <pre class="pose-dump">{{ pose }}</pre>
 
     <h2>14 部件（朝左）</h2>
     <div class="gallery">
       <figure v-for="part in galleryItems" :key="part.id">
-        <svg :viewBox="part.box" width="160" height="72">
+        <svg :viewBox="part.box" height="72" width="160">
           <image
+            :height="part.viewBox.h"
             :href="part.href"
+            :width="part.viewBox.w"
             :x="part.viewBox.x"
             :y="part.viewBox.y"
-            :width="part.viewBox.w"
-            :height="part.viewBox.h"
             preserveAspectRatio="none"
           />
         </svg>
@@ -142,6 +158,11 @@ button {
   cursor: pointer;
 }
 
+button.active {
+  background: #c17a52;
+  color: #fff;
+}
+
 .stage {
   width: 720px;
   height: 560px;
@@ -149,6 +170,16 @@ button {
   border-radius: 12px;
   box-shadow: 0 8px 24px #00000014;
   overflow: hidden;
+}
+
+.pose-dump {
+  margin-top: 12px;
+  max-width: 720px;
+  padding: 10px 12px;
+  font-size: 12px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: auto;
 }
 
 .gallery {

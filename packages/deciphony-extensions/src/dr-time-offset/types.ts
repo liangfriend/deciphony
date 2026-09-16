@@ -57,4 +57,4 @@ export type FlattenSlotItem = {
   /** 直接引用原 slot.data，拖拽时写回数组 */
   slotRef: {data: Record<string, unknown>}
 }
-
+

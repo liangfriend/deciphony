@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/tune-judge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "演唱音高与标准序列对比测评",
   "author": "liam",
   "license": "MIT",

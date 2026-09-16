@@ -16,20 +16,21 @@ const outDir = path.resolve(__dirname, '../src/parts')
 
 /** @type {PartDef[]} */
 const PARTS = [
-  {id: 'thumb-1', finger: 'thumb', joint: 1, length: 2, width: 1, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
-  {id: 'thumb-2', finger: 'thumb', joint: 2, length: 1.75, width: 1, role: 'distal', r0Scale: 0.94, r1Scale: 0.84},
-  {id: 'index-1', finger: 'index', joint: 1, length: 2, width: 0.8, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
-  {id: 'index-2', finger: 'index', joint: 2, length: 2, width: 0.8, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
-  {id: 'index-3', finger: 'index', joint: 3, length: 1.5, width: 0.8, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
-  {id: 'middle-1', finger: 'middle', joint: 1, length: 2.25, width: 0.8, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
-  {id: 'middle-2', finger: 'middle', joint: 2, length: 2, width: 0.8, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
-  {id: 'middle-3', finger: 'middle', joint: 3, length: 1.5, width: 0.8, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
-  {id: 'ring-1', finger: 'ring', joint: 1, length: 2, width: 0.7, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
-  {id: 'ring-2', finger: 'ring', joint: 2, length: 2, width: 0.7, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
-  {id: 'ring-3', finger: 'ring', joint: 3, length: 1.5, width: 0.7, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
-  {id: 'little-1', finger: 'little', joint: 1, length: 1.75, width: 0.65, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
-  {id: 'little-2', finger: 'little', joint: 2, length: 1.75, width: 0.65, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
-  {id: 'little-3', finger: 'little', joint: 3, length: 1.5, width: 0.65, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
+  // 长度相对拇指宽度 x；指节比参考人体测量：近节 > 中节 > 远节（旧值中节≈近节，视觉偏“香肠指”）
+  {id: 'thumb-1', finger: 'thumb', joint: 1, length: 2.1, width: 1, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
+  {id: 'thumb-2', finger: 'thumb', joint: 2, length: 1.55, width: 1, role: 'distal', r0Scale: 0.94, r1Scale: 0.84},
+  {id: 'index-1', finger: 'index', joint: 1, length: 2.3, width: 0.8, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
+  {id: 'index-2', finger: 'index', joint: 2, length: 1.35, width: 0.8, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
+  {id: 'index-3', finger: 'index', joint: 3, length: 0.95, width: 0.8, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
+  {id: 'middle-1', finger: 'middle', joint: 1, length: 2.5, width: 0.85, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
+  {id: 'middle-2', finger: 'middle', joint: 2, length: 1.5, width: 0.85, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
+  {id: 'middle-3', finger: 'middle', joint: 3, length: 1.0, width: 0.85, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
+  {id: 'ring-1', finger: 'ring', joint: 1, length: 2.35, width: 0.72, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
+  {id: 'ring-2', finger: 'ring', joint: 2, length: 1.4, width: 0.72, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
+  {id: 'ring-3', finger: 'ring', joint: 3, length: 0.98, width: 0.72, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
+  {id: 'little-1', finger: 'little', joint: 1, length: 1.95, width: 0.62, role: 'proximal', r0Scale: 1, r1Scale: 0.94},
+  {id: 'little-2', finger: 'little', joint: 2, length: 1.15, width: 0.62, role: 'middle', r0Scale: 0.94, r1Scale: 0.88},
+  {id: 'little-3', finger: 'little', joint: 3, length: 0.9, width: 0.62, role: 'distal', r0Scale: 0.88, r1Scale: 0.82},
 ]
 
 function round(n, d = 4) {

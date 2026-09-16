@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.088 -0.3575 2.4455 0.715" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.4728 -0.3414 1.8142 0.6828" fill="none">
   <defs>
     <linearGradient id="skin-little2" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f7d8c1"/>
@@ -7,22 +7,22 @@
       <stop offset="62%" stop-color="#e6ae87"/>
       <stop offset="100%" stop-color="#cf8d63"/>
     </linearGradient>
-    <linearGradient id="edge-little2" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.385" y2="0">
+    <linearGradient id="edge-little2" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.253" y2="0">
       <stop offset="0%" stop-color="#c07f56" stop-opacity="0"/>
       <stop offset="100%" stop-color="#c07f56" stop-opacity="1"/>
     </linearGradient>
     <clipPath id="clip-little2">
-      <path d="M 0 -0.3055 L -1.75 -0.286 A 0.286 0.286 0 0 0 -1.75 0.286 L 0 0.3055 A 0.3055 0.3055 0 0 0 0 -0.3055 Z"/>
+      <path d="M 0 -0.2914 L -1.15 -0.2728 A 0.2728 0.2728 0 0 0 -1.15 0.2728 L 0 0.2914 A 0.2914 0.2914 0 0 0 0 -0.2914 Z"/>
     </clipPath>
   </defs>
   <g class="part" data-part="little-2" data-facing="left">
-    <path class="skin" d="M 0 -0.3055 L -1.75 -0.286 A 0.286 0.286 0 0 0 -1.75 0.286 L 0 0.3055 A 0.3055 0.3055 0 0 0 0 -0.3055 Z"/>
+    <path class="skin" d="M 0 -0.2914 L -1.15 -0.2728 A 0.2728 0.2728 0 0 0 -1.15 0.2728 L 0 0.2914 A 0.2914 0.2914 0 0 0 0 -0.2914 Z"/>
     <g clip-path="url(#clip-little2)">
-      <ellipse class="shine" cx="-0.805" cy="-0.1487" rx="0.63" ry="0.0458"/>
-      <path class="crease" d="M -0.28 -0.2177 Q -0.3255 0 -0.28 0.2177 M -0.3284 -0.1633 Q -0.3739 0 -0.3284 0.1633"/>
+      <ellipse class="shine" cx="-0.529" cy="-0.1419" rx="0.414" ry="0.0436"/>
+      <path class="crease" d="M -0.184 -0.2077 Q -0.2274 0 -0.184 0.2077 M -0.2301 -0.1557 Q -0.2735 0 -0.2301 0.1557"/>
     </g>
-    <path class="edge" d="M 0 -0.3055 L -1.75 -0.286"/>
-    <path class="edge" d="M 0 0.3055 L -1.75 0.286"/>
+    <path class="edge" d="M 0 -0.2914 L -1.15 -0.2728"/>
+    <path class="edge" d="M 0 0.2914 L -1.15 0.2728"/>
   </g>
   <style>
     .skin { fill: url(#skin-little2); }

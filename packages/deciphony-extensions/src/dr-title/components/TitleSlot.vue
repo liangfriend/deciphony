@@ -4,19 +4,34 @@ import {computed, unref, type MaybeRef} from 'vue'
 import {readTitleField, writeTitleField, type TitleFieldKey} from '../titleFields'
 import type {TitleMode} from '../types'
 
-const props = defineProps<{
-  node: VDom
-  musicScore: MusicScore
-  mode: MaybeRef<TitleMode>
-}>()
+const props = withDefaults(
+  defineProps<{
+    node: VDom
+    musicScore: MusicScore
+    mode: MaybeRef<TitleMode>
+    /** 左侧内缩 px */
+    paddingLeft?: number
+    /** 右侧内缩 px */
+    paddingRight?: number
+  }>(),
+  {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
+)
 
 const titleMode = computed(() => unref(props.mode))
+
+const padL = computed(() => Math.max(0, props.paddingLeft))
+const padR = computed(() => Math.max(0, props.paddingRight))
 
 const slotW = computed(() => props.node.w)
 const slotH = computed(() => props.node.h)
 
+const contentW = computed(() => Math.max(0, slotW.value - padL.value - padR.value))
+const centerX = computed(() => padL.value + contentW.value / 2)
 const centerY = computed(() => slotH.value * 0.42)
-const authorX = computed(() => slotW.value - 10)
+const authorX = computed(() => slotW.value - padR.value)
 const authorY = computed(() => slotH.value - 8)
 
 function onFieldInput(key: TitleFieldKey, event: Event) {
@@ -30,7 +45,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
       <text
         v-if="musicScore.title"
         class="dr-title-slot__title"
-        :x="slotW / 2"
+        :x="centerX"
         :y="centerY - (musicScore.subTitle ? 10 : 0)"
         dominant-baseline="middle"
         text-anchor="middle"
@@ -38,7 +53,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
       <text
         v-if="musicScore.subTitle"
         class="dr-title-slot__subtitle"
-        :x="slotW / 2"
+        :x="centerX"
         :y="centerY + 16"
         dominant-baseline="middle"
         text-anchor="middle"
@@ -58,7 +73,10 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
         xmlns="http://www.w3.org/1999/xhtml"
         :style="{width: `${slotW}px`, height: `${slotH}px`}"
       >
-        <div class="dr-title-slot__center">
+        <div
+          class="dr-title-slot__center"
+          :style="{left: `${padL}px`, right: `${padR}px`}"
+        >
           <input
             class="dr-title-slot__input dr-title-slot__input--title"
             placeholder="标题"
@@ -82,6 +100,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
           class="dr-title-slot__input dr-title-slot__input--author"
           placeholder="作者"
           type="text"
+          :style="{right: `${padR}px`}"
           :value="readTitleField(musicScore, 'author')"
           @click.stop
           @input="onFieldInput('author', $event)"
@@ -117,7 +136,6 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__center {
   position: absolute;
-  inset: 0 12px auto;
   top: 50%;
   display: flex;
   flex-direction: column;
@@ -128,7 +146,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__input {
   box-sizing: border-box;
-  width: min(420px, 100%);
+  width: min(360px, 100%);
   padding: 4px 8px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
@@ -154,9 +172,8 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__input--author {
   position: absolute;
-  right: 10px;
   bottom: 6px;
-  width: 160px;
+  width: 140px;
   font-size: 12px;
   text-align: right;
 }

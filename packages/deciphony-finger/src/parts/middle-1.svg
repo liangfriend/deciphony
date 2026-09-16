@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.69 -0.464 3.154 0.928" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.9675 -0.493 3.4605 0.986" fill="none">
   <defs>
     <linearGradient id="skin-middle1" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f7d8c1"/>
@@ -7,29 +7,29 @@
       <stop offset="62%" stop-color="#e6ae87"/>
       <stop offset="100%" stop-color="#cf8d63"/>
     </linearGradient>
-    <linearGradient id="edge-middle1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.495" y2="0">
+    <linearGradient id="edge-middle1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.55" y2="0">
       <stop offset="0%" stop-color="#c07f56" stop-opacity="0"/>
       <stop offset="100%" stop-color="#c07f56" stop-opacity="1"/>
     </linearGradient>
     <clipPath id="clip-middle1">
-      <path d="M 0 -0.4 L -2.25 -0.376 A 0.376 0.376 0 0 0 -2.25 0.376 L 0 0.4 A 0.4 0.4 0 0 0 0 -0.4 Z"/>
+      <path d="M 0 -0.425 L -2.5 -0.3995 A 0.3995 0.3995 0 0 0 -2.5 0.3995 L 0 0.425 A 0.425 0.425 0 0 0 0 -0.425 Z"/>
     </clipPath>
   </defs>
   <g class="part" data-part="middle-1" data-facing="left">
-    <path class="skin" d="M 0 -0.4 L -2.25 -0.376 A 0.376 0.376 0 0 0 -2.25 0.376 L 0 0.4 A 0.4 0.4 0 0 0 0 -0.4 Z"/>
+    <path class="skin" d="M 0 -0.425 L -2.5 -0.3995 A 0.3995 0.3995 0 0 0 -2.5 0.3995 L 0 0.425 A 0.425 0.425 0 0 0 0 -0.425 Z"/>
     <g clip-path="url(#clip-middle1)">
-      <ellipse class="shine" cx="-1.035" cy="-0.1955" rx="0.81" ry="0.0602"/>
-      <path class="crease" d="M -0.36 -0.2852 Q -0.416 0 -0.36 0.2852 M -0.4234 -0.2139 Q -0.4794 0 -0.4234 0.2139"/>
+      <ellipse class="shine" cx="-1.15" cy="-0.2077" rx="0.9" ry="0.0639"/>
+      <path class="crease" d="M -0.4 -0.3031 Q -0.4595 0 -0.4 0.3031 M -0.4673 -0.2273 Q -0.5268 0 -0.4673 0.2273"/>
     </g>
-    <path class="edge" d="M 0 -0.4 L -2.25 -0.376"/>
-    <path class="edge" d="M 0 0.4 L -2.25 0.376"/>
+    <path class="edge" d="M 0 -0.425 L -2.5 -0.3995"/>
+    <path class="edge" d="M 0 0.425 L -2.5 0.3995"/>
   </g>
   <style>
     .skin { fill: url(#skin-middle1); }
     .shine { fill: #fff6ee; opacity: 0.26; }
-    .crease { fill: none; stroke: #c4835f; stroke-width: 0.0245; stroke-linecap: round; opacity: 0.42; }
-    .edge { fill: none; stroke: url(#edge-middle1); stroke-width: 0.0288; stroke-linecap: butt; opacity: 0.9; }
-    .nail { fill: #fbe9e0; stroke: #d3a08a; stroke-width: 0.0202; opacity: 0.95; }
+    .crease { fill: none; stroke: #c4835f; stroke-width: 0.026; stroke-linecap: round; opacity: 0.42; }
+    .edge { fill: none; stroke: url(#edge-middle1); stroke-width: 0.0306; stroke-linecap: butt; opacity: 0.9; }
+    .nail { fill: #fbe9e0; stroke: #d3a08a; stroke-width: 0.0214; opacity: 0.95; }
     .nail-shine { fill: #fff; opacity: 0.45; }
   </style>
 </svg>

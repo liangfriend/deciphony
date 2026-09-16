@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.55 -0.58 3.13 1.16" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.65 -0.58 3.23 1.16" fill="none">
   <defs>
     <linearGradient id="skin-thumb1" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f7d8c1"/>
@@ -7,22 +7,22 @@
       <stop offset="62%" stop-color="#e6ae87"/>
       <stop offset="100%" stop-color="#cf8d63"/>
     </linearGradient>
-    <linearGradient id="edge-thumb1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.44" y2="0">
+    <linearGradient id="edge-thumb1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-0.462" y2="0">
       <stop offset="0%" stop-color="#c07f56" stop-opacity="0"/>
       <stop offset="100%" stop-color="#c07f56" stop-opacity="1"/>
     </linearGradient>
     <clipPath id="clip-thumb1">
-      <path d="M 0 -0.5 L -2 -0.47 A 0.47 0.47 0 0 0 -2 0.47 L 0 0.5 A 0.5 0.5 0 0 0 0 -0.5 Z"/>
+      <path d="M 0 -0.5 L -2.1 -0.47 A 0.47 0.47 0 0 0 -2.1 0.47 L 0 0.5 A 0.5 0.5 0 0 0 0 -0.5 Z"/>
     </clipPath>
   </defs>
   <g class="part" data-part="thumb-1" data-facing="left">
-    <path class="skin" d="M 0 -0.5 L -2 -0.47 A 0.47 0.47 0 0 0 -2 0.47 L 0 0.5 A 0.5 0.5 0 0 0 0 -0.5 Z"/>
+    <path class="skin" d="M 0 -0.5 L -2.1 -0.47 A 0.47 0.47 0 0 0 -2.1 0.47 L 0 0.5 A 0.5 0.5 0 0 0 0 -0.5 Z"/>
     <g clip-path="url(#clip-thumb1)">
-      <ellipse class="shine" cx="-0.92" cy="-0.2444" rx="0.72" ry="0.0752"/>
-      <path class="crease" d="M -0.32 -0.3565 Q -0.39 0 -0.32 0.3565 M -0.3992 -0.2674 Q -0.4692 0 -0.3992 0.2674"/>
+      <ellipse class="shine" cx="-0.966" cy="-0.2444" rx="0.756" ry="0.0752"/>
+      <path class="crease" d="M -0.336 -0.3565 Q -0.406 0 -0.336 0.3565 M -0.4152 -0.2674 Q -0.4852 0 -0.4152 0.2674"/>
     </g>
-    <path class="edge" d="M 0 -0.5 L -2 -0.47"/>
-    <path class="edge" d="M 0 0.5 L -2 0.47"/>
+    <path class="edge" d="M 0 -0.5 L -2.1 -0.47"/>
+    <path class="edge" d="M 0 0.5 L -2.1 0.47"/>
   </g>
   <style>
     .skin { fill: url(#skin-thumb1); }

@@ -17,6 +17,14 @@ export const ACCOMPANIMENT_TIME_PROP = 'accompaniment'
 /** 槽位 data 上范唱时间字段 */
 export const VOCAL_TIME_PROP = 'vocalPerformance'
 
+/** SJWPDF 曲谱 MIDI 播放默认包络：A/D 在音符 duration 内，R 在 duration 之后 */
+export const PLAY_SMOOTH_ENVELOPE = {
+  attack: 0.05,
+  decay: 0.1,
+  peakVolume: 1.2,
+  release: 0.2,
+} as const
+
 export type PlaybackMode = 'score' | 'accompaniment' | 'vocal' | null
 
 /** 单份曲谱在 Page 上注册的播放/高亮句柄 */
@@ -192,7 +200,7 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
 
     if (canResume(score, 'score')) {
       await activeContext()
-      await nplayer.play()
+      await nplayer.play(PLAY_SMOOTH_ENVELOPE)
       isPaused = false
       return
     }
@@ -210,7 +218,7 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
     nplayer.setPlaySequence(seq)
 
     await activeContext()
-    await nplayer.play()
+    await nplayer.play(PLAY_SMOOTH_ENVELOPE)
   }
 
   async function playSyncedAudio(

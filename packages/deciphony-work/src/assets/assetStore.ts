@@ -12,6 +12,11 @@ function guessMime(name: string): string {
   if (lower.endsWith('.mp3')) return 'audio/mpeg'
   if (lower.endsWith('.wav')) return 'audio/wav'
   if (lower.endsWith('.ogg')) return 'audio/ogg'
+  if (lower.endsWith('.mp4')) return 'video/mp4'
+  if (lower.endsWith('.webm')) return 'video/webm'
+  if (lower.endsWith('.ogv')) return 'video/ogg'
+  if (lower.endsWith('.mov')) return 'video/quicktime'
+  if (lower.endsWith('.m4v')) return 'video/x-m4v'
   return 'application/octet-stream'
 }
 

@@ -189,6 +189,97 @@ async function addDemoAudio() {
   status.value = `addAudioFromFile：${name} → ${assetId}`
 }
 
+function pickRecorderMime(): string {
+  const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+  for (const t of candidates) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t
+  }
+  return ''
+}
+
+async function makeDemoVideoFile(): Promise<File> {
+  const mime = pickRecorderMime()
+  if (!mime) throw new Error('当前浏览器无法录制演示视频，请用「添加视频文件」')
+  const w = 480
+  const h = 270
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const g = canvas.getContext('2d')
+  if (!g) throw new Error('无法创建画布')
+  const stream = canvas.captureStream(30)
+  const rec = new MediaRecorder(stream, {mimeType: mime})
+  const chunks: Blob[] = []
+  rec.ondataavailable = (ev) => {
+    if (ev.data.size) chunks.push(ev.data)
+  }
+  const file = await new Promise<File>((resolve, reject) => {
+    rec.onerror = () => reject(new Error('录制演示视频失败'))
+    rec.onstop = () => {
+      const blob = new Blob(chunks, {type: mime.split(';')[0]})
+      resolve(new File([blob], 'demo-video.webm', {type: blob.type}))
+    }
+    rec.start()
+    const t0 = performance.now()
+    const tick = () => {
+      const t = (performance.now() - t0) / 1000
+      g.fillStyle = `hsl(${(t * 90) % 360}, 62%, 42%)`
+      g.fillRect(0, 0, w, h)
+      g.fillStyle = '#fff'
+      g.font = '36px sans-serif'
+      g.fillText('SJW 视频', 28, 120)
+      g.font = '22px sans-serif'
+      g.fillText(`${t.toFixed(1)}s`, 28, 160)
+      if (t < 2.2) requestAnimationFrame(tick)
+      else rec.stop()
+    }
+    tick()
+  })
+  stream.getTracks().forEach((tr) => tr.stop())
+  return file
+}
+
+async function addDemoVideo() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  try {
+    status.value = '正在生成演示视频…'
+    const file = await makeDemoVideoFile()
+    const {assetId, name} = await pdf.addVideoFromFile({
+      x: 80,
+      y: 220,
+      file,
+      name: 'demo-video.webm',
+    })
+    lastLoadedAssetId.value = assetId
+    refreshAssets()
+    status.value = `addVideoFromFile：${name} → ${assetId}`
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
+async function onAddVideoFile(ev: Event) {
+  const input = ev.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  const pdf = pdfRef.value
+  if (!file || !pdf) return
+  try {
+    const {assetId, name} = await pdf.addVideoFromFile({
+      x: 80,
+      y: 220,
+      file,
+      name: file.name,
+    })
+    lastLoadedAssetId.value = assetId
+    refreshAssets()
+    status.value = `addVideoFromFile：${name} → ${assetId}`
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
 async function setDemoBackground() {
   const pdf = pdfRef.value
   if (!pdf) return
@@ -400,6 +491,11 @@ function clearPageDrawings() {
         <button type="button" @click="addDemoImage">添加图片(FromFile)</button>
         <button type="button" @click="addDemoSvg">添加SVG(先load再id)</button>
         <button type="button" @click="addDemoAudio">添加音频(FromFile)</button>
+        <button type="button" @click="addDemoVideo">添加演示视频</button>
+        <label class="work-test__import">
+          添加视频文件
+          <input accept="video/*" type="file" @change="onAddVideoFile"/>
+        </label>
         <button type="button" @click="setDemoBackground">设背景(FromFile)</button>
         <button type="button" @click="setBackgroundByLastId">按上次id设背景</button>
         <button type="button" @click="clearDemoBackground">清背景</button>

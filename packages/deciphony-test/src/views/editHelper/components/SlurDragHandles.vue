@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import type {SlurHandleKind, SlurHandlePoints} from '../renderEditSlurDrag'
 
-defineProps<{
-  handles: SlurHandlePoints
-}>()
+const props = withDefaults(
+  defineProps<{
+    handles: SlurHandlePoints
+    /** 五线谱月牙有控制点；简谱两端弧+横线不展示控制点 */
+    showControl?: boolean
+  }>(),
+  {showControl: true},
+)
 
 const emit = defineEmits<{
   'handle-down': [handle: SlurHandleKind, event: PointerEvent]
@@ -29,6 +34,7 @@ function onHandleDown(handle: SlurHandleKind, event: PointerEvent) {
       @pointerdown="onHandleDown('start', $event)"
     />
     <circle
+      v-if="showControl"
       class="slur-drag-handles__circle"
       :cx="handles.control.x"
       :cy="handles.control.y"

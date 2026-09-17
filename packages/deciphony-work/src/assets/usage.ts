@@ -23,7 +23,10 @@ export function findAssetUsages(data: SJW, filename: string): AssetUsage[] {
       usages.push({pageId: page.id, field: 'background'})
     }
     for (const el of page.elements ?? []) {
-      if ((el.type === 'image' || el.type === 'audio') && el.src === filename) {
+      if (
+        (el.type === 'image' || el.type === 'audio' || el.type === 'video') &&
+        el.src === filename
+      ) {
         usages.push({pageId: page.id, elementId: el.id, field: 'src'})
       }
     }
@@ -64,7 +67,10 @@ export function clearAssetUsages(data: SJW, filename: string): void {
     if (list?.length) {
       for (let i = list.length - 1; i >= 0; i--) {
         const el = list[i]!
-        if ((el.type === 'image' || el.type === 'audio') && el.src === filename) {
+        if (
+          (el.type === 'image' || el.type === 'audio' || el.type === 'video') &&
+          el.src === filename
+        ) {
           list.splice(i, 1)
         }
       }

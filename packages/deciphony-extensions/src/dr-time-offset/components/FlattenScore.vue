@@ -56,7 +56,7 @@ function staffTopInRow(): number {
 }
 
 function slotBox(slot: FlattenStaffRow['slots'][number]) {
-  const x = slot.time * props.pxPerSecond
+  const x = (slot.time ?? 0) * props.pxPerSecond
   if (isNumber.value) {
     const w = FLATTEN_HEAD_W + 24
     const h = numberInnerH + 16
@@ -80,7 +80,7 @@ function onPointerDown(ev: PointerEvent, slot: FlattenStaffRow['slots'][number])
   target.setPointerCapture(ev.pointerId)
   draggingKey.value = slot.flattenKey
   dragStartClientX = ev.clientX
-  dragStartTime = slot.time
+  dragStartTime = slot.time ?? 0
 }
 
 function onPointerMove(ev: PointerEvent, slot: FlattenStaffRow['slots'][number]) {
@@ -167,7 +167,7 @@ defineExpose({
         v-for="slot in row.slots"
         :key="slot.flattenKey"
         class="dr-to-flatten__slot"
-        :transform="`translate(${slot.time * pxPerSecond}, 0)`"
+        :transform="`translate(${(slot.time ?? 0) * pxPerSecond}, 0)`"
         @pointerdown="onPointerDown($event, slot)"
         @pointermove="onPointerMove($event, slot)"
         @pointerup="onPointerUp($event, slot)"

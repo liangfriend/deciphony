@@ -21,10 +21,12 @@ import {
   addAudio,
   addImage,
   addText,
+  addVideo,
   removeElement,
   type AddAudioOptions,
   type AddImageOptions,
   type AddTextOptions,
+  type AddVideoOptions,
 } from '../api/elements'
 import {setBackground, clearBackground} from '../api/background'
 import {
@@ -421,6 +423,39 @@ defineExpose({
     if (options.rotation !== undefined) audioOpts.rotation = options.rotation
     if (options.id !== undefined) audioOpts.id = options.id
     const elementId = addAudio(requirePage(), audioOpts)
+    return {elementId, assetId, name}
+  },
+
+  /** 按缓存 id 添加视频；缓存没有则失败 */
+  addVideo: async (options: AddVideoOptions) => {
+    requireAsset(options.assetId)
+    return addVideo(requirePage(), options, (id) => store.getAsset(id))
+  },
+  /**
+   * 传入 File：先 loadAsset，再放到当前页。
+   * @returns { elementId, assetId, name }
+   */
+  addVideoFromFile: async (options: {
+    x: number
+    y: number
+    file: File
+    name?: string
+    width?: number
+    height?: number
+    rotation?: number
+    id?: string
+  }) => {
+    const {id: assetId, name} = loadAsset(options.file, options.name)
+    const videoOpts: AddVideoOptions = {
+      x: options.x,
+      y: options.y,
+      assetId,
+    }
+    if (options.width !== undefined) videoOpts.width = options.width
+    if (options.height !== undefined) videoOpts.height = options.height
+    if (options.rotation !== undefined) videoOpts.rotation = options.rotation
+    if (options.id !== undefined) videoOpts.id = options.id
+    const elementId = await addVideo(requirePage(), videoOpts, (id) => store.getAsset(id))
     return {elementId, assetId, name}
   },
 

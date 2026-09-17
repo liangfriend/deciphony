@@ -30,7 +30,7 @@ packages/deciphony-work/
     types/types.ts          SJW / SPage / SElement / SScore / DrawStroke
     enums/drawToolEnum.ts   DrawToolEnum（pen / eraser）
     constants/elementDefaults.ts   非图片默认宽高
-    api/elements.ts         addText / addImage / addAudio
+    api/elements.ts         addText / addImage / addAudio / addVideo
     api/scores.ts           addScore / removeScore
     api/pages.ts            addPage / insertPage / removePage
     draw/paintStrokes.ts    笔迹重绘（含橡皮 destination-out）
@@ -42,6 +42,7 @@ packages/deciphony-work/
       ElementNode.vue       多媒体节点
       Score.vue             曲谱节点（musicScore + dr-title/dr-lyrics 展示 + 播放高亮注册）
       AudioPlayer.vue       可缩放自定义音频条
+      VideoPlayer.vue       可缩放自定义视频播放器
     play/scorePlayback.ts   NPlayer + dr-play 序列封装
 ```
 
@@ -70,6 +71,7 @@ packages/deciphony-work/
 |------|------|
 | `image` | `src` = **资源缓存 id**；`addImage({assetId})` 或 `addImageFromFile`；原始像素写 width/height |
 | `audio` | 同上；`addAudio` / `addAudioFromFile`；默认 `DEFAULT_AUDIO_*`；必须用 `AudioPlayer` |
+| `video` | 同上；`addVideo` / `addVideoFromFile`；原始像素写 width/height（读不到则 `DEFAULT_VIDEO_*`）；必须用 `VideoPlayer` |
 | `text` | 默认 `DEFAULT_TEXT_*`；双击 → 等大 textarea |
 
 背景：`background.src` = 资源 id；`setBackground(id)` / `setBackgroundFromFile` / `clearBackground`。无背景时白底。替换或清除时，旧背景资源若已无引用则从缓存删除（防反复换图撑爆存储）。
@@ -105,7 +107,7 @@ SScore = SElementBase & {
 - 拉伸**只改框**尺寸；固有宽高不变；`Score.vue` 用 CSS `scale` 铺满
 - `Score.vue` 接入 `dr-title` / `dr-lyrics` / `drPlayHighlight`（固定 show；高亮走 extensions.on）；播放：`dr-play` + `NPlayer`
 - 页面 edit 只动放置框；曲谱内容在 SJWPDF 内不可编辑
-- 播放：SJWPDF 暴露 `play` / `playAccompaniment` / `playVocal` / `pause` / `stop`（三者互斥）/ `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer` / `getAPlayer`
+- 播放：SJWPDF 暴露 `play` / `playAccompaniment` / `playVocal` / `pause` / `stop`（三者互斥）/ `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer` / `getAPlayer`；`play` 默认 `PLAY_SMOOTH_ENVELOPE`
 - 伴奏高亮：`slot.data.accompaniment: number[]`；范唱：`slot.data.vocalPerformance: number[]`（与 dr-time-offset 展平一致）
 
 ## 渲染结构
@@ -119,7 +121,7 @@ SScore = SElementBase & {
 模式 `mode: 'show' | 'edit'`：
 
 - `show`：无编辑框
-- `edit`：`EditFrame` 显示；选中后四角拉伸 + 顶中旋转；内容区可拖移（音频靠边框，避免挡控件）
+- `edit`：`EditFrame` 显示；选中后四角拉伸 + 顶中旋转；内容区可拖移（音频 / 视频靠边框，避免挡控件）
 
 缩略图：外部用 `page.thumbnail`（文件名/http）或缩放挂载 `Page`（`thumbnail` prop）。**不要**在 SJWPDF 内做侧栏。
 
@@ -148,11 +150,11 @@ Expose（宿主 `ref` 调用）大致包括：
 
 - 页面：`addPage` / `insertPage` / `removePage`
 - 背景：`setBackground` / `setBackgroundFromFile` / `clearBackground`
-- 元素：`addText` / `addImage` / `addImageFromFile` / `addAudio` / `addAudioFromFile` / `removeElement`
+- 元素：`addText` / `addImage` / `addImageFromFile` / `addAudio` / `addAudioFromFile` / `addVideo` / `addVideoFromFile` / `removeElement`
 - 元素右键：prop `context-menu` + 事件 `beforeContextMenu`（打开前改 props）；内置删除仅 edit；整区拦截浏览器右键；见 `doc/右键菜单.md`
 - 曲谱：`addScore` / `removeScore`
 - 绘制：`startDraw` / `endDraw` / `setTool(tool, options?)` / `clearDrawings` / `isDrawing` / `getTool`
-- 播放：`play` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`
+- 播放：`play` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`；曲谱 `play` 默认 `PLAY_SMOOTH_ENVELOPE`
 - 资源：`loadAsset` / `listAssets` / `removeAsset` / `resolveSrc` / …
 - IO：`loadSjw` / `exportSjw`
 
@@ -164,7 +166,7 @@ Expose（宿主 `ref` 调用）大致包括：
 2. **曲谱 vs 多媒体**：曲谱进 `scores` + `Score.vue`；多媒体进 `elements` + `ElementNode.vue`。
 3. **几何**：禁止改成「左上角旋转」或「对侧固定拉伸」等另一套模型，除非同步改本文与 `EditFrame` 注释。
 4. **图片尺寸**：添加时读原始宽高写入框；拉伸改框，不改源文件。
-5. **音频 UI**：必须可随框缩放（自定义播放器）。
+5. **音频 / 视频 UI**：必须可随框缩放（自定义 `AudioPlayer` / `VideoPlayer`）。拉伸只改框。
 6. **svg 绝对布局**：页面与曲谱相关 svg 使用 `preserveAspectRatio="none"`，viewBox 与逻辑宽高一致。
 7. **导出入口**：新 API / 类型务必更新 `src/index.ts`。
 8. **测试**：优先在 `@deciphony/test` 的 `workTest.vue` 验证；Vite 通过 alias 指到 work / renderer 源码。
@@ -172,7 +174,7 @@ Expose（宿主 `ref` 调用）大致包括：
 
 ## 未做 / 预留（勿假装已完成）
 
-- 视频放置、背景图资源
+- 背景图资源
 - 曲谱框内的记谱编辑（应走 renderer 扩展 / 独立编辑流）
 - http 资源的缓存与离线打包策略
 - 多页连续滚动（当前一页一显）

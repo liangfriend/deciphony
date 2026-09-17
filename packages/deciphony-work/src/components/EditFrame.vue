@@ -25,11 +25,11 @@ const props = withDefaults(
     element: FrameElement
     editable: boolean
     selected?: boolean
-    /** 内容区可拖移；音频或文本编辑中为 false */
+    /** 内容区可拖移；音频 / 视频或文本编辑中为 false */
     moveOnBody?: boolean
     /**
      * 非编辑态是否铺透明命中层（用于曲谱等 pointer-events:none 的内容右键）。
-     * 音频/文本等可交互内容勿开，否则会挡住播放控件。
+     * 音频/视频/文本等可交互内容勿开，否则会挡住播放控件。
      */
     showHitOverlay?: boolean
   }>(),

@@ -16,6 +16,8 @@ export type TimeOffsetEditorProps = {
   sampleRate?: number
   /** MeasureNoteSlot.data 上的时间属性名 */
   timePropName?: string
+  /** 自动对齐用 beatUnit（拍号分母） */
+  beatUnit?: number
   /** 自定义按钮（排在内置「重置对齐 / 播放 / 停止 / 重置」左侧） */
   actions?: TimeOffsetAction[]
 }
@@ -38,8 +40,8 @@ export type FlattenSlotItem = {
   passIndex: number
   /** 展平项唯一键：`${slotId}#${passIndex}` */
   flattenKey: string
-  /** 本遍绝对秒 */
-  time: number
+  /** 本遍绝对秒；未写入该遍时为 null（勿当 0，否则高亮会把所有未同步音符当成同一时刻） */
+  time: number | null
   chronaxie: number
   /** 休止符无 region 列表 */
   isRest: boolean

@@ -1,6 +1,19 @@
 import {_audioContext, getGlobalToneBuffer} from './ContextManager';
-import {PlaySequence, PlaySequenceItem, Sequence, ToneColor, Unit256} from './types';
+import {
+  NoteEnvelopeParams,
+  PlaySequence,
+  PlaySequenceItem,
+  Sequence,
+  ToneColor,
+  Unit256
+} from './types';
 import {sequenceToPlaySequence, toSeconds} from './sequenceUtils';
+import {
+  resolveNoteEnvelope,
+  ResolvedNoteEnvelope,
+  scheduleAdsrOnGain,
+  scheduleSequenceNoteEnvelope
+} from './envelope';
 import {v4 as uuidv4} from 'uuid';
 
 class NPlayer {
@@ -46,6 +59,8 @@ class NPlayer {
   private _bufferCache = new Map<string, AudioBuffer>(); // 音色处理后的二进制缓存
   /** 按 gainNodeKey 分组：总 gain → keyGain → 各音符 noteGain；创建后常驻直至 releaseKeyGain / clearAllKeyGains / dispose */
   private _keyGainMap = new Map<string, GainNode>();
+  /** 序列 play 的包络；null = 旧行为（无 A/D/R）。play() 无参时沿用上次。 */
+  private _playEnvelope: ResolvedNoteEnvelope | null = null;
 
   constructor(option: { checkTime: number; checkDuration: number }) {
     this._endNotePauseMark = false;
@@ -213,7 +228,17 @@ class NPlayer {
     this._fillSequence();
   }
 
-  async play() {
+  /**
+   * 开始/恢复序列播放。
+   * `param` 与 trigger 相同：attack / decay / peakVolume / release / volume。
+   * 传入后整首每个音符都套该包络：A/D 在音符 duration 内（过长按比例压缩），R 在 duration 之后。
+   * 最后一音的 R 结束后才 onEnd。无参 play() 沿用上次包络；从未传入则为旧行为（无包络）。
+   * 总线 `volume` / `bpm` / `rate` 仍可播放中实时改：包络打在每音 noteGain 上，不挡总线音量。
+   */
+  async play(param?: NoteEnvelopeParams) {
+    if (param !== undefined) {
+      this._playEnvelope = resolveNoteEnvelope(param);
+    }
     if (this._state === 'playing') return;
     this._state = 'playing';
     this._startPosition = this._pausePosition;
@@ -226,6 +251,7 @@ class NPlayer {
           resolve({});
         }, this._endNoteRemainTime * 1000);
       });
+      return;
     }
     this._check();
   }
@@ -242,11 +268,14 @@ class NPlayer {
     /* 如果loop=false且sequence.length为0,说明到了最后一个了，因为无法触发onEnd，所以要加一个标记*/
     if (this._sequence.length === 1 && !this._loop) {
       this._endNotePauseMark = true;
-      const playContextTime = this._sourceMap.get(this._sequence[0].id)?.playContextTime;
-      if (playContextTime) {
-        this._endNoteRemainTime =
-            this._256ToSecWithRate(this._sequence[0].duration) -
-            (this._context.currentTime - playContextTime);
+      const entry = this._sourceMap.get(this._sequence[0].id);
+      if (entry) {
+        const durationSec = this._256ToSec(this._sequence[0].duration);
+        const release = this._playEnvelope?.release ?? 0;
+        this._endNoteRemainTime = Math.max(
+            0,
+            durationSec + release - (this._context.currentTime - entry.playContextTime),
+        );
       }
     }
     this._clearFutureSourcesAndTimers();
@@ -506,29 +535,7 @@ class NPlayer {
       t0: number,
       opts: { attack: number; decay: number; peakGain: number; normalGain: number },
   ) {
-    const {attack, decay, peakGain, normalGain} = opts;
-    gain.cancelScheduledValues(t0);
-
-    if (attack > 0 && decay > 0) {
-      gain.setValueAtTime(0, t0);
-      gain.linearRampToValueAtTime(peakGain, t0 + attack);
-      gain.linearRampToValueAtTime(normalGain, t0 + attack + decay);
-      return;
-    }
-    if (attack > 0) {
-      // 仅 A：缓升到峰值，结束瞬间切到维持音量
-      gain.setValueAtTime(0, t0);
-      gain.linearRampToValueAtTime(peakGain, t0 + attack);
-      gain.setValueAtTime(normalGain, t0 + attack);
-      return;
-    }
-    if (decay > 0) {
-      // 仅 D：直接峰值，再缓降到维持音量
-      gain.setValueAtTime(peakGain, t0);
-      gain.linearRampToValueAtTime(normalGain, t0 + decay);
-      return;
-    }
-    gain.setValueAtTime(normalGain, t0);
+    scheduleAdsrOnGain(gain, t0, opts);
   }
 
   // 通过baseSequence和copyCount填充sequence,
@@ -627,6 +634,7 @@ class NPlayer {
   }
 
   private _check() {
+    if (this._state !== 'playing') return;
     if (this._checkTimer) {
       clearInterval(this._checkTimer);
       this._checkTimer = null;
@@ -729,12 +737,16 @@ class NPlayer {
    *
    * */
   private _addAndPlaySource() {
+    if (this._state !== 'playing') return;
     // 更新&记录当前进度
     const deltaSec = this._context.currentTime - this._anchorContextTime;
     this._currentPosition += this._secTo256(deltaSec);
     this._anchorContextTime = this._context.currentTime;
-    // 过滤掉已经播放完成的音符
-    this._sequence = this._sequence.filter((e) => e.playTime + e.duration > this._currentPosition);
+    // 过滤掉已经播放完成的音符（含 R：R 在 duration 之后，这段时间内音符仍占序列，避免 refill / 暂停丢 onEnd）
+    const release256 = this._secTo256(this._playEnvelope?.release ?? 0);
+    this._sequence = this._sequence.filter(
+        (e) => e.playTime + e.duration + release256 > this._currentPosition,
+    );
     // 填充序列
     this._fillSequence();
     const checkWindow = this._secTo256(this._checkDuration / 1000);
@@ -760,7 +772,8 @@ class NPlayer {
       // midi = 0 的情况下，这里buffer是null, 但是没关系，不会报错
       source.buffer = buffer;
       const noteGain = this._context.createGain();
-      noteGain.gain.value = e.velocity ?? 1;
+      const velocity = e.velocity ?? 1;
+      noteGain.gain.value = velocity;
       source.connect(noteGain);
       const keyTrimmed = e.gainNodeKey?.trim();
       if (keyTrimmed) {
@@ -769,7 +782,17 @@ class NPlayer {
         noteGain.connect(this._gainNode);
       }
       source.start(contextPlayTime);
-      source.stop(contextPlayTime + durationSec);
+      const env = this._playEnvelope;
+      const stopAt = env
+          ? scheduleSequenceNoteEnvelope(
+                noteGain.gain,
+                contextPlayTime,
+                durationSec,
+                velocity,
+                env,
+            ).stopAt
+          : contextPlayTime + durationSec;
+      source.stop(stopAt);
       this._sourceMap.set(e.id, {source, noteGain, playContextTime: contextPlayTime});
 
       const itemEnd = e.end;

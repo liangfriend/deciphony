@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --test test/envelope.test.ts test/playEnvelope.test.ts",
     "postpublish": "npm version patch --no-git-tag-version",
     "prepublishOnly": "npm run build"
   },
@@ -32,6 +32,7 @@
   "keywords": [],
   "packageManager": "pnpm@10.14.0",
   "devDependencies": {
-    "tsc-alias": "^1.8.16"
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.23.13"
   }
 }

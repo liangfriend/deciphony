@@ -37,15 +37,17 @@ export function readTimeArray(
   return []
 }
 
-/** 读取某一遍的绝对秒；未写过则 0 */
+/** 读取某一遍的绝对秒；该遍尚未写入则 null（与显式 0 区分） */
 export function readPassTime(
   data: Record<string, unknown> | undefined,
   timePropName: string,
   passIndex: number,
-): number {
+): number | null {
   const arr = readTimeArray(data, timePropName)
+  if (passIndex < 0 || passIndex >= arr.length) return null
   const n = arr[passIndex]
-  return n == null ? 0 : n
+  if (n == null || !Number.isFinite(n) || n < 0) return null
+  return n
 }
 
 /**
@@ -245,6 +247,7 @@ export function resetNotePassMap(map: NotePassMap): void {
 
 /**
  * 根据当前播放秒收集应高亮的 note/rest id（展平后的时间轴）。
+ * 未写入时间（time == null）的项不参与匹配，避免「全谱一起亮」。
  * 若传入 passMap，则把当前激活项的 passIndex 写入对应 highlightId（原谱播放用）。
  */
 export function collectHighlightIdsAtTime(
@@ -255,6 +258,7 @@ export function collectHighlightIdsAtTime(
   const items: {time: number; ids: string[]; passIndex: number}[] = []
   for (const row of rows) {
     for (const slot of row.slots) {
+      if (slot.time == null || !Number.isFinite(slot.time)) continue
       items.push({time: slot.time, ids: slot.highlightIds, passIndex: slot.passIndex})
     }
   }
@@ -278,5 +282,15 @@ export function collectHighlightIdsAtTime(
     }
   }
   return ids
+}
+
+/** 展平行里是否至少有一个已写入的时间点（用于开播前校验谱音同步） */
+export function hasTimedFlattenSlots(rows: FlattenStaffRow[]): boolean {
+  for (const row of rows) {
+    for (const slot of row.slots) {
+      if (slot.time != null && Number.isFinite(slot.time)) return true
+    }
+  }
+  return false
 }
 

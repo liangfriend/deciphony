@@ -2,6 +2,10 @@
 export const DEFAULT_AUDIO_WIDTH = 320
 export const DEFAULT_AUDIO_HEIGHT = 64
 
+/** 读不到视频元数据时的回退尺寸（16:9） */
+export const DEFAULT_VIDEO_WIDTH = 480
+export const DEFAULT_VIDEO_HEIGHT = 270
+
 export const DEFAULT_TEXT_WIDTH = 200
 export const DEFAULT_TEXT_HEIGHT = 40
 

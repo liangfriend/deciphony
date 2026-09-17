@@ -1,12 +1,15 @@
-import type {SAudioElement, SImageElement, SPage, STextElement} from '../types/types'
+import type {SAudioElement, SImageElement, SPage, STextElement, SVideoElement} from '../types/types'
 import {isRemoteSrc} from '../assets/usage'
 import {readImageSize} from '../assets/imageSize'
+import {readVideoSize} from '../assets/videoSize'
 import {
   DEFAULT_AUDIO_HEIGHT,
   DEFAULT_AUDIO_WIDTH,
   DEFAULT_TEXT_FONT_SIZE,
   DEFAULT_TEXT_HEIGHT,
   DEFAULT_TEXT_WIDTH,
+  DEFAULT_VIDEO_HEIGHT,
+  DEFAULT_VIDEO_WIDTH,
 } from '../constants/elementDefaults'
 
 export type AddTextOptions = {
@@ -38,6 +41,18 @@ export type AddImageOptions = {
 export type AddAudioOptions = {
   x: number
   y: number
+  assetId: string
+  width?: number
+  height?: number
+  rotation?: number
+  id?: string
+}
+
+/** 按缓存 id 添加视频 */
+export type AddVideoOptions = {
+  x: number
+  y: number
+  /** 资源缓存 id */
   assetId: string
   width?: number
   height?: number
@@ -128,6 +143,50 @@ export function addAudio(page: SPage, options: AddAudioOptions): string {
     src: assetId,
     width: options.width ?? DEFAULT_AUDIO_WIDTH,
     height: options.height ?? DEFAULT_AUDIO_HEIGHT,
+  }
+  if (options.rotation !== undefined) el.rotation = options.rotation
+  ensureElements(page).push(el)
+  return id
+}
+
+/**
+ * 按缓存 id 添加视频：width/height 写入资源原始像素尺寸（读不到则 DEFAULT_VIDEO_*）。
+ * src 字段存的是 assetId。
+ */
+export async function addVideo(
+  page: SPage,
+  options: AddVideoOptions,
+  resolveSource?: ResolveImageSource,
+): Promise<string> {
+  const assetId = options.assetId
+  if (!assetId?.trim()) throw new Error('addVideo 需要 assetId')
+
+  const source =
+    resolveSource?.(assetId) ?? (isRemoteSrc(assetId) ? assetId : undefined)
+  if (!source) {
+    throw new Error(`缓存中不存在资源: ${assetId}`)
+  }
+
+  let size: {width: number; height: number}
+  if (options.width !== undefined && options.height !== undefined) {
+    size = {width: options.width, height: options.height}
+  } else {
+    try {
+      size = await readVideoSize(source)
+    } catch {
+      size = {width: DEFAULT_VIDEO_WIDTH, height: DEFAULT_VIDEO_HEIGHT}
+    }
+  }
+
+  const id = options.id ?? newId()
+  const el: SVideoElement = {
+    id,
+    type: 'video',
+    x: options.x,
+    y: options.y,
+    src: assetId,
+    width: size.width,
+    height: size.height,
   }
   if (options.rotation !== undefined) el.rotation = options.rotation
   ensureElements(page).push(el)

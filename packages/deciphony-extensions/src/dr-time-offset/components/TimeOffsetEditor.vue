@@ -25,11 +25,14 @@ const props = withDefaults(
     pxPerSecond?: number
     sampleRate?: number
     timePropName?: string
+    /** 几分音符为一拍（拍号分母）；自动对齐用，默认 4 */
+    beatUnit?: number
     actions?: TimeOffsetAction[]
   }>(),
   {
     pxPerSecond: DEFAULT_PX_PER_SECOND,
     timePropName: DEFAULT_TIME_PROP,
+    beatUnit: 4,
     actions: () => [],
   },
 )
@@ -142,7 +145,12 @@ function bump() {
 }
 
 function handleAutoAlign() {
-  autoAlignTimeOffsets(props.musicScore, timeProp.value, 4, introOffsetSec.value)
+  autoAlignTimeOffsets(
+    props.musicScore,
+    timeProp.value,
+    props.beatUnit > 0 ? props.beatUnit : 4,
+    introOffsetSec.value,
+  )
   bump()
 }
 

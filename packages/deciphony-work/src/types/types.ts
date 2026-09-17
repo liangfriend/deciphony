@@ -63,8 +63,17 @@ export type SAudioElement = SElementBase & {
   src: string
 }
 
+/**
+ * 视频放置；src 规则同图片。
+ * width/height：展示尺寸；addVideo 时写入资源原始像素宽高。
+ */
+export type SVideoElement = SElementBase & {
+  type: 'video'
+  src: string
+}
+
 /** 多媒体放置元素（曲谱另走 scores） */
-export type SElement = STextElement | SImageElement | SAudioElement
+export type SElement = STextElement | SImageElement | SAudioElement | SVideoElement
 
 /**
  * 页面上的曲谱放置框。

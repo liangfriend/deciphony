@@ -4,19 +4,26 @@ export default SJWPDF
 export {default as Page} from './components/Page.vue'
 export {default as Score} from './components/Score.vue'
 export {default as AudioPlayer} from './components/AudioPlayer.vue'
+export {default as VideoPlayer} from './components/VideoPlayer.vue'
 export {default as EditFrame} from './components/EditFrame.vue'
-export {addText, addImage, addAudio, removeElement} from './api/elements'
-export type {AddTextOptions, AddImageOptions, AddAudioOptions} from './api/elements'
+export {addText, addImage, addAudio, addVideo, removeElement} from './api/elements'
+export type {AddTextOptions, AddImageOptions, AddAudioOptions, AddVideoOptions} from './api/elements'
 export {addScore, removeScore, getScoreAudios, collectScoreAudioSrcs} from './api/scores'
 export type {AddScoreOptions, AddScoreHostOptions, ScoreAudioInput, ScoreAudioHostInput} from './api/scores'
 export {addPage, insertPage, removePage, createEmptyPage, DEFAULT_PAGE_WIDTH, DEFAULT_PAGE_HEIGHT} from './api/pages'
 export type {AddPageOptions} from './api/pages'
 export {setBackground, clearBackground} from './api/background'
 export type {SetBackgroundOptions} from './api/background'
-export {createScorePlayback, ACCOMPANIMENT_TIME_PROP, VOCAL_TIME_PROP} from './play/scorePlayback'
+export {
+  createScorePlayback,
+  ACCOMPANIMENT_TIME_PROP,
+  VOCAL_TIME_PROP,
+  PLAY_SMOOTH_ENVELOPE,
+} from './play/scorePlayback'
 export type {ScorePlayback, ScorePlayHost, ScorePlaybackOptions, PlaybackMode} from './play/scorePlayback'
 export {createAssetStore, createAssetFilename, createAssetId} from './assets/assetStore'
 export {readImageSize} from './assets/imageSize'
+export {readVideoSize} from './assets/videoSize'
 export {
   parseSjw,
   buildSjwBlob,
@@ -35,6 +42,8 @@ export {DrawToolEnum} from './enums/drawToolEnum'
 export {
   DEFAULT_AUDIO_WIDTH,
   DEFAULT_AUDIO_HEIGHT,
+  DEFAULT_VIDEO_WIDTH,
+  DEFAULT_VIDEO_HEIGHT,
   DEFAULT_TEXT_WIDTH,
   DEFAULT_TEXT_HEIGHT,
   DEFAULT_TEXT_FONT_SIZE,
@@ -49,6 +58,7 @@ export type {
   STextElement,
   SImageElement,
   SAudioElement,
+  SVideoElement,
   SScore,
   ScoreAudioRef,
   AssetMap,

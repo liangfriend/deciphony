@@ -4,6 +4,11 @@ import {computed, toRef} from 'vue';
 import {MusicScoreTypeEnum, SlurTypeEnum} from '@/enums/musicScoreEnum';
 import type {Skin, VDom} from '@/types/common';
 import {useGeometrySkinColor} from './useGeometrySkinColor';
+import {
+  isNumberNotationSlur,
+  numberNotationSlurGeom,
+  numberNotationSlurPathD,
+} from '@/render/slurGeom';
 
 const props = defineProps<{
   vDom: VDom;
@@ -24,6 +29,8 @@ const SLUR_LABEL: Record<SlurTypeEnum, string> = {
   [SlurTypeEnum.HP]: 'HP',
 };
 
+const isJianpu = computed(() => isNumberNotationSlur(props.notationType));
+
 // 两条二次贝塞尔曲线围成月牙形；控制点 = 默认中点上方 + relativeControlPoint
 const geom = computed(() => {
   const s = props.vDom.startPoint;
@@ -40,6 +47,9 @@ const geom = computed(() => {
 });
 
 const pathD = computed(() => {
+  if (isJianpu.value) {
+    return numberNotationSlurPathD(numberNotationSlurGeom(props.vDom));
+  }
   const {s, e, cx, cy, cy2} = geom.value;
   return `M ${s.x} ${s.y} Q ${cx} ${cy} ${e.x} ${e.y} Q ${cx} ${cy2} ${s.x} ${s.y} Z`;
 });
@@ -51,6 +61,14 @@ const slurLabel = computed(() => {
 });
 
 const textPos = computed(() => {
+  if (isJianpu.value) {
+    const g = numberNotationSlurGeom(props.vDom);
+    const relText = geom.value.slur?.relativeTextPoint ?? {x: 0, y: 0};
+    return {
+      x: (g.x0 + g.x1) / 2 + relText.x,
+      y: g.yTop - g.thickness / 2 + relText.y,
+    };
+  }
   const {cx, cy, slur} = geom.value;
   const relText = slur?.relativeTextPoint ?? {x: 0, y: 0};
   return {

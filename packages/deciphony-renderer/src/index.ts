@@ -41,6 +41,9 @@ export {isNoteRest, isNoteSymbol, isStaffSlot} from './standardStaff/render/util
 /** 顶层 svg 事件：由 DOM 命中解析 VDom */
 export {getHitElement, resolveVDomFromEvent} from './render/resolveVDomFromEvent'
 
+/** 简谱连音线几何（两端弧 + 中间横线） */
+export {isNumberNotationSlur, numberNotationSlurGeom} from './render/slurGeom'
+
 /** VDom 顶层 g 的语义键 / DOM id 与查找 */
 export {
   findElementByVdomDomId,

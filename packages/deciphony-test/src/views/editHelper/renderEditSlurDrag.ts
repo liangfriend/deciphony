@@ -1,4 +1,8 @@
-import {DoubleNoteAffiliatedSymbolNameEnum} from '@deciphony/renderer'
+import {
+  DoubleNoteAffiliatedSymbolNameEnum,
+  MusicScoreTypeEnum,
+  numberNotationSlurGeom,
+} from '@deciphony/renderer'
 import type {DoubleNoteAffiliatedSymbol, MusicScore, SlotData, VDom} from '@deciphony/renderer'
 
 export type SlurHandleKind = 'start' | 'control' | 'end'
@@ -55,9 +59,21 @@ function ensureSlurData(sym: DoubleNoteAffiliatedSymbol) {
   return sym.data.slur
 }
 
-/** 与 slur.vue 一致：控制点 = 默认中点上方 + relativeControlPoint */
-export function computeSlurHandlePoints(vdom: VDom): SlurHandlePoints | null {
+/** 与 slur.vue 一致：五线谱控制点在中点上方；简谱只有左右端 x */
+export function computeSlurHandlePoints(
+  vdom: VDom,
+  notationType?: MusicScoreTypeEnum,
+): SlurHandlePoints | null {
   if (!isSlurVDom(vdom)) return null
+  if (notationType === MusicScoreTypeEnum.NumberNotation) {
+    const g = numberNotationSlurGeom(vdom)
+    const midX = (g.x0 + g.x1) / 2
+    return {
+      start: {x: vdom.startPoint.x, y: g.yFoot},
+      end: {x: vdom.endPoint.x, y: g.yFoot},
+      control: {x: midX, y: g.yTop},
+    }
+  }
   const s = vdom.startPoint
   const e = vdom.endPoint
   const relCtrl = vdom.special?.slur?.relativeControlPoint ?? {x: 0, y: 0}
@@ -104,15 +120,17 @@ export function updateSlurDragFromPointer(
   vdom: VDom,
   svgX: number,
   svgY: number,
+  notationType?: MusicScoreTypeEnum,
 ): boolean {
   const sym = findSlurSymbol(musicScore, session.slurId)
   if (!sym) return false
   const slur = ensureSlurData(sym)
+  const jianpu = notationType === MusicScoreTypeEnum.NumberNotation
 
   if (session.handle === 'start') {
     slur.relativeStartPoint = {
       x: svgX - session.baseStart.x,
-      y: svgY - session.baseStart.y,
+      y: jianpu ? 0 : svgY - session.baseStart.y,
     }
     return true
   }
@@ -120,10 +138,12 @@ export function updateSlurDragFromPointer(
   if (session.handle === 'end') {
     slur.relativeEndPoint = {
       x: svgX - session.baseEnd.x,
-      y: svgY - session.baseEnd.y,
+      y: jianpu ? 0 : svgY - session.baseEnd.y,
     }
     return true
   }
+
+  if (jianpu) return false
 
   const s = vdom.startPoint
   const e = vdom.endPoint

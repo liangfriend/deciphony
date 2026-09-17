@@ -34,13 +34,18 @@ export function autoAlignTimeOffsets(
   introOffsetSec = 0,
 ): void {
   const bpm = musicScore.bpm ?? 120
+  if (!(bpm > 0)) {
+    console.warn('[autoAlignTimeOffsets] musicScore.bpm 无效，跳过对齐', bpm)
+    return
+  }
+  const bu = beatUnit > 0 ? beatUnit : 4
   const offset = Number.isFinite(introOffsetSec) ? Math.max(0, introOffsetSec) : 0
   const seq = getDrPlaySequence(musicScore)
   const timesByNoteId = new Map<string, number[]>()
   for (const it of seq) {
     const sec = Math.min(
       MAX_SYNC_SECONDS,
-      Math.max(0, unit256ToSeconds(it.playTime, bpm, beatUnit) + offset),
+      Math.max(0, unit256ToSeconds(it.playTime, bpm, bu) + offset),
     )
     const list = timesByNoteId.get(it.note_id)
     if (list) list.push(sec)

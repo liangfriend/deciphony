@@ -108,7 +108,7 @@ export function useNumberNotationRenderEdit(
 
     const slurHandlePoints = computed(() => {
         const vdom = selectedSlurVdom.value
-        return vdom ? computeSlurHandlePoints(vdom) : null
+        return vdom ? computeSlurHandlePoints(vdom, musicScore.type) : null
     })
 
     const selectedVoltaVdom = computed(() => {
@@ -365,7 +365,7 @@ export function useNumberNotationRenderEdit(
         )
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
-        updateSlurDragFromPointer(session, musicScore, vdom, x, y)
+        updateSlurDragFromPointer(session, musicScore, vdom, x, y, musicScore.type)
     }
 
     function endSlurDrag(event: PointerEvent) {

@@ -32,6 +32,18 @@ export type PlaySequenceItem = {
 export type PlaySequence = PlaySequenceItem[];
 
 export type ToneColor = Record<number, string>; // midi：dataurl或url
+
+/**
+ * trigger / 序列 play 共用的包络字段。时间单位均为秒；`0` / 不传 / ≤0 表示该段不存在。
+ * 序列 play：A/D 压进每个音符 duration；R 在 duration 之后，并推迟整曲 onEnd。
+ */
+export type NoteEnvelopeParams = {
+  volume?: number;
+  peakVolume?: number;
+  attack?: number;
+  decay?: number;
+  release?: number;
+};
 // ================================================= MPlayer =========================================================
 /** 每小节拍数（拍号分子），常见 2–12；1–16 覆盖教学与流行/古典常用拍号 */
 export type TimeSignatureNumerator =

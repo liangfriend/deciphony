@@ -3,6 +3,7 @@ import {nextTick, ref, watch} from 'vue'
 import type {SElement, STextElement} from '../types/types'
 import EditFrame from './EditFrame.vue'
 import AudioPlayer from './AudioPlayer.vue'
+import VideoPlayer from './VideoPlayer.vue'
 
 const props = defineProps<{
   element: SElement
@@ -76,7 +77,7 @@ function onBodyDblclick() {
   <EditFrame
     :editable="editable"
     :element="element"
-    :move-on-body="element.type !== 'audio' && !textEditing"
+    :move-on-body="element.type !== 'audio' && element.type !== 'video' && !textEditing"
     :selected="selected"
     @body-dblclick="onBodyDblclick"
     @contextmenu="emit('contextmenu', $event)"
@@ -104,6 +105,21 @@ function onBodyDblclick() {
         @contextmenu.prevent.stop="emit('contextmenu', $event)"
       >
         <AudioPlayer :src="resolveSrc(element.src)"/>
+      </div>
+    </foreignObject>
+    <foreignObject
+      v-else-if="element.type === 'video'"
+      :height="element.height"
+      :width="element.width"
+      x="0"
+      y="0"
+    >
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        class="sjw-el__box"
+        @contextmenu.prevent.stop="emit('contextmenu', $event)"
+      >
+        <VideoPlayer :src="resolveSrc(element.src)"/>
       </div>
     </foreignObject>
     <foreignObject

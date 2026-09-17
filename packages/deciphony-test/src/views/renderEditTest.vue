@@ -83,6 +83,7 @@ onBeforeUnmount(() => {
             <SlurDragHandles
                 v-if="slurHandlePoints"
                 :handles="slurHandlePoints"
+                :show-control="!isNumberNotation"
                 @handle-down="handleSlurHandleDown"
             />
             <VoltaDragHandles

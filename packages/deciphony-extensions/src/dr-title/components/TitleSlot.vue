@@ -30,9 +30,11 @@ const slotH = computed(() => props.node.h)
 
 const contentW = computed(() => Math.max(0, slotW.value - padL.value - padR.value))
 const centerX = computed(() => padL.value + contentW.value / 2)
-const centerY = computed(() => slotH.value * 0.42)
+/** 相对槽顶：标题贴顶；副标题 / 作者下移 */
+const TITLE_Y = 0
+const SUBTITLE_Y = 26
+const AUTHOR_Y = 100
 const authorX = computed(() => slotW.value - padR.value)
-const authorY = computed(() => slotH.value - 8)
 
 function onFieldInput(key: TitleFieldKey, event: Event) {
   writeTitleField(props.musicScore, key, (event.target as HTMLInputElement).value)
@@ -46,23 +48,24 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
         v-if="musicScore.title"
         class="dr-title-slot__title"
         :x="centerX"
-        :y="centerY - (musicScore.subTitle ? 10 : 0)"
-        dominant-baseline="middle"
+        :y="TITLE_Y"
+        dominant-baseline="hanging"
         text-anchor="middle"
       >{{ musicScore.title }}</text>
       <text
         v-if="musicScore.subTitle"
         class="dr-title-slot__subtitle"
         :x="centerX"
-        :y="centerY + 16"
-        dominant-baseline="middle"
+        :y="SUBTITLE_Y"
+        dominant-baseline="hanging"
         text-anchor="middle"
       >{{ musicScore.subTitle }}</text>
       <text
         v-if="musicScore.author"
         class="dr-title-slot__author"
         :x="authorX"
-        :y="authorY"
+        :y="AUTHOR_Y"
+        dominant-baseline="hanging"
         text-anchor="end"
       >{{ musicScore.author }}</text>
     </template>
@@ -136,12 +139,11 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__center {
   position: absolute;
-  top: 50%;
+  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  transform: translateY(-50%);
 }
 
 .dr-title-slot__input {
@@ -172,7 +174,7 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__input--author {
   position: absolute;
-  bottom: 6px;
+  top: 100px;
   width: 140px;
   font-size: 12px;
   text-align: right;

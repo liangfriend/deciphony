@@ -1,6 +1,7 @@
 import {
   AccidentalTypeEnum,
   BarlineTypeEnum,
+  BeamTypeEnum,
   BracketTypeEnum,
   ClefTypeEnum,
   KeySignatureTypeEnum,
@@ -97,6 +98,16 @@ export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): NumberNot
 export function chronaxieToBeamLineCount(chronaxie: number): number {
   const map: Record<number, number> = {32: 1, 16: 2, 8: 3, 4: 4, 2: 5, 1: 6};
   return map[chronaxie] ?? 1;
+}
+
+/** 左侧音能向右连：Combined / OnlyRight（OnlyRight 只连右侧，可作为左端） */
+export function canJoinReduceLineFromLeft(beamType: BeamTypeEnum | undefined): boolean {
+  return beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight;
+}
+
+/** 右侧音能被左边连入：仅 Combined（OnlyRight 不连左边） */
+export function canJoinReduceLineToRight(beamType: BeamTypeEnum | undefined): boolean {
+  return beamType === BeamTypeEnum.Combined;
 }
 
 /** 减时线皮肤内最后一条线的 y（与 default 皮肤 reduceLine_* 一致） */

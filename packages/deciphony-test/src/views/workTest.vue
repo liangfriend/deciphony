@@ -24,6 +24,8 @@ const pdfRef = ref<InstanceType<typeof SJWPDF> | null>(null)
 const assetNames = ref<string[]>([])
 const status = ref('')
 const toneReady = ref(false)
+/** 曲谱 NPlayer 音量 0～1 */
+const scoreVolume = ref(1)
 /** 演示：先 loadAsset 再用 id 添加 */
 const lastLoadedAssetId = ref('')
 
@@ -101,6 +103,7 @@ onMounted(async () => {
   }
   await pdf.addToneColor('piano', piano as Record<number, string>)
   pdf.setToneColorName('piano')
+  applyScoreVolume()
   toneReady.value = true
   if (!status.value) status.value = '已加载 piano 音色；可播放 scores[0]'
   else status.value += '；已加载 piano 音色'
@@ -300,6 +303,18 @@ function handleStop() {
   status.value = '已停止'
 }
 
+function applyScoreVolume() {
+  const player = pdfRef.value?.getPlayer()
+  if (!player) return
+  player.volume = scoreVolume.value
+}
+
+function onScoreVolumeInput(ev: Event) {
+  const v = Number((ev.target as HTMLInputElement).value)
+  scoreVolume.value = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 1
+  applyScoreVolume()
+}
+
 function checkAssets() {
   const pdf = pdfRef.value
   if (!pdf) return
@@ -396,6 +411,18 @@ function clearPageDrawings() {
         <button type="button" @click="clearPageDrawings">清空笔迹</button>
         <button type="button" @click="checkAssets">检测资源引用</button>
         <button type="button" @click="exportDemo">导出 sjw</button>
+        <label class="work-test__volume">
+          音量
+          <input
+            :value="scoreVolume"
+            max="1"
+            min="0"
+            step="0.01"
+            type="range"
+            @input="onScoreVolumeInput"
+          />
+          <span>{{ scoreVolume.toFixed(2) }}</span>
+        </label>
         <label class="work-test__import">
           导入 sjw
           <input accept=".sjw,application/zip" type="file" @change="onImportSjw"/>
@@ -540,6 +567,19 @@ function clearPageDrawings() {
 .work-test__import {
   display: inline-flex;
   align-items: center;
+}
+
+.work-test__volume {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #606266;
+}
+
+.work-test__volume input[type='range'] {
+  width: 100px;
+  vertical-align: middle;
 }
 
 .work-test__import input {

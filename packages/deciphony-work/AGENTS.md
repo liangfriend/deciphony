@@ -72,7 +72,7 @@ packages/deciphony-work/
 | `audio` | 同上；`addAudio` / `addAudioFromFile`；默认 `DEFAULT_AUDIO_*`；必须用 `AudioPlayer` |
 | `text` | 默认 `DEFAULT_TEXT_*`；双击 → 等大 textarea |
 
-背景：`background.src` = 资源 id；`setBackground(id)` / `setBackgroundFromFile` / `clearBackground`。无背景时白底。
+背景：`background.src` = 资源 id；`setBackground(id)` / `setBackgroundFromFile` / `clearBackground`。无背景时白底。替换或清除时，旧背景资源若已无引用则从缓存删除（防反复换图撑爆存储）。
 
 ### drawings（绘制层笔迹）
 
@@ -112,7 +112,7 @@ SScore = SElementBase & {
 
 每页自下而上三层（`Page.vue`）：
 
-1. **背景 canvas** — 图片背景（`background.src` → resolveSrc）或白底
+1. **背景 div** — 白底；有图则 `<img>` + `object-fit: fill` 拉伸铺满（`background.src` → resolveSrc）
 2. **svg** — `viewBox` 与页面宽高一致，`preserveAspectRatio="none"`；内挂 `scores` 再 `elements`
 3. **绘制 canvas** — 透明笔迹层；默认 `pointer-events: none`；`startDraw` 后可画；数据在 `page.drawings`
 

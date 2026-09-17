@@ -15,6 +15,8 @@ import {
     AUGMENTATION_DOT_Y_OFFSET,
 } from "../constants";
 import {
+    canJoinReduceLineFromLeft,
+    canJoinReduceLineToRight,
     chronaxieToBeamLineCount,
     getAccidentalSkinKey,
     getAugmentationDotSkinKey,
@@ -242,14 +244,14 @@ function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumbe
                 for (let j = i - 1; j >= 0; j--) {
                     const s = slots[j]!;
                     if (getInfoChronaxie(s.ni) > 32) break;
-                    if (s.ni.beamType !== BeamTypeEnum.Combined) break;
+                    if (!canJoinReduceLineFromLeft(s.ni.beamType)) break;
                     leftIdx = j;
                 }
             }
             for (let j = i + 1; j < slots.length; j++) {
                 const s = slots[j]!;
                 if (getInfoChronaxie(s.ni) > 32) break;
-                if (s.ni.beamType !== BeamTypeEnum.Combined) break;
+                if (!canJoinReduceLineToRight(s.ni.beamType)) break;
                 rightIdx = j;
             }
         }

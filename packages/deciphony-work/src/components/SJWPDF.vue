@@ -246,6 +246,14 @@ function removeScoreAndOrphanAudios(scoreId: string): boolean {
   return true
 }
 
+/** 背景图被替换/清除后，若已无其它引用则删缓存，避免反复换背景撑爆存储 */
+function removeOrphanBackgroundAsset(assetId: string | undefined) {
+  if (!assetId) return
+  if (store.isUsed(props.data, assetId)) return
+  store.removeAsset(assetId, props.data)
+  store.syncAssetNamesToData(props.data)
+}
+
 function requirePage(): SPage {
   const page = currentPage.value
   if (!page) throw new Error(`pageIndex ${props.pageIndex} out of range`)
@@ -451,18 +459,24 @@ defineExpose({
     insertPage(props.data, index, options),
   removePage: (index = props.pageIndex) => removePage(props.data, index),
 
-  /** 按缓存 id 设背景；没有则失败 */
+  /** 按缓存 id 设背景；没有则失败。替换时若旧图已无引用则从缓存删除 */
   setBackground: (assetId: string) => {
     requireAsset(assetId)
-    setBackground(requirePage(), {assetId})
+    const prev = setBackground(requirePage(), {assetId})
+    removeOrphanBackgroundAsset(prev)
   },
-  /** File → loadAsset + 设为当前页背景 */
+  /** File → loadAsset + 设为当前页背景；替换时清理旧图孤儿资源 */
   setBackgroundFromFile: (file: File, name?: string) => {
     const {id: assetId, name: displayName} = loadAsset(file, name)
-    setBackground(requirePage(), {assetId})
+    const prev = setBackground(requirePage(), {assetId})
+    removeOrphanBackgroundAsset(prev)
     return {assetId, name: displayName}
   },
-  clearBackground: () => clearBackground(requirePage()),
+  /** 清除背景；原背景图若已无其它引用则从缓存删除 */
+  clearBackground: () => {
+    const prev = clearBackground(requirePage())
+    removeOrphanBackgroundAsset(prev)
+  },
 
   /** 原始载入静态资源（宿主可自行缓存后再用 id 添加） */
   loadAsset,

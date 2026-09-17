@@ -26,7 +26,6 @@ const emit = defineEmits<{
   scoreContextmenu: [payload: {score: SScore; event: MouseEvent}]
 }>()
 
-const bgCanvasRef = ref<HTMLCanvasElement | null>(null)
 const drawCanvasRef = ref<HTMLCanvasElement | null>(null)
 const svgRef = ref<SVGSVGElement | null>(null)
 const selectedId = ref<string | null>(null)
@@ -59,6 +58,12 @@ const drawInteractive = computed(
 const brushCursorSize = computed(
   () => brushByTool.value[activeTool.value]?.lineWidth ?? 3,
 )
+/** 背景图 URL；无背景时仅白底 div */
+const bgUrl = computed(() => {
+  const src = props.page.background?.src
+  if (!src) return ''
+  return props.resolveSrc(src)
+})
 
 function ensureDrawings(): DrawStroke[] {
   if (!props.page.drawings) props.page.drawings = []
@@ -69,31 +74,6 @@ function getDrawCtx(): CanvasRenderingContext2D | null {
   const canvas = drawCanvasRef.value
   if (!canvas) return null
   return canvas.getContext('2d')
-}
-
-function paintBackground() {
-  const canvas = bgCanvasRef.value
-  if (!canvas) return
-  const {width, height} = props.page
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  ctx.clearRect(0, 0, width, height)
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 0, width, height)
-
-  const bgSrc = props.page.background?.src
-  if (!bgSrc) return
-  const url = props.resolveSrc(bgSrc)
-  if (!url) return
-
-  const img = new Image()
-  img.onload = () => {
-    if (bgCanvasRef.value !== canvas) return
-    ctx.drawImage(img, 0, 0, width, height)
-  }
-  img.src = url
 }
 
 function paintDrawLayer() {
@@ -107,8 +87,7 @@ function paintDrawLayer() {
   paintStrokes(ctx, props.page.drawings ?? [])
 }
 
-function syncLayers() {
-  paintBackground()
+function syncDrawLayer() {
   paintDrawLayer()
 }
 
@@ -258,20 +237,14 @@ function clearDrawings() {
   paintDrawLayer()
 }
 
-onMounted(syncLayers)
+onMounted(syncDrawLayer)
 onBeforeUnmount(() => {
   endDraw()
 })
 
 watch(
-  () =>
-    [
-      props.page.id,
-      props.page.width,
-      props.page.height,
-      props.page.background?.src,
-    ] as const,
-  syncLayers,
+  () => [props.page.id, props.page.width, props.page.height] as const,
+  syncDrawLayer,
 )
 watch(
   () => props.page.drawings,
@@ -309,7 +282,15 @@ defineExpose({
     }"
     :style="{width: `${page.width}px`, height: `${page.height}px`}"
   >
-    <canvas ref="bgCanvasRef" class="sjw-page__layer sjw-page__bg"/>
+    <div class="sjw-page__layer sjw-page__bg" aria-hidden="true">
+      <img
+        v-if="bgUrl"
+        class="sjw-page__bg-img"
+        alt=""
+        draggable="false"
+        :src="bgUrl"
+      />
+    </div>
     <svg
       ref="svgRef"
       class="sjw-page__layer sjw-page__svg"
@@ -403,6 +384,18 @@ defineExpose({
 
 .sjw-page__bg {
   z-index: 1;
+  background: #fff;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sjw-page__bg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .sjw-page__svg {

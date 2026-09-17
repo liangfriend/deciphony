@@ -345,9 +345,9 @@ class NPlayer {
       playContextTime: t0,
       hasDuration,
       normalGain,
-      onEnd: param.onEnd,
       stopCalled: false,
     };
+    if (param.onEnd) entry.onEnd = param.onEnd;
 
     const cleanup = () => {
       // 已被同 id 新音顶替：只拆本节点，勿动 map
@@ -388,7 +388,7 @@ class NPlayer {
 
     if (entry.cleanupTimer != null) {
       clearTimeout(entry.cleanupTimer);
-      entry.cleanupTimer = undefined;
+      delete entry.cleanupTimer;
     }
 
     const softRelease =
@@ -423,7 +423,7 @@ class NPlayer {
       done = true;
       if (entry.cleanupTimer != null) {
         clearTimeout(entry.cleanupTimer);
-        entry.cleanupTimer = undefined;
+        delete entry.cleanupTimer;
       }
       // 同 id 已被新 trigger 替换：只拆旧节点
       if (this._triggerSourceMap.get(param.id) !== entry) {
@@ -491,7 +491,7 @@ class NPlayer {
     entry.source.onended = null;
     if (entry.cleanupTimer != null) {
       clearTimeout(entry.cleanupTimer);
-      entry.cleanupTimer = undefined;
+      delete entry.cleanupTimer;
     }
     this._disconnectTriggerNodes(entry);
     if (this._triggerSourceMap.get(id) === entry) {

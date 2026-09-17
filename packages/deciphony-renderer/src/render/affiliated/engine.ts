@@ -108,11 +108,11 @@ function resolveSkinSize(
     return {w: item.w, h: item.h || notationFallbackH};
 }
 
-/** slur ????? NotesInfo.id / NotesNumberInfo.id?? noteHead / tabNoteNumber VDom.targetId ??? */
+/** slur 端点：NotesInfo.id / NotesNumberInfo.id → noteHead / noteNumber / tabNoteNumber */
 function resolveNoteHeadByNotesInfoId(map: NodeIdMap, notesInfoId: string): VDom | undefined {
     const entry = map.get(notesInfoId);
     if (!entry) return undefined;
-    return entry.noteHead ?? entry.tabNoteNumber;
+    return entry.noteHead ?? entry.noteNumber ?? entry.tabNoteNumber;
 }
 
 function noteAnchorPoint(
@@ -124,7 +124,11 @@ function noteAnchorPoint(
     extraY = 0,
 ) {
     const {dx, dy} = offsetPx(rule, measureHeight);
-    const anchorY = notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4
+    // 吉他谱：数字顶边；简谱：数字顶边（字形高，中心锚会叠在笔画上）；五线谱：符头中心
+    const useTop = notationType === MusicScoreTypeEnum.NumberNotation
+        || notationType === MusicScoreTypeEnum.Tab6
+        || notationType === MusicScoreTypeEnum.Tab4;
+    const anchorY = useTop
         ? noteHead.y + dy + extraY
         : noteHead.y + noteHead.h / 2 + dy + extraY;
     return {

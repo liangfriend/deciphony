@@ -21,6 +21,8 @@ import {
   REDUCE_LINE_Y_OFFSET
 } from "../constants";
 import {
+  canJoinReduceLineFromLeft,
+  canJoinReduceLineToRight,
   chronaxieToBeamLineCount,
   getAccidentalSkinKey,
   getAugmentationDotSkinKey,
@@ -573,14 +575,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             for (let j = i - 1; j >= 0; j--) {
               const leftInfo = getFloorInfo(slots[j]!, floorIdx);
               if (!leftInfo || getInfoChronaxie(leftInfo) > 32) break;
-              if (leftInfo.beamType !== BeamTypeEnum.Combined) break;
+              if (!canJoinReduceLineFromLeft(leftInfo.beamType)) break;
               leftIdx = j;
             }
           }
           for (let j = i + 1; j < slots.length; j++) {
             const rightInfo = getFloorInfo(slots[j]!, floorIdx);
             if (!rightInfo || getInfoChronaxie(rightInfo) > 32) break;
-            if (rightInfo.beamType !== BeamTypeEnum.Combined) break;
+            if (!canJoinReduceLineToRight(rightInfo.beamType)) break;
             rightIdx = j;
           }
         }

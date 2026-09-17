@@ -6,11 +6,12 @@ import type {DrTitleOptions} from './types'
 export const TITLE_SLOT_HEIGHT = 96
 
 export function drTitle(options: DrTitleOptions = {}): DrExtension {
+  const height = Math.max(0, options.height ?? TITLE_SLOT_HEIGHT)
   const paddingLeft = Math.max(0, options.paddingLeft ?? 0)
   const paddingRight = Math.max(0, options.paddingRight ?? 0)
   return {
     name: 'dr-title',
-    slotConfig: {t: {h: TITLE_SLOT_HEIGHT}},
+    slotConfig: {t: {h: height}},
     slots: {t: TitleSlot},
     props: () => ({
       mode: options.mode ?? 'show',

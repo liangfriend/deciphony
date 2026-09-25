@@ -16,7 +16,7 @@ import {
   getPlayMeasureIndexes,
   type AlteredAccidental,
 } from '../../scoreUtil'
-import {applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
+import {applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 
@@ -228,7 +228,7 @@ function appendMeasureSequence(
 
 /**
  * 五线谱 → 可播放序列
- * - 谱号/调号/小节变音记忆 → getNoteMidi
+ * - 谱号/调号/小节变音记忆 → getNoteMidi；第一小节无调号时用 MusicScore.keySignature
  * - 倚音、延音线等同 dr-play 既有语义
  */
 export function getStandardStaffPlaySequence(musicScoreData: MusicScore): DR_playSequence {
@@ -239,7 +239,7 @@ export function getStandardStaffPlaySequence(musicScoreData: MusicScore): DR_pla
   const noteStaveIndex = new Map<string, number>()
   const maxStaves = Math.max(0, ...musicScoreData.grandStaffs.map((gs) => gs.staves.length))
   const staffStates: StaffPlayState[] = Array.from({length: maxStaves}, () => ({
-    curKeySignature: KeySignatureTypeEnum.C,
+    curKeySignature: initialPlayKeySignature(musicScoreData),
     curClef: ClefTypeEnum.Treble,
   }))
   let globalPlayTime: Unit256 = 0

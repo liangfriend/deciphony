@@ -1,0 +1,15 @@
+/** ChordBuilder 可禁用的编辑字段（与 tabChord / 编辑区控件对应） */
+export type ChordBuilderDisabledField =
+  | 'name'
+  | 'width'
+  | 'height'
+  | 'stringCount'
+  | 'fretCount'
+  | 'baseFret'
+  | 'textSize'
+  | 'nameSize'
+  | 'tuning'
+  | 'stringStates'
+  | 'barres'
+  | 'loadSample'
+  | 'previewScale'

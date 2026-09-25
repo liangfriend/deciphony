@@ -7,6 +7,8 @@ type FingerMode = 'none' | 'o' | 'x' | 'fret'
 const props = defineProps<{
   stringCount: number
   modelValue: StringState[]
+  /** 整块按弦编辑禁用 */
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -62,6 +64,7 @@ watch(
 )
 
 function patchState(index: number, patch: Partial<StringState>) {
+  if (props.disabled) return
   const next = normalizeStates(props.modelValue, props.stringCount)
   next[index] = {...next[index]!, ...patch}
   emit('update:modelValue', next)
@@ -105,7 +108,11 @@ function onTextChange(index: number, text: string) {
         <span class="string-label">{{ row.index + 1 }}弦</span>
         <label class="field">
           <span>状态</span>
-          <select :value="row.mode" @change="onModeChange(row.index, ($event.target as HTMLSelectElement).value)">
+          <select
+            :value="row.mode"
+            :disabled="disabled"
+            @change="onModeChange(row.index, ($event.target as HTMLSelectElement).value)"
+          >
             <option value="none">不显示 (-1)</option>
             <option value="o">空弦 (o)</option>
             <option value="x">闷音 (x)</option>
@@ -118,7 +125,7 @@ function onTextChange(index: number, text: string) {
             :value="row.fretValue"
             type="number"
             min="0"
-            :disabled="row.mode !== 'fret'"
+            :disabled="disabled || row.mode !== 'fret'"
             @input="onFretChange(row.index, ($event.target as HTMLInputElement).value)"
           />
         </label>
@@ -127,7 +134,7 @@ function onTextChange(index: number, text: string) {
           <input
             :value="row.text"
             type="text"
-            :disabled="row.mode !== 'fret'"
+            :disabled="disabled || row.mode !== 'fret'"
             @input="onTextChange(row.index, ($event.target as HTMLInputElement).value)"
           />
         </label>

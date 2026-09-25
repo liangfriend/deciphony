@@ -109,6 +109,8 @@ export function clefToXmlSignLine(clef: ClefTypeEnum): { sign: string; line: num
       return { sign: 'C', line: 3 }
     case ClefTypeEnum.Tenor:
       return { sign: 'C', line: 4 }
+    case ClefTypeEnum.Tab:
+      return { sign: 'TAB', line: 5 }
     default:
       return { sign: 'G', line: 2 }
   }

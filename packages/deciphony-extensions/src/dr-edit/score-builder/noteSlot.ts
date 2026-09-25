@@ -2,6 +2,7 @@ import {isNoteRest, isNoteSymbol} from '@deciphony/renderer';
 import type {Measure, MeasureNoteSlot, NoteNumber, NoteRest, NotesInfo, NoteSymbol, StaffSlot} from '@deciphony/renderer';
 import {assertIndex} from './id';
 import {createNoteNumber, createNoteRest, createNoteSymbol, createNotesInfo, createNotesNumberInfo} from './factories';
+import {computeMeasureOnsetBefore} from './autoBeam';
 import type {CreateNoteNumberOptions, CreateNoteRestOptions, CreateNoteSymbolOptions} from './types';
 
 /** 在小节指定下标插入音符位（五线谱 NoteSymbol/NoteRest 或简谱 NoteNumber） */
@@ -27,7 +28,11 @@ export function insertNoteSymbol(
     at: number,
     options: CreateNoteSymbolOptions = {},
 ): NoteSymbol {
-    return insertNoteSlot(measure, at, createNoteSymbol(options)) as NoteSymbol;
+    const withBeam =
+        options.beamType != null || options.beamOnset != null
+            ? options
+            : {...options, beamOnset: computeMeasureOnsetBefore(measure, at)};
+    return insertNoteSlot(measure, at, createNoteSymbol(withBeam)) as NoteSymbol;
 }
 
 export function insertNoteRest(
@@ -43,7 +48,11 @@ export function insertNoteNumber(
     at: number,
     options: CreateNoteNumberOptions,
 ): NoteNumber {
-    return insertNoteSlot(measure, at, createNoteNumber(options)) as NoteNumber;
+    const withBeam =
+        options.beamType != null || options.beamOnset != null
+            ? options
+            : {...options, beamOnset: computeMeasureOnsetBefore(measure, at)};
+    return insertNoteSlot(measure, at, createNoteNumber(withBeam)) as NoteNumber;
 }
 
 /** 向已有简谱 NoteNumber 追加一个声部（NotesNumberInfo） */
@@ -68,7 +77,14 @@ export function appendNotesInfo(
     region: number,
     partial?: Omit<Parameters<typeof createNotesInfo>[0], 'region'>,
 ): NotesInfo {
-    const info = createNotesInfo({region, ...partial});
+    const lead = note.notesInfo[0]
+    const info = createNotesInfo({
+        region,
+        chronaxie: lead?.chronaxie,
+        beamType: lead?.beamType,
+        direction: lead?.direction,
+        ...partial,
+    });
     note.notesInfo.push(info);
     return info;
 }

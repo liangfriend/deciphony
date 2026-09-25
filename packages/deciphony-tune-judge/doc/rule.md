@@ -20,11 +20,17 @@
 
 ##### relative模式规则
 
-第一个检测音响起，与此时目标midi的差。赋值为midiFixedOffset， 如果加上midiFixedOffset的midi的值，称为fixedMidi，
+每秒用「目标 midi − 检测 midi」样本统计出一个整半音修正 `midiFixedOffset`；`fixedMidi = realMidi + midiFixedOffset`。
 
-此后每返回一个新的音，新的音与目标midi的差与旧的midiFixedOffset*(midiFixedOffset生成次数-1)相加除以*(midiFixedOffset生成次数)
+默认 `midiFixedOffset` 从 **0** 开始，约满 1 秒且样本足够后才锁定，因此开唱前一段会偏。可配置初值避免冷启动：
 
-先这样
+```ts
+setInitialMidiFixedOffset(savedOffset) // 下次 play/clearData 从此值起算；已配置则首秒即生效并与后续校准混合
+getInitialMidiFixedOffset()            // 读取配置的初值
+getMidiFixedOffset()                   // 读取当前生效值（演唱结束后可持久化，供下次 setInitial）
+```
+
+进度回调里的 `midiFixedOffset` 与 `getMidiFixedOffset()` 一致。
 
 ##### 吸附调整
 

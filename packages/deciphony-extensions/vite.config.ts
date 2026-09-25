@@ -39,6 +39,7 @@ export default defineConfig({
           './src/dr-numberNotation-transfer/index.ts',
         ),
         'chord-builder/index': path.resolve(__dirname, './src/chord-builder/index.ts'),
+        'audio-to-score/index': path.resolve(__dirname, './src/audio-to-score/index.ts'),
         'score-util': path.resolve(__dirname, './src/scoreUtil.ts'),
       },
       formats: ['es'],

@@ -8,6 +8,7 @@ import type {Barre, tabChord} from '@deciphony/renderer'
 import StringStateForm from './StringStateForm.vue'
 import {CHORD_DEFAULTS, CHORD_PREVIEW_SCALE_DEFAULT} from '../constants'
 import {createDefaultBarre, createSampleFChord} from '../chordFactory'
+import type {ChordBuilderDisabledField} from '../types'
 
 const props = withDefaults(
   defineProps<{
@@ -15,11 +16,27 @@ const props = withDefaults(
     chord: tabChord
     /** 预览放大倍数，仅展示 */
     previewScale?: number
+    /**
+     * 禁用字段列表；出现的字段对应输入/按钮不可改。
+     * 如 `['name','width','height','stringCount','barres']`
+     */
+    disabled?: ChordBuilderDisabledField[]
   }>(),
   {
     previewScale: CHORD_PREVIEW_SCALE_DEFAULT,
+    disabled: () => [],
   },
 )
+
+const disabledSet = computed(() => {
+  const raw = props.disabled
+  if (Array.isArray(raw)) return new Set(raw)
+  return new Set<ChordBuilderDisabledField>()
+})
+
+function isDisabled(field: ChordBuilderDisabledField): boolean {
+  return disabledSet.value.has(field)
+}
 
 const emit = defineEmits<{
   /** 弦数等结构调整后可选通知宿主 */
@@ -47,6 +64,7 @@ watch(
 )
 
 watch(tuningText, (raw) => {
+  if (isDisabled('tuning')) return
   props.chord.tuning = raw
     .split(',')
     .map((s) => s.trim())
@@ -93,18 +111,21 @@ function onStringStatesUpdate(next: tabChord['stringStates']) {
 }
 
 function addBarre() {
+  if (isDisabled('barres')) return
   if (!Array.isArray(props.chord.barres)) props.chord.barres = []
   props.chord.barres.push(createDefaultBarre(props.chord.stringCount))
   emit('change')
 }
 
 function addFullBarreExample() {
+  if (isDisabled('loadSample')) return
   const sample = createSampleFChord()
   Object.assign(props.chord, sample)
   emit('change')
 }
 
 function removeBarre(index: number) {
+  if (isDisabled('barres')) return
   props.chord.barres.splice(index, 1)
   emit('change')
 }
@@ -114,6 +135,7 @@ function getBarreTextRaw(barre: Barre): string {
 }
 
 function setBarreTextRaw(barre: Barre, raw: string) {
+  if (isDisabled('barres')) return
   const n = props.chord.stringCount
   const parts = raw.split(',').map((s) => s.trim())
   barre.text = Array.from({length: n}, (_, i) => parts[i] ?? '')
@@ -134,7 +156,14 @@ function isBarreRangeValid(barre: Barre): boolean {
     <div class="chord-builder__scale-bar">
       <label class="chord-builder__scale-control">
         <span>预览缩放</span>
-        <input v-model.number="scale" type="range" min="1" max="10" step="0.5"/>
+        <input
+          v-model.number="scale"
+          type="range"
+          min="1"
+          max="10"
+          step="0.5"
+          :disabled="isDisabled('previewScale')"
+        />
         <strong>{{ scale }}×</strong>
       </label>
       <span class="chord-builder__scale-hint">
@@ -164,45 +193,83 @@ function isBarreRangeValid(barre: Barre): boolean {
         <div class="chord-builder__toolbar">
           <label class="chord-builder__field">
             <span>name</span>
-            <input v-model="chord.name" type="text"/>
+            <input v-model="chord.name" type="text" :disabled="isDisabled('name')"/>
           </label>
           <label class="chord-builder__field">
             <span>width</span>
-            <input v-model.number="chord.width" type="number" min="20"/>
+            <input
+              v-model.number="chord.width"
+              type="number"
+              min="20"
+              :disabled="isDisabled('width')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>height</span>
-            <input v-model.number="chord.height" type="number" min="20"/>
+            <input
+              v-model.number="chord.height"
+              type="number"
+              min="20"
+              :disabled="isDisabled('height')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>stringCount</span>
-            <input v-model.number="chord.stringCount" type="number" min="1" max="8"/>
+            <input
+              v-model.number="chord.stringCount"
+              type="number"
+              min="1"
+              max="8"
+              :disabled="isDisabled('stringCount')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>fretCount</span>
-            <input v-model.number="chord.fretCount" type="number" min="1" max="8"/>
+            <input
+              v-model.number="chord.fretCount"
+              type="number"
+              min="1"
+              max="8"
+              :disabled="isDisabled('fretCount')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>baseFret</span>
-            <input v-model.number="chord.baseFret" type="number" min="0"/>
+            <input
+              v-model.number="chord.baseFret"
+              type="number"
+              min="0"
+              :disabled="isDisabled('baseFret')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>textSize</span>
-            <input v-model.number="chord.textSize" type="number" min="8"/>
+            <input
+              v-model.number="chord.textSize"
+              type="number"
+              min="8"
+              :disabled="isDisabled('textSize')"
+            />
           </label>
           <label class="chord-builder__field">
             <span>nameSize</span>
-            <input v-model.number="chord.nameSize" type="number" min="8"/>
+            <input
+              v-model.number="chord.nameSize"
+              type="number"
+              min="8"
+              :disabled="isDisabled('nameSize')"
+            />
           </label>
           <label class="chord-builder__field chord-builder__field--wide">
             <span>tuning（逗号分隔）</span>
-            <input v-model="tuningText" type="text"/>
+            <input v-model="tuningText" type="text" :disabled="isDisabled('tuning')"/>
           </label>
         </div>
 
         <StringStateForm
           :model-value="chord.stringStates"
           :string-count="chord.stringCount"
+          :disabled="isDisabled('stringStates')"
           @update:model-value="onStringStatesUpdate"
         />
 
@@ -210,28 +277,58 @@ function isBarreRangeValid(barre: Barre): boolean {
           <div class="chord-builder__barre-header">
             <h3 class="chord-builder__subtitle">横按 barres</h3>
             <div class="chord-builder__barre-actions">
-              <button type="button" @click="addBarre">添加横按</button>
-              <button type="button" @click="addFullBarreExample">全按示例 (F)</button>
+              <button type="button" :disabled="isDisabled('barres')" @click="addBarre">
+                添加横按
+              </button>
+              <button
+                type="button"
+                :disabled="isDisabled('loadSample')"
+                @click="addFullBarreExample"
+              >
+                全按示例 (F)
+              </button>
             </div>
           </div>
           <p v-if="!chord.barres?.length" class="chord-builder__empty">暂无横按，点击「添加横按」</p>
           <div v-for="(barre, idx) in chord.barres" :key="idx" class="chord-builder__barre-item">
             <div class="chord-builder__barre-item-head">
               <span class="chord-builder__barre-label">#{{ idx + 1 }}</span>
-              <button type="button" class="chord-builder__btn-danger" @click="removeBarre(idx)">删除</button>
+              <button
+                type="button"
+                class="chord-builder__btn-danger"
+                :disabled="isDisabled('barres')"
+                @click="removeBarre(idx)"
+              >
+                删除
+              </button>
             </div>
             <div class="chord-builder__barre-fields">
               <label class="chord-builder__field">
                 <span>fret（相对品）</span>
-                <input v-model.number="barre.fret" type="number" min="0"/>
+                <input
+                  v-model.number="barre.fret"
+                  type="number"
+                  min="0"
+                  :disabled="isDisabled('barres')"
+                />
               </label>
               <label class="chord-builder__field">
                 <span>start（细弦索引）</span>
-                <input v-model.number="barre.startStringNumber" type="number" min="0"/>
+                <input
+                  v-model.number="barre.startStringNumber"
+                  type="number"
+                  min="0"
+                  :disabled="isDisabled('barres')"
+                />
               </label>
               <label class="chord-builder__field">
                 <span>end（粗弦索引）</span>
-                <input v-model.number="barre.endStringNumber" type="number" min="0"/>
+                <input
+                  v-model.number="barre.endStringNumber"
+                  type="number"
+                  min="0"
+                  :disabled="isDisabled('barres')"
+                />
               </label>
               <label class="chord-builder__field chord-builder__field--wide">
                 <span>text（逗号分隔，下标=弦索引）</span>
@@ -239,6 +336,7 @@ function isBarreRangeValid(barre: Barre): boolean {
                   :value="getBarreTextRaw(barre)"
                   type="text"
                   placeholder="例: 1,1,1,1,1,1"
+                  :disabled="isDisabled('barres')"
                   @input="setBarreTextRaw(barre, ($event.target as HTMLInputElement).value)"
                 />
               </label>
@@ -363,6 +461,15 @@ function isBarreRangeValid(barre: Barre): boolean {
   padding: 6px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.chord-builder__field input:disabled,
+.chord-builder__scale-control input:disabled,
+.chord-builder__barre-actions button:disabled,
+.chord-builder__btn-danger:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
 }
 
 .chord-builder__barre {

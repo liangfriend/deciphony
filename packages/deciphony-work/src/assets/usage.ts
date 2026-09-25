@@ -45,6 +45,13 @@ export function findAssetUsages(data: SJW, filename: string): AssetUsage[] {
           field: 'accompaniment',
         })
       }
+      if (sc.skin === filename) {
+        usages.push({
+          pageId: page.id,
+          scoreId: sc.id,
+          field: 'skin',
+        })
+      }
     }
   }
   return usages
@@ -78,6 +85,7 @@ export function clearAssetUsages(data: SJW, filename: string): void {
     for (const sc of page.scores ?? []) {
       if (sc.vocalPerformance?.src === filename) delete sc.vocalPerformance
       if (sc.accompaniment?.src === filename) delete sc.accompaniment
+      if (sc.skin === filename) delete sc.skin
     }
   }
 }

@@ -1,5 +1,6 @@
 import {
   DoubleNoteAffiliatedSymbolNameEnum,
+  KeySignatureTypeEnum,
   MusicScore,
   NoteNumber,
   NoteSymbolTypeEnum,
@@ -9,6 +10,11 @@ import {getDuration} from './types'
 
 /** 倚音播放时值：不占小节拍位，不累加 playTime */
 export const GRACE_PLAY_DURATION: Unit256 = getDuration(16, 0)
+
+/** 播放初始调：顶层 keySignature；小节上再有调号则覆盖。拍号不参与时值（chronaxie 已是绝对时值） */
+export function initialPlayKeySignature(score: MusicScore): KeySignatureTypeEnum {
+  return score.keySignature ?? KeySignatureTypeEnum.C
+}
 
 export function pushPitchItem(
   seq: DR_playSequence,
@@ -100,7 +106,7 @@ export function applySlurTieRealDuration(
           it.playTime >= tMin &&
           it.playTime <= tMax,
       )
-      .sort((a, b) => a.playTime - b.playTime || a.note_id.localeCompare(b.note_id))
+      .sort((a, b) => a.playTime - b.playTime || String(a.note_id).localeCompare(String(b.note_id)))
 
     if (inSlur.length < 2) continue
 

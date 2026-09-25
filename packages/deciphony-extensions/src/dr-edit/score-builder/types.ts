@@ -86,7 +86,21 @@ export type LocatedNotesNumberInfo = NotesNumberInfoPath & {
 // —— 创建选项 ——
 
 export type CreateMusicScoreOptions = Partial<
-  Pick<MusicScore, 'id' | 'type' | 'title' | 'description' | 'bpm' | 'width' | 'height' | 'topSpaceHeight' | 'data'>
+  Pick<
+    MusicScore,
+    | 'id'
+    | 'type'
+    | 'title'
+    | 'description'
+    | 'bpm'
+    | 'beatUnit'
+    | 'width'
+    | 'height'
+    | 'topSpaceHeight'
+    | 'data'
+    | 'keySignature'
+    | 'timeSignature'
+  >
 >;
 
 export type CreateGrandStaffOptions = Partial<
@@ -117,7 +131,10 @@ export type CreateNotesInfoOptions = {
   region: number;
   chronaxie?: Chronaxie;
   direction?: 'up' | 'down';
+  /** 显式指定则优先生效；否则若提供 beamOnset 则按四分拍自动推断 */
   beamType?: BeamTypeEnum;
+  /** 小节内 onset（chronaxie）；未指定 beamType 时用于 resolveAutoBeamType */
+  beamOnset?: number;
   accidental?: AccidentalTypeEnum;
   augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   affiliatedSymbols?: NotesInfo['affiliatedSymbols'];
@@ -132,6 +149,8 @@ export type CreateNoteSymbolOptions = {
   chronaxie?: Chronaxie;
   direction?: 'up' | 'down';
   beamType?: BeamTypeEnum;
+  /** 透传给默认 notesInfo；未指定 beamType 时自动推算 */
+  beamOnset?: number;
   accidental?: AccidentalTypeEnum;
   graceNotes?: CreateNotesInfoOptions[];
   graceNotesAfter?: CreateNotesInfoOptions[];
@@ -156,6 +175,8 @@ export type CreateNoteNumberOptions = {
   chronaxie?: Chronaxie;
   octaveDot?: NotesNumberInfo['octaveDot'];
   beamType?: BeamTypeEnum;
+  /** 未指定 beamType 时按四分拍自动推断 */
+  beamOnset?: number;
   accidental?: AccidentalTypeEnum;
   augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   widthRatio?: number;
@@ -168,6 +189,7 @@ export type CreateNoteNumberOptions = {
     accidental?: AccidentalTypeEnum;
     chronaxie?: Chronaxie;
     beamType?: BeamTypeEnum;
+    beamOnset?: number;
     augmentationDot?: AugmentationDot | AccidentalTypeEnum;
   }>;
 };

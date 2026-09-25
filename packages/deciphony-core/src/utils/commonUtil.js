@@ -1,0 +1,29 @@
+import { AccidentalEnum, NoteLetterEnum } from "../musicScoreEnum";
+// MIDI 到音名映射 (C 大调，含升号优先)
+const NOTE_TABLE = [
+    { letter: NoteLetterEnum.C, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.C, accidental: AccidentalEnum.Sharp },
+    { letter: NoteLetterEnum.D, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.D, accidental: AccidentalEnum.Sharp },
+    { letter: NoteLetterEnum.E, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.F, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.F, accidental: AccidentalEnum.Sharp },
+    { letter: NoteLetterEnum.G, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.G, accidental: AccidentalEnum.Sharp },
+    { letter: NoteLetterEnum.A, accidental: AccidentalEnum.None },
+    { letter: NoteLetterEnum.A, accidental: AccidentalEnum.Sharp },
+    { letter: NoteLetterEnum.B, accidental: AccidentalEnum.None },
+];
+export function hzToMidi(hz) {
+    if (hz <= 0)
+        throw new Error("Frequency must be positive");
+    // 1. 频率转 MIDI (四舍五入到最近的音高)
+    const midi = Math.round(69 + 12 * Math.log2(hz / 440));
+    // 2. 计算音名
+    const pitchClass = ((midi % 12) + 12) % 12; // 防止负数
+    const octave = Math.floor(midi / 12) - 1; // MIDI 0 = C-1
+    const { letter, accidental } = NOTE_TABLE[pitchClass];
+    const noteName = { letter, accidental, octave };
+    const noteString = `${letter}${accidental}${octave}`;
+    return { midi, noteName, noteString };
+}

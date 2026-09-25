@@ -1,6 +1,14 @@
 import {defaultSkin} from '@/skins/defaultSkin'
-import type {SkinItem, SkinPack, NumberNotationSkinPack, StandardStaffSkinPack} from '@deciphony/renderer'
+import type {
+    SkinItem,
+    SkinPack,
+    NumberNotationSkinPack,
+    StandardStaffSkinPack,
+    Tab4SkinPack,
+    Tab6SkinPack,
+} from '@deciphony/renderer'
 import {NumberNotationSkinKeyEnum, StandardStaffSkinKeyEnum} from '@deciphony/renderer'
+import {isColorOnlySkinContent} from '@/render/resolveSkinColor'
 import type {SkinTheme} from '../theme/types'
 import {getStandardStaffCategory} from './categories'
 import {
@@ -134,11 +142,44 @@ function mapNumberNotation(pack: NumberNotationSkinPack, theme: SkinTheme): Numb
     return out
 }
 
-/** 基于 defaultSkin 几何尺寸，按主题令牌与各符号 builder 生成完整皮肤包 */
+/**
+ * 吉他 / 尤克里里皮肤：几何与 default 相同，按主题重着色。
+ * 纯色项（slur / 琶音箭头色等）直接用 ink；SVG 走 themedRecolor。
+ */
+export function mapTabPack<T extends Tab6SkinPack | Tab4SkinPack>(
+    pack: T,
+    theme: Pick<SkinTheme, 'ink' | 'inkStroke' | 'lineCap'>,
+): T {
+    const out = {} as T
+    for (const key of Object.keys(pack) as (keyof T & string)[]) {
+        const item = pack[key] as SkinItem
+        if (!item) continue
+        const content = isColorOnlySkinContent(item.content)
+            ? theme.ink
+            : themedRecolor(item.content, theme.ink, theme.inkStroke, theme.lineCap)
+        ;(out as Record<string, SkinItem>)[key] = {...item, content}
+    }
+    return out
+}
+
+/** 基于 defaultSkin 几何尺寸，按主题令牌与各符号 builder 生成完整皮肤包（含 tab6 / tab4） */
 export function buildThemedSkinPack(theme: SkinTheme): SkinPack {
-    const {standardStaff, numberNotation} = defaultSkin
+    const {standardStaff, numberNotation, tab6, tab4} = defaultSkin
     return {
         standardStaff: mapStandardStaff(standardStaff!, theme),
         numberNotation: mapNumberNotation(numberNotation!, theme),
+        ...(tab6 ? {tab6: mapTabPack(tab6, theme)} : {}),
+        ...(tab4 ? {tab4: mapTabPack(tab4, theme)} : {}),
+    }
+}
+
+/** 供脚本：仅从 default 的 tab 包按 ink 生成主题 tab */
+export function buildThemedTabPacks(
+    theme: Pick<SkinTheme, 'ink' | 'inkStroke' | 'lineCap'>,
+): {tab6?: Tab6SkinPack; tab4?: Tab4SkinPack} {
+    const {tab6, tab4} = defaultSkin
+    return {
+        ...(tab6 ? {tab6: mapTabPack(tab6, theme)} : {}),
+        ...(tab4 ? {tab4: mapTabPack(tab4, theme)} : {}),
     }
 }

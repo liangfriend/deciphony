@@ -12,6 +12,10 @@ export default defineConfig({
     port: 12345, // 指定开发服务器端口
     host: '0.0.0.0', // 可选，允许局域网访问
     open: true, // 可选，启动后自动打开浏览器
+    // monorepo：@deciphony/* alias 指到兄弟包 src，需放行仓库根，否则 @fs 偶发 404 / 回落 index.html
+    fs: {
+      allow: [path.resolve(__dirname, '../..')],
+    },
   },
   assetsInclude: ['**/*.glb', '**/*.sjw'],
   resolve: {

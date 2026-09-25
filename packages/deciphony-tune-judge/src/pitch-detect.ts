@@ -5,9 +5,9 @@
 // 未接到 destination 时个别实现对子图调度偏弱 → 下面用 gain=0 静音 tap；(2) detectPitch
 // 走 rAF，主线程被解码/UI 占满时读点稀疏；(3) getUserMedia 的 AEC/NS/AGC 仍可能压低人声 RMS。
 
-import { DywaPitchTracker } from './dywa-pitch-tracker.js';
-import { _audioContext } from './ContextManager';
-import { DetectCallback, DetectRes } from './types';
+import {DywaPitchTracker} from './dywa-pitch-tracker.js';
+import {_audioContext} from './ContextManager';
+import {DetectCallback, DetectRes} from './types';
 
 /**
  * 运行时可调参数。杂音/假音高常见处理：
@@ -20,13 +20,13 @@ export const pitchDetectTuning = {
   /*
    * 这个理论上越大越好，我试了下越大越稳定，但是越大，你声音小的时候就容易识别不到，0.001的时候，我就必须提高嗓门了
    * */
-  silenceRmsThreshold: 0.0002,
+  silenceRmsThreshold: 0.02,
   // DyWA 更“挑剔”，弱噪声不容易当成基频（默认 0.78，原版 0.75）
   /*
    * 我使用自然的低吼
    * 0.1的时候，在84附近晃，0.9的时候，在44，32，25，21四个梯度上都有，一层层的。所以0.75应该是最佳的附近，这里使用0.7
    * */
-  dywaMaximaThresholdRatio: 0.7,
+  dywaMaximaThresholdRatio: 0.75,
   // 浏览器采集行为（按现象试）
   /*
    * echoCancellation和autoGainControl全都设置成false, 这两个为true, 一开始几秒频率不到，rms很小，尤其当同时播放音频时
@@ -102,7 +102,7 @@ function detectPitch() {
   if (frequency === -1) {
     curFrequent = 0;
     dywaTracker?.ClearPitchHistory();
-    result = { pitch: '', frequency: 0, midi: 0 };
+    result = {pitch: '', frequency: 0, midi: 0};
   } else {
     curFrequent = frequency;
     result = {

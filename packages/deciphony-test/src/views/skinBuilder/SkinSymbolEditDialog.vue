@@ -6,7 +6,7 @@ import SkinSymbolPreview from './SkinSymbolPreview.vue'
 import {isColorOnlySkinContent} from '@/render/resolveSkinColor'
 
 export type SkinSymbolEditTarget = {
-  categoryId: 'standardStaff' | 'numberNotation'
+  categoryId: 'standardStaff' | 'numberNotation' | 'tab6' | 'tab4'
   categoryLabel: string
   key: string
   item: SkinItem

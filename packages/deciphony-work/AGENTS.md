@@ -95,17 +95,19 @@ page.drawings?: DrawStroke[]  // { tool, color?, lineWidth, points: [x,y][] }
 ```ts
 SScore = SElementBase & {
   musicScore: MusicScore
+  skin?: string            // 可选，皮肤资源 id（zip 根目录 .json = SkinPack）
   vocalPerformance?: ScoreAudioRef  // { src, name, author? }
   accompaniment?: ScoreAudioRef
 }
-// ScoreAudioRef.src = zip 根目录唯一文件名（资源缓存 id）
+// ScoreAudioRef.src / skin = zip 根目录唯一文件名（资源缓存 id）
 ```
 
-- `addScore`：框的 `width/height` ← `musicScore.width/height`；`musicScore` 用 `structuredClone`
-- 范唱/伴奏：见 `doc/曲谱范唱伴奏.md`（`loadAsset` → score 存 `src`；播放互斥；删曲谱清孤儿音频）
+- `addScore`：框的 `width/height` ← `musicScore.width/height`；`musicScore` 用 `structuredClone`；`skin` 只存资源 id
+- SJWPDF.addScore 的 `skin`：id / `{ assetId }` / `{ file }` / SkinPack / Skin（对象每次序列化为新 `.json` 再 loadAsset）
+- 范唱/伴奏：见 `doc/曲谱范唱伴奏.md`（`loadAsset` → score 存 `src`；播放互斥；删曲谱清孤儿音频 / 皮肤）
 - 右键曲谱：`ctx.vocalPerformance` / `ctx.accompaniment` 为 `ResolvedScoreAudio`（含 `url`、`file`）
 - 拉伸**只改框**尺寸；固有宽高不变；`Score.vue` 用 CSS `scale` 铺满
-- `Score.vue` 接入 `dr-title` / `dr-lyrics` / `drPlayHighlight`（固定 show；高亮走 extensions.on）；播放：`dr-play` + `NPlayer`
+- `Score.vue` 接入 `dr-title` / `dr-lyrics` / `drPlayHighlight`（固定 show；高亮走 extensions.on）；有 `score.skin` 则从缓存读 JSON 传给 musicScore；播放：`dr-play` + `NPlayer`
 - 页面 edit 只动放置框；曲谱内容在 SJWPDF 内不可编辑
 - 播放：SJWPDF 暴露 `play` / `playAccompaniment` / `playVocal` / `pause` / `stop`（三者互斥）/ `addToneColor` / `setToneColorName` / `setBpm` / `getPlayer` / `getAPlayer`；`play` 默认 `PLAY_SMOOTH_ENVELOPE`
 - 伴奏高亮：`slot.data.accompaniment: number[]`；范唱：`slot.data.vocalPerformance: number[]`（与 dr-time-offset 展平一致）

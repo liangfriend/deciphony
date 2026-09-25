@@ -1,4 +1,4 @@
-import type {MusicScore} from '@deciphony/renderer'
+import type {MusicScore, Skin, SkinPack} from '@deciphony/renderer'
 import type {ScoreAudioRef, SPage, SScore} from '../types/types'
 
 /** 已解析好的关联音频（写入 SScore） */
@@ -13,15 +13,37 @@ export type ScoreAudioHostInput =
   | {file: File; name?: string; author?: string}
 
 /**
+ * 纯函数 addScore：皮肤只接受已入库的资源 id。
+ */
+export type ScoreSkinInput = string
+
+/**
+ * SJWPDF.addScore 皮肤入参（可选）：
+ * - 资源 id 字符串 / `{ assetId }`：缓存须已有
+ * - `{ file, name? }`：自动 loadAsset
+ * - SkinPack / Skin：序列化为 .json 再 loadAsset（每次新文件）
+ * - Skin + skinName：从多套中取出一套再入库
+ */
+export type ScoreSkinHostInput =
+  | string
+  | {assetId: string; name?: string}
+  | {file: File; name?: string}
+  | SkinPack
+  | Skin
+  | {skin: Skin | SkinPack; skinName?: string; name?: string}
+
+/**
  * 添加曲谱时传入范唱/伴奏：
- * - 纯函数 addScore：只接受 ScoreAudioRef
- * - SJWPDF.addScore：可用 ScoreAudioHostInput（含 File）
+ * - 纯函数 addScore：只接受 ScoreAudioRef；skin 为资源 id
+ * - SJWPDF.addScore：可用 ScoreAudioHostInput / ScoreSkinHostInput
  */
 export type AddScoreOptions = {
   x: number
   y: number
   /** 完整曲谱 JSON；框宽高取自其 width/height */
   musicScore: MusicScore
+  /** 皮肤资源 id（可选）；zip 根目录 .json */
+  skin?: ScoreSkinInput
   rotation?: number
   /** 范唱 */
   vocalPerformance?: ScoreAudioInput
@@ -32,10 +54,11 @@ export type AddScoreOptions = {
 
 export type AddScoreHostOptions = Omit<
   AddScoreOptions,
-  'vocalPerformance' | 'accompaniment'
+  'vocalPerformance' | 'accompaniment' | 'skin'
 > & {
   vocalPerformance?: ScoreAudioHostInput
   accompaniment?: ScoreAudioHostInput
+  skin?: ScoreSkinHostInput
 }
 
 function newId(): string {
@@ -58,7 +81,7 @@ function cloneAudioRef(ref: ScoreAudioRef): ScoreAudioRef {
 
 /**
  * 添加曲谱：框的 width/height 用 MusicScore.width/height 覆盖写入。
- * musicScore 会 structuredClone，避免外部引用被意外共享。
+ * musicScore 会 structuredClone；skin 只存资源 id（与图片相同）。
  * 范唱/伴奏只存 ScoreAudioRef（src 指向资源缓存 / zip 根文件名）。
  */
 export function addScore(page: SPage, options: AddScoreOptions): string {
@@ -72,6 +95,7 @@ export function addScore(page: SPage, options: AddScoreOptions): string {
     height: musicScore.height,
     musicScore,
   }
+  if (options.skin != null && options.skin !== '') el.skin = options.skin
   if (options.rotation !== undefined) el.rotation = options.rotation
   if (options.vocalPerformance) {
     el.vocalPerformance = cloneAudioRef(options.vocalPerformance)
@@ -97,6 +121,13 @@ export function collectScoreAudioSrcs(score: SScore): string[] {
   const set = new Set<string>()
   if (score.vocalPerformance?.src) set.add(score.vocalPerformance.src)
   if (score.accompaniment?.src) set.add(score.accompaniment.src)
+  return [...set]
+}
+
+/** 收集曲谱关联资源 id（范唱 / 伴奏 / 皮肤） */
+export function collectScoreAssetSrcs(score: SScore): string[] {
+  const set = new Set(collectScoreAudioSrcs(score))
+  if (score.skin) set.add(score.skin)
   return [...set]
 }
 

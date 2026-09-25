@@ -8,12 +8,14 @@ export type DrExtensionProps = Record<string, unknown> | (() => Record<string, u
 export type DrExtensionEvents = {
   renderMusicScore?: (vDom: VDom[]) => void
   'dr-click'?: (event: MouseEvent, vDom: VDom) => void
+  'dr-contextmenu'?: (event: MouseEvent, vDom: VDom) => void
   'dr-down'?: (event: PointerEvent, vDom: VDom) => void
   'dr-up'?: (event: PointerEvent, vDom: VDom) => void
   'dr-move'?: (event: PointerEvent, vDom: VDom) => void
   'dr-enter'?: (event: PointerEvent, vDom: VDom) => void
   'dr-leave'?: (event: PointerEvent, vDom: VDom) => void
   'top-click'?: (event: MouseEvent, vDom: VDom | null) => void
+  'top-contextmenu'?: (event: MouseEvent, vDom: VDom | null) => void
   'top-down'?: (event: PointerEvent, vDom: VDom | null) => void
   'top-up'?: (event: PointerEvent, vDom: VDom | null) => void
   'top-move'?: (event: PointerEvent, vDom: VDom | null) => void

@@ -5,13 +5,16 @@ import type {MusicScore} from '@deciphony/renderer'
 import type {Skin, SkinPack, SlotConfig} from '@/types/common'
 import skinExhibitStandardStaff from '../data/skinExhibitStandardStaff'
 import skinExhibitNumberNotation from '../data/skinExhibitNumberNotation'
+import {skinExhibitTab4, skinExhibitTab6} from '../data/skinExhibitTab'
+
+export type SkinBuilderCategory = 'standardStaff' | 'numberNotation' | 'tab6' | 'tab4'
 
 const props = defineProps<{
   modelValue: boolean
   sourceSkin: SkinPack
   draftSkin: SkinPack
   /** 与皮肤编辑器当前分类一致 */
-  notationCategory: 'standardStaff' | 'numberNotation'
+  notationCategory: SkinBuilderCategory
 }>()
 
 const emit = defineEmits<{
@@ -23,14 +26,43 @@ const exhibitSlotConfig: SlotConfig = {
 }
 
 const exhibitData = computed((): MusicScore => {
-  return props.notationCategory === 'numberNotation'
-    ? skinExhibitNumberNotation
-    : skinExhibitStandardStaff
+  switch (props.notationCategory) {
+    case 'numberNotation':
+      return skinExhibitNumberNotation
+    case 'tab6':
+      return skinExhibitTab6
+    case 'tab4':
+      return skinExhibitTab4
+    default:
+      return skinExhibitStandardStaff
+  }
 })
 
-const notationLabel = computed(() =>
-  props.notationCategory === 'numberNotation' ? '简谱' : '五线谱',
-)
+const notationLabel = computed(() => {
+  switch (props.notationCategory) {
+    case 'numberNotation':
+      return '简谱'
+    case 'tab6':
+      return '吉他谱'
+    case 'tab4':
+      return '尤克里里谱'
+    default:
+      return '五线谱'
+  }
+})
+
+const exhibitName = computed(() => {
+  switch (props.notationCategory) {
+    case 'numberNotation':
+      return 'skinExhibitNumberNotation'
+    case 'tab6':
+      return 'skinExhibitTab6'
+    case 'tab4':
+      return 'skinExhibitTab4'
+    default:
+      return 'skinExhibitStandardStaff'
+  }
+})
 
 const leftSkin = computed((): Skin => ({
   default: props.sourceSkin,
@@ -57,7 +89,7 @@ function close() {
   >
     <div class="skin-compare-dialog__toolbar">
       <span class="skin-compare-dialog__hint">
-        左：源 default.json · 右：当前编辑中 · 曲谱：skinExhibit{{ notationCategory === 'numberNotation' ? 'NumberNotation' : 'StandardStaff' }}
+        左：源 default.json · 右：当前编辑中 · 曲谱：{{ exhibitName }}
       </span>
       <el-button @click="close">关闭</el-button>
     </div>

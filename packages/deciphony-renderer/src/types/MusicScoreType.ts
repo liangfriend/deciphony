@@ -53,7 +53,13 @@ export type MusicScore = {
 
   description: string // 描述
 
-  bpm?: number // 拍速
+  bpm?: number // 拍速, 默认单位是4分音符为一拍
+
+  beatUnit?: number // 1 2 4 8 16 ... bpm基准拍
+  // 全局调号拍号：供播放 / 标题元信息等使用；不参与小节符号绘制（谱面只画小节上的 keySignature_f/b、timeSignature_f/b）
+  keySignature?: KeySignatureTypeEnum
+
+  timeSignature?: TimeSignatureTypeEnum
 
   data: Object // 自定义数据
 
@@ -500,7 +506,8 @@ export type TabNote = {
 
   graceNotesAfter?: TabNoteInfo[]
 
-  chord: tabChord
+  /** 可选；空占位（无名字/无按弦/无横按）不应渲染 */
+  chord?: tabChord
 
   isSlap: boolean
 } & Frame
@@ -545,7 +552,7 @@ export type Bend = {
   id: string
   type: BendTypeEnum
   periodOne: Semitone
-  periodTwo?: Semitone
+  periodTwo: Semitone // 预推弦和推弦情况，第二阶段值无作用
 } & Frame
 /** normal 用 region；琶音 / 扫弦用 regionRange */
 export type TabNoteInfo =
@@ -555,10 +562,10 @@ export type TabNoteInfo =
   bend?: Bend
 })
     | (TabNoteInfoCommon & {
-  type: TabNoteInfoTypeEnum.Arpeggio
+  type: TabNoteInfoTypeEnum.Arpeggio // 琶音
   regionRange: TabNoteInfoRegionRange
 } & TabNoteGeometryStyle)
     | (TabNoteInfoCommon & {
-  type: TabNoteInfoTypeEnum.Strumming
+  type: TabNoteInfoTypeEnum.Strumming // 扫弦
   regionRange: TabNoteInfoRegionRange
 } & TabNoteGeometryStyle)

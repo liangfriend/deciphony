@@ -13,12 +13,15 @@ import {
   NoteSymbolTypeEnum,
   NotesInfo,
   NotesNumberInfo,
+  TimeSignatureTypeEnum,
 } from '@deciphony/renderer'
 import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
 import {
   createAccidental,
   createClef,
+  createKeySignature,
   createNoteNumber,
+  createTimeSignature,
 } from '../dr-edit/score-builder'
 import {
   getKeySignatureAccidental,
@@ -31,6 +34,12 @@ import {
 
 export type NotationTransferOptions = {
   priority?: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat
+  /**
+   * 转换后的调。默认 C。
+   * 线谱→简谱：写入 MusicScore.keySignature（首调），小节上去掉调号。
+   * 简谱→线谱：写入第一小节 keySignature_f（固定调），去掉顶层 keySignature。
+   */
+  keySignature?: KeySignatureTypeEnum
 }
 
 type StaffTransferState = {
@@ -114,10 +123,40 @@ function resolveAccidentalInMeasure(
   return getKeySignatureAccidental(clef, keySignature, region)
 }
 
-/** 简谱无谱号，仅移除 clef */
-function stripClefOnly(measure: Measure): void {
+function stripMeasureKeyTimeClef(measure: Measure): void {
   delete measure.clef_f
   delete measure.clef_b
+  delete measure.keySignature_f
+  delete measure.keySignature_b
+  delete measure.timeSignature_f
+  delete measure.timeSignature_b
+}
+
+function findFirstTimeSignature(score: MusicScore): TimeSignatureTypeEnum | undefined {
+  if (score.timeSignature) return score.timeSignature
+  for (const grandStaff of score.grandStaffs) {
+    for (const staff of grandStaff.staves) {
+      for (const measure of staff.measures) {
+        if (measure.timeSignature_f) return measure.timeSignature_f.type
+        if (measure.timeSignature_b) return measure.timeSignature_b.type
+      }
+    }
+  }
+  return undefined
+}
+
+/** 简谱源调：顶层优先，否则第一个小节调号，再否则 C */
+function resolveNumberNotationSourceKey(score: MusicScore): KeySignatureTypeEnum {
+  if (score.keySignature) return score.keySignature
+  for (const grandStaff of score.grandStaffs) {
+    for (const staff of grandStaff.staves) {
+      for (const measure of staff.measures) {
+        if (measure.keySignature_f) return measure.keySignature_f.type
+        if (measure.keySignature_b) return measure.keySignature_b.type
+      }
+    }
+  }
+  return DEFAULT_KEY
 }
 
 /** 同一 NoteSymbol 内 notesInfo 时值必须一致（简谱不支持多声部） */
@@ -142,6 +181,7 @@ function staffNotesInfoToNumberInfo(
   state: StaffTransferState,
   scope: MeasureAccidentalScope,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
+  targetKey: KeySignatureTypeEnum,
 ): NotesNumberInfo {
   const effectiveAcc = resolveAccidentalInMeasure(
     info.accidental?.type,
@@ -151,7 +191,7 @@ function staffNotesInfoToNumberInfo(
     info.region,
   )
   const midi = getNoteMidi(state.curClef, info.region, effectiveAcc)
-  const {octave, syllable, accidental} = getOctaveAndSyllable(midi, priority, state.curKeySignature)
+  const {octave, syllable, accidental} = getOctaveAndSyllable(midi, priority, targetKey)
 
   const out: NotesNumberInfo = {
     id: info.id,
@@ -170,10 +210,11 @@ function convertNoteSymbolToNoteNumber(
   state: StaffTransferState,
   scope: MeasureAccidentalScope,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
+  targetKey: KeySignatureTypeEnum,
 ): NoteNumber {
   applySlotClef(state, note.clef)
   const notesInfo = note.notesInfo.map((ni) =>
-    staffNotesInfoToNumberInfo(ni, state, scope, priority),
+    staffNotesInfoToNumberInfo(ni, state, scope, priority, targetKey),
   )
 
   return {
@@ -184,10 +225,10 @@ function convertNoteSymbolToNoteNumber(
     relativeH: note.relativeH,
     notesInfo,
     graceNotes: note.graceNotes?.map((g) =>
-      staffNotesInfoToNumberInfo(g, state, scope, priority),
+      staffNotesInfoToNumberInfo(g, state, scope, priority, targetKey),
     ),
     graceNotesAfter: note.graceNotesAfter?.map((g) =>
-      staffNotesInfoToNumberInfo(g, state, scope, priority),
+      staffNotesInfoToNumberInfo(g, state, scope, priority, targetKey),
     ),
     affiliatedSymbols: note.notesInfo.flatMap((ni) => ni.affiliatedSymbols ?? []),
     widthRatio: note.widthRatio,
@@ -220,7 +261,8 @@ function convertRestToNoteNumber(rest: NoteRest): NoteNumber {
 function numberInfoToStaffInfo(
   info: NotesNumberInfo,
   affiliatedSymbols: NotesInfo['affiliatedSymbols'],
-  keySignature: KeySignatureTypeEnum,
+  sourceKey: KeySignatureTypeEnum,
+  targetKey: KeySignatureTypeEnum,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
   graceChronaxie?: NotesInfo['chronaxie'],
 ): NotesInfo {
@@ -228,8 +270,8 @@ function numberInfoToStaffInfo(
     throw new Error('休止符或节奏音符无法转为线谱音符头')
   }
 
-  const midi = getNoteNumberMidi(info, keySignature)
-  const {region, accidental} = getNoteRegionAndAccidental(DEFAULT_CLEF, midi, keySignature, priority)
+  const midi = getNoteNumberMidi(info, sourceKey)
+  const {region, accidental} = getNoteRegionAndAccidental(DEFAULT_CLEF, midi, targetKey, priority)
   const staffInfo: NotesInfo = {
     id: info.id,
     relativeX: 0,
@@ -249,7 +291,8 @@ function numberInfoToStaffInfo(
 
 function convertNoteNumberToNoteSymbol(
   note: NoteNumber,
-  keySignature: KeySignatureTypeEnum,
+  sourceKey: KeySignatureTypeEnum,
+  targetKey: KeySignatureTypeEnum,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
 ): NoteSymbol {
   const affiliated = note.affiliatedSymbols ?? []
@@ -257,7 +300,8 @@ function convertNoteNumberToNoteSymbol(
     numberInfoToStaffInfo(
       ni,
       index === 0 ? affiliated : [],
-      keySignature,
+      sourceKey,
+      targetKey,
       priority,
     ),
   )
@@ -271,10 +315,10 @@ function convertNoteNumberToNoteSymbol(
     type: NoteSymbolTypeEnum.Note,
     notesInfo,
     graceNotes: note.graceNotes?.map((g) =>
-      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
+      numberInfoToStaffInfo(g, [], sourceKey, targetKey, priority, GRACE_CHRONAXIE),
     ),
     graceNotesAfter: note.graceNotesAfter?.map((g) =>
-      numberInfoToStaffInfo(g, [], keySignature, priority, GRACE_CHRONAXIE),
+      numberInfoToStaffInfo(g, [], sourceKey, targetKey, priority, GRACE_CHRONAXIE),
     ),
     widthRatio: note.widthRatio,
     widthRatioForMeasure: note.widthRatioForMeasure,
@@ -303,17 +347,25 @@ function convertNoteNumberToRest(note: NoteNumber): NoteRest {
   return rest
 }
 
-function ensureDefaultClef(measure: Measure): void {
-  if (!measure.clef_f) {
-    measure.clef_f = createClef(DEFAULT_CLEF)
+function applyStaffHeader(
+  measure: Measure,
+  targetKey: KeySignatureTypeEnum,
+  timeSignature: TimeSignatureTypeEnum | undefined,
+  includeTime: boolean,
+): void {
+  measure.clef_f = createClef(DEFAULT_CLEF)
+  measure.keySignature_f = createKeySignature(targetKey)
+  if (includeTime && timeSignature) {
+    measure.timeSignature_f = createTimeSignature(timeSignature)
   }
 }
 
 /**
  * 五线谱 → 简谱
  * - 校验同音符位多声部（chronaxie 不一致）
- * - 按谱号/调号/小节变音记忆换算 midi，再 getOctaveAndSyllable（首调）
- * - 仅删除谱号，保留调号
+ * - 按谱号/调号/小节变音记忆换算 concert midi
+ * - 再按目标调（默认 C）做首调唱名
+ * - 目标调与拍号写入顶层；小节去掉调号/拍号/谱号
  */
 export function standardStaffToNumberNotation(
   score: MusicScore,
@@ -327,12 +379,14 @@ export function standardStaffToNumberNotation(
   const out = cloneScore(score)
   out.type = MusicScoreTypeEnum.NumberNotation
   const priority = options.priority ?? AccidentalTypeEnum.Sharp
+  const targetKey = options.keySignature ?? DEFAULT_KEY
+  const resolvedTime = findFirstTimeSignature(score)
 
   for (const grandStaff of out.grandStaffs) {
     for (const staff of grandStaff.staves) {
       const state: StaffTransferState = {
-        curKeySignature: KeySignatureTypeEnum.C,
-        curClef: ClefTypeEnum.Treble,
+        curKeySignature: score.keySignature ?? DEFAULT_KEY,
+        curClef: DEFAULT_CLEF,
       }
 
       for (const measure of staff.measures) {
@@ -342,7 +396,7 @@ export function standardStaffToNumberNotation(
 
         measure.notes = measure.notes.map((slot) => {
           if (isNoteSymbol(slot)) {
-            return convertNoteSymbolToNoteNumber(slot, state, scope, priority)
+            return convertNoteSymbolToNoteNumber(slot, state, scope, priority, targetKey)
           }
           if (isNoteRest(slot)) {
             return convertRestToNoteNumber(slot)
@@ -352,16 +406,25 @@ export function standardStaffToNumberNotation(
 
         applyMeasureClefBack(state, measure)
         applyMeasureKeySignatureBack(state, measure)
-        stripClefOnly(measure)
+        stripMeasureKeyTimeClef(measure)
       }
     }
   }
+
+  out.keySignature = targetKey
+  if (resolvedTime) out.timeSignature = resolvedTime
+  else delete out.timeSignature
+  if (out.beatUnit == null) out.beatUnit = 4
+  if (out.bpm == null) out.bpm = 120
 
   return out
 }
 
 /**
- * 简谱 → 五线谱（补充高音谱号；调号沿用简谱小节上的 keySignature）
+ * 简谱 → 五线谱
+ * - 按简谱源调（顶层 keySignature，否则小节调号）把唱名换成 concert midi
+ * - 再按目标调（默认 C）写成线谱位置；目标调与拍号放到第一小节
+ * - 去掉顶层 keySignature / timeSignature
  */
 export function numberNotationToStandardStaff(
   score: MusicScore,
@@ -374,22 +437,39 @@ export function numberNotationToStandardStaff(
   const out = cloneScore(score)
   out.type = MusicScoreTypeEnum.StandardStaff
   const priority = options.priority ?? AccidentalTypeEnum.Sharp
+  const targetKey = options.keySignature ?? DEFAULT_KEY
+  const sourceKeyFallback = resolveNumberNotationSourceKey(score)
+  const resolvedTime = findFirstTimeSignature(score)
 
-  for (const grandStaff of out.grandStaffs) {
+  delete out.keySignature
+  delete out.timeSignature
+
+  for (let grandStaffIndex = 0; grandStaffIndex < out.grandStaffs.length; grandStaffIndex++) {
+    const grandStaff = out.grandStaffs[grandStaffIndex]!
     for (const staff of grandStaff.staves) {
-      const state: NumberTransferState = {curKeySignature: DEFAULT_KEY}
+      const state: NumberTransferState = {curKeySignature: sourceKeyFallback}
 
-      for (const measure of staff.measures) {
+      for (let measureIndex = 0; measureIndex < staff.measures.length; measureIndex++) {
+        const measure = staff.measures[measureIndex]!
         applyMeasureKeySignatureFront(state, measure)
 
         measure.notes = measure.notes.map((slot) => {
           const note = slot as NoteNumber
           if (isNumberRest(note)) return convertNoteNumberToRest(note)
-          return convertNoteNumberToNoteSymbol(note, state.curKeySignature, priority)
+          return convertNoteNumberToNoteSymbol(note, state.curKeySignature, targetKey, priority)
         })
 
         applyMeasureKeySignatureBack(state, measure)
-        ensureDefaultClef(measure)
+        stripMeasureKeyTimeClef(measure)
+
+        if (measureIndex === 0) {
+          applyStaffHeader(
+            measure,
+            targetKey,
+            resolvedTime,
+            grandStaffIndex === 0,
+          )
+        }
       }
     }
   }

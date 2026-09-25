@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/extensions",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "@deciphony/renderer 官方扩展集（标题、歌词、编辑构建、播放、MusicXML/简谱转换等）",
   "type": "module",
   "main": "./dist/index.cjs.js",
@@ -65,6 +65,10 @@
     "./chord-builder": {
       "types": "./dist/chord-builder/index.d.ts",
       "import": "./dist/chord-builder/index.js"
+    },
+    "./audio-to-score": {
+      "types": "./dist/audio-to-score/index.d.ts",
+      "import": "./dist/audio-to-score/index.js"
     },
     "./score-util": {
       "types": "./dist/score-util.d.ts",

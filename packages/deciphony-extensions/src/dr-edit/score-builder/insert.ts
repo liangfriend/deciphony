@@ -33,6 +33,10 @@ function newMeasureForInsert(
     at: number,
     notationType?: MusicScoreTypeEnum,
 ): Measure {
+    const isNumberNotation = notationType === MusicScoreTypeEnum.NumberNotation;
+    if (isNumberNotation) {
+        return createMeasure();
+    }
     const prev = at > 0 ? singleStaff.measures[at - 1] : singleStaff.measures[singleStaff.measures.length - 1];
     if (prev) {
         const header = cloneMeasureHeaderFromPrev(prev);
@@ -42,12 +46,12 @@ function newMeasureForInsert(
             keySignature: header.keySignature_f?.type,
         });
     }
-    const isNumberNotation = notationType === MusicScoreTypeEnum.NumberNotation;
-    return createMeasure(
-        isNumberNotation
-            ? {timeSignature: TimeSignatureTypeEnum['4_4']}
-            : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
-    );
+    const isTab =
+        notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4;
+    return createMeasure({
+        clef: isTab ? ClefTypeEnum.Tab : ClefTypeEnum.Treble,
+        timeSignature: TimeSignatureTypeEnum['4_4'],
+    });
 }
 
 /** 在单谱表指定下标插入小节 */

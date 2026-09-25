@@ -257,7 +257,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       out.push({
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
-        special: {},
+        special: {ledgerLine: k},
         x: lineX,
         y: lineY,
         w: addLineSkin.w,
@@ -432,7 +432,9 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const accSkin = skin[accSkinKey];
             if (accSkin) {
               const accX = noteHeadX - ACCIDENTAL_NOTE_X_GAP * measureHeight - accSkin.w;
-              const accY = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight;
+              // 顶部与本层数字对齐（按 info 楼层，不用槽位顶）
+              const noteTop = headVDom?.y ?? (hcy - (numItem?.h ?? 0) / 2);
+              const accY = noteTop + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight;
               out.push({
                 startPoint: {x: 0, y: 0},
                 endPoint: {x: 0, y: 0},
@@ -549,16 +551,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     }
 
-    // 第二遍：按层渲染减时线（每层独立 beam 连接）
+    // 第二遍：按层渲染减时线（每层独立 beam 连接；休止符 0 同样需要减时线）
     const floorCount = maxFloorCount(slots);
     for (let floorIdx = 0; floorIdx < floorCount; floorIdx++) {
-      const hasReduceLineAt = (slot: SlotInfo, info: NotesNumberInfo) =>
-        !slot.isRest && info.syllable !== 0 && info.syllable !== 'X' && getInfoChronaxie(info) <= 32;
+      const hasReduceLineAt = (_slot: SlotInfo, info: NotesNumberInfo) =>
+        info.syllable !== 'X' && getInfoChronaxie(info) <= 32;
 
       for (let i = 0; i < slots.length; i++) {
         const slot = slots[i]!;
         const info = getFloorInfo(slot, floorIdx);
-        if (!info || slot.isRest || info.syllable === 0 || info.syllable === 'X') continue;
+        if (!info || info.syllable === 'X') continue;
         const ch = getInfoChronaxie(info);
         if (ch > 32) continue;
 

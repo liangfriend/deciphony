@@ -95,6 +95,7 @@ export type InsertGrandStaffOptions = Partial<
   /** 默认 true：同时创建一个带空小节的单谱表 */
   withDefaultStaff?: boolean;
   at?: number;
+  notationType?: MusicScoreTypeEnum;
 };
 
 export type InsertSingleStaffOptions = Partial<
@@ -102,6 +103,7 @@ export type InsertSingleStaffOptions = Partial<
 > & {
   withDefaultMeasure?: boolean;
   at?: number;
+  notationType?: MusicScoreTypeEnum;
 };
 
 export type InsertMeasureOptions = Partial<Measure> & {
@@ -479,14 +481,25 @@ function cloneMeasureHeaderFromPrev(prev: Measure): Pick<Measure, 'clef_f' | 'ti
 
 export function createSingleStaff(partial?: InsertSingleStaffOptions): SingleStaff {
   const withDefaultMeasure = partial?.withDefaultMeasure !== false;
-  const {withDefaultMeasure: _w, at: _at, ...rest} = partial ?? {};
+  const {withDefaultMeasure: _w, at: _at, notationType, ...rest} = partial ?? {};
+  const isTab =
+    notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4;
+  const isNumber = notationType === MusicScoreTypeEnum.NumberNotation;
   return {
     ...ZERO_FRAME,
     id: newId(),
-    measures: withDefaultMeasure ? [createEmptyMeasure({
-      clef: ClefTypeEnum.Treble,
-      timeSignature: TimeSignatureTypeEnum['4_4']
-    })] : [],
+    measures: withDefaultMeasure
+      ? [
+          createEmptyMeasure(
+            isNumber
+              ? {}
+              : {
+                  clef: isTab ? ClefTypeEnum.Tab : ClefTypeEnum.Treble,
+                  timeSignature: TimeSignatureTypeEnum['4_4'],
+                },
+          ),
+        ]
+      : [],
     uSpaceI: partial?.uSpaceI ?? DEFAULT_SPACING.singleStaff.uSpaceI,
     dSpaceI: partial?.dSpaceI ?? DEFAULT_SPACING.singleStaff.dSpaceI,
     uSpaceO: partial?.uSpaceO ?? DEFAULT_SPACING.singleStaff.uSpaceO,
@@ -498,11 +511,11 @@ export function createSingleStaff(partial?: InsertSingleStaffOptions): SingleSta
 
 export function createGrandStaff(partial?: InsertGrandStaffOptions): GrandStaff {
   const withDefaultStaff = partial?.withDefaultStaff !== false;
-  const {withDefaultStaff: _w, at: _at, ...rest} = partial ?? {};
+  const {withDefaultStaff: _w, at: _at, notationType, ...rest} = partial ?? {};
   return {
     ...ZERO_FRAME,
     id: newId(),
-    staves: withDefaultStaff ? [createSingleStaff()] : [],
+    staves: withDefaultStaff ? [createSingleStaff({notationType})] : [],
     uSpace: partial?.uSpace ?? DEFAULT_SPACING.grandStaff.uSpace,
     dSpace: partial?.dSpace ?? DEFAULT_SPACING.grandStaff.dSpace,
     data: {},
@@ -868,6 +881,7 @@ export function convertStandardStaffToNumberNotation(
 ): MusicScore {
   const out = JSON.parse(JSON.stringify(score)) as MusicScore;
   out.type = MusicScoreTypeEnum.NumberNotation;
+  let resolvedTime = out.timeSignature;
 
   for (const grandStaff of out.grandStaffs) {
     for (const staff of grandStaff.staves) {
@@ -877,8 +891,15 @@ export function convertStandardStaffToNumberNotation(
       for (const measure of staff.measures) {
         if (measure.clef_f?.type) clef = measure.clef_f.type;
         keySignature = resolveMeasureKeySignature(measure, keySignature);
+        if (!resolvedTime) {
+          resolvedTime = measure.timeSignature_f?.type ?? measure.timeSignature_b?.type;
+        }
         delete measure.clef_f;
         delete measure.clef_b;
+        delete measure.keySignature_f;
+        delete measure.keySignature_b;
+        delete measure.timeSignature_f;
+        delete measure.timeSignature_b;
 
         measure.notes = measure.notes.map((slot) => {
           if (isNoteSymbol(slot)) {
@@ -892,6 +913,11 @@ export function convertStandardStaffToNumberNotation(
       }
     }
   }
+
+  out.keySignature = keySignatureFallback;
+  if (resolvedTime) out.timeSignature = resolvedTime;
+  if (out.beatUnit == null) out.beatUnit = 4;
+  if (out.bpm == null) out.bpm = 120;
 
   return out;
 }

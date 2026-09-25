@@ -1,21 +1,33 @@
 <script lang="ts" setup>
 import type {SlotData} from '@deciphony/renderer'
+import {tabStringCount} from '@deciphony/extensions/dr-edit'
+import {computed} from 'vue'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
 import NumberHeadPropertyPanel from '../numberNotation/components/NumberHeadPropertyPanel.vue'
 import NoteHeadPropertyPanel from '../standardStaff/components/NoteHeadPropertyPanel.vue'
+import BendPropertyPanel from '../tab/components/BendPropertyPanel.vue'
+import TabMeasurePropertyPanel from '../tab/components/TabMeasurePropertyPanel.vue'
+import TabNotePropertyPanel from '../tab/components/TabNotePropertyPanel.vue'
+import TabSlurPropertyPanel from '../tab/components/TabSlurPropertyPanel.vue'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
 import VoltaPropertyPanel from './VoltaPropertyPanel.vue'
 
-defineProps<{
+const props = defineProps<{
   kind: PropertyPanelKind
   selected: SlotData | null
 }>()
+
+const stringCount = computed(() => tabStringCount(props.selected?.musicScore.type))
 
 const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
   measure: '小节属性',
   noteHead: '音符头属性',
   numberHead: '音符属性',
   volta: 'Volta 属性',
+  tabMeasure: '小节属性',
+  tabNote: '音符属性',
+  slur: '连音线属性',
+  bend: '推弦属性',
 }
 </script>
 
@@ -41,6 +53,23 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
       />
       <VoltaPropertyPanel
         v-else-if="kind === 'volta'"
+        :edit-slot="selected"
+      />
+      <TabMeasurePropertyPanel
+        v-else-if="kind === 'tabMeasure'"
+        :edit-slot="selected"
+      />
+      <TabNotePropertyPanel
+        v-else-if="kind === 'tabNote'"
+        :edit-slot="selected"
+        :string-count="stringCount"
+      />
+      <TabSlurPropertyPanel
+        v-else-if="kind === 'slur'"
+        :edit-slot="selected"
+      />
+      <BendPropertyPanel
+        v-else-if="kind === 'bend'"
         :edit-slot="selected"
       />
     </div>

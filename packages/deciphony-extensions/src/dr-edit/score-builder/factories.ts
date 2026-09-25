@@ -1,7 +1,6 @@
 import {
     AccidentalTypeEnum,
     BarlineTypeEnum,
-    BeamTypeEnum,
     ClefTypeEnum,
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
@@ -37,6 +36,7 @@ import type {
 } from '@deciphony/renderer';
 import {DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME} from './constants';
 import {newId} from './id';
+import {resolveDefaultBeamType} from './autoBeam';
 import type {
     CreateGrandStaffOptions,
     CreateMeasureOptions,
@@ -73,9 +73,11 @@ function resolveAugmentationDot(
 // —— 曲谱 / 结构 ——
 
 export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicScore {
-    return {
+    const type = options.type ?? MusicScoreTypeEnum.StandardStaff;
+    const isNumberNotation = type === MusicScoreTypeEnum.NumberNotation;
+    const score: MusicScore = {
         id: options.id ?? newId(),
-        type: options.type ?? MusicScoreTypeEnum.StandardStaff,
+        type,
         title: options.title ?? '',
         description: options.description ?? '',
         bpm: options.bpm ?? 120,
@@ -86,6 +88,16 @@ export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicSc
         affiliatedSymbols: [],
         data: options.data ?? {},
     };
+    if (isNumberNotation) {
+        score.keySignature = options.keySignature ?? KeySignatureTypeEnum.C;
+        score.timeSignature = options.timeSignature ?? TimeSignatureTypeEnum['4_4'];
+        score.beatUnit = options.beatUnit ?? 4;
+    } else {
+        score.beatUnit = options.beatUnit ?? 4;
+        if (options.keySignature != null) score.keySignature = options.keySignature;
+        if (options.timeSignature != null) score.timeSignature = options.timeSignature;
+    }
+    return score;
 }
 
 export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandStaff {
@@ -96,7 +108,7 @@ export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandSt
         staves: withDefaultStaff ? [createSingleStaff({notationType: options.notationType})] : [],
         uSpace: options.uSpace ?? DEFAULT_SPACING.grandStaff.uSpace,
         dSpace: options.dSpace ?? DEFAULT_SPACING.grandStaff.dSpace,
-        linkedStaff: options.linkedStaff,
+        linkedStaff: options.linkedStaff ?? true,
         bracket: options.bracket,
         data: options.data ?? {},
     };
@@ -105,14 +117,19 @@ export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandSt
 export function createSingleStaff(options: CreateSingleStaffOptions = {}): SingleStaff {
     const withDefaultMeasure = options.withDefaultMeasure !== false;
     const isNumberNotation = options.notationType === MusicScoreTypeEnum.NumberNotation;
+    const isTab =
+        options.notationType === MusicScoreTypeEnum.Tab6 ||
+        options.notationType === MusicScoreTypeEnum.Tab4;
     return {
         ...ZERO_FRAME,
         id: newId(),
         measures: withDefaultMeasure
             ? [createMeasure(
                 isNumberNotation
-                    ? {timeSignature: TimeSignatureTypeEnum['4_4']}
-                    : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
+                    ? {}
+                    : isTab
+                        ? {clef: ClefTypeEnum.Tab, timeSignature: TimeSignatureTypeEnum['4_4']}
+                        : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
             )]
             : [],
         uSpaceI: options.uSpaceI ?? DEFAULT_SPACING.singleStaff.uSpaceI,
@@ -277,13 +294,18 @@ export function createNotesInfo(options: CreateNotesInfoOptions): NotesInfo {
     const chronaxie = options.chronaxie ?? 64;
     const accidental = resolveAccidental(options.accidental);
     const augmentationDot = resolveAugmentationDot(options.augmentationDot);
+    const beamType = resolveDefaultBeamType({
+        beamType: options.beamType,
+        beamOnset: options.beamOnset,
+        chronaxie,
+    });
     return {
         ...ZERO_FRAME,
         id: newId(),
         region: options.region,
         chronaxie,
         direction: options.direction ?? defaultDirection(options.region),
-        beamType: options.beamType ?? BeamTypeEnum.None,
+        beamType,
         affiliatedSymbols: options.affiliatedSymbols ?? [],
         ...(accidental ? {accidental} : {}),
         ...(augmentationDot ? {augmentationDot} : {}),
@@ -329,6 +351,7 @@ export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSym
                 chronaxie: options.chronaxie,
                 direction: options.direction,
                 beamType: options.beamType,
+                beamOnset: options.beamOnset,
                 accidental: options.accidental,
             }),
         ];
@@ -377,7 +400,9 @@ export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest & 
 
 export function createNotesNumberInfo(
     syllable: NotesNumberInfo['syllable'],
-    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental' | 'chronaxie' | 'beamType' | 'augmentationDot'>>,
+    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental' | 'chronaxie' | 'beamType' | 'augmentationDot'>> & {
+        beamOnset?: number
+    },
 ): NotesNumberInfo {
     const accidental = partial?.accidental
         ? typeof partial.accidental === 'object'
@@ -385,11 +410,17 @@ export function createNotesNumberInfo(
             : createAccidental(partial.accidental)
         : undefined;
     const augmentationDot = resolveAugmentationDot(partial?.augmentationDot);
+    const chronaxie = partial?.chronaxie ?? 64;
+    const beamType = resolveDefaultBeamType({
+        beamType: partial?.beamType,
+        beamOnset: partial?.beamOnset,
+        chronaxie,
+    });
     return {
         id: newId(),
         syllable,
-        chronaxie: partial?.chronaxie ?? 64,
-        beamType: partial?.beamType ?? BeamTypeEnum.None,
+        chronaxie,
+        beamType,
         octaveDot: partial?.octaveDot ?? 0,
         ...(accidental ? {accidental} : {}),
         ...(augmentationDot ? {augmentationDot} : {}),
@@ -399,7 +430,8 @@ export function createNotesNumberInfo(
 export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber & {lyrics: Lyrics[]; data: Object} {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
     const chronaxie = options.chronaxie ?? 64;
-    const beamType = options.beamType ?? BeamTypeEnum.None;
+    const beamType = options.beamType;
+    const beamOnset = options.beamOnset;
     const augmentationDot = resolveAugmentationDot(options.augmentationDot);
 
     let notesInfo: NotesNumberInfo[];
@@ -410,6 +442,7 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber &
                 accidental: ni.accidental,
                 chronaxie: ni.chronaxie ?? chronaxie,
                 beamType: ni.beamType ?? beamType,
+                beamOnset: ni.beamOnset ?? beamOnset,
                 augmentationDot: ni.augmentationDot ?? augmentationDot,
             }),
         );
@@ -420,6 +453,7 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber &
                 accidental: options.accidental,
                 chronaxie,
                 beamType,
+                beamOnset,
                 augmentationDot,
             }),
         ];

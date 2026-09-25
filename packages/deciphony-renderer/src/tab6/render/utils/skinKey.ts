@@ -1,6 +1,7 @@
 import {
     BarlineTypeEnum,
     BracketTypeEnum,
+    ClefTypeEnum,
     TabNoteInfoTypeEnum,
     TimeSignatureTypeEnum,
 } from "@/enums/musicScoreEnum";
@@ -40,6 +41,14 @@ export function getLinkedBarlineSkinKey(barlineType: BarlineTypeEnum): Tab6SkinK
         [BarlineTypeEnum.Heavy_double_barline]: Tab6SkinKeyEnum.linked_heavy_double_barline,
     };
     return map[barlineType] ?? Tab6SkinKeyEnum.linked_single_barline;
+}
+
+/** 谱号类型 + 是否前置（tab 谱仅识别 Tab，其它类型回退到 Tab） */
+export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): Tab6SkinKeyEnum {
+    if (clefType === ClefTypeEnum.Tab) {
+        return isFront ? Tab6SkinKeyEnum.Tab_f : Tab6SkinKeyEnum.Tab;
+    }
+    return isFront ? Tab6SkinKeyEnum.Tab_f : Tab6SkinKeyEnum.Tab;
 }
 
 export function getTimeSignatureSkinKey(type?: TimeSignatureTypeEnum): Tab6SkinKeyEnum {

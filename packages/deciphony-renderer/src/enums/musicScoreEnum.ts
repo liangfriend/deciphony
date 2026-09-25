@@ -55,6 +55,9 @@ export enum ClefTypeEnum {
 
     Tenor = 'tenor', // 次中音谱号，比alto还低一点
 
+    /** 仅展示用：标记为六线/四线 tab 谱，不参与音高换算 */
+    Tab = 'tab',
+
 }
 
 

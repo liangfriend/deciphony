@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import RenderTest from "./views/renderTest.vue";
+import RenderEditTest from "./views/renderEditTest.vue";
 </script>
 
 <template>
-  <!--  <RenderTuneJudgeTest/>-->
-  <!--  <work-test></work-test>-->
-  <!--  <render-time-offset-test></render-time-offset-test>-->
-  <render-test></render-test>
-  <!--  <finger-test></finger-test>-->
+  <!--  <audio-to-score-test />-->
+  <render-edit-test></render-edit-test>
 </template>

@@ -1,5 +1,6 @@
 import type {Chronaxie, Measure, MusicScore, NoteNumber, NotesNumberInfo, SlotData, VDom} from '@deciphony/renderer'
 import {createNoteNumber, createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
+import {computeMeasureOnsetBefore} from '@deciphony/extensions/dr-edit/score-builder'
 import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import {
   DEFAULT_ADD_NUMBER_STATE,
@@ -165,9 +166,11 @@ export function applyMeasureAddAction(
 
   if (preview.snap.kind === 'insert') {
     const at = Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
+    const beamOnset = computeMeasureOnsetBefore(measure, at)
     const note = createNoteNumber({
       syllable: preview.syllable,
       chronaxie: preview.chronaxie,
+      beamOnset,
     })
     measure.notes.splice(at, 0, note)
     return {type: 'inserted'}

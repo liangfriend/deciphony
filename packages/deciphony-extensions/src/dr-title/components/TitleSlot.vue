@@ -1,8 +1,19 @@
 <script lang="ts" setup>
-import type {MusicScore, VDom} from '@deciphony/renderer'
+import {
+  KeySignatureTypeEnum,
+  TIME_SIGNATURE_TYPES_ORDERED,
+  TimeSignatureTypeEnum,
+  timeSignatureTypeToLabel,
+  type MusicScore,
+  type VDom,
+} from '@deciphony/renderer'
 import {computed, unref, type MaybeRef} from 'vue'
+import {BEAT_UNIT_OPTIONS, normalizeBeatUnit, type BeatUnitValue} from '../beatUnit'
+import {keySignatureLabel} from '../keySignatureLabel'
 import {readTitleField, writeTitleField, type TitleFieldKey} from '../titleFields'
 import type {TitleMode} from '../types'
+import BeatUnitGlyph from './BeatUnitGlyph.vue'
+import TimeSignatureGlyph from './TimeSignatureGlyph.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -22,6 +33,16 @@ const props = withDefaults(
 
 const titleMode = computed(() => unref(props.mode))
 
+/** 三块独立：调号 / 拍号 /（beatUnit+bpm） */
+const showKeyMeta = computed(() => props.musicScore.keySignature != null)
+const showTimeMeta = computed(() => props.musicScore.timeSignature != null)
+const showTempoMeta = computed(
+  () => props.musicScore.beatUnit != null || props.musicScore.bpm != null,
+)
+const showScoreMeta = computed(
+  () => showKeyMeta.value || showTimeMeta.value || showTempoMeta.value,
+)
+
 const padL = computed(() => Math.max(0, props.paddingLeft))
 const padR = computed(() => Math.max(0, props.paddingRight))
 
@@ -30,14 +51,52 @@ const slotH = computed(() => props.node.h)
 
 const contentW = computed(() => Math.max(0, slotW.value - padL.value - padR.value))
 const centerX = computed(() => padL.value + contentW.value / 2)
-/** 相对槽顶：标题贴顶；副标题 / 作者下移 */
+/** 相对槽顶：标题贴顶；副标题 / 作者与左侧元信息同高 */
 const TITLE_Y = 0
 const SUBTITLE_Y = 26
-const AUTHOR_Y = 100
+const META_Y = 72
 const authorX = computed(() => slotW.value - padR.value)
+const metaX = computed(() => padL.value)
+
+const KEY_OPTIONS = Object.values(KeySignatureTypeEnum)
+const TIME_OPTIONS = TIME_SIGNATURE_TYPES_ORDERED
+
+const keySig = computed(
+  () => props.musicScore.keySignature ?? KeySignatureTypeEnum.C,
+)
+const timeSig = computed(
+  () => props.musicScore.timeSignature ?? TimeSignatureTypeEnum['4_4'],
+)
+const bpm = computed(() => props.musicScore.bpm ?? 120)
+const beatUnit = computed(() => normalizeBeatUnit(props.musicScore.beatUnit))
 
 function onFieldInput(key: TitleFieldKey, event: Event) {
   writeTitleField(props.musicScore, key, (event.target as HTMLInputElement).value)
+}
+
+function onKeyChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value as KeySignatureTypeEnum
+  props.musicScore.keySignature = value
+}
+
+function onTimeChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value as TimeSignatureTypeEnum
+  props.musicScore.timeSignature = value
+}
+
+function onBeatUnitChange(event: Event) {
+  const value = Number((event.target as HTMLSelectElement).value) as BeatUnitValue
+  props.musicScore.beatUnit = value
+}
+
+function onBpmInput(event: Event) {
+  const raw = (event.target as HTMLInputElement).value
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n <= 0) {
+    props.musicScore.bpm = 120
+    return
+  }
+  props.musicScore.bpm = Math.round(n)
 }
 </script>
 
@@ -60,11 +119,36 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
         dominant-baseline="hanging"
         text-anchor="middle"
       >{{ musicScore.subTitle }}</text>
+
+      <foreignObject
+        v-if="showScoreMeta"
+        :x="metaX"
+        :y="META_Y"
+        width="360"
+        height="40"
+      >
+        <div class="dr-title-slot__meta" xmlns="http://www.w3.org/1999/xhtml">
+          <span
+            v-if="showKeyMeta"
+            class="dr-title-slot__meta-text"
+          >1 = {{ keySignatureLabel(keySig) }}</span>
+          <TimeSignatureGlyph
+            v-if="showTimeMeta"
+            :type="timeSig"
+            :height="28"
+          />
+          <template v-if="showTempoMeta">
+            <BeatUnitGlyph :beat-unit="beatUnit" :height="22" />
+            <span class="dr-title-slot__meta-text">= {{ bpm }}</span>
+          </template>
+        </div>
+      </foreignObject>
+
       <text
         v-if="musicScore.author"
         class="dr-title-slot__author"
         :x="authorX"
-        :y="AUTHOR_Y"
+        :y="META_Y"
         dominant-baseline="hanging"
         text-anchor="end"
       >{{ musicScore.author }}</text>
@@ -99,11 +183,71 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
             @pointerdown.stop
           />
         </div>
+
+        <div
+          v-if="showScoreMeta"
+          class="dr-title-slot__meta-edit"
+          :style="{left: `${padL}px`, top: `${META_Y}px`}"
+        >
+          <template v-if="showKeyMeta">
+            <span class="dr-title-slot__meta-text">1 =</span>
+            <select
+              class="dr-title-slot__select"
+              :value="keySig"
+              @change="onKeyChange"
+              @click.stop
+              @pointerdown.stop
+            >
+              <option v-for="k in KEY_OPTIONS" :key="k" :value="k">
+                {{ keySignatureLabel(k) }}
+              </option>
+            </select>
+          </template>
+          <select
+            v-if="showTimeMeta"
+            class="dr-title-slot__select"
+            :value="timeSig"
+            title="拍号"
+            @change="onTimeChange"
+            @click.stop
+            @pointerdown.stop
+          >
+            <option v-for="t in TIME_OPTIONS" :key="t" :value="t">
+              {{ timeSignatureTypeToLabel(t) }}
+            </option>
+          </select>
+          <template v-if="showTempoMeta">
+            <select
+              class="dr-title-slot__select"
+              :value="beatUnit"
+              title="bpm 基准拍"
+              @change="onBeatUnitChange"
+              @click.stop
+              @pointerdown.stop
+            >
+              <option v-for="o in BEAT_UNIT_OPTIONS" :key="o.value" :value="o.value">
+                {{ o.label }}
+              </option>
+            </select>
+            <span class="dr-title-slot__meta-text">=</span>
+            <input
+              class="dr-title-slot__input dr-title-slot__input--bpm"
+              type="number"
+              min="1"
+              step="1"
+              :value="bpm"
+              @click.stop
+              @input="onBpmInput"
+              @pointerdown.stop
+            />
+          </template>
+        </div>
+
         <input
           class="dr-title-slot__input dr-title-slot__input--author"
           placeholder="作者"
           type="text"
-          :style="{right: `${padR}px`}"
+          :style="{right: `${padR}px`, top: `${META_Y}px`}"
           :value="readTitleField(musicScore, 'author')"
           @click.stop
           @input="onFieldInput('author', $event)"
@@ -146,6 +290,27 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
   gap: 6px;
 }
 
+.dr-title-slot__meta,
+.dr-title-slot__meta-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  font-size: 17px;
+  color: #303133;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.dr-title-slot__meta-edit {
+  position: absolute;
+}
+
+.dr-title-slot__meta-text {
+  line-height: 1;
+  font-size: 17px;
+}
+
 .dr-title-slot__input {
   box-sizing: border-box;
   width: min(360px, 100%);
@@ -174,9 +339,30 @@ function onFieldInput(key: TitleFieldKey, event: Event) {
 
 .dr-title-slot__input--author {
   position: absolute;
-  top: 100px;
   width: 140px;
   font-size: 12px;
   text-align: right;
+}
+
+.dr-title-slot__input--bpm {
+  width: 64px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.dr-title-slot__select {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 2px 6px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fff;
+  color: #303133;
+  font-size: 15px;
+  outline: none;
+}
+
+.dr-title-slot__select:focus {
+  border-color: #409eff;
 }
 </style>

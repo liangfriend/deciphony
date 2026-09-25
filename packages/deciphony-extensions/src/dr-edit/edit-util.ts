@@ -3,6 +3,7 @@
  * 自定义编辑形态可直接使用；标准交互见 editHelper/useRenderEdit。
  */
 import type {GrandStaff, Measure, MusicScore, SingleStaff} from '@deciphony/renderer';
+import type {MusicScoreTypeEnum} from '@deciphony/renderer';
 import {
   indexOfGrandStaff,
   indexOfMeasure,
@@ -40,19 +41,23 @@ export function deleteGrandStaff(score: MusicScore, target: GrandStaff): void {
 
 // =================================单谱表（挂在复谱表上）========================================
 
-export function addSingleStaff(grandStaff: GrandStaff): SingleStaff {
-  return spliceSingleStaff(grandStaff, grandStaff.staves.length);
-}
-
 export function insertSingleStaff(
   grandStaff: GrandStaff,
   anchor: SingleStaff,
   position: 'before' | 'after',
+  options?: {notationType?: MusicScoreTypeEnum},
 ): SingleStaff {
   const idx = indexOfSingleStaff(grandStaff, anchor);
   if (idx < 0) throw new Error('单谱表不属于该复谱表');
   const at = position === 'before' ? idx : idx + 1;
-  return spliceSingleStaff(grandStaff, at);
+  return spliceSingleStaff(grandStaff, at, options);
+}
+
+export function addSingleStaff(
+  grandStaff: GrandStaff,
+  options?: {notationType?: MusicScoreTypeEnum},
+): SingleStaff {
+  return spliceSingleStaff(grandStaff, grandStaff.staves.length, options);
 }
 
 export function deleteSingleStaff(grandStaff: GrandStaff, target: SingleStaff): void {
@@ -63,19 +68,23 @@ export function deleteSingleStaff(grandStaff: GrandStaff, target: SingleStaff): 
 
 // =================================小节（挂在单谱表上）========================================
 
-export function addMeasure(singleStaff: SingleStaff): Measure {
-  return spliceMeasure(singleStaff, singleStaff.measures.length);
-}
-
 export function insertMeasure(
   singleStaff: SingleStaff,
   anchor: Measure,
   position: 'before' | 'after',
+  options?: {notationType?: MusicScoreTypeEnum},
 ): Measure {
   const idx = indexOfMeasure(singleStaff, anchor);
   if (idx < 0) throw new Error('小节不属于该单谱表');
   const at = position === 'before' ? idx : idx + 1;
-  return spliceMeasure(singleStaff, at);
+  return spliceMeasure(singleStaff, at, options);
+}
+
+export function addMeasure(
+  singleStaff: SingleStaff,
+  options?: {notationType?: MusicScoreTypeEnum},
+): Measure {
+  return spliceMeasure(singleStaff, singleStaff.measures.length, options);
 }
 
 export function deleteMeasure(singleStaff: SingleStaff, target: Measure): void {
@@ -85,4 +94,25 @@ export function deleteMeasure(singleStaff: SingleStaff, target: Measure): void {
 }
 
 // =================================音符操作========================================
-// 音符编辑较特殊，后续单独实现
+// 五线 / 简谱音符见 score-builder。吉他谱与尤克里里谱共用下列 API（弦数 6 / 4）。
+
+export {
+    appendTabNoteInfo,
+    createTabNote,
+    createTabRest,
+    ensureTabNoteChord,
+    insertTabNote,
+    insertTabRest,
+    isTabHeadInfo,
+    locateTabBendById,
+    locateTabNoteInfoById,
+    setSlurType,
+    setTabNoteChord,
+    setTabNoteInfoBeamType,
+    setTabNoteInfoBend,
+    setTabNoteInfoRegion,
+    setTabNoteInfoRegionRange,
+    setTabNoteInfoValue,
+    setTabNoteSlap,
+    tabStringCount,
+} from './score-builder/tabNote'

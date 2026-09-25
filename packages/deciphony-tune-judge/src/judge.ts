@@ -120,9 +120,43 @@ let isPaused = false;
 let offsetSamplesThisPeriod: number[] = [];
 // 修正值（整半音移调，把检测音高对齐到谱面区域）
 let midiFixedOffset = 0;
+/**
+ * 每次 play / clearData 重置时的移调初值。
+ * 宿主可把上次演唱结束时的 getMidiFixedOffset() 写回这里，避免开唱前约 1 秒 offset=0。
+ */
+let initialMidiFixedOffset = 0;
+/** 是否调用过 setInitialMidiFixedOffset（用于区分「未配置」与「显式设为 0」） */
+let hasInitialMidiFixedOffset = false;
 /** 是否已完成至少一次「按秒」修正（首秒不与前值混合，避免从 0 拖尾） */
 let midiOffsetLocked = false;
 let lastMidiFixedOffsetUpdateTime = -Infinity; // 上次更新时间，单位 AudioContext 秒
+
+/** 设置下次（及当前）移调修正初值；play/clearData 会重置到此值 */
+export function setInitialMidiFixedOffset(offset: number): void {
+  const n = Math.round(Number(offset) || 0);
+  initialMidiFixedOffset = n;
+  hasInitialMidiFixedOffset = true;
+  midiFixedOffset = n;
+  // 已有可信初值时视为已锁定，后续按秒校准与初值混合而非整段替换
+  midiOffsetLocked = true;
+}
+
+/** 获取配置的移调修正初值（play/clearData 重置目标） */
+export function getInitialMidiFixedOffset(): number {
+  return initialMidiFixedOffset;
+}
+
+/** 获取当前生效的移调修正（含校准后的值，适合演唱结束时持久化） */
+export function getMidiFixedOffset(): number {
+  return midiFixedOffset;
+}
+
+function resetMidiFixedOffsetState(audioTime: number): void {
+  offsetSamplesThisPeriod = [];
+  midiFixedOffset = initialMidiFixedOffset;
+  midiOffsetLocked = hasInitialMidiFixedOffset;
+  lastMidiFixedOffsetUpdateTime = audioTime;
+}
 
 /** 每秒新修正与旧值的混合比例，越大越跟新一秒的统计 */
 const MIDI_OFFSET_SEC_BLEND = 0.65;
@@ -225,10 +259,7 @@ export function clearData() {
   preAbsorbedMidi = 0;
   pauseWallTime = 0;
   isPaused = false;
-  offsetSamplesThisPeriod = [];
-  midiFixedOffset = 0;
-  midiOffsetLocked = false;
-  lastMidiFixedOffsetUpdateTime = _audioContext?.currentTime ?? -Infinity;
+  resetMidiFixedOffsetState(_audioContext?.currentTime ?? -Infinity);
   score.real.pitchScore = 0;
   score.real.rhythmScore = 0;
   score.real.completenessScore = 0;
@@ -248,11 +279,8 @@ export async function play(micStream?: MediaStream) {
     pauseWallTime = 0;
     isPaused = false;
   } else {
-    offsetSamplesThisPeriod = [];
-    midiFixedOffset = 0;
-    midiOffsetLocked = false;
     startTime = _audioContext.currentTime;
-    lastMidiFixedOffsetUpdateTime = startTime;
+    resetMidiFixedOffsetState(startTime);
   }
   if (micStream) {
     await pitchDetect.startDetectWithStream(micStream, check);

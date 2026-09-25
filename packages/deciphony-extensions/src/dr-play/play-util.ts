@@ -5,6 +5,7 @@ export {
   getDrPlaySequence,
   getStandardStaffPlaySequence,
   getNumberNotationPlaySequence,
+  getTabPlaySequence,
   getDuration,
   type DR_playSequence,
   type DR_playSequence_item,

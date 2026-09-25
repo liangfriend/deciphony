@@ -1,5 +1,5 @@
 /**
- * 小节符号渲染：前置拍号→音符→后置小节线→后置拍号
+ * 小节符号渲染：前置谱号→前置拍号→音符→后置谱号→后置小节线→后置拍号
  */
 
 import {VDom} from "@/types/common";
@@ -10,6 +10,7 @@ import {AUGMENTATION_DOT_GAP} from "../constants";
 import {
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
+    getClefSkinKey,
     getRestSkinKey,
     getTabNoteHeadSkinKey,
     getTabNoteValue,
@@ -42,7 +43,7 @@ import {
     resolveTabArrowThickness,
     resolveTabArrowWidth
 } from "../utils/tabNoteInfo";
-import {buildTabChordVDom} from "../chord/renderTabChord";
+import {buildTabChordVDom, isVisibleTabChord} from "../chord/renderTabChord";
 import {buildTabSlapVDom} from "../slap/renderTabSlap";
 import {buildTabBendVDom} from "../bend/renderTabBend";
 
@@ -83,6 +84,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     * */
     let prefixW = 0;
 
+    if (measure.clef_f) {
+        const key = getClefSkinKey(measure.clef_f.type, true);
+        const item = skin[key];
+        if (item) prefixW += item.w;
+    }
     if (measure.timeSignature_f) {
         const key = getTimeSignatureSkinKey(measure.timeSignature_f.type);
         const item = skin[key];
@@ -95,6 +101,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     }
 
     const rightParts: RightPart[] = [];
+    if (measure.clef_b) {
+        rightParts.push({
+            skinKey: getClefSkinKey(measure.clef_b.type, false),
+            tag: 'clef_b',
+            dataComment: '后置谱号',
+            targetId: measure.clef_b.id ?? '',
+        });
+    }
     if (measure.barline_b) {
         rightParts.push({
             skinKey: getBarlineSkinKey(measure.barline_b.type),
@@ -136,13 +150,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     ) => {
         const item = skin[skinKey];
         if (!item) return;
-        let y = measureY + (measureHeight - item.h) / 2;
+        // tab 谱号上下贴谱表边：强制与小节同高、顶边对齐
+        const flushClef = skinKey === Tab6SkinKeyEnum.Tab || skinKey === Tab6SkinKeyEnum.Tab_f;
+        const h = flushClef ? measureHeight : item.h;
+        let y = flushClef ? measureY : measureY + (measureHeight - item.h) / 2;
         if (yOffset != null) y += yOffset;
         const vdom: VDom = {
             startPoint: {x: 0, y: 0},
             endPoint: {x: 0, y: 0},
             special: {},
-            x, y, w: item.w, h: item.h, zIndex: z, tag, skinName: skinNameForNodes, targetId, skinKey, dataComment,
+            x, y, w: item.w, h, zIndex: z, tag, skinName: skinNameForNodes, targetId, skinKey, dataComment,
         };
         out.push(vdom);
         // 如果添加的vdom存在id, 缓存数据方便查找
@@ -153,6 +170,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     * */
     let x = measureX;
 
+    if (measure.clef_f) {
+        const clefKey = getClefSkinKey(measure.clef_f.type, true);
+        pushSymbol(x, clefKey, 'clef_f', '前置谱号', measure.clef_f.id ?? '');
+        const item = skin[clefKey];
+        if (item) x += item.w;
+    }
     if (measure.timeSignature_f) {
         const timeSigKey = getTimeSignatureSkinKey(measure.timeSignature_f.type);
         pushSymbol(x, timeSigKey, 'timeSignature_f', '前置拍号', measure.timeSignature_f.id ?? '');
@@ -218,7 +241,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     function pushTabChordForSlot(slot: StaffSlot, slotCenterX: number): void {
         const chord = (slot as { chord?: tabChord }).chord;
-        if (!chord) return;
+        if (!isVisibleTabChord(chord)) return;
         const vdom = buildTabChordVDom({
             chord,
             slotCenterX,
@@ -273,25 +296,12 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const slotStartX = domainStartX + geo.startInDomain;
             const slotW = geo.width;
             const isRest = isSlotRest(slot);
-            // 参考宽度：符干/琶音/和弦等对齐用
-            let referenceW: number;
-            if (isRest) {
-                const restItem = skin[getRestSkinKey(getSlotRestChronaxie(slot))];
-                if (!restItem) continue;
-                referenceW = restItem.w;
-            } else {
-                referenceW = 0;
-                for (const ni of slot.notesInfo) {
-                    const headSkin = skin[getTabNoteHeadSkinKey(ni)];
-                    if (headSkin && headSkin.w > referenceW) referenceW = headSkin.w;
-                }
-            }
+            if (isRest && !skin[getRestSkinKey(getSlotRestChronaxie(slot))]) continue;
             const slotOnset = computeSlotOnset(measure, i, columnAdapter);
             const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
-            /** 槽位内布局锚点 x（未叠加 Frame）；主音符不受倚音影响 */
+            /** 零宽槽位锚点 x（未叠加 Frame）；符头 / 休止 / 符干均相对此点居中 */
             const slotX = slotStartX;
-            /** 符干/琶音/和弦等：参考符头列宽居中 */
-            const slotHeadCenterX = slotX + referenceW / 2;
+            const slotHeadCenterX = slotX;
             /*
             * 渲染音符前谱号
             * */
@@ -311,7 +321,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     startPoint: {x: 0, y: 0},
                     endPoint: {x: 0, y: 0},
                     special: {},
-                    x: slotX,
+                    x: slotX - restItem.w / 2,
                     y: ny,
                     w: restItem.w,
                     h: restItem.h,
@@ -331,12 +341,13 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                         const augSkin = skin[augSkinKey];
                         const addLineSkin = skin[Tab6SkinKeyEnum.Addline];
                         if (augSkin) {
+                            const restHeadX = slotX - restItem.w / 2;
                             const anchorX = resolveAugmentationDotAnchorXFromLayout(
                                 layout,
                                 domainStartX,
                                 slotOnset,
                                 restChronaxie,
-                                slotX,
+                                restHeadX,
                                 restItem.w,
                                 addLineSkin?.w ?? 0,
                                 rest.augmentationDot,
@@ -369,7 +380,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     skin,
                     measureHeight,
                 });
-                pushTabChordForSlot(rest, slotX + restItem.w / 2);
+                pushTabChordForSlot(rest, slotX);
                 continue;
             }
 
@@ -377,7 +388,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const tabNote = note as TabNote;
             const allNotesInfo = note.notesInfo;
 
-            // 1) 普通符头居左；琶音/扫弦仅输出箭头 vDom
+            // 1) 普通符头相对 slot 锚点居中；琶音/扫弦仅输出箭头 vDom
             allNotesInfo.forEach((n) => {
                 const info = n as TabNoteInfo;
                 if (isTabNoteGeometryInfo(info)) {
@@ -419,7 +430,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 const headItem = skin[headKey];
                 if (!headItem) return;
                 const region = getTabNoteInfoRegion(info);
-                const headX = slotX;
+                const headX = slotX - headItem.w / 2;
                 const ny = noteCenterY(region) - headItem.h / 2;
                 const vdom: VDom = {
                     startPoint: {x: 0, y: 0},
@@ -579,14 +590,17 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     return out;
 }
 
-/** 计算前置小节线在小节内的左边缘 x（timeSig_f 之后，供连谱小节线 barline_f 定位） */
+/** 计算前置小节线在小节内的左边缘 x（clef_f + timeSig_f 之后，供连谱小节线 barline_f 定位） */
 export function getBarlineFXInMeasure(
     measure: import("@/types/MusicScoreType").Measure,
     measureX: number,
     skin: import("@/types/common").Tab6SkinPack,
 ): number {
     let prefixW = 0;
-
+    if (measure.clef_f) {
+        const item = skin[getClefSkinKey(measure.clef_f.type, true)];
+        if (item) prefixW += item.w;
+    }
     if (measure.timeSignature_f) {
         const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
         if (item) prefixW += item.w;
@@ -602,6 +616,7 @@ export function getBarlineXInMeasure(
     skin: import("@/types/common").Tab6SkinPack,
 ): number {
     const rightKeys: typeof Tab6SkinKeyEnum[keyof typeof Tab6SkinKeyEnum][] = [];
+    if (measure.clef_b) rightKeys.push(getClefSkinKey(measure.clef_b.type, false));
     if (measure.barline_b) rightKeys.push(getBarlineSkinKey(measure.barline_b.type));
     if (measure.timeSignature_b) rightKeys.push(getTimeSignatureSkinKey(measure.timeSignature_b.type));
     let suffixW = 0;
@@ -610,7 +625,7 @@ export function getBarlineXInMeasure(
         if (item) suffixW += item.w;
     }
     let x = measureX + measureWidth - suffixW;
-    const barlineIdx = 0; // barline_b 在 rightParts 第一位
+    const barlineIdx = measure.clef_b ? 1 : 0;
     for (let j = 0; j < barlineIdx && j < rightKeys.length; j++) {
         const item = skin[rightKeys[j]];
         if (item) x += item.w;

@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import {computed, inject, onBeforeUnmount, onMounted, ref} from 'vue'
+import {computed, inject, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import MusicScoreVue from '@deciphony/renderer'
+import type {Skin} from '@deciphony/renderer'
 import {drLyrics} from '@deciphony/extensions/dr-lyrics'
 import {drTitle} from '@deciphony/extensions/dr-title'
 import {drPlayHighlight} from '@deciphony/extensions/dr-play-highlight'
+import {parseSkinFile} from '../assets/skinAsset'
 import type {SScore} from '../types/types'
 import type {ScorePlayHost} from '../play/scorePlayback'
 import EditFrame from './EditFrame.vue'
@@ -31,8 +33,11 @@ type MusicScoreExpose = {
 
 const registry = inject<ScoreRegistry | null>('sjwScoreRegistry', null)
 const getBpm = inject<() => number>('sjwGetBpm', () => 120)
+const getAsset = inject<(id: string) => File | undefined>('sjwGetAsset', () => undefined)
 
 const musicScoreRef = ref<MusicScoreExpose | null>(null)
+/** 从资源缓存解析出的 Skin；无 skin id 或加载失败则为 undefined（用 renderer 内置） */
+const resolvedSkin = ref<Skin | undefined>()
 
 const playHighlight = drPlayHighlight({
   findElementByVDom: (node) => musicScoreRef.value?.findElementByVDom(node) ?? null,
@@ -46,6 +51,27 @@ const naturalW = computed(() => props.score.musicScore.width || 1)
 const naturalH = computed(() => props.score.musicScore.height || 1)
 const scaleX = computed(() => props.score.width / naturalW.value)
 const scaleY = computed(() => props.score.height / naturalH.value)
+
+watch(
+  () => props.score.skin,
+  async (skinId) => {
+    if (!skinId) {
+      resolvedSkin.value = undefined
+      return
+    }
+    const file = getAsset(skinId)
+    if (!file) {
+      resolvedSkin.value = undefined
+      return
+    }
+    try {
+      resolvedSkin.value = await parseSkinFile(file)
+    } catch {
+      resolvedSkin.value = undefined
+    }
+  },
+  {immediate: true},
+)
 
 onMounted(() => {
   registry?.register({
@@ -99,6 +125,7 @@ onBeforeUnmount(() => {
             ref="musicScoreRef"
             :data="score.musicScore"
             :extensions="extensions"
+            :skin="resolvedSkin"
           />
         </div>
       </div>

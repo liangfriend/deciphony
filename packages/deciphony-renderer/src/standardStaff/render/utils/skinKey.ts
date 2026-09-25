@@ -56,6 +56,9 @@ export function getClefSkinKey(clefType: ClefTypeEnum, isFront: boolean): Standa
             return isFront ? StandardStaffSkinKeyEnum.Alto_f : StandardStaffSkinKeyEnum.Alto;
         case ClefTypeEnum.Tenor:
             return isFront ? StandardStaffSkinKeyEnum.Tenor_f : StandardStaffSkinKeyEnum.Tenor;
+        case ClefTypeEnum.Tab:
+            // 五线谱皮肤无 tab 谱号；回退到高音谱号避免缺 key
+            return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
         default:
             return isFront ? StandardStaffSkinKeyEnum.Treble_f : StandardStaffSkinKeyEnum.Treble;
     }
@@ -98,6 +101,8 @@ export function getKeySignatureYOffset(
             return -unit;
         case ClefTypeEnum.Bass:
             return unit * 2;
+        case ClefTypeEnum.Tab:
+            return 0;
         default:
             return 0;
     }

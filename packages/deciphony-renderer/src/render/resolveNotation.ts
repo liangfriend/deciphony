@@ -12,16 +12,19 @@ export type NotationSkinPack =
   | NumberNotationSkinPack
   | Tab6SkinPack
 
-const MUSIC_SCORE_TO_VDOM: Partial<Record<MusicScoreTypeEnum, MusicScoreToVDomFn>> = {
-  [MusicScoreTypeEnum.StandardStaff]: musicScoreToVDomStandard,
-  [MusicScoreTypeEnum.NumberNotation]: musicScoreToVDomNumber,
-  [MusicScoreTypeEnum.Tab6]: musicScoreToVDomTab6,
-  [MusicScoreTypeEnum.Tab4]: musicScoreToVDomTab4,
-}
-
-/** ??????? musicScoreToVDom ????????????? */
+/** 每次按 type 取当前 import 绑定，避免 HMR 后仍钉死旧 musicScoreToVDom 引用 */
 export function resolveMusicScoreToVDom(type: MusicScoreTypeEnum): MusicScoreToVDomFn {
-  return MUSIC_SCORE_TO_VDOM[type] ?? musicScoreToVDomStandard
+  switch (type) {
+    case MusicScoreTypeEnum.NumberNotation:
+      return musicScoreToVDomNumber
+    case MusicScoreTypeEnum.Tab6:
+      return musicScoreToVDomTab6
+    case MusicScoreTypeEnum.Tab4:
+      return musicScoreToVDomTab4
+    case MusicScoreTypeEnum.StandardStaff:
+    default:
+      return musicScoreToVDomStandard
+  }
 }
 
 /** ? SkinPack ????????????? */

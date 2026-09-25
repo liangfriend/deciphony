@@ -44,6 +44,7 @@ export const CLEF_OPTIONS: {value: ClefTypeEnum; label: string}[] = [
   {value: ClefTypeEnum.Bass, label: '低音谱号'},
   {value: ClefTypeEnum.Alto, label: '中音谱号'},
   {value: ClefTypeEnum.Tenor, label: '次中音谱号'},
+  {value: ClefTypeEnum.Tab, label: 'Tab 谱号'},
 ]
 
 export const KEY_SIGNATURE_OPTIONS: {value: KeySignatureTypeEnum; label: string}[] = [
@@ -87,14 +88,19 @@ export const END_REPEAT_OPTIONS: {value: MeasureEndRepeatEnum; label: string}[] 
 ]
 
 export function insertMeasureBefore(slot: MeasureEditSlot): Measure {
-  return insertMeasure(slot.singleStaff, slot.measure, 'before')
+  return insertMeasure(slot.singleStaff, slot.measure, 'before', {
+    notationType: slot.musicScore.type,
+  })
 }
 
 export function insertMeasureAfter(slot: MeasureEditSlot): Measure {
-  return insertMeasure(slot.singleStaff, slot.measure, 'after')
+  return insertMeasure(slot.singleStaff, slot.measure, 'after', {
+    notationType: slot.musicScore.type,
+  })
 }
 
 export function setMeasureBarlineB(measure: Measure, type: BarlineTypeEnum): void {
+  if (measure.barline_b?.type === type) return
   if (measure.barline_b) {
     measure.barline_b.type = type
   } else {
@@ -104,9 +110,11 @@ export function setMeasureBarlineB(measure: Measure, type: BarlineTypeEnum): voi
 
 export function setMeasureBarlineF(measure: Measure, type: BarlineTypeEnum | null): void {
   if (type == null) {
+    if (!measure.barline_f) return
     delete measure.barline_f
     return
   }
+  if (measure.barline_f?.type === type) return
   if (measure.barline_f) {
     measure.barline_f.type = type
   } else {
@@ -116,9 +124,11 @@ export function setMeasureBarlineF(measure: Measure, type: BarlineTypeEnum | nul
 
 export function setMeasureClefF(measure: Measure, type: ClefTypeEnum | null): void {
   if (type == null) {
+    if (!measure.clef_f) return
     delete measure.clef_f
     return
   }
+  if (measure.clef_f?.type === type) return
   if (measure.clef_f) {
     measure.clef_f.type = type
   } else {
@@ -128,9 +138,11 @@ export function setMeasureClefF(measure: Measure, type: ClefTypeEnum | null): vo
 
 export function setMeasureKeySignatureF(measure: Measure, type: KeySignatureTypeEnum | null): void {
   if (type == null) {
+    if (!measure.keySignature_f) return
     delete measure.keySignature_f
     return
   }
+  if (measure.keySignature_f?.type === type) return
   if (measure.keySignature_f) {
     measure.keySignature_f.type = type
   } else {
@@ -140,9 +152,11 @@ export function setMeasureKeySignatureF(measure: Measure, type: KeySignatureType
 
 export function setMeasureTimeSignatureF(measure: Measure, type: TimeSignatureTypeEnum | null): void {
   if (type == null) {
+    if (!measure.timeSignature_f) return
     delete measure.timeSignature_f
     return
   }
+  if (measure.timeSignature_f?.type === type) return
   if (measure.timeSignature_f) {
     measure.timeSignature_f.type = type
   } else {
@@ -152,9 +166,11 @@ export function setMeasureTimeSignatureF(measure: Measure, type: TimeSignatureTy
 
 export function setMeasureStartRepeat(measure: Measure, type: MeasureStartRepeatEnum | null): void {
   if (type == null) {
+    if (!measure.startRepeat) return
     delete measure.startRepeat
     return
   }
+  if (measure.startRepeat?.type === type) return
   if (measure.startRepeat) {
     measure.startRepeat.type = type
   } else {
@@ -164,9 +180,11 @@ export function setMeasureStartRepeat(measure: Measure, type: MeasureStartRepeat
 
 export function setMeasureEndRepeat(measure: Measure, type: MeasureEndRepeatEnum | null): void {
   if (type == null) {
+    if (!measure.endRepeat) return
     delete measure.endRepeat
     return
   }
+  if (measure.endRepeat?.type === type) return
   if (measure.endRepeat) {
     measure.endRepeat.type = type
   } else {

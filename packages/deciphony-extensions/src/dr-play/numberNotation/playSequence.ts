@@ -2,7 +2,7 @@ import type {Measure, MusicScore, NoteNumber, NotesNumberInfo} from '@deciphony/
 import {KeySignatureTypeEnum} from '@deciphony/renderer'
 import {isNoteNumberSlot, isSlotRestLike} from '../../dr-edit/score-builder/noteSlot'
 import {getMeasurePositions, getNoteNumberMidi, getPlayMeasureIndexes} from '../../scoreUtil'
-import {applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
+import {applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 
@@ -148,7 +148,7 @@ function appendMeasureSequence(
 
 /**
  * 简谱 → 可播放序列
- * - 按小节调号（首调）换算 getNoteNumberMidi
+ * - 顶层 / 小节调号（首调）换算 getNoteNumberMidi；第一小节无调号时用 MusicScore.keySignature
  * - 时值在 NotesNumberInfo 层；同槽位 onset 取各层最大时值推进
  * - 休止符 / 节奏 X：midi = 0
  */
@@ -160,7 +160,7 @@ export function getNumberNotationPlaySequence(musicScoreData: MusicScore): DR_pl
   const noteStaveIndex = new Map<string, number>()
   const maxStaves = Math.max(0, ...musicScoreData.grandStaffs.map((gs) => gs.staves.length))
   const staveStates: NumberPlayState[] = Array.from({length: maxStaves}, () => ({
-    curKeySignature: KeySignatureTypeEnum.C,
+    curKeySignature: initialPlayKeySignature(musicScoreData),
   }))
   let globalPlayTime: Unit256 = 0
 

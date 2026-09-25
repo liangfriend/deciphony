@@ -31,11 +31,13 @@ import {
 import {setBackground, clearBackground} from '../api/background'
 import {
   addScore,
-  collectScoreAudioSrcs,
+  collectScoreAssetSrcs,
   removeScore,
   type AddScoreHostOptions,
   type AddScoreOptions,
+  type ScoreSkinHostInput,
 } from '../api/scores'
+import {isSkinPack, resolveSkinPack, skinPackToFile} from '../assets/skinAsset'
 import {
   addPage,
   insertPage,
@@ -162,6 +164,36 @@ function resolveScoreAudioInput(
   throw new Error('范唱/伴奏需提供 src、assetId 或 file')
 }
 
+/** SJWPDF 层：皮肤可传资源 id / File / SkinPack / Skin（对象会序列化成新 .json） */
+function resolveScoreSkinInput(input: ScoreSkinHostInput | undefined): string | undefined {
+  if (input == null) return undefined
+  if (typeof input === 'string') {
+    if (!input) return undefined
+    requireAsset(input)
+    return input
+  }
+  if ('assetId' in input && input.assetId) {
+    requireAsset(input.assetId)
+    return input.assetId
+  }
+  if ('file' in input && input.file instanceof File) {
+    const rec = loadAsset(input.file, input.name)
+    return rec.id
+  }
+  if ('skin' in input && input.skin) {
+    const pack = resolveSkinPack(input.skin, input.skinName)
+    const rec = loadAsset(skinPackToFile(pack, input.name ?? 'skin.json'), input.name)
+    return rec.id
+  }
+  if (isSkinPack(input)) {
+    const rec = loadAsset(skinPackToFile(input), 'skin.json')
+    return rec.id
+  }
+  const pack = resolveSkinPack(input)
+  const rec = loadAsset(skinPackToFile(pack), 'skin.json')
+  return rec.id
+}
+
 function menuEntries(menu: OpenMenu): ContextMenuEntry[] {
   const payload = buildContextPayload(menu)
   const customs: ContextMenuEntry[] = (props.contextMenu ?? [])
@@ -231,16 +263,16 @@ function closeContextMenu() {
 }
 
 /**
- * 删除曲谱；若范唱/伴奏资源已无其它引用，则从缓存中删除。
+ * 删除曲谱；若范唱/伴奏/皮肤资源已无其它引用，则从缓存中删除。
  */
 function removeScoreAndOrphanAudios(scoreId: string): boolean {
   const page = requirePage()
   const score = page.scores?.find((s) => s.id === scoreId)
   if (!score) return false
-  const audioSrcs = collectScoreAudioSrcs(score)
+  const assetSrcs = collectScoreAssetSrcs(score)
   const ok = removeScore(page, scoreId)
   if (!ok) return false
-  for (const src of audioSrcs) {
+  for (const src of assetSrcs) {
     if (store.isUsed(props.data, src)) continue
     store.removeAsset(src, props.data)
   }
@@ -283,6 +315,7 @@ provide('sjwScoreRegistry', {
   },
 })
 provide('sjwGetBpm', () => playback.getBpm())
+provide('sjwGetAsset', (id: string) => store.getAsset(id))
 
 async function loadSjw(file: Blob): Promise<SJW> {
   const {data, assets} = await parseSjw(file)
@@ -465,15 +498,18 @@ defineExpose({
    * - `{ src, name, author? }` 已缓存资源
    * - `{ assetId, name?, author? }` 已缓存 id
    * - `{ file, name?, author? }` 自动 loadAsset 写入 zip 根目录
+   * 皮肤可传：资源 id / `{ assetId }` / `{ file }` / SkinPack / Skin（对象每次序列化为新 .json）
    */
   addScore: (options: AddScoreHostOptions) => {
     const vocalPerformance = resolveScoreAudioInput(options.vocalPerformance)
     const accompaniment = resolveScoreAudioInput(options.accompaniment)
+    const skin = resolveScoreSkinInput(options.skin)
     const opts: AddScoreOptions = {
       x: options.x,
       y: options.y,
       musicScore: options.musicScore,
     }
+    if (skin !== undefined) opts.skin = skin
     if (options.rotation !== undefined) opts.rotation = options.rotation
     if (options.id !== undefined) opts.id = options.id
     if (vocalPerformance) opts.vocalPerformance = vocalPerformance

@@ -4,6 +4,7 @@ import {basename, clearAssetUsages, findAssetUsages, isAssetUsed, isRemoteSrc} f
 
 function guessMime(name: string): string {
   const lower = name.toLowerCase()
+  if (lower.endsWith('.json')) return 'application/json'
   if (lower.endsWith('.png')) return 'image/png'
   if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg'
   if (lower.endsWith('.gif')) return 'image/gif'

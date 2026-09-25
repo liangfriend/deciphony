@@ -33,12 +33,14 @@ export const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11]
 /** 以 C=do 为 0 的七个自然音级字母 */
 export const DIATONIC_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
 
-/** 各谱号第一线下方锚点：startRegion 对应某个 C(do)，startMidi 为该 C 的 midi */
+/** 各谱号第一线下方锚点：startRegion 对应某个 C(do)，startMidi 为该 C 的 midi。
+ * Tab 仅展示用，音高换算回退到高音谱号锚点。 */
 export const CLEF_ANCHOR: Record<ClefTypeEnum, { startRegion: number; startMidi: number }> = {
     [ClefTypeEnum.Treble]: {startRegion: -2, startMidi: 60}, // 第一线下方 C4
     [ClefTypeEnum.Bass]: {startRegion: -4, startMidi: 36}, // 第一线下方 C2
     [ClefTypeEnum.Alto]: {startRegion: -3, startMidi: 48}, // 第一线下方 C3
-    [ClefTypeEnum.Tenor]: {startRegion: -1, startMidi: 48} // 第一线下方 C3
+    [ClefTypeEnum.Tenor]: {startRegion: -1, startMidi: 48}, // 第一线下方 C3
+    [ClefTypeEnum.Tab]: {startRegion: -2, startMidi: 60},
 }
 
 export const ACC_OFFSET_MAP: Record<AlteredAccidental, number> = {
@@ -73,6 +75,29 @@ export const KEY_ALTERATION: Record<
     [KeySignatureTypeEnum.D_flat]: {kind: 'flat', count: 5},
     [KeySignatureTypeEnum.G_flat]: {kind: 'flat', count: 6},
     [KeySignatureTypeEnum.C_flat]: {kind: 'flat', count: 7}
+}
+
+/** 各调主音相对 C 的半音（简谱首调 1=该音） */
+export const KEY_TONIC_SEMITONE: Record<KeySignatureTypeEnum, number> = {
+    [KeySignatureTypeEnum.C]: 0,
+    [KeySignatureTypeEnum.C_sharp]: 1,
+    [KeySignatureTypeEnum.D_flat]: 1,
+    [KeySignatureTypeEnum.D]: 2,
+    [KeySignatureTypeEnum.E_flat]: 3,
+    [KeySignatureTypeEnum.E]: 4,
+    [KeySignatureTypeEnum.F]: 5,
+    [KeySignatureTypeEnum.F_sharp]: 6,
+    [KeySignatureTypeEnum.G_flat]: 6,
+    [KeySignatureTypeEnum.G]: 7,
+    [KeySignatureTypeEnum.A_flat]: 8,
+    [KeySignatureTypeEnum.A]: 9,
+    [KeySignatureTypeEnum.B_flat]: 10,
+    [KeySignatureTypeEnum.B]: 11,
+    [KeySignatureTypeEnum.C_flat]: 11
+}
+
+export function getKeyTonicSemitone(keySignature: KeySignatureTypeEnum): number {
+    return KEY_TONIC_SEMITONE[keySignature] ?? 0
 }
 
 /** clef + region → 自然音级（0=C,1=D,…6=B）。region 按线/间逐级递增，7 级 = 1 个八度 */
@@ -1059,19 +1084,21 @@ const SHARP_SPELLING_DEGREE: Partial<Record<number, number>> = {1: 0, 3: 1, 6: 3
 const FLAT_SPELLING_DEGREE: Partial<Record<number, number>> = {1: 1, 3: 2, 6: 4, 8: 5, 10: 6}
 
 /**
- * midi → 简谱唱名与八度点（固定调 C=do，不考虑谱号/调号）。
- * octave 对应 NotesNumberInfo.octaveDot：C4(midi 60) → 0。
+ * midi → 简谱唱名与八度点（首调：keySignature 的主音为 1=do）。
+ * 默认 C 调，此时与固定调 C=do 相同。
+ * octave 对应 NotesNumberInfo.octaveDot：该调 1 的 C4 同名八度 → 0（C 调 1=C4）。
  * 黑键按 priority 决定归属唱名与变音记号。
  */
 export function getOctaveAndSyllable(
     midi: number,
-    priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat = AccidentalTypeEnum.Sharp
+    priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat = AccidentalTypeEnum.Sharp,
+    keySignature: KeySignatureTypeEnum = KeySignatureTypeEnum.C
 ): {
     octave: number
     syllable: number
     accidental: AccidentalTypeEnum | null
 } {
-    const pitch = Math.round(midi)
+    const pitch = Math.round(midi) - getKeyTonicSemitone(keySignature)
     const semitone = ((pitch % 12) + 12) % 12
     const octave = Math.floor(pitch / 12) - 5
 
@@ -1088,8 +1115,11 @@ export function getOctaveAndSyllable(
     return {octave, syllable: degree + 1, accidental}
 }
 
-/** NotesNumberInfo → midi（固定调 C=do，与 getOctaveAndSyllable 互逆） */
-export function getNoteNumberMidi(noteNumberInfo: NotesNumberInfo): number {
+/** NotesNumberInfo → midi（首调，与 getOctaveAndSyllable 互逆；默认 C=do） */
+export function getNoteNumberMidi(
+    noteNumberInfo: NotesNumberInfo,
+    keySignature: KeySignatureTypeEnum = KeySignatureTypeEnum.C
+): number {
     const {syllable, accidental} = noteNumberInfo
     if (syllable === 0 || syllable === 'X') {
         throw new Error('休止符或节奏音符无 midi 音高')
@@ -1108,7 +1138,7 @@ export function getNoteNumberMidi(noteNumberInfo: NotesNumberInfo): number {
 
     const octaveDot = noteNumberInfo.octaveDot ?? 0
     const semitone = (((baseSemitone + accOffset) % 12) + 12) % 12
-    return (octaveDot + 5) * 12 + semitone
+    return (octaveDot + 5) * 12 + semitone + getKeyTonicSemitone(keySignature)
 }
 
 /**

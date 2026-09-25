@@ -3,6 +3,7 @@ import type {Tab6SkinPack} from '@/types/common';
 import type {ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
 import {
     getBarlineSkinKey,
+    getClefSkinKey,
     getTimeSignatureSkinKey,
 } from '../utils/skinKey';
 import {
@@ -17,6 +18,10 @@ export function computeStandardMeasureFixedWidths(
     skin: Tab6SkinPack,
 ): { prefixW: number; suffixW: number } {
     let prefixW = 0;
+    if (measure.clef_f) {
+        const item = skin[getClefSkinKey(measure.clef_f.type, true)];
+        if (item) prefixW += item.w;
+    }
     if (measure.timeSignature_f) {
         const item = skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)];
         if (item) prefixW += item.w;
@@ -27,6 +32,10 @@ export function computeStandardMeasureFixedWidths(
     }
 
     let suffixW = 0;
+    if (measure.clef_b) {
+        const item = skin[getClefSkinKey(measure.clef_b.type, false)];
+        if (item) suffixW += item.w;
+    }
     if (measure.barline_b) {
         const item = skin[getBarlineSkinKey(measure.barline_b.type)];
         if (item) suffixW += item.w;

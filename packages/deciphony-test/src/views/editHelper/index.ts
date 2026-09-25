@@ -43,6 +43,12 @@ export {
   deleteSingleStaffBtnY,
 } from './renderEditSlotLayout'
 export {deleteSelectedItem, isRestSelected} from './renderEditDelete'
+export {
+  resolveNeighborMeasureSlot,
+  type MeasureNavDirection,
+} from './renderEditMeasureNavigate'
+export {applyMidiNoteToSelectedMeasure, resolveClefAndKeyAtMeasure} from './renderEditMidiAdd'
+export {useMidiPianoInput, type MidiPianoStatus} from './useMidiPianoInput'
 export {resolvePropertyPanelKind, type PropertyPanelKind} from './renderEditPropertyPanel'
 export {
   ADD_NOTE_KIND_OPTIONS,
@@ -79,8 +85,17 @@ export {
   type VoltaHandlePoints,
 } from './renderEditVoltaDrag'
 export {useRenderEdit, type MusicScoreComponentExpose} from './useRenderEdit'
-export {useDrEdit, EDIT_SLOT_CONFIG} from './useDrEdit'
+export {
+  useDrEdit,
+  EDIT_SLOT_CONFIG,
+  type UseDrEditOptions,
+  type EditContextMenuItem,
+  type EditContextMenuPayload,
+  type EditContextMenuState,
+  type EditContextMenuEntry,
+} from './useDrEdit'
 export {DR_EDIT_INJECTION_KEY, type DrEditApi} from './editInject'
+export {default as EditContextMenu} from './components/EditContextMenu.vue'
 
 // —— 五线谱 ——
 export {
@@ -128,6 +143,8 @@ export {useNumberNotationRenderEdit} from './numberNotation/useRenderEdit'
 export {default as NumberHeadPropertyPanel} from './numberNotation/components/NumberHeadPropertyPanel.vue'
 export {default as GhostNumberPreview} from './numberNotation/components/GhostNumberPreview.vue'
 export {default as AddNumberStatePanel} from './numberNotation/components/AddNumberStatePanel.vue'
+export {default as AddTabStatePanel} from './tab/components/AddTabStatePanel.vue'
+export {useTabRenderEdit} from './tab/useRenderEdit'
 export type {StaffGhostNotePreview as GhostNotePreviewState}
 export type {NumberGhostPreview as GhostNumberPreviewState}
 

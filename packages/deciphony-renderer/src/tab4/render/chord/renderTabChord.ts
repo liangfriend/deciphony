@@ -3,6 +3,14 @@ import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {tabChord} from '@/types/MusicScoreType';
 import {TAB_6_CHORD_Y_OFFSET_RATIO} from '../constants';
 
+/** 有名字 / 按弦 / 横按才算应显示的和弦图（与播放侧 isChordSymbol 一致） */
+export function isVisibleTabChord(chord: tabChord | null | undefined): chord is tabChord {
+    if (!chord) return false
+    if (chord.name?.trim()) return true
+    if (chord.stringStates?.some((state) => state.finger !== -1)) return true
+    return chord.barres?.some((barre) => barre.startStringNumber <= barre.endStringNumber) ?? false
+}
+
 function tabChordToSpecial(chord: tabChord): NonNullable<VDom['special']['tabChord']> {
     const {
         id: _id,

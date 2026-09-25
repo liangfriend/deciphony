@@ -3,12 +3,13 @@ import type {VDom} from '@/types/common'
 /**
  * 选中态 / DOM 绑定的稳定语义键（不含 skinName、skinKey，换肤后不变）。
  * 格式：tag:targetId:slotName[:ledgerLine]
+ * ledgerLine：五线加线线号 / 简谱加时线序号，用于同 targetId 多节点区分
  */
 export function vdomSelectionKey(node: VDom): string {
+  const isMultiLine =
+    node.tag === 'addLine' || node.tag === 'addLine_u' || node.tag === 'addLine_g'
   const ledger =
-    (node.tag === 'addLine_u' || node.tag === 'addLine_g') && node.special?.ledgerLine != null
-      ? `:${node.special.ledgerLine}`
-      : ''
+    isMultiLine && node.special?.ledgerLine != null ? `:${node.special.ledgerLine}` : ''
   return `${node.tag}:${node.targetId ?? ''}:${node.slotName ?? ''}${ledger}`
 }
 

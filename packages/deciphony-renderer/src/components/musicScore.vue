@@ -4,23 +4,28 @@
        :width="data.width" preserveAspectRatio="none"
        xmlns="http://www.w3.org/2000/svg"
        @click="onTopClick"
+       @contextmenu="onTopContextMenu"
        @pointerdown="onTopDown"
        @pointerenter="onTopSvgEnter"
        @pointerleave="onTopSvgLeave"
        @pointermove="onTopMove"
        @pointerup="onTopUp">
+    <text data-test="1">{{ Date.now() }}</text>
     <template v-for="(node, domIndex) in vDom"
               :key="vdomDomId(node, domIndex)">
+
       <g
           v-if="!AFFILIATION_TAGS.has(node.tag)"
           :id="vdomDomId(node, domIndex)"
           @click="onDrClick($event, node)"
+          @contextmenu="onDrContextMenu($event, node)"
           @pointerdown="onDrDown($event, node)"
           @pointerenter="onDrEnter($event, node)"
           @pointerleave="onDrLeave($event, node)"
           @pointermove="onDrMove($event, node)"
           @pointerup="onDrUp($event, node)"
       >
+
         <Group :node="node" :notation-type="data.type" :skin="skin"/>
       </g>
       <g
@@ -31,6 +36,7 @@
           :data-target-id="node.targetId"
           :transform="`translate(${node.x}, ${node.y})`"
           @click="onDrClick($event, node)"
+          @contextmenu="onDrContextMenu($event, node)"
           @pointerdown="onDrDown($event, node)"
           @pointerenter="onDrEnter($event, node)"
           @pointerleave="onDrLeave($event, node)"
@@ -47,9 +53,9 @@
         <Bend v-else-if="node.tag === 'bend'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
           <component
+              :is="item.component"
               v-for="item in extensionsForSlot(node.slotName)"
               :key="`${item.name}:${node.targetId}`"
-              :is="item.component"
               :music-score="data"
               :node="node"
               v-bind="resolveExtensionProps(item.extension)"
@@ -62,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, ref, watch, type Component} from 'vue'
+import {type Component, computed, onMounted, ref, watch} from 'vue'
 import {resolveMusicScoreToVDom} from '@/render/resolveNotation'
 import {applyVDomUpdate, diffAndMergeVDom} from '@/render/update'
 import {mergeSlotConfig} from '@/render/mergeSlotConfig'
@@ -155,8 +161,8 @@ function resolveExtensionProps(ext: DrExtension): Record<string, unknown> {
 }
 
 function dispatchExtension<K extends keyof DrExtensionEvents>(
-  name: K,
-  ...args: Parameters<NonNullable<DrExtensionEvents[K]>>
+    name: K,
+    ...args: Parameters<NonNullable<DrExtensionEvents[K]>>
 ) {
   fanoutExtensionEvent(props.extensions, name, ...args)
 }
@@ -164,6 +170,7 @@ function dispatchExtension<K extends keyof DrExtensionEvents>(
 const emit = defineEmits<{
   renderMusicScore: [vDom: VDom[]]
   'dr-click': [event: MouseEvent, vDom: VDom]
+  'dr-contextmenu': [event: MouseEvent, vDom: VDom]
   'dr-down': [event: PointerEvent, vDom: VDom]
   'dr-up': [event: PointerEvent, vDom: VDom]
   'dr-move': [event: PointerEvent, vDom: VDom]
@@ -171,6 +178,7 @@ const emit = defineEmits<{
   'dr-leave': [event: PointerEvent, vDom: VDom]
   /** 绑定在顶层 svg：命中解析为 vDom，空白区域 vDom 为 null */
   'top-click': [event: MouseEvent, vDom: VDom | null]
+  'top-contextmenu': [event: MouseEvent, vDom: VDom | null]
   'top-down': [event: PointerEvent, vDom: VDom | null]
   'top-up': [event: PointerEvent, vDom: VDom | null]
   'top-move': [event: PointerEvent, vDom: VDom | null]
@@ -189,6 +197,13 @@ function findElementByVDom(node: VDom): SVGElement | null {
 function onDrClick(event: MouseEvent, node: VDom) {
   dispatchExtension('dr-click', event, node)
   emit('dr-click', event, node)
+}
+
+function onDrContextMenu(event: MouseEvent, node: VDom) {
+  event.preventDefault()
+  event.stopPropagation()
+  dispatchExtension('dr-contextmenu', event, node)
+  emit('dr-contextmenu', event, node)
 }
 
 function onDrDown(event: PointerEvent, node: VDom) {
@@ -239,6 +254,13 @@ function onTopClick(event: MouseEvent) {
   const node = resolveTopVDom(event)
   dispatchExtension('top-click', event, node)
   emit('top-click', event, node)
+}
+
+function onTopContextMenu(event: MouseEvent) {
+  event.preventDefault()
+  const node = resolveTopVDom(event)
+  dispatchExtension('top-contextmenu', event, node)
+  emit('top-contextmenu', event, node)
 }
 
 function onTopDown(event: PointerEvent) {

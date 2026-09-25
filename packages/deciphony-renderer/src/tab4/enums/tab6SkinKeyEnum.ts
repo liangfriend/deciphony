@@ -2,6 +2,11 @@
 export enum Tab6SkinKeyEnum {
   Measure = 'measure',
 
+  /** tab 谱号（后置 / 音符前）；竖排 t-a-b，上下贴谱表边 */
+  Tab = 'tab',
+  /** 前置 tab 谱号 */
+  Tab_f = 'tab_f',
+
   // 闭合线（单谱表第一小节左侧）
   Close_line = 'close_line',
   linked_close_line = 'linked_close_line',

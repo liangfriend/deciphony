@@ -7,11 +7,9 @@ import {resolveWidthRatio} from "@/utils/widthRatio";
 import {
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
+    getClefSkinKey,
     getRestSkinKey,
     getTabNoteHeadSkinKey,
-    getRestSkinKey,
-    getTabNoteSkinKey,
-    getTabNoteValue,
     getTimeSignatureSkinKey,
 } from "./skinKey";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
@@ -192,33 +190,16 @@ type WidthPick = (
     data?: number,
 ) => number;
 
-function getSlotTabNoteValue(slot: StaffSlot): number {
-    if (isNoteSymbol(slot) && slot.notesInfo[0]) {
-        return getTabNoteValue(slot.notesInfo[0]);
-    }
-    return 0;
-}
-
-function getSlotHeadSkinKey(slot: StaffSlot): Tab6SkinKeyEnum {
-    if (isNoteSymbol(slot) && slot.notesInfo[0]) {
-        return getTabNoteHeadSkinKey(slot.notesInfo[0]);
-    }
-    return getTabNoteSkinKey(getSlotTabNoteValue(slot));
-}
-
+/**
+ * tab 符头 / 休止列宽贡献为 0：槽位锚点按零宽处理，符号相对锚点居中。
+ * 列间距仍由 DEFAULT_CELL_BASE_WIDTH_RATIO + 附点 / 加时线等承担。
+ */
 function getSlotSkinWidthRatio(
-    slot: StaffSlot,
-    skin: Tab6SkinPack,
-    forMeasure: boolean,
+    _slot: StaffSlot,
+    _skin: Tab6SkinPack,
+    _forMeasure: boolean,
 ): number {
-    const chronaxie = getLayoutChronaxieForSlot(slot);
-    const slotSkinKey = isNoteRest(slot)
-        ? getRestSkinKey(chronaxie)
-        : getSlotHeadSkinKey(slot);
-    const slotW = forMeasure
-        ? resolveWidthRatio(slot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure)
-        : resolveWidthRatio(slot.widthRatio, skin[slotSkinKey]?.widthRatio);
-    return slotW * getChronaxieWidthCoefficient(chronaxie);
+    return 0;
 }
 
 function collectHeadSubWidthRatio(
@@ -426,6 +407,12 @@ export function getMeasureWidthRatio(measure: Measure, skin: Tab6SkinPack): numb
     }
     if (measure.barline_b) {
         acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.type)]?.widthRatioForMeasure);
+    }
+    if (measure.clef_f) {
+        acc += resolveWidthRatio(measure.clef_f.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_f.type, true)]?.widthRatioForMeasure);
+    }
+    if (measure.clef_b) {
+        acc += resolveWidthRatio(measure.clef_b.widthRatioForMeasure, skin[getClefSkinKey(measure.clef_b.type, false)]?.widthRatioForMeasure);
     }
     if (measure.timeSignature_f) {
         acc += resolveWidthRatio(measure.timeSignature_f.widthRatioForMeasure, skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)]?.widthRatioForMeasure);

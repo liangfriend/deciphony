@@ -1,6 +1,7 @@
 import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
 import type {Chronaxie, Measure, MusicScore, NoteSymbol, NotesInfo, SlotData, VDom} from '@deciphony/renderer'
 import {createNoteRest, createNoteSymbol, createNotesInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
+import {computeMeasureOnsetBefore} from '@deciphony/extensions/dr-edit/score-builder'
 import {DEFAULT_ADD_NOTE_STATE, type AddNoteSlotKind, type AddNoteState} from '../renderEditAddNoteState'
 import {noteSymbolSvg, rest as restSymbolSvg} from './noteSvg'
 
@@ -480,10 +481,12 @@ export function applyMeasureAddAction(
             measure.notes.splice(at, 0, rest)
             return {type: 'inserted'}
         }
+        const beamOnset = computeMeasureOnsetBefore(measure, at)
         const note = createNoteSymbol({
             region: preview.region,
             chronaxie: preview.chronaxie,
             direction: preview.direction,
+            beamOnset,
         })
         measure.notes.splice(at, 0, note)
         return {type: 'inserted'}
@@ -503,11 +506,13 @@ export function applyMeasureAddAction(
         }
     }
 
+    const lead = note.notesInfo[0]
     note.notesInfo.push(
         createNotesInfo({
             region: preview.region,
-            chronaxie: note.notesInfo[0]?.chronaxie ?? preview.chronaxie,
+            chronaxie: lead?.chronaxie ?? preview.chronaxie,
             direction: preview.direction,
+            beamType: lead?.beamType,
         }),
     )
     return {type: 'noteInfoAdded'}

@@ -7,17 +7,28 @@ import SkinSymbolCard from './skinBuilder/SkinSymbolCard.vue'
 import SkinSymbolEditDialog, {
   type SkinSymbolEditTarget,
 } from './skinBuilder/SkinSymbolEditDialog.vue'
-import SkinCompareDialog from './skinBuilder/SkinCompareDialog.vue'
+import SkinCompareDialog, {
+  type SkinBuilderCategory,
+} from './skinBuilder/SkinCompareDialog.vue'
 
 type SkinPackJson = {
   standardStaff?: Record<string, SkinItem>
   numberNotation?: Record<string, SkinItem>
+  tab6?: Record<string, SkinItem>
+  tab4?: Record<string, SkinItem>
 }
 
 type SkinEntry = {
   category: string
   key: string
   item: SkinItem
+}
+
+const CATEGORY_LABEL: Record<SkinBuilderCategory, string> = {
+  standardStaff: '五线谱 standardStaff',
+  numberNotation: '简谱 numberNotation',
+  tab6: '吉他谱 tab6',
+  tab4: '尤克里里谱 tab4',
 }
 
 const skinPack = ref<SkinPackJson>(
@@ -31,14 +42,15 @@ const sourceSkinPack = ref<SkinPackJson>(
 
 const compareDialogVisible = ref(false)
 
-const activeCategory = ref<'standardStaff' | 'numberNotation'>('standardStaff')
+const activeCategory = ref<SkinBuilderCategory>('standardStaff')
 
 const sections = computed(() => {
   const pack = skinPack.value
-  return [
-    {id: 'standardStaff' as const, label: '五线谱 standardStaff', items: pack.standardStaff ?? {}},
-    {id: 'numberNotation' as const, label: '简谱 numberNotation', items: pack.numberNotation ?? {}},
-  ]
+  return (Object.keys(CATEGORY_LABEL) as SkinBuilderCategory[]).map((id) => ({
+    id,
+    label: CATEGORY_LABEL[id],
+    items: pack[id] ?? {},
+  }))
 })
 
 const currentSection = computed(
@@ -83,9 +95,12 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 function isSkinPackJson(data: unknown): data is SkinPackJson {
   if (!data || typeof data !== 'object') return false
   const o = data as Record<string, unknown>
-  const hasStandard = o.standardStaff != null && typeof o.standardStaff === 'object'
-  const hasNumber = o.numberNotation != null && typeof o.numberNotation === 'object'
-  return hasStandard || hasNumber
+  return (
+    (o.standardStaff != null && typeof o.standardStaff === 'object')
+    || (o.numberNotation != null && typeof o.numberNotation === 'object')
+    || (o.tab6 != null && typeof o.tab6 === 'object')
+    || (o.tab4 != null && typeof o.tab4 === 'object')
+  )
 }
 
 function triggerImportJson() {
@@ -103,15 +118,17 @@ function onImportFile(event: Event) {
     try {
       const parsed: unknown = JSON.parse(String(reader.result ?? ''))
       if (!isSkinPackJson(parsed)) {
-        ElMessage.error('JSON 格式无效：需包含 standardStaff 或 numberNotation 对象')
+        ElMessage.error('JSON 格式无效：需包含 standardStaff / numberNotation / tab6 / tab4 之一')
         return
       }
       skinPack.value = JSON.parse(JSON.stringify(parsed)) as SkinPackJson
-      const sections = [
-        parsed.standardStaff ? `五线谱 ${Object.keys(parsed.standardStaff).length} 项` : null,
-        parsed.numberNotation ? `简谱 ${Object.keys(parsed.numberNotation).length} 项` : null,
+      const parts = [
+        parsed.standardStaff ? `五线谱 ${Object.keys(parsed.standardStaff).length}` : null,
+        parsed.numberNotation ? `简谱 ${Object.keys(parsed.numberNotation).length}` : null,
+        parsed.tab6 ? `吉他 ${Object.keys(parsed.tab6).length}` : null,
+        parsed.tab4 ? `尤克里里 ${Object.keys(parsed.tab4).length}` : null,
       ].filter(Boolean).join('，')
-      ElMessage.success(`已导入 ${file.name}（${sections}）`)
+      ElMessage.success(`已导入 ${file.name}（${parts}）`)
     } catch {
       ElMessage.error('JSON 解析失败')
     }
@@ -155,6 +172,7 @@ function onEditSave(payload: {content: string; w: number; h: number}) {
         卡片 100×100，虚线框为符号逻辑边界；content 中
         <code>node.w</code> / <code>node.h</code> 已替换（measure 的 w 固定为 100）。
         <code>slur</code> / <code>volta</code> 的 content 为颜色，展示色块。点击符号卡片可编辑 content / width / height。
+        支持五线 / 简谱 / 吉他 tab6 / 尤克里里 tab4。
       </p>
       <div class="skin-builder__toolbar">
         <el-radio-group v-model="activeCategory" size="small">
@@ -270,6 +288,6 @@ function onEditSave(payload: {content: string; w: number; h: number}) {
 .skin-builder__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 12px;
+  gap: 12px;
 }
 </style>

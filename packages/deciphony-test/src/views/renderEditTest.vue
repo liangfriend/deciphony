@@ -1,49 +1,102 @@
 <script lang="ts" setup>
-import musicScoreVue from '@deciphony/renderer'
-import {MusicScoreTypeEnum} from '@deciphony/renderer'
 import type {MusicScore} from '@deciphony/renderer'
+import musicScoreVue, {MusicScoreTypeEnum} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
-import initialData from './data/其多列简谱'
+import initialData from './data/花之舞.json'
+import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {
   AddNoteStatePanel,
   AddNumberStatePanel,
+  AddTabStatePanel,
+  EditContextMenu,
+  type EditContextMenuItem,
   PropertyPanel,
   SlurDragHandles,
-  VoltaDragHandles,
   useDrEdit,
+  useMidiPianoInput,
+  VoltaDragHandles,
 } from './editHelper'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
 const isNumberNotation = computed(
     () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
 )
+const isTab = computed(
+    () => musicScoreData.type === MusicScoreTypeEnum.Tab4
+        || musicScoreData.type === MusicScoreTypeEnum.Tab6,
+)
+const tabStrings = computed(() => tabStringCount(musicScoreData.type))
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
+
+const contextMenuItems = ref<EditContextMenuItem[]>([])
+
+const editApi = useDrEdit(musicScoreData, {
+  musicScoreRef,
+  contextMenu: contextMenuItems,
+  onBeforeContextMenu() {
+    contextMenuItems.value = [editApi.createDeleteContextMenuItem()]
+  },
+})
 
 const {
   extension: editExtension,
   scoreRootRef,
   selectedItem,
   addNoteState,
+  addTabState,
   propertyPanelKind,
   slurHandlePoints,
   voltaHandlePoints,
   handleSlurHandleDown,
   handleVoltaHandleDown,
   deleteSelected,
-} = useDrEdit(musicScoreData, {musicScoreRef})
+  navigateSelectedMeasure,
+  addMidiNote,
+  contextMenuState,
+  closeContextMenu,
+} = editApi
 
-function onKeyDown(event: KeyboardEvent) {
-  if (event.key !== 'Delete' && event.key !== 'Backspace') return
-  const target = event.target
-  if (
+const {status: midiStatus, deviceNames: midiDevices} = useMidiPianoInput((midi) => {
+  addMidiNote(midi)
+})
+
+const midiHint = computed(() => {
+  if (midiStatus.value === 'unsupported') return 'MIDI：浏览器不支持'
+  if (midiStatus.value === 'denied') return 'MIDI：权限被拒绝'
+  if (midiStatus.value === 'empty') return 'MIDI：未检测到输入设备'
+  if (midiDevices.value.length) return `MIDI：${midiDevices.value.join(', ')}（选中小节后按琴键落音）`
+  return 'MIDI：已就绪'
+})
+
+const ARROW_TO_MEASURE_NAV = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+} as const
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  return (
       target instanceof HTMLInputElement
       || target instanceof HTMLTextAreaElement
       || target instanceof HTMLSelectElement
       || (target instanceof HTMLElement && target.isContentEditable)
-  ) {
+  )
+}
+
+function onKeyDown(event: KeyboardEvent) {
+  if (isTypingTarget(event.target)) return
+
+  const navDir = ARROW_TO_MEASURE_NAV[event.key as keyof typeof ARROW_TO_MEASURE_NAV]
+  if (navDir) {
+    if (navigateSelectedMeasure(navDir)) {
+      event.preventDefault()
+    }
     return
   }
+
+  if (event.key !== 'Delete' && event.key !== 'Backspace') return
   if (deleteSelected()) {
     event.preventDefault()
   }
@@ -61,23 +114,27 @@ onBeforeUnmount(() => {
 <template>
   <div class="play-test">
     <div class="play-test__main">
-      <AddNumberStatePanel v-if="isNumberNotation" v-model="addNoteState as any"/>
+      <div class="play-test__midi-hint">{{ midiHint }}</div>
+      <AddTabStatePanel v-if="isTab" v-model="addTabState" :string-count="tabStrings"/>
+      <AddNumberStatePanel v-else-if="isNumberNotation" v-model="addNoteState as any"/>
       <AddNoteStatePanel v-else v-model="addNoteState as any"/>
       <div ref="scoreRootRef" class="play-test__score">
         <div class="play-test__score-stack">
           <musicScoreVue
               ref="musicScoreRef"
-              class="play-test__score-svg"
               :data="musicScoreData"
               :extensions="[editExtension]"
+              class="play-test__score-svg"
               skin-name="default"
+              @renderMusicScore="()=>{
+              }"
           />
           <svg
               v-if="slurHandlePoints || voltaHandlePoints"
-              class="play-test__affiliated-drag-layer"
               :height="musicScoreData.height"
               :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
               :width="musicScoreData.width"
+              class="play-test__affiliated-drag-layer"
               xmlns="http://www.w3.org/2000/svg"
           >
             <SlurDragHandles
@@ -96,6 +153,13 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <PropertyPanel :kind="propertyPanelKind" :selected="selectedItem"/>
+    <EditContextMenu
+        v-if="contextMenuState.open && contextMenuState.items.length"
+        :items="contextMenuState.items"
+        :x="contextMenuState.x"
+        :y="contextMenuState.y"
+        @close="closeContextMenu"
+    />
   </div>
 </template>
 
@@ -113,6 +177,13 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.play-test__midi-hint {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #909399;
 }
 
 .play-test__score {

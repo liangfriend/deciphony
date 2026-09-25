@@ -94,10 +94,8 @@ const handleSkin = computed(() => {
     temp = temp.replace(/<svg([^>]*)>/i, (_, attrs) => `<svg${attrs} style="width:${node.w}px;height:${node.h}px;display:block">`)
     const targetId = node.targetId ?? ''
     const escapedId = String(targetId).replace(/"/g, '&quot;')
-    const skinKey = node.skinKey ?? skinItem.skinKey ?? ''
-    const isTabHarmonic = skinKey.startsWith('tab_harmonic_')
     temp = temp.replace(/<(\w+)(\s[^>]*?)?(\/?>)/g, (_, tagName, rest = '', closing) => {
-      if (isTabHarmonic && !SVG_TAGS_WITH_TARGET_ID.test(tagName)) {
+      if (!SVG_TAGS_WITH_TARGET_ID.test(tagName)) {
         return `<${tagName}${rest}${closing}`
       }
       return `<${tagName}${rest} data-target-id="${escapedId}"${closing}`
@@ -116,4 +114,5 @@ const handleSkin = computed(() => {
       :transform="outerTransform"
       v-html="(node.skinKey && notationPack ? handleSkin((notationPack as Record<string, SkinItem>)[node.skinKey], node) : '')"
   />
+
 </template>

@@ -16,49 +16,22 @@ function parseEnumSkinKeys() {
   return keys
 }
 
-function tabNoteLabel(skinKey) {
-  if (skinKey === 'tab_note_x') return 'x'
-  return skinKey.replace('tab_note_', '')
-}
-
-function tabHarmonicLabel(skinKey) {
-  const base = tabNoteLabel(skinKey.replace('tab_harmonic_', 'tab_note_'))
-  return `<${base}>`
-}
-
-function makeTabNoteSkin(skinKey) {
-  const label = tabNoteLabel(skinKey)
-  const isDouble = label.length >= 2
-  const translate = isDouble ? 'translate(0, 1)' : 'translate(2, 12)'
-  const w = isDouble ? 12 : 8
-  return {
-    content: `<g transform="${translate}">\n        <text transform="scale(0.7)">${label}</text>\n</g>`,
-    w,
-    h: 16,
-    skinKey,
-    widthRatio: 10,
-    widthRatioForMeasure: 10,
+/**
+ * tab_note / tab_harmonic 已改为 path 笔画（见 default.json）。
+ * 同步时保留现有 content/w/h，不再用 text + translate(2,12) 等基线补偿覆盖。
+ */
+function keepOrStubTabGlyph(skinKey, oldItem) {
+  if (oldItem?.content && !String(oldItem.content).includes('<text')) {
+    return {...oldItem, skinKey}
   }
-}
-
-function tabHarmonicTranslateX(skinKey) {
-  const label = tabNoteLabel(skinKey.replace('tab_harmonic_', 'tab_note_'))
-  return label.length >= 2 ? -5 : -1
-}
-
-function makeTabHarmonicSkin(skinKey) {
-  const label = tabHarmonicLabel(skinKey)
-  const inner = label.slice(1, -1)
-  const num = inner === 'x' ? -1 : Number(inner)
-  const w = num >= 10 ? 14 : 8
-  const x = tabHarmonicTranslateX(skinKey)
+  console.warn(`missing path glyph for ${skinKey}; keep stub, do not invent text offset`)
   return {
-    content: `<g transform="translate(${x.toFixed(4)}, 13.0000)">\n        <text transform="scale(0.7)">${label}</text>\n</g>`,
-    w,
-    h: 16,
+    content: oldItem?.content ?? '<g/>',
+    w: oldItem?.w ?? 8,
+    h: oldItem?.h ?? 16,
     skinKey,
-    widthRatio: 10,
-    widthRatioForMeasure: 10,
+    widthRatio: oldItem?.widthRatio ?? 10,
+    widthRatioForMeasure: oldItem?.widthRatioForMeasure ?? 10,
   }
 }
 
@@ -126,14 +99,8 @@ let kept = 0
 let removed = 0
 
 for (const key of enumKeys) {
-  if (key.startsWith('tab_note_')) {
-    newPack[key] = makeTabNoteSkin(key)
-    if (!oldPack[key]) added++
-    else kept++
-    continue
-  }
-  if (key.startsWith('tab_harmonic_')) {
-    newPack[key] = makeTabHarmonicSkin(key)
+  if (key.startsWith('tab_note_') || key.startsWith('tab_harmonic_')) {
+    newPack[key] = keepOrStubTabGlyph(key, oldPack[key])
     if (!oldPack[key]) added++
     else kept++
     continue
@@ -162,7 +129,7 @@ for (const key of Object.keys(oldPack)) {
 data.tab6 = newPack
 if (data.tab4) {
   for (const key of Object.keys(newPack)) {
-    if (key.startsWith('tab_note_')) {
+    if (key.startsWith('tab_note_') || key.startsWith('tab_harmonic_')) {
       data.tab4[key] = {...newPack[key]}
     }
   }

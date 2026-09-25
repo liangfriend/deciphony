@@ -7,3 +7,4 @@ export {
   createSampleCChord,
   createSampleFChord,
 } from './chordFactory'
+export type {ChordBuilderDisabledField} from './types'

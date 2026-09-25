@@ -153,7 +153,11 @@ export type VDom = {
         };
         /** 吉他谱拍弦框（描边颜色来自皮肤，坐标用 vDom.startPoint/endPoint） */
         tabSlap?: Record<string, never>;
-        /** 五线谱加线：ledger 线号（上：10,12,…；下：-2,-4,…），同 NotesInfo 多条加线须区分 */
+        /**
+         * 同音符多条线须区分（写入 vdomSelectionKey / DOM id）：
+         * - 五线加线 addLine_u/g：ledger 线号（上：10,12,…；下：-2,-4,…）
+         * - 简谱加时线 addLine：0-based 序号
+         */
         ledgerLine?: number;
     }
 }

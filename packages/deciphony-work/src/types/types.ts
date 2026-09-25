@@ -79,9 +79,15 @@ export type SElement = STextElement | SImageElement | SAudioElement | SVideoElem
  * 页面上的曲谱放置框。
  * musicScore 为完整 MusicScore JSON；框的 width/height 在添加时由 musicScore.width/height 覆盖，
  * 之后拉伸只改框尺寸，曲谱固有宽高不变，视觉上缩放铺满。
+ * 可选 skin = 皮肤资源 id（zip 根目录 .json，内容为 SkinPack）；无则用 renderer 内置 default。
  */
 export type SScore = SElementBase & {
   musicScore: MusicScore
+  /**
+   * 曲谱皮肤资源 id（可选）。与图片/音频相同：缓存键 = zip 内文件名，如 `1730….json`。
+   * 文件内容为 SkinPack JSON；每次 addScore 通常新生成一份。
+   */
+  skin?: string
   /** 范唱音频（资源在 .sjw 根目录，src = 唯一文件名 id） */
   vocalPerformance?: ScoreAudioRef
   /** 伴奏音频 */
@@ -153,5 +159,5 @@ export type AssetUsage = {
   elementId?: string
   /** scoreId：曲谱关联范唱/伴奏 */
   scoreId?: string
-  field: 'thumbnail' | 'src' | 'background' | 'vocalPerformance' | 'accompaniment'
+  field: 'thumbnail' | 'src' | 'background' | 'vocalPerformance' | 'accompaniment' | 'skin'
 }

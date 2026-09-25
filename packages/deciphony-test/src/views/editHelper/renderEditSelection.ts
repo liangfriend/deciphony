@@ -14,6 +14,7 @@ import {
     locateNotesNumberInfoById,
     locateSingleStaff,
 } from '@deciphony/extensions/dr-edit/score-builder/locate'
+import {locateTabBendById, locateTabNoteInfoById} from '@deciphony/extensions/dr-edit/score-builder/tabNote'
 
 const MEASURE_SYMBOL_KEYS = [
     'barline_f',
@@ -118,6 +119,34 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
         const sym = findAffiliatedSymbolById(musicScore, id)
         if (sym) {
             return buildSlotData(musicScore, {self: sym as SlotData['self']})
+        }
+    }
+
+    if (vdom.tag === 'tabNoteNumber' || vdom.tag === 'arpeggio' || vdom.tag === 'strumming') {
+        const located = locateTabNoteInfoById(musicScore, id)
+        if (located) {
+            return buildSlotData(musicScore, {
+                grandStaff: located.grandStaff,
+                singleStaff: located.singleStaff,
+                measure: located.measure,
+                note: located.note as unknown as SlotData['note'],
+                info: located.info as unknown as SlotData['info'],
+                self: located.info as unknown as SlotData['self'],
+            })
+        }
+    }
+
+    if (vdom.tag === 'bend') {
+        const located = locateTabBendById(musicScore, id)
+        if (located) {
+            return buildSlotData(musicScore, {
+                grandStaff: located.grandStaff,
+                singleStaff: located.singleStaff,
+                measure: located.measure,
+                note: located.note as unknown as SlotData['note'],
+                info: located.info as unknown as SlotData['info'],
+                self: located.bend as unknown as SlotData['self'],
+            })
         }
     }
 

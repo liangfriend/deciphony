@@ -5,8 +5,8 @@
 
 /** 变音符号与音符头之间的默认间距（与 measureHeight 的比值） */
 export const ACCIDENTAL_NOTE_X_GAP = 0
-/** 变音符号与小节顶部的默认间距（与 measureHeight 的比值） */
-export const ACCIDENTAL_NOTE_Y_OFFSET = 1 / 8
+/** 变音符号相对所属 info 数字顶边的 y 偏移（与 measureHeight 的比值；正值向下） */
+export const ACCIDENTAL_NOTE_Y_OFFSET = 0
 /** 音符前谱号与音符头的间距（与 measureHeight 的比值） */
 export const CLEF_NOTE_GAP_RATIO = 1 / 8;
 /** 附点符号与音符头之间的默认间距（与 measureHeight 的比值） */

@@ -52,6 +52,7 @@ export function xmlClefToType(attrItem: any): ClefTypeEnum {
     }
     if (sign === 'F') return ClefTypeEnum.Bass
     if (sign === 'C') return line >= 4 ? ClefTypeEnum.Tenor : ClefTypeEnum.Alto
+    if (sign === 'TAB') return ClefTypeEnum.Tab
     return ClefTypeEnum.Treble
 }
 

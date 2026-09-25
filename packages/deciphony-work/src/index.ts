@@ -8,8 +8,15 @@ export {default as VideoPlayer} from './components/VideoPlayer.vue'
 export {default as EditFrame} from './components/EditFrame.vue'
 export {addText, addImage, addAudio, addVideo, removeElement} from './api/elements'
 export type {AddTextOptions, AddImageOptions, AddAudioOptions, AddVideoOptions} from './api/elements'
-export {addScore, removeScore, getScoreAudios, collectScoreAudioSrcs} from './api/scores'
-export type {AddScoreOptions, AddScoreHostOptions, ScoreAudioInput, ScoreAudioHostInput} from './api/scores'
+export {addScore, removeScore, getScoreAudios, collectScoreAudioSrcs, collectScoreAssetSrcs} from './api/scores'
+export type {
+  AddScoreOptions,
+  AddScoreHostOptions,
+  ScoreAudioInput,
+  ScoreAudioHostInput,
+  ScoreSkinInput,
+  ScoreSkinHostInput,
+} from './api/scores'
 export {addPage, insertPage, removePage, createEmptyPage, DEFAULT_PAGE_WIDTH, DEFAULT_PAGE_HEIGHT} from './api/pages'
 export type {AddPageOptions} from './api/pages'
 export {setBackground, clearBackground} from './api/background'
@@ -24,6 +31,12 @@ export type {ScorePlayback, ScorePlayHost, ScorePlaybackOptions, PlaybackMode} f
 export {createAssetStore, createAssetFilename, createAssetId} from './assets/assetStore'
 export {readImageSize} from './assets/imageSize'
 export {readVideoSize} from './assets/videoSize'
+export {
+  parseSkinFile,
+  resolveSkinPack,
+  skinPackToFile,
+  isSkinPack,
+} from './assets/skinAsset'
 export {
   parseSjw,
   buildSjwBlob,

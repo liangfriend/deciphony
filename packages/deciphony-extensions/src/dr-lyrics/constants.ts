@@ -16,10 +16,12 @@ export const LYRICS_INPUT_H = 18
 /** 行号（1. 2.）相对 g-d 左缘的 x */
 export const LYRICS_ROW_INDEX_X = 8
 
-/** 用于对齐的音符类 vDom tag */
+/** 用于对齐的音符类 vDom tag（含吉他 / 尤克里里品格、琶音、扫弦） */
 export const LYRICS_NOTE_TAGS = new Set([
   'noteHead',
   'noteNumber',
   'rest',
   'tabNoteNumber',
+  'arpeggio',
+  'strumming',
 ])

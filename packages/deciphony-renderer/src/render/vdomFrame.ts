@@ -155,7 +155,8 @@ function registerNotesNumberInfo(
     info: NotesNumberInfo,
     ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
 ): void {
-    const frame = mergeFrames(...parents);
+    // 与 registerNotesInfo 一致：祖先 + 本层 info，再挂变音号 / 附点
+    const frame = mergeFrames(...parents, info);
     registerFrame(map, info.id, frame);
     registerAccidental(map, info.accidental, frame);
     registerAugmentationDot(map, info.augmentationDot, frame);

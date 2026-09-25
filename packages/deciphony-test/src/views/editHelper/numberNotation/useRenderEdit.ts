@@ -36,6 +36,8 @@ import {
     type VoltaHandleKind,
 } from '../renderEditVoltaDrag'
 import {deleteSelectedItem} from '../renderEditDelete'
+import {resolveNeighborMeasureSlot, type MeasureNavDirection} from '../renderEditMeasureNavigate'
+import {applyMidiNoteToSelectedMeasure} from '../renderEditMidiAdd'
 import {resolveInteractionTarget, resolveSvgFromEvent} from '../renderEditPointer'
 import {resolvePropertyPanelKind} from '../renderEditPropertyPanel'
 import {slotDataFromVDom} from '../renderEditSelection'
@@ -232,7 +234,14 @@ export function useNumberNotationRenderEdit(
         const bindingVdom = resolvedSlot && isMeasureAddMode(resolvedSlot)
             ? normalizeMeasureSelectionVdom(vdom)
             : vdom
-        selectedVdomKey.value = vdomSelectionKey(bindingVdom)
+        const key = vdomSelectionKey(bindingVdom)
+        // 重渲染后 slotData 常是新对象；同 key 不再写 selectedItem，避免属性面板/el-select 挂载回写触发 deep watch 递归
+        if (selectedVdomKey.value === key) {
+            applySelectionDom(resolveSelectionElement(bindingVdom))
+            syncRelatedHighlights(selectedItem.value ?? resolvedSlot)
+            return
+        }
+        selectedVdomKey.value = key
         if (resolvedSlot) selectedItem.value = resolvedSlot
         applySelectionDom(resolveSelectionElement(bindingVdom))
         syncRelatedHighlights(resolvedSlot)
@@ -453,6 +462,23 @@ export function useNumberNotationRenderEdit(
         return true
     }
 
+    /** 小节选中态方向键导航；成功选中邻接小节返回 true */
+    function navigateSelectedMeasure(direction: MeasureNavDirection): boolean {
+        const next = resolveNeighborMeasureSlot(selectedItem.value, direction)
+        if (!next) return false
+        selectMeasureSlot(next)
+        return true
+    }
+
+    /** MIDI note-on：小节选中时在末尾追加音符（时值用添加面板） */
+    function addMidiNote(midi: number): boolean {
+        return applyMidiNoteToSelectedMeasure(
+            selectedItem.value,
+            midi,
+            addNoteState.value.chronaxie,
+        )
+    }
+
     function tryMeasureAddAtEvent(event: PointerEvent) {
         const measureId = selectedItem.value?.measure?.id
         if (!measureId) return
@@ -489,6 +515,7 @@ export function useNumberNotationRenderEdit(
     // —— dr 事件 ——
 
     function handleDrClick(event: MouseEvent, vdom: VDom) {
+        if (event.button !== 0) return
         if (EXCLUDED_INTERACTION_TAGS.has(vdom.tag)) return
         const el = resolveInteractionTarget(event)
         if (!el) return
@@ -532,8 +559,9 @@ export function useNumberNotationRenderEdit(
     }
 
     function handleDrDown(event: PointerEvent, vdom: VDom) {
+        if (event.button !== 0) return
         if (EXCLUDED_INTERACTION_TAGS.has(vdom.tag)) return
-        if (vdom.tag !== 'noteHead') return
+        if (vdom.tag !== 'noteHead' && vdom.tag !== 'noteNumber' && vdom.tag !== 'rest') return
 
         const slot = slotDataFromVDom(musicScore, vdom)
         if (!slot?.info || !slot.note || !slot.measure) return
@@ -600,8 +628,9 @@ export function useNumberNotationRenderEdit(
         endVoltaDrag(event)
         const wasDragging = noteHeadDragSession.value?.pointerId === event.pointerId
         endNoteHeadDrag(event)
+        if (event.button !== 0) return
         if (wasSlurDragging || wasVoltaDragging || wasDragging) return
-        if (vdom?.tag === 'noteHead') return
+        if (vdom?.tag === 'noteHead' || vdom?.tag === 'noteNumber' || vdom?.tag === 'rest') return
         if (!canProceedMeasureTopUp(vdom)) return
 
         const svg = resolveSvgFromEvent(event)
@@ -672,5 +701,8 @@ export function useNumberNotationRenderEdit(
         handleTopUp,
         handleRenderMusicScore,
         deleteSelected,
+        navigateSelectedMeasure,
+        addMidiNote,
+        clearSelection,
     }
 }

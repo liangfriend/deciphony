@@ -17,6 +17,9 @@ import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
 import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
 import {isSlurSelected} from './renderEditSlurDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
+import {isBendSelected} from './tab/renderEditTabSelection'
+import {setTabNoteInfoBend} from '@deciphony/extensions/dr-edit'
+import type {TabNoteInfo} from '@deciphony/renderer'
 
 /** 小节上可选符号（对象字段，delete 移除）；不含 barline_b */
 const MEASURE_OPTIONAL_SYMBOL_KEYS = [
@@ -267,6 +270,11 @@ function deleteNotesInfoSubSymbol(slot: SlotData, symbolId: string): boolean {
  */
 export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | null): boolean {
     if (!selected) return false
+
+    if (isBendSelected(selected) && selected.info) {
+        setTabNoteInfoBend(selected.info as TabNoteInfo, null)
+        return true
+    }
 
     if (isVoltaSelected(selected)) {
         removeVolta(musicScore, selected.self.id)

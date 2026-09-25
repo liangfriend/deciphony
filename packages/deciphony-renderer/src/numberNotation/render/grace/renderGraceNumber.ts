@@ -377,7 +377,8 @@ export function renderGraceNotesNumberInfoAt(
         if (accSkin) {
             const accVisualW = scaledSpan(accSkin.w, S);
             const accVisualLeft = noteVisualLeft - ACCIDENTAL_NOTE_X_GAP * measureHeight - accVisualW;
-            const accVisualTop = measureY + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight;
+            // 顶部与倚音数字对齐
+            const accVisualTop = noteVisualTop + ACCIDENTAL_NOTE_Y_OFFSET * measureHeight;
             pushGraceVisual(out, accVisualLeft, accVisualTop, accSkin.w, accSkin.h, {
                 zIndex,
                 tag: 'accidental', skinName, targetId: ni.accidental.id ?? ni.id,

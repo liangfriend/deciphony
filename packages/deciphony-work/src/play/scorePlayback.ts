@@ -106,7 +106,7 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
   }
 
   function buildPlaySequence(musicScore: MusicScore): PlaySequence {
-    const drSeq = getDrPlaySequence(musicScore)
+    const drSeq = getDrPlaySequence(musicScore, {defaultToneColor: toneColorName})
     if (!drSeq.length) return []
 
     let curPlayTime = -Infinity
@@ -121,7 +121,8 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
         midi: it.real_duration === 0 ? 0 : it.midi,
         duration: it.real_duration ? it.real_duration : it.duration,
         playTime: it.playTime,
-        toneColor: toneColorName,
+        velocity: it.volume ?? 1,
+        toneColor: it.toneColor ?? toneColorName,
         data: {
           note_id: it.note_id,
           duration: it.duration,
@@ -306,7 +307,7 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
     await nplayer.addToneColor(name, toneColor)
   }
 
-  /** 设置后续重建序列时使用的音色名（需已 addToneColor） */
+  /** 设置默认音色名（需已 addToneColor）；单谱表 data.instrumentValue 有值时优先用谱表的 */
   function setToneColorName(name: string): void {
     toneColorName = name.trim() || 'piano'
   }

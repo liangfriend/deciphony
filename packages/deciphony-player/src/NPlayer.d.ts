@@ -55,6 +55,12 @@ declare class NPlayer {
     /** 移除所有分组 gain 节点 */
     clearAllKeyGains(): void;
     addToneColor(name: string, toneColor: ToneColor): Promise<void>;
+    /** 已缓存（至少成功解码一个音）的音色名 */
+    getToneColorNames(): string[];
+    hasToneColor(name: string): boolean;
+    /** 移除某音色的全部缓存；之后用到该音色的音符按静音占位 */
+    removeToneColor(name: string): void;
+    clearToneColors(): void;
     setSequence(sequence: Sequence): void;
     setPlaySequence(sequence: PlaySequence): void;
     /**

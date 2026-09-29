@@ -10,6 +10,7 @@ import {
   createNoteSymbol,
 } from '@deciphony/extensions/dr-edit/score-builder'
 import {drLyrics, type LyricsMode} from '@deciphony/extensions/dr-lyrics'
+import {getMeasureNoteList, getMeasureSlots} from '@deciphony/renderer'
 
 const mode = ref<LyricsMode>('edit')
 const showRowIndex = ref(true)
@@ -30,17 +31,18 @@ const musicScoreData = reactive<MusicScore>(
     const n3 = createNoteSymbol({region: 5, chronaxie: 128})
     n3.notesInfo = [createNotesInfo({region: 5, chronaxie: 128})]
     n3.lyrics = []
-    measure.notes.push(n1, n2, n3)
+    getMeasureNoteList(measure).push(n1, n2, n3)
     return score
   })(),
 )
 
-const lyricsPreview = computed(() =>
-  musicScoreData.grandStaffs[0]?.staves[0]?.measures[0]?.notes.map((n) => ({
+const lyricsPreview = computed(() => {
+  const measure = musicScoreData.grandStaffs[0]?.staves[0]?.measures[0]
+  return measure && getMeasureSlots(measure).map((n) => ({
     id: n.id,
     lyrics: n.lyrics.map((l) => l.text),
-  })),
-)
+  }))
+})
 </script>
 
 <template>

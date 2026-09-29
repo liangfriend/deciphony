@@ -230,10 +230,11 @@ const cosmos = JSON.parse(fs.readFileSync(path.join(skinsDir, 'cosmos.json'), 'u
 const glacier = {
   standardStaff: transformPack(cosmos.standardStaff),
   numberNotation: transformPack(cosmos.numberNotation),
+  ...(cosmos.drumNotation ? {drumNotation: transformPack(cosmos.drumNotation)} : {}),
 }
 
 // slur / volta / noteBeam
-for (const sec of ['standardStaff', 'numberNotation']) {
+for (const sec of ['standardStaff', 'numberNotation', 'drumNotation']) {
   for (const k of ['slur', 'volta', 'noteBeam']) {
     if (glacier[sec]?.[k]) glacier[sec][k].content = GEOMETRY_COLOR
   }

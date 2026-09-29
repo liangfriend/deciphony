@@ -6,10 +6,14 @@ import {
   MusicScore,
   NoteSymbolTypeEnum,
   TimeSignatureTypeEnum,
+  isNoteRest,
+  isNoteSymbol,
+  getMeasureSlots,
+  slotSymbol,
   type Measure,
+  type MeasureNoteSlot,
   type NoteRest,
   type NoteSymbol,
-  type StaffSlot,
 } from '@deciphony/renderer'
 import {getNoteMidi, type AlteredAccidental} from '../scoreUtil'
 import {chronaxieToDuration, createMusicXmlBuilder, midiToPitch} from './xmlBuilder'
@@ -42,13 +46,10 @@ function mergeMeasuresFromGrandStaffs(musicScore: MusicScore): Measure[][] {
   return mergedStaves
 }
 
-function isExportableSlot(slot: unknown): slot is NoteSymbol | NoteRest {
-  return (
-    typeof slot === 'object'
-    && slot != null
-    && 'type' in slot
-    && (slot.type === NoteSymbolTypeEnum.Note || slot.type === NoteSymbolTypeEnum.Rest)
-  )
+function isExportableSlot(slot: unknown): slot is MeasureNoteSlot {
+  if (typeof slot !== 'object' || slot == null || !('symbol' in slot)) return false
+  const body = slotSymbol(slot as MeasureNoteSlot)
+  return isNoteSymbol(body) || isNoteRest(body)
 }
 
 function applyAttributesToStaffStates(attrs: MusicXmlMeasureAttributes, staffStates: StaffState[]) {
@@ -159,17 +160,19 @@ function writeStaffMeasureNotes(
 ): number {
   let currentTime = 0
 
-  for (const slot of measure.notes as StaffSlot[]) {
-    if (!isExportableSlot(slot)) continue
+  for (const measureSlot of getMeasureSlots(measure)) {
+    if (!isExportableSlot(measureSlot)) continue
+    const slot = slotSymbol(measureSlot)
 
-    if (slot.clef) {
+    const staffBody = isNoteRest(slot) || isNoteSymbol(slot) ? slot : null
+    if (staffBody?.clef) {
       builder.writeAttributes({
-        clefs: [{staff: staffNum, clef: slot.clef.type}],
+        clefs: [{staff: staffNum, clef: staffBody.clef.type}],
       })
-      staffState.curClef = slot.clef.type
+      staffState.curClef = staffBody.clef.type
     }
 
-    if (slot.type === NoteSymbolTypeEnum.Rest) {
+    if (isNoteRest(slot)) {
       const duration = chronaxieToDuration(slot.chronaxie, divisions)
       builder.writeNote({
         rest: true,
@@ -182,6 +185,8 @@ function writeStaffMeasureNotes(
       currentTime += duration
       continue
     }
+
+    if (!isNoteSymbol(slot)) continue
 
     for (let toneIdx = 0; toneIdx < slot.notesInfo.length; toneIdx++) {
       const notesInfo = slot.notesInfo[toneIdx]!

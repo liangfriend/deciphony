@@ -1,7 +1,9 @@
+import {slotSymbol} from '@deciphony/renderer'
 import type {Measure, MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from '@deciphony/renderer'
 import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
 import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import type {NumberHeadEditSlot} from './renderEditNumberHeadProperties'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 export type SlurSpan = 2 | 3 | 4
 
@@ -33,19 +35,20 @@ export function findNotesNumberInfoAtRightOffset(
     if (measureIndex >= singleStaff.measures.length) return null
 
     const measure = singleStaff.measures[measureIndex]!
-    if (noteIndex >= measure.notes.length) {
+    if (noteIndex >= getMeasureNoteList(measure).length) {
       measureIndex += 1
       noteIndex = 0
       continue
     }
 
-    const slot = measure.notes[noteIndex]!
+    const slot = getMeasureNoteList(measure)[noteIndex]!
     noteIndex += 1
     if (!isNoteNumberSlot(slot) || isSlotRestLike(slot)) continue
+    const note = slotSymbol(slot) as NoteNumber
 
     remaining -= 1
     if (remaining === 0) {
-      return pickNotesNumberInfoForSlurEnd(slot, voiceIndex)
+      return pickNotesNumberInfoForSlurEnd(note, voiceIndex)
     }
   }
 
@@ -67,7 +70,7 @@ function resolveNumberHeadAnchor(
   const measureIndex = singleStaff.measures.indexOf(measure as Measure)
   if (measureIndex < 0) return null
 
-  const noteIndex = measure.notes.indexOf(note)
+  const noteIndex = getMeasureNoteList(measure).findIndex((s) => slotSymbol(s) === note)
   if (noteIndex < 0) return null
 
   const voiceIndex = note.notesInfo.indexOf(info)

@@ -4,10 +4,12 @@ import {
   KeySignatureTypeEnum,
   MusicScoreTypeEnum,
   TimeSignatureTypeEnum,
+  getMeasureNoteList,
 } from '@deciphony/renderer'
 import type {
   Chronaxie,
   Measure,
+  MeasureNoteSlot,
   MusicScore,
   SingleStaff,
 } from '@deciphony/renderer'
@@ -143,14 +145,14 @@ function nextMeasure(writer: ScoreWriter): void {
 function writeDuration(
   writer: ScoreWriter,
   total: number,
-  makeSlot: (glyph: DurationGlyph, onset: number) => Measure['notes'][number],
+  makeSlot: (glyph: DurationGlyph, onset: number) => MeasureNoteSlot,
 ): void {
   let remaining = total
   while (remaining > 0) {
     if (writer.onset >= writer.capacity) nextMeasure(writer)
     const room = writer.capacity - writer.onset
     const glyph = durationGlyph(remaining, room, writer.minimum)
-    writer.measure.notes.push(makeSlot(glyph, writer.onset))
+    getMeasureNoteList(writer.measure).push(makeSlot(glyph, writer.onset))
     writer.onset += glyph.total
     remaining -= glyph.total
   }

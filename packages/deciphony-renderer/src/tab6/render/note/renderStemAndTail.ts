@@ -1,6 +1,6 @@
 import type {Tab6SkinPack} from '@/types/common';
 import {VDom} from '@/types/common';
-import type {NoteSymbol, TabNoteInfo} from '@/types/MusicScoreType';
+import type {TabNote, TabNoteInfo} from '@/types/MusicScoreType';
 import {getTabNoteStemAnchorRegion, isTabNoteHeadInfo} from '../utils/tabNoteInfo';
 import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {NodeIdMap} from '../types';
@@ -22,7 +22,7 @@ function getNoteTailYOffset(chronaxie: number, measureHeight: number): number {
 }
 
 export type RenderTab6StemAndTailParams = {
-  note: NoteSymbol;
+  note: TabNote;
   allNotesInfo: TabNoteInfo[];
   idMap: NodeIdMap;
   /** slot 列中心 x（符干与箭头对齐） */
@@ -168,7 +168,7 @@ export function renderTab6StemAndTailForSlot(
 
 /** 保留倚音等旧调用签名 */
 export type RenderStemAndTailParams = {
-  note: NoteSymbol;
+  note: TabNote;
   headX: number;
   headY: number;
   headW: number;

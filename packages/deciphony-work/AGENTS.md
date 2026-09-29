@@ -156,7 +156,7 @@ Expose（宿主 `ref` 调用）大致包括：
 - 元素右键：prop `context-menu` + 事件 `beforeContextMenu`（打开前改 props）；内置删除仅 edit；整区拦截浏览器右键；见 `doc/右键菜单.md`
 - 曲谱：`addScore` / `removeScore`
 - 绘制：`startDraw` / `endDraw` / `setTool(tool, options?)` / `clearDrawings` / `isDrawing` / `getTool`
-- 播放：`play` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`；曲谱 `play` 默认 `PLAY_SMOOTH_ENVELOPE`
+- 播放：`play` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`；曲谱 `play` 默认 `PLAY_SMOOTH_ENVELOPE`；音色按单谱表：`singleStaff.data.instrumentValue` 优先，缺省用 `setToneColorName` 的默认音色（需都已 `addToneColor`）
 - 资源：`loadAsset` / `listAssets` / `removeAsset` / `resolveSrc` / …
 - IO：`loadSjw` / `exportSjw`
 

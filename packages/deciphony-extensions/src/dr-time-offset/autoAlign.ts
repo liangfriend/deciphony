@@ -1,7 +1,11 @@
 import {
-  NoteSymbolTypeEnum,
+  isNoteRest,
+  isNoteSymbol,
+  getMeasureSlots,
+  slotSymbol,
   type MeasureNoteSlot,
   type MusicScore,
+  type NoteNumber,
   type NoteRest,
   type NoteSymbol,
 } from '@deciphony/renderer'
@@ -12,7 +16,7 @@ import {unit256ToSeconds} from './unitToSeconds'
 
 function ensureData(slot: MeasureNoteSlot): Record<string, unknown> {
   if (!slot.data || typeof slot.data !== 'object') {
-    ;(slot as {data: Record<string, unknown>}).data = {}
+    slot.data = {}
   }
   return slot.data as Record<string, unknown>
 }
@@ -55,17 +59,18 @@ export function autoAlignTimeOffsets(
   for (const gs of musicScore.grandStaffs ?? []) {
     for (const staff of gs.staves ?? []) {
       for (const measure of staff.measures ?? []) {
-        for (const slot of measure.notes ?? []) {
+        for (const slot of getMeasureSlots(measure)) {
           // 简谱 NoteNumber：无 type，时值/音高在 notesInfo
           if (isNoteNumberSlot(slot)) {
+            const note = slotSymbol(slot) as NoteNumber
             if (isSlotRestLike(slot)) {
-              const lead = slot.notesInfo[0]
+              const lead = note.notesInfo[0]
               const id = lead?.id ?? slot.id
               const times = timesByNoteId.get(id) ?? timesByNoteId.get(slot.id)
               if (times?.length) ensureData(slot)[timePropName] = [...times]
             } else {
               let times: number[] | undefined
-              for (const ni of slot.notesInfo) {
+              for (const ni of note.notesInfo) {
                 if (isNumberRestInfo(ni.syllable)) continue
                 const v = timesByNoteId.get(ni.id)
                 if (v?.length) {
@@ -78,12 +83,12 @@ export function autoAlignTimeOffsets(
             continue
           }
 
-          const s = slot as MeasureNoteSlot & (NoteSymbol | NoteRest)
-          if (s.type === NoteSymbolTypeEnum.Rest) {
-            const times = timesByNoteId.get(s.id)
+          const s = slotSymbol(slot)
+          if (isNoteRest(s)) {
+            const times = timesByNoteId.get((s as NoteRest).id)
             if (times?.length) ensureData(slot)[timePropName] = [...times]
-          } else if (s.type === NoteSymbolTypeEnum.Note) {
-            const ids = s.notesInfo?.map((n) => n.id) ?? []
+          } else if (isNoteSymbol(s)) {
+            const ids = (s as NoteSymbol).notesInfo?.map((n) => n.id) ?? []
             // 和弦共用一遍次：取首音（各音 playTime 序列应一致）
             let times: number[] | undefined
             for (const id of ids) {

@@ -6,8 +6,11 @@ import type {Skin, SkinPack, SlotConfig} from '@/types/common'
 import skinExhibitStandardStaff from '../data/skinExhibitStandardStaff'
 import skinExhibitNumberNotation from '../data/skinExhibitNumberNotation'
 import {skinExhibitTab4, skinExhibitTab6} from '../data/skinExhibitTab'
+import {buildDrumSample} from '../data/drumSample'
 
-export type SkinBuilderCategory = 'standardStaff' | 'numberNotation' | 'tab6' | 'tab4'
+export type SkinBuilderCategory = 'standardStaff' | 'numberNotation' | 'tab6' | 'tab4' | 'drumNotation'
+
+const skinExhibitDrum = buildDrumSample()
 
 const props = defineProps<{
   modelValue: boolean
@@ -33,6 +36,8 @@ const exhibitData = computed((): MusicScore => {
       return skinExhibitTab6
     case 'tab4':
       return skinExhibitTab4
+    case 'drumNotation':
+      return skinExhibitDrum
     default:
       return skinExhibitStandardStaff
   }
@@ -46,6 +51,8 @@ const notationLabel = computed(() => {
       return '吉他谱'
     case 'tab4':
       return '尤克里里谱'
+    case 'drumNotation':
+      return '鼓谱'
     default:
       return '五线谱'
   }
@@ -59,6 +66,8 @@ const exhibitName = computed(() => {
       return 'skinExhibitTab6'
     case 'tab4':
       return 'skinExhibitTab4'
+    case 'drumNotation':
+      return 'drumSample'
     default:
       return 'skinExhibitStandardStaff'
   }

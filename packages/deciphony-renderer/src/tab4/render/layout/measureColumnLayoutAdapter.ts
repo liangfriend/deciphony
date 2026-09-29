@@ -1,4 +1,4 @@
-import type {Measure, StaffSlot} from '@/types/MusicScoreType';
+import type {Measure, MeasureNoteSlot, StaffSlot} from '@/types/MusicScoreType';
 import type {Tab6SkinPack} from '@/types/common';
 import type {ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
 import {
@@ -11,7 +11,7 @@ import {
     getTab6ExtraOnsetRatios,
     getSlotLayoutChronaxie,
 } from '../utils/note';
-import {isStaffSlot} from '../utils/staffSlot';
+import {slotIsNoteRest, slotIsNoteSymbol, slotSymbol} from '../utils/staffSlot';
 
 export function computeStandardMeasureFixedWidths(
     measure: Measure,
@@ -52,11 +52,13 @@ export function createTab6ColumnLayoutAdapter(
     measureHeight: number,
 ): ColumnLayoutSlotAdapter {
     return {
-        isLayoutSlot: (note): note is StaffSlot => isStaffSlot(note as StaffSlot),
-        getChronaxie: (note) => getSlotLayoutChronaxie(note as StaffSlot),
-        getNoteWidthRatio: (note) => getNoteHeadColumnWidthRatio(note as StaffSlot, skin, measureHeight),
+        isLayoutSlot: (note): note is MeasureNoteSlot =>
+            slotIsNoteSymbol(note as MeasureNoteSlot) || slotIsNoteRest(note as MeasureNoteSlot),
+        getChronaxie: (note) => getSlotLayoutChronaxie(slotSymbol(note as MeasureNoteSlot) as StaffSlot),
+        getNoteWidthRatio: (note) =>
+            getNoteHeadColumnWidthRatio(slotSymbol(note as MeasureNoteSlot) as StaffSlot, skin, measureHeight),
         getExtraOnsetRatios: (note, slotOnset) =>
-            getTab6ExtraOnsetRatios(note as StaffSlot, skin).map((e) => ({
+            getTab6ExtraOnsetRatios(slotSymbol(note as MeasureNoteSlot) as StaffSlot, skin).map((e) => ({
                 onset: slotOnset + e.onsetOffset,
                 ratio: e.ratio,
             })),

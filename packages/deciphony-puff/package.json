@@ -1,0 +1,34 @@
+{
+  "name": "@deciphony/puff",
+  "version": "0.0.2",
+  "description": "麦克风吹气检测（气压、吐音、颤音等），用于模拟笛子 / 箫 / 陶笛等吹奏乐器",
+  "author": "liam",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b --clean && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
+  "keywords": [
+    "breath",
+    "puff",
+    "microphone",
+    "audio",
+    "wind-instrument"
+  ],
+  "packageManager": "pnpm@10.14.0"
+}

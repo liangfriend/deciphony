@@ -197,6 +197,7 @@ export enum Tab6SkinKeyEnum {
   Mordent = 'mordent',
   // 扫弦
   Strumming = 'strumming',
+  Pedal = 'pedal',
   // Arpeggios
   Arpeggio = 'arpeggio',
   Up_arpeggio = 'up_arpeggio',

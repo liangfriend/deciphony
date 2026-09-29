@@ -1,12 +1,15 @@
 import {
   AccidentalTypeEnum,
   ClefTypeEnum,
+  isNoteRest,
+  isNoteSymbol,
   KeySignatureTypeEnum,
   Measure,
   MusicScore,
   NoteSymbol,
-  NoteSymbolTypeEnum,
   NotesInfo,
+  getMeasureSlots,
+  slotSymbol,
   StaffSlot,
 } from '@deciphony/renderer'
 import {
@@ -16,7 +19,7 @@ import {
   getPlayMeasureIndexes,
   type AlteredAccidental,
 } from '../../scoreUtil'
-import {applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
+import {applyPitchOctaveOffset, applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 
@@ -201,14 +204,14 @@ function appendMeasureSequence(
   applyMeasureClefFront(state, measure)
 
   let playTime = measureStart
-  for (const slot of measure.notes) {
-    const s = slot as StaffSlot
-    if (s.type === NoteSymbolTypeEnum.Rest) {
+  for (const measureSlot of getMeasureSlots(measure)) {
+    const s = slotSymbol(measureSlot)
+    if (isNoteRest(s)) {
       applySlotClef(state, s.clef)
       const duration = getDuration(s.chronaxie, s.augmentationDot?.count ?? 0)
       seq.push({note_id: s.id, midi: 0, duration, playTime})
       playTime += duration
-    } else if (s.type === NoteSymbolTypeEnum.Note) {
+    } else if (isNoteSymbol(s)) {
       playTime = appendNoteSymbolSequence(
         seq,
         s,
@@ -265,5 +268,6 @@ export function getStandardStaffPlaySequence(musicScoreData: MusicScore): DR_pla
   }
 
   applySlurTieRealDuration(seq, musicScoreData, noteStaveIndex)
+  applyPitchOctaveOffset(seq, musicScoreData)
   return seq.sort((a, b) => a.playTime - b.playTime)
 }

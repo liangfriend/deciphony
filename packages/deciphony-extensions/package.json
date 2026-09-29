@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/extensions",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "description": "@deciphony/renderer 官方扩展集（标题、歌词、编辑构建、播放、MusicXML/简谱转换等）",
   "type": "module",
   "main": "./dist/index.cjs.js",
@@ -34,6 +34,10 @@
       "types": "./dist/dr-lyrics/index.d.ts",
       "import": "./dist/dr-lyrics/index.js"
     },
+    "./dr-instrument-name": {
+      "types": "./dist/dr-instrument-name/index.d.ts",
+      "import": "./dist/dr-instrument-name/index.js"
+    },
     "./dr-edit": {
       "types": "./dist/dr-edit/index.d.ts",
       "import": "./dist/dr-edit/index.js"
@@ -58,9 +62,17 @@
       "types": "./dist/dr-musicxml-transfer/index.d.ts",
       "import": "./dist/dr-musicxml-transfer/index.js"
     },
+    "./dr-midi-transfer": {
+      "types": "./dist/dr-midi-transfer/index.d.ts",
+      "import": "./dist/dr-midi-transfer/index.js"
+    },
     "./dr-numberNotation-transfer": {
       "types": "./dist/dr-numberNotation-transfer/index.d.ts",
       "import": "./dist/dr-numberNotation-transfer/index.js"
+    },
+    "./dr-quick-numberNotation": {
+      "types": "./dist/dr-quick-numberNotation/index.d.ts",
+      "import": "./dist/dr-quick-numberNotation/index.js"
     },
     "./chord-builder": {
       "types": "./dist/chord-builder/index.d.ts",
@@ -79,16 +91,16 @@
     }
   },
   "peerDependencies": {
-    "vue": "^3.3.0",
-    "@deciphony/renderer": "*",
     "@deciphony/player": "*",
+    "@deciphony/renderer": "*",
     "fast-xml-parser": "^5.0.0",
+    "vue": "^3.3.0",
     "xmlbuilder": "^15.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
-    "@deciphony/renderer": "workspace:*",
     "@deciphony/player": "workspace:*",
+    "@deciphony/renderer": "0.0.42",
+    "@vitejs/plugin-vue": "^5.2.4",
     "fast-xml-parser": "^5.8.0",
     "sass": "^1.83.0",
     "typescript": "^5.9.2",

@@ -1,9 +1,16 @@
-import {NoteSymbolTypeEnum} from '@/enums/musicScoreEnum';
+import {DoubleSlotAffiliatedSymbolNameEnum} from '@/enums/musicScoreEnum';
+import {
+    isNoteNumberSymbol,
+    isNoteRest,
+    isNoteSymbol,
+    slotSymbol,
+} from '@/standardStaff/render/utils/staffSlot';
 import type {Frame, VDom} from '@/types/common';
 import type {
     Accidental,
     AugmentationDot,
     Measure,
+    MeasureNoteSlot,
     MusicScore,
     NoteNumber,
     NoteRest,
@@ -11,8 +18,9 @@ import type {
     NotesNumberInfo,
     NoteSymbol,
     SingleNoteAffiliatedSymbol,
-    StaffSlot,
+    DoubleSlotAffiliatedSymbol,
 } from '@/types/MusicScoreType';
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 export type RelativeFrame = Pick<Frame, 'relativeX' | 'relativeY' | 'relativeW' | 'relativeH'>;
 
@@ -22,10 +30,6 @@ const ZERO_FRAME: RelativeFrame = {
     relativeW: 0,
     relativeH: 0,
 };
-
-function isNoteNumber(slot: StaffSlot | NoteNumber): slot is NoteNumber {
-    return !('type' in slot);
-}
 
 function frameOf(frame: Partial<Frame> | undefined | null): RelativeFrame {
     return {
@@ -110,44 +114,53 @@ function registerStandardGraceNotes(
 function registerNoteClef(
     map: Map<string, RelativeFrame>,
     note: NoteSymbol,
+    ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
 ): void {
     if (!note.clef) return;
     const primaryInfo = note.notesInfo[0];
-    const parents: Array<Partial<Frame> | RelativeFrame | undefined | null> = [note];
+    const chain: Array<Partial<Frame> | RelativeFrame | undefined | null> = [...parents, note];
     if (primaryInfo) {
-        parents.push({
+        chain.push({
             relativeX: primaryInfo.relativeX ?? 0,
             relativeY: 0,
             relativeW: 0,
             relativeH: 0,
         });
     }
-    parents.push(note.clef);
-    registerFrame(map, note.clef.id, ...parents);
+    chain.push(note.clef);
+    registerFrame(map, note.clef.id, ...chain);
 }
 
-function registerNoteSymbol(map: Map<string, RelativeFrame>, note: NoteSymbol): void {
-    registerFrame(map, note.id, note);
+function registerNoteSymbol(
+    map: Map<string, RelativeFrame>,
+    note: NoteSymbol,
+    ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
+): void {
+    registerFrame(map, note.id, ...parents, note);
     // 上下加线 targetId 为 NotesInfo.id（见 registerNotesInfo），apply 时仅施加 relativeX
-    registerNoteClef(map, note);
+    registerNoteClef(map, note, ...parents);
     for (const info of note.notesInfo) {
-        registerNotesInfo(map, info, note);
+        registerNotesInfo(map, info, ...parents, note);
         const bend = (info as { bend?: { id: string } & Frame }).bend;
         if (bend) {
-            registerFrame(map, bend.id, note, info, bend);
+            registerFrame(map, bend.id, ...parents, note, info, bend);
         }
     }
-    registerStandardGraceNotes(map, note.graceNotes, note);
-    registerStandardGraceNotes(map, note.graceNotesAfter, note);
+    registerStandardGraceNotes(map, note.graceNotes, ...parents, note);
+    registerStandardGraceNotes(map, note.graceNotesAfter, ...parents, note);
 }
 
-function registerNoteRest(map: Map<string, RelativeFrame>, rest: NoteRest): void {
-    registerFrame(map, rest.id, rest);
+function registerNoteRest(
+    map: Map<string, RelativeFrame>,
+    rest: NoteRest,
+    ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
+): void {
+    registerFrame(map, rest.id, ...parents, rest);
     if (rest.clef) {
-        registerFrame(map, rest.clef.id, rest, rest.clef);
+        registerFrame(map, rest.clef.id, ...parents, rest, rest.clef);
     }
-    registerAugmentationDot(map, rest.augmentationDot, rest);
-    registerSingleNoteAffiliatedSymbols(map, rest.affiliatedSymbols, rest);
+    registerAugmentationDot(map, rest.augmentationDot, ...parents, rest);
+    registerSingleNoteAffiliatedSymbols(map, rest.affiliatedSymbols, ...parents, rest);
 }
 
 function registerNotesNumberInfo(
@@ -162,17 +175,57 @@ function registerNotesNumberInfo(
     registerAugmentationDot(map, info.augmentationDot, frame);
 }
 
-function registerNoteNumber(map: Map<string, RelativeFrame>, note: NoteNumber): void {
-    registerFrame(map, note.id, note);
-    registerSingleNoteAffiliatedSymbols(map, note.affiliatedSymbols, note);
+function registerNoteNumber(
+    map: Map<string, RelativeFrame>,
+    note: NoteNumber,
+    ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
+): void {
+    registerFrame(map, note.id, ...parents, note);
+    registerSingleNoteAffiliatedSymbols(map, note.affiliatedSymbols, ...parents, note);
     for (const info of note.notesInfo) {
-        registerNotesNumberInfo(map, info, note);
+        registerNotesNumberInfo(map, info, ...parents, note);
     }
     for (const grace of note.graceNotes ?? []) {
-        registerNotesNumberInfo(map, grace, note);
+        registerNotesNumberInfo(map, grace, ...parents, note);
     }
     for (const grace of note.graceNotesAfter ?? []) {
-        registerNotesNumberInfo(map, grace, note);
+        registerNotesNumberInfo(map, grace, ...parents, note);
+    }
+}
+
+const DOUBLE_SLOT_AFFILIATED_NAMES = new Set<string>(
+    Object.values(DoubleSlotAffiliatedSymbolNameEnum),
+);
+
+function isDoubleSlotAffiliatedSymbol(
+    sym: MusicScore['affiliatedSymbols'] extends (infer T)[] | undefined ? T : never,
+): sym is DoubleSlotAffiliatedSymbol {
+    return DOUBLE_SLOT_AFFILIATED_NAMES.has(String(sym.name));
+}
+
+function parentFrameForMusicScoreAffiliated(
+    map: Map<string, RelativeFrame>,
+    sym: NonNullable<MusicScore['affiliatedSymbols']>[number],
+): RelativeFrame | undefined {
+    if (isDoubleSlotAffiliatedSymbol(sym)) {
+        return map.get(sym.startId);
+    }
+    return undefined;
+}
+
+function registerMeasureNoteSlot(map: Map<string, RelativeFrame>, _measure: Measure, slot: MeasureNoteSlot): void {
+    // 与历史一致：音符槽不继承小节 Frame
+    registerFrame(map, slot.id, slot);
+    for (const aff of slot.affiliatedSymbols ?? []) {
+        registerFrame(map, aff.id, slot, aff);
+    }
+    const sym = slotSymbol(slot);
+    if (isNoteNumberSymbol(sym)) {
+        registerNoteNumber(map, sym, slot);
+    } else if (isNoteRest(sym)) {
+        registerNoteRest(map, sym, slot);
+    } else if (isNoteSymbol(sym)) {
+        registerNoteSymbol(map, sym as NoteSymbol, slot);
     }
 }
 
@@ -191,14 +244,8 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
     for (const sym of measure.affiliatedSymbols ?? []) {
         registerFrame(map, sym.id, sym);
     }
-    for (const slot of measure.notes) {
-        if (isNoteNumber(slot)) {
-            registerNoteNumber(map, slot);
-        } else if (slot.type === NoteSymbolTypeEnum.Rest) {
-            registerNoteRest(map, slot);
-        } else {
-            registerNoteSymbol(map, slot);
-        }
+    for (const slot of getMeasureSlots(measure)) {
+        registerMeasureNoteSlot(map, measure, slot);
     }
 }
 
@@ -206,13 +253,14 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
  * 从曲谱树收集「id → 累计 Frame 偏移」。
  *
  * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
- * - NoteSymbol：自身 → 各 NotesInfo → 变音号 / 附点 / 单音附属符号 / 倚音 NotesInfo 链；
- *   音符前谱号（slot.clef，vDom tag=clef_f）继承 NoteSymbol + 首个 NotesInfo 的 relativeX + 自身 clef；
+ * - MeasureNoteSlot：自身（不继承小节）；单 slot 附属（slot.affiliatedSymbols）与双 slot 附属（startId）挂靠本层；
+ * - NoteSymbol（slot.symbol）：继承槽 → 各 NotesInfo → 变音号 / 附点 / 单音附属 / 倚音链；
+ *   音符前谱号（symbol.clef，vDom tag=clef_f）继承 NoteSymbol + 首个 NotesInfo 的 relativeX + 自身 clef；
  *   上下加线（vDom addLine_u / addLine_g，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
  *   apply 时仅 relativeX（Y 随小节 region 布局，X 随音符头）
- * - NoteRest：自身 → 附点、单音附属、谱号
- * - NoteNumber（简谱）：自身 → 各 NotesNumberInfo → 变音号、倚音链
- * - Measure：自身；小节线 / 谱号 / 调号 / 拍号 / 反复记号 / 单小节附属 仅合并各自对象（不继承 measure 的 relative，除非将来改 registerMeasure）
+ * - NoteRest：继承槽 → 附点、单音附属、谱号
+ * - NoteNumber（简谱）：继承槽 → 各 NotesNumberInfo → 变音号、倚音链
+ * - Measure：自身；小节线 / 谱号 / 调号 / 拍号 / 反复记号 / 单小节附属 仅合并各自对象（不继承 measure 的 relative）
  * - GrandStaff / SingleStaff / Bracket：仅各自 id
  *
  * 布局用 targetId（如 `g-${grandStaffId}`）与曲谱 id 不一致时，Frame 不会自动作用到插槽 vDom，需改 targetId 或 register 逻辑。
@@ -230,7 +278,8 @@ export function collectRelativeFrameMap(musicScore: MusicScore): Map<string, Rel
         }
     }
     for (const sym of musicScore.affiliatedSymbols ?? []) {
-        registerFrame(map, sym.id, sym);
+        const parent = parentFrameForMusicScoreAffiliated(map, sym);
+        registerFrame(map, sym.id, parent, sym);
     }
     return map;
 }

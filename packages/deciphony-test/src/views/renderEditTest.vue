@@ -3,22 +3,31 @@ import type {MusicScore} from '@deciphony/renderer'
 import musicScoreVue, {MusicScoreTypeEnum} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
-import initialData from './data/花之舞.json'
+import initialData from './data/其多列简谱'
+import {buildDrumSample} from './data/drumSample'
 import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {
+  AddDrumStatePanel,
   AddNoteStatePanel,
   AddNumberStatePanel,
   AddTabStatePanel,
   EditContextMenu,
   type EditContextMenuItem,
+  HorizontalDragHandles,
   PropertyPanel,
   SlurDragHandles,
   useDrEdit,
   useMidiPianoInput,
+  VerticalDragHandles,
   VoltaDragHandles,
 } from './editHelper'
 
-const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
+/** `?score=drum` 载入鼓谱示例，否则用默认简谱 */
+const useDrumSample = new URLSearchParams(window.location.search).get('score') === 'drum'
+const musicScoreData = reactive(
+    useDrumSample ? buildDrumSample() : JSON.parse(JSON.stringify(initialData)) as MusicScore,
+)
+const isDrum = computed(() => musicScoreData.type === MusicScoreTypeEnum.DrumNotation)
 const isNumberNotation = computed(
     () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
 )
@@ -45,10 +54,19 @@ const {
   selectedItem,
   addNoteState,
   addTabState,
+  addDrumState,
   propertyPanelKind,
   slurHandlePoints,
+  arpeggioHandlePoints,
+  strummingHandlePoints,
+  pedalHandlePoints,
+  pitchHandlePoints,
   voltaHandlePoints,
   handleSlurHandleDown,
+  handleArpeggioHandleDown,
+  handleStrummingHandleDown,
+  handlePedalHandleDown,
+  handlePitchHandleDown,
   handleVoltaHandleDown,
   deleteSelected,
   navigateSelectedMeasure,
@@ -56,6 +74,9 @@ const {
   contextMenuState,
   closeContextMenu,
 } = editApi
+
+/** 模板里写 [editExtension] 每次 render 都是新数组，会触发 musicScore 的 slotConfig watch 整谱重算 */
+const scoreExtensions = [editExtension]
 
 const {status: midiStatus, deviceNames: midiDevices} = useMidiPianoInput((midi) => {
   addMidiNote(midi)
@@ -116,6 +137,7 @@ onBeforeUnmount(() => {
     <div class="play-test__main">
       <div class="play-test__midi-hint">{{ midiHint }}</div>
       <AddTabStatePanel v-if="isTab" v-model="addTabState" :string-count="tabStrings"/>
+      <AddDrumStatePanel v-else-if="isDrum" v-model="addDrumState"/>
       <AddNumberStatePanel v-else-if="isNumberNotation" v-model="addNoteState as any"/>
       <AddNoteStatePanel v-else v-model="addNoteState as any"/>
       <div ref="scoreRootRef" class="play-test__score">
@@ -123,14 +145,14 @@ onBeforeUnmount(() => {
           <musicScoreVue
               ref="musicScoreRef"
               :data="musicScoreData"
-              :extensions="[editExtension]"
+              :extensions="scoreExtensions"
               class="play-test__score-svg"
               skin-name="default"
               @renderMusicScore="()=>{
               }"
           />
           <svg
-              v-if="slurHandlePoints || voltaHandlePoints"
+              v-if="slurHandlePoints || arpeggioHandlePoints || strummingHandlePoints || pedalHandlePoints || pitchHandlePoints || voltaHandlePoints"
               :height="musicScoreData.height"
               :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
               :width="musicScoreData.width"
@@ -142,6 +164,26 @@ onBeforeUnmount(() => {
                 :handles="slurHandlePoints"
                 :show-control="!isNumberNotation"
                 @handle-down="handleSlurHandleDown"
+            />
+            <VerticalDragHandles
+                v-if="arpeggioHandlePoints"
+                :handles="arpeggioHandlePoints"
+                @handle-down="handleArpeggioHandleDown"
+            />
+            <VerticalDragHandles
+                v-if="strummingHandlePoints"
+                :handles="strummingHandlePoints"
+                @handle-down="handleStrummingHandleDown"
+            />
+            <HorizontalDragHandles
+                v-if="pedalHandlePoints"
+                :handles="pedalHandlePoints"
+                @handle-down="handlePedalHandleDown"
+            />
+            <HorizontalDragHandles
+                v-if="pitchHandlePoints"
+                :handles="pitchHandlePoints"
+                @handle-down="handlePitchHandleDown"
             />
             <VoltaDragHandles
                 v-if="voltaHandlePoints"
@@ -210,7 +252,11 @@ onBeforeUnmount(() => {
 .play-test__affiliated-drag-layer :deep(.slur-drag-handles__square),
 .play-test__affiliated-drag-layer :deep(.slur-drag-handles__circle),
 .play-test__affiliated-drag-layer :deep(.volta-drag-handles__square),
-.play-test__affiliated-drag-layer :deep(.volta-drag-handles__center) {
+.play-test__affiliated-drag-layer :deep(.volta-drag-handles__center),
+.play-test__affiliated-drag-layer :deep(.vertical-drag-handles__end),
+.play-test__affiliated-drag-layer :deep(.vertical-drag-handles__middle),
+.play-test__affiliated-drag-layer :deep(.horizontal-drag-handles__end),
+.play-test__affiliated-drag-layer :deep(.horizontal-drag-handles__middle) {
   pointer-events: all;
 }
 

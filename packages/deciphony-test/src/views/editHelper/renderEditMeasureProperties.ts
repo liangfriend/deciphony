@@ -45,6 +45,7 @@ export const CLEF_OPTIONS: {value: ClefTypeEnum; label: string}[] = [
   {value: ClefTypeEnum.Alto, label: '中音谱号'},
   {value: ClefTypeEnum.Tenor, label: '次中音谱号'},
   {value: ClefTypeEnum.Tab, label: 'Tab 谱号'},
+  {value: ClefTypeEnum.Percussion, label: '打击乐谱号'},
 ]
 
 export const KEY_SIGNATURE_OPTIONS: {value: KeySignatureTypeEnum; label: string}[] = [

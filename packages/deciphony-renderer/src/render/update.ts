@@ -71,7 +71,46 @@ export function diffAndMergeVDom(current: VDom[], next: VDom[]): VDom[] {
 }
 
 /**
- * 通过 updater 修改 vDom 后做 diff 合并（暴露给外部的 updateVDom API）
+ * 将 patch 原地写入 node：不换 node / 数组引用。
+ * startPoint、endPoint、special 及其嵌套 plain object 能对上则继续 Object.assign，否则整段替换。
+ */
+export function assignVDomPatch(node: VDom, patch: Partial<VDom>): void {
+  assignDeepPlain(node as Record<string, unknown>, patch as Record<string, unknown>)
+}
+
+function assignDeepPlain(target: Record<string, unknown>, source: Record<string, unknown>): void {
+  for (const key of Object.keys(source)) {
+    const next = source[key]
+    const prev = target[key]
+    if (
+      next != null
+      && typeof next === 'object'
+      && !Array.isArray(next)
+      && prev != null
+      && typeof prev === 'object'
+      && !Array.isArray(prev)
+    ) {
+      assignDeepPlain(prev as Record<string, unknown>, next as Record<string, unknown>)
+    } else {
+      target[key] = next
+    }
+  }
+}
+
+/** 按 targetId 找到节点并原地 patch；找不到返回 false */
+export function patchVDomByTargetId(
+  list: VDom[],
+  targetId: string,
+  patch: Partial<VDom>,
+): boolean {
+  const node = list.find((item) => item.targetId === targetId)
+  if (!node) return false
+  assignVDomPatch(node, patch)
+  return true
+}
+
+/**
+ * 通过 updater 修改 vDom 后做 diff 合并（整表浅拷贝；高频跟手请用 patchVDomByTargetId / updateVDom(id, patch)）
  */
 export function applyVDomUpdate(
   current: VDom[],

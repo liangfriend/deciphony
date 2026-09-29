@@ -3,11 +3,11 @@
  */
 
 import type {NumberNotationSkinPack} from "@/types/common";
-import {NoteNumber} from "@/types/MusicScoreType";
+import type {MeasureNoteSlot} from "@/types/MusicScoreType";
 import type {NodeIdMap} from "../types";
 
 export function processBeam(params: {
-  measure: { notes: NoteNumber[] };
+  measure: { notes: MeasureNoteSlot[] };
   nodeIdMap: NodeIdMap;
   vDoms: import("@/types/common").VDom[];
   symbolVDomsLength: number;

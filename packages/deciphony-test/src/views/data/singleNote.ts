@@ -21,6 +21,7 @@ import {
   createSingleStaff,
   createTimeSignature,
 } from "./scoreBuilder";
+import {getMeasureNoteList} from '@deciphony/renderer'
 // 曲谱结构
 
 const data: MusicScore = createMusicScore({height: 800, width: 800})
@@ -42,10 +43,10 @@ data.grandStaffs.push(grandStaff1)
 // 小节1-符号 高音谱号 F调 2/4拍
 const measure1 = data.grandStaffs[0].staves[0].measures[0]
 const noteSymbol11 = createNoteSymbol({region: 5, chronaxie: 32, direction: 'down', beamType: BeamTypeEnum.Combined,})
-noteSymbol11.notesInfo.push(createNotesInfo({region: 6}))
+noteSymbol11.symbol.notesInfo.push(createNotesInfo({region: 6}))
 noteSymbol11.relativeX = 0
-noteSymbol11.notesInfo[0].relativeX = 30
-measure1.notes.push(noteSymbol11)
+noteSymbol11.symbol.notesInfo[0]!.relativeX = 30
+getMeasureNoteList(measure1).push(noteSymbol11)
 
 
 export default data

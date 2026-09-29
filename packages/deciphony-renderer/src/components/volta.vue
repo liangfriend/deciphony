@@ -20,7 +20,7 @@ const lineColor = useGeometrySkinColor(
 // 反复房子：左侧竖线 + 顶边 + 右侧竖线 + 可选序号（如 1. 2.），在局部 (0,0)-(w,h) 内绘制
 const w = computed(() => props.vDom.w);
 const h = computed(() => props.vDom.h);
-const voltaData = computed(() => props.vDom.special?.volta ?? {});
+const voltaData = computed(() => props.vDom.special?.volta);
 /** openLeft/openRight 为 true 时隐藏对应侧竖线（开放该侧） */
 const openLeft = computed(() => Boolean(voltaData.value?.openLeft));
 const openRight = computed(() => Boolean(voltaData.value?.openRight));

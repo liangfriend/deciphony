@@ -545,7 +545,7 @@ export function musicScoreToVDom(
                 * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
                 * */
                 processBeam({
-                    measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
+                    measure: measure as { notes: import("@/types/MusicScoreType").MeasureNoteSlot[] },
                     nodeIdMap,
                     vDoms,
                     symbolVDomsStartIdx,

@@ -9,10 +9,13 @@
 
 export * from './dr-title'
 export * from './dr-lyrics'
+export * from './dr-instrument-name'
 export * from './dr-play'
 export * from './dr-play-highlight'
 export * from './dr-musicxml-transfer'
+export * from './dr-midi-transfer'
 export * from './dr-numberNotation-transfer'
+export * from './dr-quick-numberNotation'
 export * from './chord-builder'
 export * from './audio-to-score'
 export * from './scoreUtil'

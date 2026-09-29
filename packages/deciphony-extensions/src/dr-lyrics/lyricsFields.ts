@@ -1,3 +1,4 @@
+import {getMeasureSlots, isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol} from '@deciphony/renderer'
 import type {GrandStaff, Lyrics, MeasureNoteSlot, SingleStaff, VDom} from '@deciphony/renderer'
 import {LYRICS_NOTE_TAGS} from './constants'
 
@@ -22,7 +23,7 @@ export function collectStaffSlots(staff: SingleStaff | null | undefined): Measur
   if (!staff) return []
   const out: MeasureNoteSlot[] = []
   for (const measure of staff.measures) {
-    for (const slot of measure.notes) {
+    for (const slot of getMeasureSlots(measure)) {
       out.push(slot)
     }
   }
@@ -41,9 +42,12 @@ export function maxLyricsRowCount(staff: SingleStaff | null | undefined): number
 
 /** 取槽位对齐用的音符 id（首个音符头 / 简谱音节；休止符用槽位 id） */
 export function getSlotAnchorId(slot: MeasureNoteSlot): string {
-  if ('notesInfo' in slot && Array.isArray(slot.notesInfo) && slot.notesInfo.length > 0) {
-    return slot.notesInfo[0]!.id
+  const body = slotSymbol(slot)
+  if (isNoteSymbol(body) || isNoteNumberSymbol(body)) {
+    const lead = body.notesInfo[0]
+    if (lead) return lead.id
   }
+  if (isNoteRest(body)) return body.id
   return slot.id
 }
 

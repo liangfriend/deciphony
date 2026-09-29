@@ -1,5 +1,14 @@
 import {MeasureEndRepeatEnum, MeasureStartRepeatEnum} from '@/enums/musicScoreEnum';
-import type {NumberNotationSkinPack, Skin, SkinItem, StandardStaffSkinPack, VDom, VDomTagType} from '@/types/common';
+import type {
+  DrumNotationSkinPack,
+  NumberNotationSkinPack,
+  Skin,
+  SkinItem,
+  StandardStaffSkinPack,
+  Tab6SkinPack,
+  VDom,
+  VDomTagType,
+} from '@/types/common';
 import type {Measure} from '@/types/MusicScoreType';
 import type {NodeIdMap} from '@/standardStaff/render/types';
 import {getEndRepeatSkinKey, getStartRepeatSkinKey} from './repeatSkinKey';
@@ -13,7 +22,7 @@ export type RenderMeasureRepeatParams = {
   measureY: number;
   measureWidth: number;
   measureHeight: number;
-  skin: StandardStaffSkinPack | NumberNotationSkinPack;
+  skin: StandardStaffSkinPack | NumberNotationSkinPack | Tab6SkinPack | DrumNotationSkinPack;
   idMap: NodeIdMap;
   skinName?: string;
 };

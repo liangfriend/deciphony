@@ -7,21 +7,25 @@ import type {
   Clef,
   DoubleMeasureAffiliatedSymbol,
   DoubleNoteAffiliatedSymbol,
+  DoubleSlotAffiliatedSymbol,
   GrandStaff,
   KeySignature,
   Measure,
+  MeasureNoteSlot,
   MusicScore,
   NoteNumber,
   NoteRest,
   NotesInfo,
   NotesNumberInfo,
   NoteSymbol,
+  SingleSlotAffiliatedSymbol,
   SingleStaff,
   StaffSlot,
   TimeSignature,
 } from '@deciphony/renderer';
 import type {
   AccidentalTypeEnum,
+  ArpeggioTypeEnum,
   BarlineTypeEnum,
   BeamTypeEnum,
   BracketTypeEnum,
@@ -29,6 +33,8 @@ import type {
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
+  PedalTypeEnum,
+  PitchTypeEnum,
   TimeSignatureTypeEnum,
 } from '@deciphony/renderer';
 
@@ -62,7 +68,12 @@ export type LocatedNoteSlot = NotePath & {
   grandStaff: GrandStaff;
   singleStaff: SingleStaff;
   measure: Measure;
-  slot: StaffSlot | NoteNumber;
+  slot: MeasureNoteSlot;
+};
+
+export type LocatedSlotAffiliatedSymbol = LocatedNoteSlot & {
+  symbolIndex: number;
+  symbol: SingleSlotAffiliatedSymbol;
 };
 
 export type LocatedNotesInfo = NotesInfoPath & {
@@ -125,6 +136,8 @@ export type CreateMeasureOptions = {
   barline?: BarlineTypeEnum;
   widthRatioForMeasure?: number;
   data?: Object;
+  /** 鼓谱：notes 建为上下声部 `{up, down}` */
+  voices?: boolean;
 };
 
 export type CreateNotesInfoOptions = {
@@ -136,7 +149,7 @@ export type CreateNotesInfoOptions = {
   /** 小节内 onset（chronaxie）；未指定 beamType 时用于 resolveAutoBeamType */
   beamOnset?: number;
   accidental?: AccidentalTypeEnum;
-  augmentationDot?: AugmentationDot | AccidentalTypeEnum;
+  augmentationDot?: AugmentationDot | 1 | 2 | 3;
   affiliatedSymbols?: NotesInfo['affiliatedSymbols'];
 };
 
@@ -163,7 +176,7 @@ export type CreateNoteRestOptions = {
   widthRatio?: number;
   widthRatioForMeasure?: number;
   clef?: ClefTypeEnum;
-  augmentationDot?: AugmentationDot | AccidentalTypeEnum;
+  augmentationDot?: AugmentationDot | 1 | 2 | 3;
   affiliatedSymbols?: NoteRest['affiliatedSymbols'];
   lyrics?: import('@deciphony/renderer').Lyrics[];
   data?: Object;
@@ -178,7 +191,7 @@ export type CreateNoteNumberOptions = {
   /** 未指定 beamType 时按四分拍自动推断 */
   beamOnset?: number;
   accidental?: AccidentalTypeEnum;
-  augmentationDot?: AugmentationDot | AccidentalTypeEnum;
+  augmentationDot?: AugmentationDot | 1 | 2 | 3;
   widthRatio?: number;
   widthRatioForMeasure?: number;
   lyrics?: import('@deciphony/renderer').Lyrics[];
@@ -190,7 +203,7 @@ export type CreateNoteNumberOptions = {
     chronaxie?: Chronaxie;
     beamType?: BeamTypeEnum;
     beamOnset?: number;
-    augmentationDot?: AugmentationDot | AccidentalTypeEnum;
+    augmentationDot?: AugmentationDot | 1 | 2 | 3;
   }>;
 };
 
@@ -198,6 +211,39 @@ export type CreateSlurOptions = {
   startId: string;
   endId: string;
   partial?: Partial<DoubleNoteAffiliatedSymbol>;
+};
+
+export type CreateArpeggioOptions = {
+  /** 小节高度（px）；默认 end 相对 start 上移该值 */
+  measureHeight?: number;
+  type?: ArpeggioTypeEnum;
+  arrow?: boolean;
+  partial?: Partial<SingleSlotAffiliatedSymbol>;
+};
+
+export type CreateStrummingOptions = {
+  measureHeight?: number;
+  arrow?: boolean;
+  partial?: Partial<SingleSlotAffiliatedSymbol>;
+};
+
+export type CreatePedalOptions = {
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string;
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string;
+  type?: PedalTypeEnum;
+  partial?: Partial<DoubleSlotAffiliatedSymbol>;
+};
+
+export type CreatePitchOptions = {
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string;
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string;
+  direction: 'up' | 'down';
+  type?: PitchTypeEnum;
+  partial?: Partial<DoubleSlotAffiliatedSymbol>;
 };
 
 export type FramePartial = Partial<Pick<Accidental | Clef, 'relativeX' | 'relativeY' | 'relativeW' | 'relativeH'>>;

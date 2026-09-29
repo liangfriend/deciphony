@@ -9,6 +9,8 @@ import BendPropertyPanel from '../tab/components/BendPropertyPanel.vue'
 import TabMeasurePropertyPanel from '../tab/components/TabMeasurePropertyPanel.vue'
 import TabNotePropertyPanel from '../tab/components/TabNotePropertyPanel.vue'
 import TabSlurPropertyPanel from '../tab/components/TabSlurPropertyPanel.vue'
+import DrumNotePropertyPanel from '../drumNotation/components/DrumNotePropertyPanel.vue'
+import DrumRestPropertyPanel from '../drumNotation/components/DrumRestPropertyPanel.vue'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
 import VoltaPropertyPanel from './VoltaPropertyPanel.vue'
 
@@ -28,6 +30,8 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
   tabNote: '音符属性',
   slur: '连音线属性',
   bend: '推弦属性',
+  drumNote: '鼓谱音符属性',
+  drumRest: '休止符属性',
 }
 </script>
 
@@ -70,6 +74,14 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
       />
       <BendPropertyPanel
         v-else-if="kind === 'bend'"
+        :edit-slot="selected"
+      />
+      <DrumNotePropertyPanel
+        v-else-if="kind === 'drumNote'"
+        :edit-slot="selected"
+      />
+      <DrumRestPropertyPanel
+        v-else-if="kind === 'drumRest'"
         :edit-slot="selected"
       />
     </div>

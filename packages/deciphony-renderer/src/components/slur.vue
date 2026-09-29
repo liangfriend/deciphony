@@ -46,9 +46,13 @@ const geom = computed(() => {
   return {s, e, slur, cx, cy, cy2};
 });
 
+const jianpuGeom = computed(() =>
+  isJianpu.value ? numberNotationSlurGeom(props.vDom) : null,
+);
+
 const pathD = computed(() => {
-  if (isJianpu.value) {
-    return numberNotationSlurPathD(numberNotationSlurGeom(props.vDom));
+  if (jianpuGeom.value) {
+    return numberNotationSlurPathD(jianpuGeom.value);
   }
   const {s, e, cx, cy, cy2} = geom.value;
   return `M ${s.x} ${s.y} Q ${cx} ${cy} ${e.x} ${e.y} Q ${cx} ${cy2} ${s.x} ${s.y} Z`;
@@ -61,12 +65,12 @@ const slurLabel = computed(() => {
 });
 
 const textPos = computed(() => {
-  if (isJianpu.value) {
-    const g = numberNotationSlurGeom(props.vDom);
+  if (jianpuGeom.value) {
+    const g = jianpuGeom.value;
     const relText = geom.value.slur?.relativeTextPoint ?? {x: 0, y: 0};
     return {
       x: (g.x0 + g.x1) / 2 + relText.x,
-      y: g.yTop - g.thickness / 2 + relText.y,
+      y: g.yTop + relText.y,
     };
   }
   const {cx, cy, slur} = geom.value;
@@ -80,7 +84,19 @@ const textPos = computed(() => {
 
 <template>
   <g>
+    <!-- 简谱：两端圆弧 + 中间横线，圆角端点 -->
     <path
+      v-if="jianpuGeom"
+      :key="pathD"
+      :d="pathD"
+      fill="none"
+      :stroke="fillColor"
+      :stroke-width="jianpuGeom.thickness"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      v-else
       :key="pathD"
       :d="pathD"
       :fill="fillColor"

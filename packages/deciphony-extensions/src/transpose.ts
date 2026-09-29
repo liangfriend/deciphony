@@ -8,7 +8,7 @@ import {
   NotesInfo,
   NotesNumberInfo,
 } from '@deciphony/renderer'
-import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
+import {isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
 import {createAccidental, createKeySignature} from './dr-edit/score-builder'
 import {
   getKeySignatureAccidental,
@@ -154,8 +154,9 @@ function transposeNumberNotation(
   for (const grandStaff of score.grandStaffs) {
     for (const staff of grandStaff.staves) {
       for (const measure of staff.measures) {
-        for (const slot of measure.notes) {
-          const note = slot as NoteNumber
+        for (const measureSlot of getMeasureSlots(measure)) {
+          const note = slotSymbol(measureSlot)
+          if (!isNoteNumberSymbol(note)) continue
           for (const info of note.notesInfo) transposeNumberInfo(info, fromKey, toKey, priority)
           for (const g of note.graceNotes ?? []) transposeNumberInfo(g, fromKey, toKey, priority)
           for (const g of note.graceNotesAfter ?? []) transposeNumberInfo(g, fromKey, toKey, priority)
@@ -178,7 +179,8 @@ function transposeStandardStaff(
         const scope: MeasureAccidentalScope = new Map()
         if (measure.clef_f) curClef = measure.clef_f.type
 
-        for (const slot of measure.notes) {
+        for (const measureSlot of getMeasureSlots(measure)) {
+          const slot = slotSymbol(measureSlot)
           if ((isNoteSymbol(slot) || isNoteRest(slot)) && slot.clef) {
             curClef = slot.clef.type
           }
@@ -276,8 +278,9 @@ function shiftNumberNotationBySemitones(
       let curKey = score.keySignature ?? DEFAULT_KEY
       for (const measure of staff.measures) {
         if (measure.keySignature_f) curKey = measure.keySignature_f.type
-        for (const slot of measure.notes) {
-          const note = slot as NoteNumber
+        for (const measureSlot of getMeasureSlots(measure)) {
+          const note = slotSymbol(measureSlot)
+          if (!isNoteNumberSymbol(note)) continue
           for (const info of note.notesInfo) {
             shiftNumberInfoBySemitones(info, curKey, semitones, priority)
           }
@@ -308,7 +311,8 @@ function shiftStandardStaffBySemitones(
         if (measure.clef_f) curClef = measure.clef_f.type
         if (measure.keySignature_f) curKey = measure.keySignature_f.type
 
-        for (const slot of measure.notes) {
+        for (const measureSlot of getMeasureSlots(measure)) {
+          const slot = slotSymbol(measureSlot)
           if ((isNoteSymbol(slot) || isNoteRest(slot)) && slot.clef) {
             curClef = slot.clef.type
           }

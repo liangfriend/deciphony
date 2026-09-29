@@ -20,6 +20,7 @@ import {
   getOctaveAndSyllable,
 } from '@deciphony/extensions/score-util'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 /** 走到目标小节「开头」时的谱号 / 调号（与 dr-play：遇目标只吃 _f） */
 export function resolveClefAndKeyAtMeasure(
@@ -64,7 +65,7 @@ export function applyMidiNoteToSelectedMeasure(
   const musicScore = selected.musicScore
   const {clef, key} = resolveClefAndKeyAtMeasure(musicScore, selected.singleStaff, measure)
 
-  const beamOnset = computeMeasureOnsetBefore(measure, measure.notes.length)
+  const beamOnset = computeMeasureOnsetBefore(measure, getMeasureNoteList(measure).length)
 
   if (musicScore.type === MusicScoreTypeEnum.NumberNotation) {
     const {octave, syllable, accidental} = getOctaveAndSyllable(
@@ -73,7 +74,7 @@ export function applyMidiNoteToSelectedMeasure(
       key,
     )
     if (syllable < 1 || syllable > 7) return false
-    measure.notes.push(
+    getMeasureNoteList(measure).push(
       createNoteNumber({
         syllable: syllable as 1 | 2 | 3 | 4 | 5 | 6 | 7,
         chronaxie,
@@ -91,7 +92,7 @@ export function applyMidiNoteToSelectedMeasure(
     key,
     AccidentalTypeEnum.Sharp,
   )
-  measure.notes.push(
+  getMeasureNoteList(measure).push(
     createNoteSymbol({
       region,
       chronaxie,

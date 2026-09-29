@@ -1,4 +1,4 @@
-import type {Measure, StaffSlot} from '@/types/MusicScoreType';
+import type {Measure, MeasureNoteSlot, StaffSlot} from '@/types/MusicScoreType';
 import type {StandardStaffSkinPack} from '@/types/common';
 import type {ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
 import {
@@ -7,8 +7,8 @@ import {
   getKeySignatureSkinKey,
   getTimeSignatureSkinKey,
 } from '../utils/skinKey';
-import {getNoteWidthRatio, getSlotChronaxie} from '../utils/note';
-import {isStaffSlot} from '../utils/staffSlot';
+import {getNoteWidthRatio, getSlotLayoutChronaxie} from '../utils/note';
+import {slotIsNoteRest, slotIsNoteSymbol, slotSymbol} from '../utils/staffSlot';
 
 export function computeStandardMeasureFixedWidths(
   measure: Measure,
@@ -57,8 +57,9 @@ export function createStandardStaffColumnLayoutAdapter(
   measureHeight: number,
 ): ColumnLayoutSlotAdapter {
   return {
-    isLayoutSlot: (note): note is StaffSlot => isStaffSlot(note as StaffSlot),
-    getChronaxie: (note) => getSlotChronaxie(note as StaffSlot),
-    getNoteWidthRatio: (note) => getNoteWidthRatio(note as StaffSlot, skin, measureHeight),
+    isLayoutSlot: (note): note is MeasureNoteSlot =>
+      slotIsNoteSymbol(note as MeasureNoteSlot) || slotIsNoteRest(note as MeasureNoteSlot),
+    getChronaxie: (note) => getSlotLayoutChronaxie(slotSymbol(note as MeasureNoteSlot) as StaffSlot),
+    getNoteWidthRatio: (note) => getNoteWidthRatio(note as MeasureNoteSlot, skin, measureHeight),
   };
 }

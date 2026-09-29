@@ -1,5 +1,5 @@
-import {NoteSymbolTypeEnum} from '@deciphony/renderer'
-import type {Chronaxie, Measure, MusicScore, SlotData, TabNote, TabNoteInfo, VDom} from '@deciphony/renderer'
+import {isNoteRest, isNoteSymbol, NoteSymbolTypeEnum, slotSymbol} from '@deciphony/renderer'
+import type {Chronaxie, Measure, MeasureNoteSlot, MusicScore, SlotData, TabNote, TabNoteInfo, VDom} from '@deciphony/renderer'
 import {defaultSkin} from '@deciphony/renderer'
 import {
   appendTabNoteInfo,
@@ -20,6 +20,7 @@ import {
   type SlotAnchor,
   type SnapPoint,
 } from '../standardStaff/renderEditSymbolAddAction'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 const LINE_WIDTH = 1
 
@@ -128,15 +129,16 @@ export type GhostTabPreview = {
   snap: SnapPoint
 }
 
-function asTabNote(slot: Measure['notes'][number]): TabNote | null {
-  if ('isSlap' in slot && 'notesInfo' in slot) return slot as unknown as TabNote
+function asTabNote(measureSlot: MeasureNoteSlot): TabNote | null {
+  const body = slotSymbol(measureSlot)
+  if (isNoteSymbol(body) && 'isSlap' in body) return body as TabNote
   return null
 }
 
 function collectTabAnchors(vDomList: VDom[], measure: Measure, measureX: number): SlotAnchor[] {
   const anchors: SlotAnchor[] = []
-  for (let noteIndex = 0; noteIndex < measure.notes.length; noteIndex++) {
-    const slot = measure.notes[noteIndex]!
+  for (let noteIndex = 0; noteIndex < getMeasureNoteList(measure).length; noteIndex++) {
+    const slot = getMeasureNoteList(measure)[noteIndex]!
     let id: string | undefined
     let tags: VDom['tag'][]
     const tabNote = asTabNote(slot)
@@ -146,8 +148,8 @@ function collectTabAnchors(vDomList: VDom[], measure: Measure, measureX: number)
       if (info?.type === 'arpeggio') tags = ['arpeggio']
       else if (info?.type === 'strumming') tags = ['strumming']
       else tags = ['tabNoteNumber', 'noteHead']
-    } else if ('type' in slot && slot.type === NoteSymbolTypeEnum.Rest) {
-      id = slot.id
+    } else if (isNoteRest(slotSymbol(slot))) {
+      id = slotSymbol(slot).id
       tags = ['rest']
     } else {
       continue
@@ -283,12 +285,12 @@ export function applyTabMeasureAddAction(
 ): TabMeasureAddResult | null {
   const measure = slot.measure
   const at = preview.snap.kind === 'insert'
-    ? Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
+    ? Math.max(0, Math.min(preview.snap.insertIndex, getMeasureNoteList(measure).length))
     : preview.snap.noteIndex
 
   if (preview.kind === 'rest' || preview.snap.kind === 'insert') {
     if (preview.kind === 'rest') {
-      insertTabRest(measure, preview.snap.kind === 'insert' ? at : measure.notes.length, preview.chronaxie)
+      insertTabRest(measure, preview.snap.kind === 'insert' ? at : getMeasureNoteList(measure).length, preview.chronaxie)
     } else if (preview.snap.kind === 'insert') {
       insertTabNote(measure, at, {
         kind: preview.kind,
@@ -304,9 +306,9 @@ export function applyTabMeasureAddAction(
     return {type: 'inserted'}
   }
 
-  const note = asTabNote(measure.notes[preview.snap.noteIndex]!)
+  const note = asTabNote(getMeasureNoteList(measure)[preview.snap.noteIndex]!)
   if (!note) {
-    insertTabNote(measure, measure.notes.length, {
+    insertTabNote(measure, getMeasureNoteList(measure).length, {
       kind: preview.kind,
       chronaxie: preview.chronaxie,
       value: preview.value,

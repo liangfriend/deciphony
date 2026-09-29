@@ -28,7 +28,10 @@ import type {
   Clef,
   GrandStaff,
   KeySignature,
+  Lyrics,
   Measure,
+  MeasureNoteSlot,
+  MeasureNoteSymbol,
   MusicScore,
   NoteNumber,
   NoteRest,
@@ -39,12 +42,13 @@ import type {
   StaffSlot,
   TimeSignature,
 } from '@/types/MusicScoreType';
-import {isNoteRest, isNoteSymbol} from '@/standardStaff/render/utils/staffSlot';
+import {isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol} from '@/standardStaff/render/utils/staffSlot';
 import {
   getDiatonicDegreeFromC,
   getKeySignatureAccidental,
   getNoteMidi,
 } from '@deciphony/extensions/score-util';
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 // —— 常量 ——
 
@@ -200,26 +204,63 @@ function resolveMeasure(score: MusicScore, path: MeasurePath): Measure {
 
 function resolveNote(score: MusicScore, path: NotePath): NoteSymbol {
   const measure = resolveMeasure(score, path);
-  assertIndex('noteIndex', path.noteIndex, measure.notes.length);
-  const slot = measure.notes[path.noteIndex]!;
-  if (!isNoteSymbol(slot)) {
+  assertIndex('noteIndex', path.noteIndex, getMeasureNoteList(measure).length);
+  const body = slotSymbol(getMeasureNoteList(measure)[path.noteIndex]!);
+  if (!isNoteSymbol(body)) {
     throw new TypeError(`notes[${path.noteIndex}] 不是 NoteSymbol（可能是 NoteRest 或 NoteNumber）`);
   }
-  return slot;
+  return body;
 }
 
 function resolveRest(score: MusicScore, path: NotePath): NoteRest {
   const measure = resolveMeasure(score, path);
-  assertIndex('noteIndex', path.noteIndex, measure.notes.length);
-  const slot = measure.notes[path.noteIndex]!;
-  if (!isNoteRest(slot)) {
+  assertIndex('noteIndex', path.noteIndex, getMeasureNoteList(measure).length);
+  const body = slotSymbol(getMeasureNoteList(measure)[path.noteIndex]!);
+  if (!isNoteRest(body)) {
     throw new TypeError(`notes[${path.noteIndex}] 不是 NoteRest`);
   }
-  return slot;
+  return body;
 }
 
-export function isNoteNumber(note: StaffSlot | NoteNumber): note is NoteNumber {
-  return !('type' in note);
+export function isNoteNumber(slot: MeasureNoteSlot | StaffSlot | NoteNumber): slot is NoteNumber {
+  const body = 'symbol' in slot ? slot.symbol : slot;
+  return isNoteNumberSymbol(body);
+}
+
+function defaultEmptyLyrics(): Lyrics[] {
+  return [{
+    text: '',
+    relativeX: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeH: 0,
+  }];
+}
+
+export function createMeasureNoteSlot(options: {
+  symbol: MeasureNoteSymbol
+  lyrics?: Lyrics[]
+  affiliatedSymbols?: MeasureNoteSlot['affiliatedSymbols']
+  data?: Object
+  widthRatio?: number
+  widthRatioForMeasure?: number
+  id?: string
+}): MeasureNoteSlot {
+  const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
+  return {
+    ...ZERO_FRAME,
+    id: options.id ?? newId(),
+    relativeX: 0,
+    relativeY: 0,
+    relativeW: 0,
+    relativeH: 0,
+    widthRatio,
+    widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
+    lyrics: options.lyrics ?? defaultEmptyLyrics(),
+    affiliatedSymbols: options.affiliatedSymbols ?? [],
+    data: options.data ?? {},
+    symbol: options.symbol,
+  };
 }
 
 function defaultDirection(region: number): 'up' | 'down' {
@@ -313,7 +354,7 @@ export function createNotesInfo(opts: InsertNoteInfoOptions): NotesInfo {
   };
 }
 
-export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
+export function createNoteSymbol(opts: InsertNoteOptions = {}): MeasureNoteSlot {
   const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
   const widthRatioForMeasure = opts.widthRatioForMeasure ?? widthRatio;
 
@@ -334,40 +375,36 @@ export function createNoteSymbol(opts: InsertNoteOptions = {}): NoteSymbol {
     throw new Error('insertNote / createNoteSymbol：请提供 region 或 notesInfo');
   }
 
-  const note: NoteSymbol & {lyrics: []; data: Object} = {
+  const symbol: NoteSymbol = {
     ...ZERO_FRAME,
     id: newId(),
     type: NoteSymbolTypeEnum.Note,
     notesInfo,
-    widthRatio,
-    widthRatioForMeasure,
-    lyrics: [],
-    data: {},
   };
   if (opts.clef != null) {
-    note.clef = createClef(opts.clef);
+    symbol.clef = createClef(opts.clef);
   }
-  return note;
+  return createMeasureNoteSlot({symbol, widthRatio, widthRatioForMeasure});
 }
 
-export function createNoteRest(opts: InsertRestOptions = {}): NoteRest {
+export function createNoteRest(opts: InsertRestOptions = {}): MeasureNoteSlot {
   const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
-  const rest: NoteRest & {lyrics: []; data: Object} = {
+  const symbol: NoteRest = {
     ...ZERO_FRAME,
     id: newId(),
     type: NoteSymbolTypeEnum.Rest,
     chronaxie: opts.chronaxie ?? 64,
     affiliatedSymbols: opts.affiliatedSymbols ?? [],
-    widthRatio,
-    widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
-    lyrics: [],
-    data: {},
     ...(opts.augmentationDot ? {augmentationDot: opts.augmentationDot} : {}),
   };
   if (opts.clef != null) {
-    rest.clef = createClef(opts.clef);
+    symbol.clef = createClef(opts.clef);
   }
-  return rest;
+  return createMeasureNoteSlot({
+    symbol,
+    widthRatio,
+    widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
+  });
 }
 
 export function createNotesNumberInfo(
@@ -384,7 +421,7 @@ export function createNotesNumberInfo(
   };
 }
 
-export function createNoteNumber(opts: InsertNoteNumberOptions): NoteNumber {
+export function createNoteNumber(opts: InsertNoteNumberOptions): MeasureNoteSlot {
   const widthRatio = opts.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
   const chronaxie = opts.chronaxie ?? 64;
 
@@ -405,18 +442,17 @@ export function createNoteNumber(opts: InsertNoteNumberOptions): NoteNumber {
     ];
   }
 
-  return {
+  const symbol: NoteNumber = {
     ...ZERO_FRAME,
     id: newId(),
-    chronaxie,
     notesInfo,
-    beamType: opts.beamType ?? BeamTypeEnum.None,
     affiliatedSymbols: [],
+  };
+  return createMeasureNoteSlot({
+    symbol,
     widthRatio,
     widthRatioForMeasure: opts.widthRatioForMeasure ?? widthRatio,
-    lyrics: [],
-    data: {},
-  };
+  });
 }
 
 export function createEmptyMeasure(partial?: InsertMeasureOptions): Measure {
@@ -659,8 +695,8 @@ export function insertNote(
 ): NotePath {
   const measure = resolveMeasure(score, path);
   const note = createNoteSymbol(options);
-  const at = options.at ?? measure.notes.length;
-  measure.notes.splice(at, 0, note);
+  const at = options.at ?? getMeasureNoteList(measure).length;
+  getMeasureNoteList(measure).splice(at, 0, note);
   return {...path, noteIndex: at};
 }
 
@@ -671,8 +707,8 @@ export function insertRest(
 ): NotePath {
   const measure = resolveMeasure(score, path);
   const rest = createNoteRest(options);
-  const at = options.at ?? measure.notes.length;
-  measure.notes.splice(at, 0, rest);
+  const at = options.at ?? getMeasureNoteList(measure).length;
+  getMeasureNoteList(measure).splice(at, 0, rest);
   return {...path, noteIndex: at};
 }
 
@@ -711,8 +747,8 @@ export function insertNoteNumber(
 ): NotePath {
   const measure = resolveMeasure(score, path);
   const note = createNoteNumber(options);
-  const at = options.at ?? measure.notes.length;
-  measure.notes.splice(at, 0, note);
+  const at = options.at ?? getMeasureNoteList(measure).length;
+  getMeasureNoteList(measure).splice(at, 0, note);
   return {...path, noteIndex: at};
 }
 
@@ -726,8 +762,8 @@ export function insertNotesNumberInfo(
   },
 ): void {
   const measure = resolveMeasure(score, path);
-  const raw = measure.notes[path.noteIndex];
-  if (!isNoteNumber(raw)) {
+  const raw = slotSymbol(getMeasureNoteList(measure)[path.noteIndex]!);
+  if (!isNoteNumberSymbol(raw)) {
     throw new TypeError('insertNotesNumberInfo 仅用于简谱 NoteNumber');
   }
   raw.notesInfo.push(
@@ -769,7 +805,7 @@ export function getMeasure(score: MusicScore, path: MeasurePath): Measure {
 
 export function getSlot(score: MusicScore, path: NotePath): StaffSlot | NoteNumber {
   const measure = resolveMeasure(score, path);
-  return measure.notes[path.noteIndex]!;
+  return getMeasureNoteList(measure)[path.noteIndex]!;
 }
 
 export function getNote(score: MusicScore, path: NotePath): NoteSymbol {
@@ -857,13 +893,29 @@ function convertNoteSymbolToNoteNumber(
 }
 
 function convertRestToNoteNumber(rest: NoteRest): NoteNumber {
-  return createNoteNumber({
+  const wrapped = createNoteNumber({
     syllable: 0,
     chronaxie: rest.chronaxie,
     beamType: BeamTypeEnum.None,
-    widthRatio: rest.widthRatio,
-    widthRatioForMeasure: rest.widthRatioForMeasure,
     ...(rest.augmentationDot ? {augmentationDot: rest.augmentationDot} : {}),
+  });
+  const symbol = slotSymbol(wrapped) as NoteNumber;
+  symbol.id = rest.id;
+  return symbol;
+}
+
+function replaceMeasureSlotSymbol(
+  measureSlot: MeasureNoteSlot,
+  symbol: MeasureNoteSymbol,
+): MeasureNoteSlot {
+  return createMeasureNoteSlot({
+    id: measureSlot.id,
+    symbol,
+    lyrics: measureSlot.lyrics,
+    affiliatedSymbols: measureSlot.affiliatedSymbols ?? [],
+    data: measureSlot.data,
+    widthRatio: measureSlot.widthRatio,
+    widthRatioForMeasure: measureSlot.widthRatioForMeasure,
   });
 }
 
@@ -901,14 +953,18 @@ export function convertStandardStaffToNumberNotation(
         delete measure.timeSignature_f;
         delete measure.timeSignature_b;
 
-        measure.notes = measure.notes.map((slot) => {
+        measure.notes = getMeasureNoteList(measure).map((measureSlot) => {
+          const slot = slotSymbol(measureSlot);
           if (isNoteSymbol(slot)) {
-            return convertNoteSymbolToNoteNumber(slot, clef, keySignature);
+            return replaceMeasureSlotSymbol(
+              measureSlot,
+              convertNoteSymbolToNoteNumber(slot, clef, keySignature),
+            );
           }
           if (isNoteRest(slot)) {
-            return convertRestToNoteNumber(slot);
+            return replaceMeasureSlotSymbol(measureSlot, convertRestToNoteNumber(slot));
           }
-          return slot;
+          return measureSlot;
         });
       }
     }

@@ -13,6 +13,7 @@ import {
   type TabNote,
 } from '@deciphony/renderer'
 import {createGrandStaff, createMusicScore, newId} from './scoreBuilder'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 const ZERO = {relativeX: 0, relativeY: 0, relativeW: 1, relativeH: 1} as const
 
@@ -151,7 +152,7 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
     ...ZERO,
   }
 
-  measure.notes.push(
+  getMeasureNoteList(measure).push(
     noteNormal,
     noteGeom,
     noteSlap,

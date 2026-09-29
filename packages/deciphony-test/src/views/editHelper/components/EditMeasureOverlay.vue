@@ -6,9 +6,11 @@ import {DR_EDIT_INJECTION_KEY} from '../editInject'
 import GhostNotePreview from '../standardStaff/components/GhostNotePreview.vue'
 import GhostNumberPreview from '../numberNotation/components/GhostNumberPreview.vue'
 import GhostTabPreview from '../tab/components/GhostTabPreview.vue'
+import GhostDrumPreview from '../drumNotation/components/GhostDrumPreview.vue'
 import type {GhostNotePreview as StaffGhostPreview} from '../standardStaff/renderEditSymbolAddAction'
 import type {GhostNumberPreview as NumberGhostPreview} from '../numberNotation/renderEditNumberAddAction'
 import type {GhostTabPreview as TabGhostPreview} from '../tab/renderEditTabAddAction'
+import type {GhostDrumPreview as DrumGhostPreview} from '../drumNotation/renderEditDrumAddAction'
 
 const props = defineProps<{
   node: VDom
@@ -25,9 +27,15 @@ const isTab = computed(
   () => props.musicScore.type === MusicScoreTypeEnum.Tab4
     || props.musicScore.type === MusicScoreTypeEnum.Tab6,
 )
+const isDrum = computed(() => props.musicScore.type === MusicScoreTypeEnum.DrumNotation)
 const selectedMeasureId = computed(() => edit.selectedItem.value?.measure?.id)
 const staffPreview = computed(() =>
-  isNumberNotation.value || isTab.value ? null : (edit.activeGhostPreview.value as StaffGhostPreview | null),
+  isNumberNotation.value || isTab.value || isDrum.value
+    ? null
+    : (edit.activeGhostPreview.value as StaffGhostPreview | null),
+)
+const drumPreview = computed(() =>
+  isDrum.value ? (edit.activeGhostPreview.value as unknown as DrumGhostPreview | null) : null,
 )
 const numberPreview = computed(() =>
   isNumberNotation.value ? (edit.activeGhostPreview.value as NumberGhostPreview | null) : null,
@@ -58,6 +66,12 @@ const tabPreview = computed(() =>
       :measure-id="selectedMeasureId ?? null"
       :node="node"
       :preview="tabPreview"
+  />
+  <GhostDrumPreview
+      v-else-if="isDrum"
+      :measure-id="selectedMeasureId ?? null"
+      :node="node"
+      :preview="drumPreview"
   />
   <GhostNotePreview
       v-else

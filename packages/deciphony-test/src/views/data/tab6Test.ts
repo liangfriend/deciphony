@@ -11,6 +11,7 @@ import {
     TabNoteInfoTypeEnum,
 } from "@deciphony/renderer";
 import {createGrandStaff, createMusicScore,} from "./scoreBuilder";
+import {getMeasureNoteList} from '@deciphony/renderer'
 // 曲谱结构
 
 const data: MusicScore = createMusicScore({height: 800, width: 800, type: MusicScoreTypeEnum.Tab6})
@@ -253,10 +254,10 @@ const note4: TabNote = {
     }],
 }
 
-grandStaff1.staves[0].measures[0].notes.push(note)
-grandStaff1.staves[0].measures[0].notes.push(note2)
-grandStaff1.staves[0].measures[0].notes.push(note3)
-grandStaff1.staves[0].measures[0].notes.push(note4)
+getMeasureNoteList(grandStaff1.staves[0].measures[0]).push(note)
+getMeasureNoteList(grandStaff1.staves[0].measures[0]).push(note2)
+getMeasureNoteList(grandStaff1.staves[0].measures[0]).push(note3)
+getMeasureNoteList(grandStaff1.staves[0].measures[0]).push(note4)
 
 // 连音线：第一槽位 region 0 → 第二槽位 region 2
 data.affiliatedSymbols.push({

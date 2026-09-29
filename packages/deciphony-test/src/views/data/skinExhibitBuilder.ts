@@ -34,6 +34,7 @@ import {
   setMeasureTimeSignature,
   ZERO_FRAME,
 } from './scoreBuilder'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 const MEASURE_W = 72
 const MEASURE_W_WIDE = 140
@@ -73,15 +74,18 @@ function addSlurInMeasure(
   const measure =
     score.grandStaffs[measurePath.grandStaffIndex]!.staves[measurePath.singleStaffIndex]!
       .measures[measurePath.measureIndex]!
-  const a = measure.notes[noteIndexA]
-  const b = measure.notes[noteIndexB]
-  if (!a || !b || !('notesInfo' in a) || !('notesInfo' in b)) return
+  const a = getMeasureNoteList(measure)[noteIndexA]
+  const b = getMeasureNoteList(measure)[noteIndexB]
+  if (!a || !b) return
+  const aBody = a.symbol
+  const bBody = b.symbol
+  if (!('notesInfo' in aBody) || !('notesInfo' in bBody)) return
   score.affiliatedSymbols.push({
     ...ZERO_FRAME,
     id: newId(),
     name: DoubleNoteAffiliatedSymbolNameEnum.Slur,
-    startId: a.notesInfo[0]!.id,
-    endId: b.notesInfo[0]!.id,
+    startId: aBody.notesInfo[0]!.id,
+    endId: bBody.notesInfo[0]!.id,
     data: {
       slur: {
         relativeStartPoint: {x: 0, y: 0},

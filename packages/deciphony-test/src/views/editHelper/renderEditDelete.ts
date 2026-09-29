@@ -1,4 +1,4 @@
-import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
+import {isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol} from '@deciphony/renderer'
 import type {
     Measure,
     MusicScore,
@@ -11,15 +11,27 @@ import type {
 } from '@deciphony/renderer'
 import {deleteMeasure} from '@deciphony/extensions/dr-edit'
 import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
+import {locateSlotAffiliatedSymbolById} from '@deciphony/extensions/dr-edit/score-builder/locate'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {removeVolta} from './renderEditMeasureProperties'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
 import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
 import {isSlurSelected} from './renderEditSlurDrag'
+import {isArpeggioSelected} from './renderEditArpeggioDrag'
+import {isStrummingSelected} from './renderEditStrummingDrag'
+import {isPedalSelected} from './renderEditPedalDrag'
+import {isPitchSelected} from './renderEditPitchDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isBendSelected} from './tab/renderEditTabSelection'
-import {setTabNoteInfoBend} from '@deciphony/extensions/dr-edit'
-import type {TabNoteInfo} from '@deciphony/renderer'
+import {
+    isDrumNotesInfo,
+    isDrumRestBody,
+    removeDrumNotesInfo,
+    removeDrumRest,
+    setTabNoteInfoBend,
+} from '@deciphony/extensions/dr-edit'
+import type {DrumNote, MeasureNoteSymbol, TabNoteInfo} from '@deciphony/renderer'
+import {getMeasureNoteList, getMeasureSlots} from '@deciphony/renderer'
 
 /** 小节上可选符号（对象字段，delete 移除）；不含 barline_b */
 const MEASURE_OPTIONAL_SYMBOL_KEYS = [
@@ -55,16 +67,24 @@ function removeScoreAffiliatedById(musicScore: MusicScore, symbolId: string): bo
     return true
 }
 
+function removeSlotAffiliatedById(musicScore: MusicScore, symbolId: string): boolean {
+    const located = locateSlotAffiliatedSymbolById(musicScore, symbolId)
+    if (!located) return false
+    located.slot.affiliatedSymbols!.splice(located.symbolIndex, 1)
+    return true
+}
+
 function collectNotesInfoIdsInMeasure(measure: Measure): string[] {
     const ids: string[] = []
-    for (const slot of measure.notes) {
+    for (const measureSlot of getMeasureSlots(measure)) {
+        const slot = slotSymbol(measureSlot)
         if (isNoteSymbol(slot)) {
             for (const info of slot.notesInfo) ids.push(info.id)
             for (const info of slot.graceNotes ?? []) ids.push(info.id)
             for (const info of slot.graceNotesAfter ?? []) ids.push(info.id)
             continue
         }
-        if (isNoteNumberSlot(slot)) {
+        if (isNoteNumberSymbol(slot)) {
             for (const info of slot.notesInfo) ids.push(info.id)
             for (const g of slot.graceNotes ?? []) ids.push(g.id)
             for (const g of slot.graceNotesAfter ?? []) ids.push(g.id)
@@ -118,7 +138,7 @@ function deleteNumberHeadSlot(
     slot: SlotData & {info: NotesNumberInfo; note: NoteNumber; measure: Measure},
 ): boolean {
     const {info, note, measure} = slot
-    const noteIndex = measure.notes.indexOf(note)
+    const noteIndex = getMeasureNoteList(measure).findIndex((s) => slotSymbol(s) === note)
     if (noteIndex < 0) return false
 
     const infoIndex = note.notesInfo.findIndex((ni) => ni.id === info.id)
@@ -126,7 +146,7 @@ function deleteNumberHeadSlot(
 
     if (note.notesInfo.length <= 1) {
         purgeScoreAffiliatedForNotesInfo(musicScore, info.id)
-        measure.notes.splice(noteIndex, 1)
+        getMeasureNoteList(measure).splice(noteIndex, 1)
     } else {
         purgeScoreAffiliatedForNotesInfo(musicScore, info.id)
         note.notesInfo.splice(infoIndex, 1)
@@ -139,7 +159,7 @@ function deleteNoteHeadSlot(
     slot: SlotData & { info: NotesInfo; note: NoteSymbol; measure: Measure },
 ): boolean {
     const {info, note, measure} = slot
-    const noteIndex = measure.notes.indexOf(note)
+    const noteIndex = getMeasureNoteList(measure).findIndex((s) => slotSymbol(s) === note)
     if (noteIndex < 0) return false
 
     const infoIndex = note.notesInfo.findIndex((ni) => ni.id === info.id)
@@ -147,7 +167,7 @@ function deleteNoteHeadSlot(
 
     if (note.notesInfo.length <= 1) {
         purgeScoreAffiliatedForNoteSymbol(musicScore, note)
-        measure.notes.splice(noteIndex, 1)
+        getMeasureNoteList(measure).splice(noteIndex, 1)
     } else {
         purgeScoreAffiliatedForNotesInfo(musicScore, info.id)
         note.notesInfo.splice(infoIndex, 1)
@@ -157,17 +177,20 @@ function deleteNoteHeadSlot(
 
 function deleteRestSlot(slot: SlotData & { measure: Measure; self: NoteRest }): boolean {
     const {measure, self} = slot
-    const idx = measure.notes.findIndex((item) => item.id === self.id)
+    const idx = getMeasureNoteList(measure).findIndex((item) => {
+        const body = slotSymbol(item)
+        return isNoteRest(body) && body.id === self.id
+    })
     if (idx < 0) return false
-    measure.notes.splice(idx, 1)
+    getMeasureNoteList(measure).splice(idx, 1)
     return true
 }
 
 function deleteNumberRestSlot(slot: SlotData & {measure: Measure; self: NoteNumber}): boolean {
     const {measure, self} = slot
-    const idx = measure.notes.findIndex((item) => item.id === self.id)
+    const idx = getMeasureNoteList(measure).findIndex((item) => item.id === self.id)
     if (idx < 0) return false
-    measure.notes.splice(idx, 1)
+    getMeasureNoteList(measure).splice(idx, 1)
     return true
 }
 
@@ -191,7 +214,8 @@ function deleteSingleNoteAffiliatedById(musicScore: MusicScore, symbolId: string
     for (const grandStaff of musicScore.grandStaffs) {
         for (const singleStaff of grandStaff.staves) {
             for (const measure of singleStaff.measures) {
-                for (const slot of measure.notes) {
+                for (const measureSlot of getMeasureSlots(measure)) {
+                    const slot = slotSymbol(measureSlot)
                     if (isNoteSymbol(slot)) {
                         for (const info of slot.notesInfo) {
                             const idx = info.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
@@ -202,7 +226,7 @@ function deleteSingleNoteAffiliatedById(musicScore: MusicScore, symbolId: string
                         }
                         continue
                     }
-                    if (isNoteNumberSlot(slot)) {
+                    if (isNoteNumberSymbol(slot)) {
                         const idx = slot.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
                         if (idx >= 0) {
                             slot.affiliatedSymbols.splice(idx, 1)
@@ -283,6 +307,30 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
 
     if (isSlurSelected(selected)) {
         return removeScoreAffiliatedById(musicScore, selected.self.id)
+    }
+
+    if (isArpeggioSelected(selected) || isStrummingSelected(selected)) {
+        return removeSlotAffiliatedById(musicScore, selected.self.id)
+    }
+
+    if (isPedalSelected(selected)) {
+        return removeScoreAffiliatedById(musicScore, selected.self.id)
+    }
+
+    if (isPitchSelected(selected)) {
+        return removeScoreAffiliatedById(musicScore, selected.self.id)
+    }
+
+    if (selected.measure && isDrumNotesInfo(selected.info) && selected.self === selected.info) {
+        const note = selected.note as unknown as DrumNote | null
+        const ids = note && note.notesInfo.length <= 1 ? note.notesInfo.map((info) => info.id) : [selected.info.id]
+        if (!removeDrumNotesInfo(selected.measure, selected.info.id)) return false
+        for (const id of ids) purgeScoreAffiliatedForNotesInfo(musicScore, id)
+        return true
+    }
+
+    if (selected.measure && isDrumRestBody(selected.self as unknown as MeasureNoteSymbol)) {
+        return removeDrumRest(selected.measure, (selected.self as {id: string}).id)
     }
 
     if (isNoteHeadSelected(selected)) {

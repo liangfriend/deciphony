@@ -1,4 +1,4 @@
-import type {AugmentationDot, Measure, NoteRest, NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
+import type {AugmentationDot, Measure, NoteRest, NoteSymbol, NotesInfo, StaffSlot, TabNoteInfo} from "@/types/MusicScoreType";
 import type {Tab6SkinPack} from "@/types/common";
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
@@ -13,7 +13,8 @@ import {
     getTimeSignatureSkinKey,
 } from "./skinKey";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
-import {isNoteRest, isNoteSymbol} from "./staffSlot";
+import {isNoteRest, isNoteSymbol, slotIsNoteRest, slotIsNoteSymbol, slotSymbol} from "./staffSlot";
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 export type VoiceGroup = {
     direction: 'up' | 'down';
@@ -202,6 +203,22 @@ function getSlotSkinWidthRatio(
     return 0;
 }
 
+function collectGraceTabWidthRatio(
+    graceNotes: TabNoteInfo[] | undefined,
+    skin: Tab6SkinPack,
+    pick: WidthPick,
+): number {
+    // tab 倚音与主音等大，不乘 GRACE_NOTE_SCALE
+    let sub = 0;
+    for (const g of graceNotes ?? []) {
+        sub += pick(skin[getTabNoteHeadSkinKey(g)], g.widthRatio);
+        if (g.augmentationDot) {
+            sub += pick(skin[getAugmentationDotSkinKey(g.augmentationDot)], g.augmentationDot.widthRatio);
+        }
+    }
+    return sub;
+}
+
 function collectHeadSubWidthRatio(
     slot: StaffSlot,
     skin: Tab6SkinPack,
@@ -215,6 +232,9 @@ function collectHeadSubWidthRatio(
                 sub += pick(skin[getAugmentationDotSkinKey(ni.augmentationDot)], ni.augmentationDot.widthRatio);
             }
         }
+        const tab = slot as NoteSymbol & {graceNotes?: TabNoteInfo[]; graceNotesAfter?: TabNoteInfo[]};
+        sub += collectGraceTabWidthRatio(tab.graceNotes, skin, pick);
+        sub += collectGraceTabWidthRatio(tab.graceNotesAfter, skin, pick);
     } else if (includeAugDot && slot.augmentationDot) {
         sub += pick(skin[getAugmentationDotSkinKey(slot.augmentationDot)], slot.augmentationDot.widthRatio);
     }
@@ -244,7 +264,7 @@ function collectAugDotSubWidthRatio(
     return sub;
 }
 
-/** 符头 onset 列：slot widthRatio + 附点等；有加时线时不含附点。倚音宽不参与列宽。 */
+/** 符头 onset 列：slot widthRatio + 附点/倚音等；有加时线时不含附点。 */
 export function getNoteHeadColumnWidthRatio(
     slot: StaffSlot,
     skin: Tab6SkinPack,
@@ -396,10 +416,9 @@ export function resolveAugmentationDotAnchorXFromLayout(
 export function getMeasureWidthRatio(measure: Measure, skin: Tab6SkinPack): number {
     let acc = 0;
     acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[Tab6SkinKeyEnum.Measure]?.widthRatioForMeasure);
-    for (let i = 0; i < measure.notes.length; i++) {
-        const slot = measure.notes[i];
-        if (isNoteSymbol(slot) || isNoteRest(slot)) {
-            acc += getNoteWidthRatioForMeasure(slot, skin);
+    for (const measureSlot of getMeasureSlots(measure)) {
+        if (slotIsNoteSymbol(measureSlot) || slotIsNoteRest(measureSlot)) {
+            acc += getNoteWidthRatioForMeasure(slotSymbol(measureSlot) as StaffSlot, skin);
         }
     }
     if (measure.barline_f) {

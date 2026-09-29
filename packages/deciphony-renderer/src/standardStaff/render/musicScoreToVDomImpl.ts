@@ -546,7 +546,7 @@ export function musicScoreToVDom(
         * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
         * */
         processBeam({
-          measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
+          measure: measure as { notes: import("@/types/MusicScoreType").MeasureNoteSlot[] },
           nodeIdMap,
           vDoms,
           symbolVDomsStartIdx,
@@ -557,7 +557,7 @@ export function musicScoreToVDom(
           skinName: effectiveSkinName,
         });
         processGraceBeam({
-          measure: measure as { notes: import("@/types/MusicScoreType").StaffSlot[] },
+          measure: measure as { notes: import("@/types/MusicScoreType").MeasureNoteSlot[] },
           nodeIdMap,
           vDoms,
           symbolVDomsStartIdx,
@@ -753,6 +753,7 @@ export function musicScoreToVDom(
     skinName: effectiveSkinName,
     notationType: musicScore.type,
     skin,
+    measureHeight,
   });
   /*
    * 【阶段三 · 曲谱级附属】本批 vDom 在阶段二之后才创建，故单独 apply；不能与前两阶段合并为「曲谱末尾一次」

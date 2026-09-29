@@ -4,6 +4,7 @@
  */
 
 import type {Measure} from '@/types/MusicScoreType';
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 /** 每 onset 格基础 widthRatio（与音符 ratio 相加） */
 export const DEFAULT_CELL_BASE_WIDTH_RATIO = 10;
@@ -89,8 +90,9 @@ type OnsetSlotRef = {
 function collectOnsetSlots(measure: Measure, adapter: ColumnLayoutSlotAdapter): OnsetSlotRef[] {
   const refs: OnsetSlotRef[] = [];
   let acc = 0;
-  for (let i = 0; i < measure.notes.length; i++) {
-    const note = measure.notes[i];
+  const notes = getMeasureSlots(measure);
+  for (let i = 0; i < notes.length; i++) {
+    const note = notes[i];
     if (!adapter.isLayoutSlot(note)) continue;
     refs.push({onset: acc, slotIndex: i, note});
     acc += adapter.getChronaxie(note);
@@ -100,8 +102,9 @@ function collectOnsetSlots(measure: Measure, adapter: ColumnLayoutSlotAdapter): 
 
 function measureTotalChronaxie(measure: Measure, adapter: ColumnLayoutSlotAdapter): number {
   let acc = 0;
-  for (let i = 0; i < measure.notes.length; i++) {
-    const note = measure.notes[i];
+  const notes = getMeasureSlots(measure);
+  for (let i = 0; i < notes.length; i++) {
+    const note = notes[i];
     if (!adapter.isLayoutSlot(note)) continue;
     acc += adapter.getChronaxie(note);
   }
@@ -184,7 +187,7 @@ function assignSlotGeometries(
   adapter: ColumnLayoutSlotAdapter,
   geometryByOnset: Map<number, SlotColumnGeometry>,
 ): (SlotColumnGeometry | null)[] {
-  const slotGeometries: (SlotColumnGeometry | null)[] = new Array(measure.notes.length).fill(null);
+  const slotGeometries: (SlotColumnGeometry | null)[] = new Array(getMeasureSlots(measure).length).fill(null);
   for (const ref of collectOnsetSlots(measure, adapter)) {
     const geo = geometryByOnset.get(ref.onset);
     if (geo) slotGeometries[ref.slotIndex] = geo;
@@ -212,8 +215,9 @@ export function computeSlotOnset(
   adapter: ColumnLayoutSlotAdapter,
 ): number {
   let acc = 0;
-  for (let i = 0; i < measure.notes.length && i < slotIndex; i++) {
-    const note = measure.notes[i];
+  const notes = getMeasureSlots(measure);
+  for (let i = 0; i < notes.length && i < slotIndex; i++) {
+    const note = notes[i];
     if (!adapter.isLayoutSlot(note)) continue;
     acc += adapter.getChronaxie(note);
   }

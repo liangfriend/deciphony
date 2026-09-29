@@ -8,6 +8,7 @@ import {
   createNoteNumber,
 } from '@deciphony/extensions/dr-edit/score-builder'
 import {drTitle, type TitleMode} from '@deciphony/extensions/dr-title'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 const mode = ref<TitleMode>('edit')
 const extensions = [drTitle({mode})]
@@ -26,7 +27,7 @@ const musicScoreData = reactive<MusicScore>(
     const grandStaff = createGrandStaff({notationType: MusicScoreTypeEnum.NumberNotation})
     score.grandStaffs.push(grandStaff)
     const measure = grandStaff.staves[0]!.measures[0]!
-    measure.notes.push(createNoteNumber({syllable: 1, chronaxie: 64}))
+    getMeasureNoteList(measure).push(createNoteNumber({syllable: 1, chronaxie: 64}))
     return score
   })(),
 )

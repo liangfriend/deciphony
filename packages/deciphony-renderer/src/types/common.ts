@@ -2,7 +2,8 @@
 import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
-import type {BendTypeEnum, SlurTypeEnum} from "@/enums/musicScoreEnum";
+import type {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSkinKeyEnum";
+import type {ArpeggioTypeEnum, BendTypeEnum, PedalTypeEnum, PitchTypeEnum, SlurTypeEnum} from "@/enums/musicScoreEnum";
 import type {NoteName} from "@/enums/musicScoreEnum";
 import {
     MusicScore,
@@ -16,7 +17,7 @@ import {
 import type {Barre, StringState} from "@/types/MusicScoreType";
 
 /** 按曲谱模式区分的 skinKey 联合类型 */
-export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum | Tab6SkinKeyEnum;
+export type SkinKey = StandardStaffSkinKeyEnum | NumberNotationSkinKeyEnum | Tab6SkinKeyEnum | DrumNotationSkinKeyEnum;
 
 /** 按种类区分：复谱表、单谱表、小节、音符、休止符、谱号/调号/拍号/小节线、插槽、空白等 */
 export type VDomTagType =
@@ -60,6 +61,8 @@ export type VDomTagType =
     | 'tabSlap'        // 吉他谱拍弦框
     | 'bend'           // 吉他谱推弦
     | 'augmentationDot'    // 附点
+    | 'longRest'       // 鼓谱长休止符（头 / 内容 / 尾 / 完整）
+    | 'longRestNumber' // 鼓谱长休止符小节数
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
 
@@ -93,9 +96,9 @@ export type VDom = {
             relativeTextPoint?: { x: number, y: number }, // 文字相对控制点偏移
         };
         volta?: {
-            openLeft: boolean,
-            openRight: boolean,
-            text: string
+            openLeft?: boolean,
+            openRight?: boolean,
+            text?: string
         };
         beam?: {
             /** 本段内每条符杠，type 表示伸展方向，scaleX 表示从 centerX 向外的缩放，默认 1 */
@@ -106,15 +109,41 @@ export type VDom = {
             thickness: number;
             direction: 'up' | 'down';
         };
-        /** 吉他谱音符琶音 */
+        /** 单 slot 附属琶音 / 吉他谱音符琶音 */
         arpeggio?: {
-            thickness: number;
-            arrowWidth: number;
+            thickness?: number;
+            arrowWidth?: number;
+            /** 是否画箭头；缺省 true */
+            arrow?: boolean;
+            /** normal=椭圆单元曲线；staright=直线 */
+            type?: ArpeggioTypeEnum;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
         };
-        /** 吉他谱音符扫弦 */
+        /** 单 slot 附属扫弦 / 吉他谱音符扫弦 */
         strumming?: {
-            thickness: number;
-            arrowWidth: number;
+            thickness?: number;
+            arrowWidth?: number;
+            /** 是否画箭头；缺省 true */
+            arrow?: boolean;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
+        };
+        /** 双 slot 附属踏板 */
+        pedal?: {
+            thickness?: number;
+            type?: PedalTypeEnum;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
+        };
+        /** 双 slot 附属八度记号（pitch_up / pitch_down） */
+        pitch?: {
+            thickness?: number;
+            type?: PitchTypeEnum;
+            /** pitch_up | pitch_down */
+            direction?: 'up' | 'down';
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
         };
         /** 吉他谱 slot 和弦图（不含 id） */
         tabChord?: {
@@ -153,6 +182,10 @@ export type VDom = {
         };
         /** 吉他谱拍弦框（描边颜色来自皮肤，坐标用 vDom.startPoint/endPoint） */
         tabSlap?: Record<string, never>;
+        /** 鼓谱长休止符小节数（颜色来自皮肤，文字在 x/y/w/h 框内居中） */
+        longRestNumber?: {
+            count: number;
+        };
         /**
          * 同音符多条线须区分（写入 vdomSelectionKey / DOM id）：
          * - 五线加线 addLine_u/g：ledger 线号（上：10,12,…；下：-2,-4,…）
@@ -213,6 +246,8 @@ export type NumberNotationSkinPack = Record<NumberNotationSkinKeyEnum, SkinItem<
 /** 吉他谱单套皮肤包 */
 export type Tab6SkinPack = Record<Tab6SkinKeyEnum, SkinItem<Tab6SkinKeyEnum>>;
 export type Tab4SkinPack = Tab6SkinPack;
+/** 鼓谱单套皮肤包 */
+export type DrumNotationSkinPack = Record<DrumNotationSkinKeyEnum, SkinItem<DrumNotationSkinKeyEnum>>;
 
 /** 单套皮肤包：按曲谱模式嵌套，一谱一套 skinKey */
 export type SkinPack = {
@@ -220,7 +255,9 @@ export type SkinPack = {
     numberNotation?: NumberNotationSkinPack;
     tab6?: Tab6SkinPack;
     tab4?: Tab4SkinPack;
-};;
+    /** 不设置时使用内置默认鼓谱皮肤 */
+    drumNotation?: DrumNotationSkinPack;
+};
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
 export type Skin = Record<string, SkinPack>;

@@ -1,3 +1,4 @@
+import {slotSymbol} from '@deciphony/renderer'
 import type {Chronaxie, Measure, MusicScore, NoteNumber, NotesNumberInfo, SlotData, VDom} from '@deciphony/renderer'
 import {createNoteNumber, createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
 import {computeMeasureOnsetBefore} from '@deciphony/extensions/dr-edit/score-builder'
@@ -36,6 +37,7 @@ import {
   isPointerInMeasureAddRange,
   nearestSnapPoint,
 } from '../standardStaff/renderEditSymbolAddAction'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 /** 简谱音符预览高度（与皮肤 Number_1 接近） */
 export const NUMBER_HEAD_HEIGHT = 18
@@ -60,10 +62,11 @@ export type MeasureAddActionResult =
 
 function collectNumberSlotAnchors(vDomList: VDom[], measure: Measure, measureX: number) {
   const anchors: import('../standardStaff/renderEditSymbolAddAction').SlotAnchor[] = []
-  for (let noteIndex = 0; noteIndex < measure.notes.length; noteIndex++) {
-    const slot = measure.notes[noteIndex]!
+  for (let noteIndex = 0; noteIndex < getMeasureNoteList(measure).length; noteIndex++) {
+    const slot = getMeasureNoteList(measure)[noteIndex]!
     if (!isNoteNumberSlot(slot)) continue
-    const id = isSlotRestLike(slot) ? slot.id : slot.notesInfo[0]?.id
+    const body = slotSymbol(slot)
+    const id = isSlotRestLike(slot) ? slot.id : body.notesInfo[0]?.id
     if (!id) continue
     const tag = isSlotRestLike(slot) ? 'rest' : 'noteHead'
     const vdom = vDomList.find((node) => node.targetId === id && node.tag === tag)
@@ -165,21 +168,22 @@ export function applyMeasureAddAction(
   const measure = slot.measure
 
   if (preview.snap.kind === 'insert') {
-    const at = Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
+    const at = Math.max(0, Math.min(preview.snap.insertIndex, getMeasureNoteList(measure).length))
     const beamOnset = computeMeasureOnsetBefore(measure, at)
     const note = createNoteNumber({
       syllable: preview.syllable,
       chronaxie: preview.chronaxie,
       beamOnset,
     })
-    measure.notes.splice(at, 0, note)
+    getMeasureNoteList(measure).splice(at, 0, note)
     return {type: 'inserted'}
   }
 
   if (preview.slotKind === 'rest') return null
 
-  const note = measure.notes[preview.snap.noteIndex]
-  if (!note || !isNoteNumberSlot(note) || isSlotRestLike(note)) return null
+  const measureSlot = getMeasureNoteList(measure)[preview.snap.noteIndex]
+  if (!measureSlot || !isNoteNumberSlot(measureSlot) || isSlotRestLike(measureSlot)) return null
+  const note = slotSymbol(measureSlot) as NoteNumber
 
   const existing = note.notesInfo.find((ni) => ni.syllable === preview.syllable && preview.syllable !== 'X')
   if (existing) {

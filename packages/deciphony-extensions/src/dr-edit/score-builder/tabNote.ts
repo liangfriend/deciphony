@@ -9,11 +9,13 @@ import {
     NoteSymbolTypeEnum,
     TabNoteInfoTypeEnum,
 } from '@deciphony/renderer'
+import {getMeasureSlots, isNoteSymbol, slotSymbol} from '@deciphony/renderer'
 import type {
     Bend,
     Chronaxie,
     DoubleNoteAffiliatedSymbol,
     Measure,
+    MeasureNoteSlot,
     MusicScore,
     SlurTypeEnum,
     TabNote,
@@ -24,6 +26,7 @@ import type {
 import {resolveDefaultBeamType, computeMeasureOnsetBefore} from './autoBeam'
 import {ZERO_FRAME} from './constants'
 import {newId} from './id'
+import {createMeasureNoteSlot} from './factories'
 import {insertNoteSlot} from './noteSlot'
 
 export const TAB6_STRING_COUNT = 6
@@ -127,17 +130,15 @@ export function createTabNoteInfo(options: CreateTabNoteOptions = {}): TabNoteIn
     }
 }
 
-export function createTabNote(options: CreateTabNoteOptions = {}): TabNote & {lyrics: []; data: object} {
-    return {
+export function createTabNote(options: CreateTabNoteOptions = {}): MeasureNoteSlot {
+    const symbol: TabNote = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Note,
         notesInfo: [createTabNoteInfo(options)],
-        // 不默认挂空和弦图；需要时再显式写入 chord
         isSlap: options.isSlap ?? false,
-        lyrics: [],
-        data: {},
     }
+    return createMeasureNoteSlot({symbol})
 }
 
 /** 显式挂一个空和弦图（供属性栏添加和弦用） */
@@ -159,27 +160,26 @@ export function setTabNoteChord(note: TabNote, chord: tabChord | null): void {
     }
 }
 
-export function createTabRest(options: {chronaxie?: Chronaxie} = {}): TabRest & {lyrics: []; data: object} {
-    return {
+export function createTabRest(options: {chronaxie?: Chronaxie} = {}): MeasureNoteSlot {
+    const symbol: TabRest = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Rest,
         chronaxie: options.chronaxie ?? 64,
-        lyrics: [],
-        data: {},
     }
+    return createMeasureNoteSlot({symbol})
 }
 
-export function insertTabNote(measure: Measure, at: number, options: CreateTabNoteOptions = {}): TabNote {
+export function insertTabNote(measure: Measure, at: number, options: CreateTabNoteOptions = {}): MeasureNoteSlot {
     const withBeam = options.beamType != null || options.beamOnset != null
         ? options
         : {...options, beamOnset: computeMeasureOnsetBefore(measure, at)}
-    return insertNoteSlot(measure, at, createTabNote(withBeam)) as TabNote
+    return insertNoteSlot(measure, at, createTabNote(withBeam))
 }
 
-export function insertTabRest(measure: Measure, at: number, chronaxie?: Chronaxie): TabRest {
+export function insertTabRest(measure: Measure, at: number, chronaxie?: Chronaxie): MeasureNoteSlot {
     const rest = chronaxie == null ? createTabRest() : createTabRest({chronaxie})
-    return insertNoteSlot(measure, at, rest) as TabRest
+    return insertNoteSlot(measure, at, rest)
 }
 
 export function appendTabNoteInfo(note: TabNote, options: CreateTabNoteOptions = {}): TabNoteInfo {
@@ -279,18 +279,26 @@ export type LocatedTabNoteInfo = {
     info: TabNoteInfo
 }
 
-function isTabNoteSlot(slot: Measure['notes'][number]): slot is TabNote & Measure['notes'][number] {
-    return 'isSlap' in slot && 'notesInfo' in slot
+function isTabNoteBody(slot: unknown): slot is TabNote {
+    return isNoteSymbol(slot as TabNote) && 'isSlap' in (slot as TabNote)
 }
 
 export function locateTabNoteInfoById(score: MusicScore, id: string): LocatedTabNoteInfo | null {
     for (const grandStaff of score.grandStaffs) {
         for (const singleStaff of grandStaff.staves) {
             for (const measure of singleStaff.measures) {
-                for (const slot of measure.notes) {
-                    if (!isTabNoteSlot(slot)) continue
-                    const info = slot.notesInfo.find((item) => item.id === id)
-                    if (info) return {grandStaff, singleStaff, measure, note: slot, info}
+                for (const measureSlot of getMeasureSlots(measure)) {
+                    const note = slotSymbol(measureSlot)
+                    if (!isTabNoteBody(note)) continue
+                    const lists = [
+                        note.notesInfo,
+                        note.graceNotes ?? [],
+                        note.graceNotesAfter ?? [],
+                    ]
+                    for (const list of lists) {
+                        const info = list.find((item) => item.id === id)
+                        if (info) return {grandStaff, singleStaff, measure, note, info}
+                    }
                 }
             }
         }
@@ -302,11 +310,12 @@ export function locateTabBendById(score: MusicScore, id: string): (LocatedTabNot
     for (const grandStaff of score.grandStaffs) {
         for (const singleStaff of grandStaff.staves) {
             for (const measure of singleStaff.measures) {
-                for (const slot of measure.notes) {
-                    if (!isTabNoteSlot(slot)) continue
-                    for (const info of slot.notesInfo) {
+                for (const measureSlot of getMeasureSlots(measure)) {
+                    const note = slotSymbol(measureSlot)
+                    if (!isTabNoteBody(note)) continue
+                    for (const info of note.notesInfo) {
                         if (isTabHeadInfo(info) && info.bend?.id === id) {
-                            return {grandStaff, singleStaff, measure, note: slot, info, bend: info.bend}
+                            return {grandStaff, singleStaff, measure, note, info, bend: info.bend}
                         }
                     }
                 }

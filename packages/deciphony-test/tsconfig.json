@@ -45,7 +45,9 @@
       "@deciphony/finger": [
         "../deciphony-finger/src/index.ts"
       ],
-      "j-player": [
+      "@deciphony/puff": [
+        "../deciphony-puff/src/index.ts"
+      ],      "j-player": [
         "../j-player/src/index.ts"
       ],
       "@deciphony/player": [

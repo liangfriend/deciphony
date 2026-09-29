@@ -48,6 +48,9 @@ export type UseDrEditOptions = {
 /**
  * 编辑扩展：slotConfig / 插槽组件 / 事件都挂在 extension 上，随 :extensions 一次注入。
  * 侧栏、快捷键、连音线拖拽层、右键菜单仍用返回的 api。
+ *
+ * 高频几何（连音线拖拽等）若要「立刻 updateVDom 跟手 + musicScore 防抖落盘」，
+ * 必须经 scoreWriteGate.patch 改 data，不要每帧直接写曲谱。详见 功能.md 同名小节。
  */
 export function useDrEdit(musicScore: MusicScore, options?: UseDrEditOptions) {
   const api = useRenderEdit(musicScore, {musicScoreRef: options?.musicScoreRef})

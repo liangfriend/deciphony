@@ -57,6 +57,11 @@ class NPlayer {
   private _checkTime = 50; // 检查间隔时长
   private _checkDuration = 500; // 检查区间
   private _bufferCache = new Map<string, AudioBuffer>(); // 音色处理后的二进制缓存
+  /**
+   * 无采样 / 休止符用的静音 buffer，按帧数缓存。
+   * 长度必须覆盖音符 duration：1 帧静音会在 start 当下就耗尽，onended 早触发或在绑定前丢失，末音 end 标记无法 onEnd。
+   */
+  private _silentBufferByFrames = new Map<number, AudioBuffer>();
   /** 按 gainNodeKey 分组：总 gain → keyGain → 各音符 noteGain；创建后常驻直至 releaseKeyGain / clearAllKeyGains / dispose */
   private _keyGainMap = new Map<string, GainNode>();
   /** 序列 play 的包络；null = 旧行为（无 A/D/R）。play() 无参时沿用上次。 */
@@ -214,6 +219,35 @@ class NPlayer {
     }
   }
 
+  /** 已缓存（至少成功解码一个音）的音色名 */
+  getToneColorNames(): string[] {
+    const names = new Set<string>();
+    for (const key of this._bufferCache.keys()) {
+      names.add(key.slice(0, key.lastIndexOf(':')));
+    }
+    return [...names];
+  }
+
+  hasToneColor(name: string): boolean {
+    const prefix = `${name}:`;
+    for (const key of this._bufferCache.keys()) {
+      if (key.startsWith(prefix)) return true;
+    }
+    return false;
+  }
+
+  /** 移除某音色的全部缓存；之后用到该音色的音符按静音占位 */
+  removeToneColor(name: string): void {
+    const prefix = `${name}:`;
+    for (const key of [...this._bufferCache.keys()]) {
+      if (key.startsWith(prefix)) this._bufferCache.delete(key);
+    }
+  }
+
+  clearToneColors(): void {
+    this._bufferCache.clear();
+  }
+
   // 设置播放序列
   setSequence(sequence: Sequence) {
     this._baseSequence = sequenceToPlaySequence(sequence);
@@ -323,12 +357,8 @@ class NPlayer {
     onEnd?: () => void;
   }): string {
     const id = param.id?.trim() ? param.id : uuidv4();
-    const buffer = this._getBuffer(param.toneColor, param.midi);
-    if (!buffer) {
-      throw new Error(
-          `NPlayer.trigger: 无 buffer，请先 addToneColor('${param.toneColor}', …) 且包含 midi ${param.midi}`
-      );
-    }
+    const realBuffer = this._getBuffer(param.toneColor, param.midi);
+    const silent = !realBuffer;
     // 同 id 重触发：立刻掐断旧音，不做软释放
     this.release({id, immediate: true});
 
@@ -343,20 +373,23 @@ class NPlayer {
         param.release != null && param.release > 0 ? param.release : 0;
     const hasDuration = param.duration != null && param.duration > 0;
     const durationSec = hasDuration ? param.duration! : 0;
+    const buffer =
+        realBuffer ??
+        this._getSilentBuffer(hasDuration ? durationSec + triggerRelease : 0);
 
     const source = this._context.createBufferSource();
     source.buffer = buffer;
     const gainNode = this._context.createGain();
     source.connect(gainNode);
-    gainNode.connect(this._context.destination);
+    gainNode.connect(this._gainNode);
 
     const delay = Math.max(0, param.offset ?? 0);
     const t0 = this._context.currentTime + delay;
     this._scheduleTriggerEnvelope(gainNode.gain, t0, {
-      attack,
-      decay,
-      peakGain,
-      normalGain,
+      attack: silent ? 0 : attack,
+      decay: silent ? 0 : decay,
+      peakGain: silent ? 0.0001 : peakGain,
+      normalGain: silent ? 0.0001 : normalGain,
     });
 
     const entry: {
@@ -372,8 +405,8 @@ class NPlayer {
       source,
       gainNode,
       playContextTime: t0,
-      hasDuration,
-      normalGain,
+      hasDuration: hasDuration || silent,
+      normalGain: silent ? 0.0001 : normalGain,
       stopCalled: false,
     };
     if (param.onEnd) entry.onEnd = param.onEnd;
@@ -392,13 +425,16 @@ class NPlayer {
 
     if (hasDuration) {
       const sustainEnd = t0 + durationSec;
-      if (triggerRelease > 0) {
+      if (triggerRelease > 0 && !silent) {
         gainNode.gain.setValueAtTime(normalGain, sustainEnd);
         gainNode.gain.linearRampToValueAtTime(0.0001, sustainEnd + triggerRelease);
         this._stopTriggerSource(entry, sustainEnd + triggerRelease);
       } else {
         this._stopTriggerSource(entry, sustainEnd);
       }
+    } else if (silent) {
+      // 无采样且无 duration：立刻结束，避免永远挂着
+      this._stopTriggerSource(entry, t0);
     }
     // 无 duration：不预 stop，留给 release() 首次 stop，或播完 buffer 自然 onended
 
@@ -652,6 +688,21 @@ class NPlayer {
     return this._bufferCache.get(key) ?? getGlobalToneBuffer(key) ?? null;
   }
 
+  /**
+   * 静音占位：长度覆盖 durationSec，使 source.stop(t0+dur) 能在预定时刻触发 onended。
+   * durationSec≤0 时仍给极短一帧（配合立刻 stop）。
+   */
+  private _getSilentBuffer(durationSec = 0): AudioBuffer {
+    const sr = this._context.sampleRate || 44100;
+    const frames = Math.max(1, Math.ceil(Math.max(0, durationSec) * sr) + 1);
+    let buf = this._silentBufferByFrames.get(frames);
+    if (!buf) {
+      buf = this._context.createBuffer(1, frames, sr);
+      this._silentBufferByFrames.set(frames, buf);
+    }
+    return buf;
+  }
+
   // 清除未来(还未播放)的source和timer
   private _clearFutureSourcesAndTimers() {
     const now = this._context.currentTime;
@@ -759,20 +810,23 @@ class NPlayer {
       );
     });
     for (const e of filtered) {
-      const buffer = this._getBuffer(e.toneColor, e.midi);
-      // midi = 0认为是休止符，该有的回调都要有
-      if ((!buffer || this._state !== 'playing') && e.midi !== 0) continue;
+      const realBuffer = this._getBuffer(e.toneColor, e.midi);
+      if (this._state !== 'playing') continue;
+      // 无采样（音色未加载 / midi 缺失 / 休止符）用等长静音 buffer，保证 stop → onended → 末音 onEnd
+      const silent = !realBuffer;
 
       const offset256 = e.playTime - this._currentPosition;
       const offsetSec = this._256ToSecWithRate(offset256);
       const contextPlayTime = this._context.currentTime + offsetSec;
       const durationSec = this._256ToSec(e.duration);
+      const env = this._playEnvelope;
+      const releaseSec = env && !silent ? env.release : 0;
+      const buffer = realBuffer ?? this._getSilentBuffer(durationSec + releaseSec);
 
       const source = this._context.createBufferSource();
-      // midi = 0 的情况下，这里buffer是null, 但是没关系，不会报错
       source.buffer = buffer;
       const noteGain = this._context.createGain();
-      const velocity = e.velocity ?? 1;
+      const velocity = silent ? 0 : (e.velocity ?? 1);
       noteGain.gain.value = velocity;
       source.connect(noteGain);
       const keyTrimmed = e.gainNodeKey?.trim();
@@ -781,9 +835,7 @@ class NPlayer {
       } else {
         noteGain.connect(this._gainNode);
       }
-      source.start(contextPlayTime);
-      const env = this._playEnvelope;
-      const stopAt = env
+      const stopAt = env && !silent
           ? scheduleSequenceNoteEnvelope(
                 noteGain.gain,
                 contextPlayTime,
@@ -792,10 +844,10 @@ class NPlayer {
                 env,
             ).stopAt
           : contextPlayTime + durationSec;
-      source.stop(stopAt);
       this._sourceMap.set(e.id, {source, noteGain, playContextTime: contextPlayTime});
 
       const itemEnd = e.end;
+      // 必须在 start 之前绑定：1 帧级短 buffer / when≈now 时 ended 可能在绑定前就丢掉
       source.onended = () => {
         this._sourceMap.delete(e.id);
         try {
@@ -818,6 +870,8 @@ class NPlayer {
         );
         this._onProgressEnd && this._onProgressEnd(progress, e.data);
       };
+      source.start(contextPlayTime);
+      source.stop(stopAt);
       if (!this._timerMap.has(e.id)) {
         // 这里函数执行时，表示某个音符开始播放时
         const timerId = setTimeout(() => {

@@ -1,9 +1,12 @@
 import {
   DoubleNoteAffiliatedSymbolNameEnum,
+  mirrorSlurData,
   MusicScoreTypeEnum,
   numberNotationSlurGeom,
+  slurVDomPatch,
 } from '@deciphony/renderer'
-import type {DoubleNoteAffiliatedSymbol, MusicScore, SlotData, VDom} from '@deciphony/renderer'
+import type {DoubleNoteAffiliatedSymbol, MusicScore, SlurMirror, SlotData, VDom} from '@deciphony/renderer'
+import {scoreWriteGateFor, type UpdateVDomFn} from './scoreWriteGate'
 
 export type SlurHandleKind = 'start' | 'control' | 'end'
 
@@ -47,16 +50,31 @@ export function findSlurSymbol(
   return sym
 }
 
-function ensureSlurData(sym: DoubleNoteAffiliatedSymbol) {
-  if (!sym.data.slur) {
-    sym.data.slur = {
-      relativeStartPoint: {x: 0, y: 0},
-      relativeEndPoint: {x: 0, y: 0},
-      relativeControlPoint: {x: 0, y: 0},
-      thickness: 2,
-    }
+function pt(p?: { x: number, y: number }): { x: number, y: number } {
+  return {x: p?.x ?? 0, y: p?.y ?? 0}
+}
+
+function cloneSlur(slur: NonNullable<VDom['special']['slur']>): SlurMirror {
+  return {
+    ...slur,
+    relativeStartPoint: pt(slur.relativeStartPoint),
+    relativeEndPoint: pt(slur.relativeEndPoint),
+    relativeControlPoint: pt(slur.relativeControlPoint),
+    relativeTextPoint: slur.relativeTextPoint ? pt(slur.relativeTextPoint) : undefined,
   }
-  return sym.data.slur
+}
+
+function samePoint(a?: { x: number, y: number }, b?: { x: number, y: number }): boolean {
+  return (a?.x ?? 0) === (b?.x ?? 0) && (a?.y ?? 0) === (b?.y ?? 0)
+}
+
+function sameSlur(a: SlurMirror, b: SlurMirror): boolean {
+  return samePoint(a.relativeStartPoint, b.relativeStartPoint)
+    && samePoint(a.relativeEndPoint, b.relativeEndPoint)
+    && samePoint(a.relativeControlPoint, b.relativeControlPoint)
+    && a.thickness === b.thickness
+    && a.type === b.type
+    && samePoint(a.relativeTextPoint, b.relativeTextPoint)
 }
 
 /** 与 slur.vue 一致：五线谱控制点在中点上方；简谱只有左右端 x */
@@ -114,44 +132,85 @@ export function createSlurDragSession(
   }
 }
 
-export function updateSlurDragFromPointer(
+/** 由当前 vDom（含尚未落盘的预览）和指针算出下一帧连音线，不写 musicScore */
+export function nextSlurGeomFromPointer(
   session: SlurDragSession,
-  musicScore: MusicScore,
   vdom: VDom,
   svgX: number,
   svgY: number,
   notationType?: MusicScoreTypeEnum,
-): boolean {
-  const sym = findSlurSymbol(musicScore, session.slurId)
-  if (!sym) return false
-  const slur = ensureSlurData(sym)
+): SlurMirror | null {
+  const prev = vdom.special?.slur
+  if (!prev) return null
   const jianpu = notationType === MusicScoreTypeEnum.NumberNotation
+  const next = cloneSlur(prev)
 
   if (session.handle === 'start') {
-    slur.relativeStartPoint = {
+    next.relativeStartPoint = {
       x: svgX - session.baseStart.x,
       y: jianpu ? 0 : svgY - session.baseStart.y,
     }
-    return true
+    return next
   }
 
   if (session.handle === 'end') {
-    slur.relativeEndPoint = {
+    next.relativeEndPoint = {
       x: svgX - session.baseEnd.x,
       y: jianpu ? 0 : svgY - session.baseEnd.y,
     }
-    return true
+    return next
   }
 
-  if (jianpu) return false
+  if (jianpu) return null
 
   const s = vdom.startPoint
   const e = vdom.endPoint
   const defaultCx = (s.x + e.x) / 2
   const defaultCy = Math.min(s.y, e.y) - Math.max(8, Math.abs(e.x - s.x) * 0.2)
-  slur.relativeControlPoint = {
+  next.relativeControlPoint = {
     x: svgX - defaultCx,
     y: svgY - defaultCy,
   }
-  return true
+  return next
+}
+
+function commitSlurGeom(musicScore: MusicScore, slurId: string, geom: SlurMirror) {
+  const sym = findSlurSymbol(musicScore, slurId)
+  if (!sym) return
+  const current = sym.data.slur
+  if (current && sameSlur(cloneSlur(current), geom)) return
+  sym.data.slur = {
+    relativeStartPoint: pt(geom.relativeStartPoint),
+    relativeEndPoint: pt(geom.relativeEndPoint),
+    relativeControlPoint: pt(geom.relativeControlPoint),
+    thickness: geom.thickness,
+    ...(geom.type != null ? {type: geom.type} : {}),
+    ...(geom.relativeTextPoint ? {relativeTextPoint: pt(geom.relativeTextPoint)} : {}),
+  } as NonNullable<DoubleNoteAffiliatedSymbol['data']['slur']>
+}
+
+/**
+ * 拖连音线：立刻 updateVDom(id, patch) 原地改弧线；把手位置由返回值交给编辑器覆盖。
+ * 不改编辑器的 vDomList。musicScore 上的 data.slur 等 100ms，只写最后一次。
+ */
+export function previewSlurDrag(
+  musicScore: MusicScore,
+  getUpdateVDom: () => UpdateVDomFn | undefined,
+  session: SlurDragSession,
+  vdom: VDom,
+  svgX: number,
+  svgY: number,
+  notationType?: MusicScoreTypeEnum,
+): SlurHandlePoints | null {
+  const geom = nextSlurGeomFromPointer(session, vdom, svgX, svgY, notationType)
+  if (!geom) return null
+  const patch = slurVDomPatch(vdom, geom)
+  if (!patch) return null
+  scoreWriteGateFor(musicScore, getUpdateVDom).patch({
+    key: `slur:${session.slurId}:geom`,
+    mirror: {targetId: session.slurId, patch},
+    commit: () => commitSlurGeom(musicScore, session.slurId, geom),
+  })
+  const previewed = mirrorSlurData([vdom], session.slurId, geom)[0]
+  return previewed ? computeSlurHandlePoints(previewed, notationType) : null
 }

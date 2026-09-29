@@ -1,4 +1,4 @@
-import {isNoteSymbol} from '@/index'
+import {isNoteSymbol, slotSymbol} from '@/index'
 import type {
     MusicScore,
     NoteNumber,
@@ -13,8 +13,11 @@ import {
     locateNotesInfoById,
     locateNotesNumberInfoById,
     locateSingleStaff,
+    locateSlotAffiliatedSymbolById,
 } from '@deciphony/extensions/dr-edit/score-builder/locate'
 import {locateTabBendById, locateTabNoteInfoById} from '@deciphony/extensions/dr-edit/score-builder/tabNote'
+import {locateDrumNotesInfoById, locateDrumRestById} from '@deciphony/extensions/dr-edit/score-builder/drumNote'
+import {getMeasureSlots, MusicScoreTypeEnum} from '@deciphony/renderer'
 
 const MEASURE_SYMBOL_KEYS = [
     'barline_f',
@@ -68,7 +71,7 @@ function findNoteSlotById(musicScore: MusicScore, id: string) {
     for (const grandStaff of musicScore.grandStaffs) {
         for (const singleStaff of grandStaff.staves) {
             for (const measure of singleStaff.measures) {
-                for (const slot of measure.notes) {
+                for (const slot of getMeasureSlots(measure)) {
                     if (slot.id === id) {
                         return locateNoteSlot(musicScore, slot)
                     }
@@ -99,6 +102,33 @@ function findAffiliatedSymbolById(musicScore: MusicScore, id: string) {
     return musicScore.affiliatedSymbols.find((sym) => sym.id === id) ?? null
 }
 
+/** 鼓谱音符头 / 休止符在 up、down 两个声部里查找 */
+function drumSlotDataFromVDom(musicScore: MusicScore, tag: VDom['tag'], id: string): SlotData | null {
+    if (tag === 'noteHead' || tag === 'noteStem' || tag === 'noteTail') {
+        const located = locateDrumNotesInfoById(musicScore, id)
+        if (!located) return null
+        return buildSlotData(musicScore, {
+            grandStaff: located.grandStaff,
+            singleStaff: located.singleStaff,
+            measure: located.measure,
+            note: located.note as unknown as SlotData['note'],
+            info: located.info as unknown as SlotData['info'],
+            self: located.info as unknown as SlotData['self'],
+        })
+    }
+    if (tag === 'rest') {
+        const located = locateDrumRestById(musicScore, id)
+        if (!located) return null
+        return buildSlotData(musicScore, {
+            grandStaff: located.grandStaff,
+            singleStaff: located.singleStaff,
+            measure: located.measure,
+            self: located.rest as unknown as SlotData['self'],
+        })
+    }
+    return null
+}
+
 /** 将 dr-click 的 vDom 解析为 SlotData，供编辑选中态使用 */
 export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData | null {
     if (vdom.tag === 'slot' && vdom.slotData) {
@@ -109,6 +139,20 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
     if (!id) return null
 
     if (vdom.tag === 'affiliation' && vdom.special?.slur) {
+        const sym = findAffiliatedSymbolById(musicScore, id)
+        if (sym) {
+            return buildSlotData(musicScore, {self: sym as SlotData['self']})
+        }
+    }
+
+    if (vdom.tag === 'affiliation' && (vdom.special?.arpeggio || vdom.special?.strumming)) {
+        const located = locateSlotAffiliatedSymbolById(musicScore, id)
+        if (located) {
+            return buildSlotData(musicScore, {self: located.symbol as unknown as SlotData['self']})
+        }
+    }
+
+    if (vdom.tag === 'affiliation' && vdom.special?.pedal) {
         const sym = findAffiliatedSymbolById(musicScore, id)
         if (sym) {
             return buildSlotData(musicScore, {self: sym as SlotData['self']})
@@ -148,6 +192,11 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
                 self: located.bend as unknown as SlotData['self'],
             })
         }
+    }
+
+    if (musicScore.type === MusicScoreTypeEnum.DrumNotation) {
+        const drumSlot = drumSlotDataFromVDom(musicScore, vdom.tag, id)
+        if (drumSlot) return drumSlot
     }
 
     if (vdom.tag === 'noteHead' || vdom.tag === 'noteStem' || vdom.tag === 'noteTail') {
@@ -212,13 +261,14 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
     const noteLocated = findNoteSlotById(musicScore, id)
     if (noteLocated) {
         const slot = noteLocated.slot
-        const note = isNoteSymbol(slot) ? slot : null
+        const body = slotSymbol(slot)
+        const note = isNoteSymbol(body) ? body : null
         return buildSlotData(musicScore, {
             grandStaff: noteLocated.grandStaff,
             singleStaff: noteLocated.singleStaff,
             measure: noteLocated.measure,
             note,
-            self: (note ?? slot) as SlotData['self'],
+            self: (note ?? body ?? slot) as SlotData['self'],
         })
     }
 

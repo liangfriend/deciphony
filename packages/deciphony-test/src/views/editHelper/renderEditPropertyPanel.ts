@@ -1,7 +1,13 @@
-import type {SlotData} from '@deciphony/renderer'
+import type {MeasureNoteSymbol, SlotData} from '@deciphony/renderer'
+import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import {isDrumNotesInfo, isDrumRestBody} from '@deciphony/extensions/dr-edit'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
 import {isSlurSelected} from './renderEditSlurDrag'
+import {isArpeggioSelected} from './renderEditArpeggioDrag'
+import {isStrummingSelected} from './renderEditStrummingDrag'
+import {isPedalSelected} from './renderEditPedalDrag'
+import {isPitchSelected} from './renderEditPitchDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
 import {isBendSelected, isTabInfoSelected, isTabScore} from './tab/renderEditTabSelection'
@@ -16,6 +22,8 @@ export type PropertyPanelKind =
   | 'tabNote'
   | 'slur'
   | 'bend'
+  | 'drumNote'
+  | 'drumRest'
   | null
 
 /**
@@ -29,10 +37,21 @@ export function resolvePropertyPanelKind(selected: SlotData | null): PropertyPan
     if (isTabInfoSelected(selected)) return 'tabNote'
     if (isMeasureAddMode(selected)) return 'tabMeasure'
   }
+  if (selected?.musicScore.type === MusicScoreTypeEnum.DrumNotation) {
+    if (isMeasureAddMode(selected)) return 'measure'
+    if (selected.measure && isDrumNotesInfo(selected.info) && selected.self === selected.info) return 'drumNote'
+    if (selected.measure && isDrumRestBody(selected.self as unknown as MeasureNoteSymbol)) return 'drumRest'
+    if (isVoltaSelected(selected)) return 'volta'
+    return null
+  }
   if (isMeasureAddMode(selected)) return 'measure'
   if (isNoteHeadSelected(selected)) return 'noteHead'
   if (isNumberHeadSelected(selected)) return 'numberHead'
   if (isVoltaSelected(selected)) return 'volta'
   if (isSlurSelected(selected)) return null
+  if (isArpeggioSelected(selected)) return null
+  if (isStrummingSelected(selected)) return null
+  if (isPedalSelected(selected)) return null
+  if (isPitchSelected(selected)) return null
   return null
 }

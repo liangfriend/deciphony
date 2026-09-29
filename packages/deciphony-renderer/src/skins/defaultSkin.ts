@@ -1,6 +1,14 @@
 import defaultJsonSkin from './default.json'
-import {NumberNotationSkinPack, SkinPack, StandardStaffSkinPack, Tab4SkinPack, Tab6SkinPack} from "@/types/common";
+import {
+  DrumNotationSkinPack,
+  NumberNotationSkinPack,
+  SkinPack,
+  StandardStaffSkinPack,
+  Tab4SkinPack,
+  Tab6SkinPack
+} from "@/types/common";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
+import {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSkinKeyEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {FRACTION_TIME_SIGNATURE_KEYS} from "@/utils/timeSignature";
@@ -321,7 +329,8 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
                                  y
                                }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${SHARP_INNER}</g>`).join('');
     const w = sharp.w + (sharpCount - 1) * KEY_SIG_SHARP_OFFSET_X;
-    return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
+    const r = sharpCount * 4;
+    return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: r, widthRatioForMeasure: r};
   }
   if (flatCount > 0) {
     const items: { x: number; y: number }[] = [];
@@ -334,7 +343,8 @@ function makeKeySignature(key: StandardStaffSkinKeyEnum): {
                                  y
                                }) => `<g transform="translate(${x.toFixed(2)},${y.toFixed(2)})">${FLAT_INNER}</g>`).join('');
     const w = flat.w + (flatCount - 1) * KEY_SIG_FLAT_OFFSET_X;
-    return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
+    const r = flatCount * 4;
+    return {content, w, h: KEY_SIG_H, skinKey: key, widthRatio: r, widthRatioForMeasure: r};
   }
   return {content: '', w: 0, h: STAFF_HEIGHT, skinKey: key, widthRatio: 0, widthRatioForMeasure: 0};
 }
@@ -1011,6 +1021,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     w: 0,
     h: 45,
     skinKey: StandardStaffSkinKeyEnum.C,
+    widthRatio: 0,
+    widthRatioForMeasure: 0,
   },
   [StandardStaffSkinKeyEnum.C_sharp]: {
     content: `
@@ -1075,6 +1087,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.C_sharp,
+    widthRatio: 28,
+    widthRatioForMeasure: 28,
   },
   [StandardStaffSkinKeyEnum.D_flat]: {
     content: `
@@ -1122,6 +1136,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.D_flat,
+    widthRatio: 20,
+    widthRatioForMeasure: 20,
   },
   [StandardStaffSkinKeyEnum.D]: {
     content: `
@@ -1147,6 +1163,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.D,
+    widthRatio: 8,
+    widthRatioForMeasure: 8,
   },
   [StandardStaffSkinKeyEnum.E_flat]: {
     content: `
@@ -1179,6 +1197,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.E_flat,
+    widthRatio: 12,
+    widthRatioForMeasure: 12,
   },
   [StandardStaffSkinKeyEnum.E]: {
     content: `
@@ -1220,6 +1240,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.E,
+    widthRatio: 16,
+    widthRatioForMeasure: 16,
   },
   [StandardStaffSkinKeyEnum.F]: {
     content: `
@@ -1236,6 +1258,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.F,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
   },
   [StandardStaffSkinKeyEnum.F_sharp]: {
     content: `
@@ -1293,6 +1317,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.F_sharp,
+    widthRatio: 24,
+    widthRatioForMeasure: 24,
   },
   [StandardStaffSkinKeyEnum.G_flat]: {
     content: `
@@ -1348,6 +1374,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.G_flat,
+    widthRatio: 24,
+    widthRatioForMeasure: 24,
   },
   [StandardStaffSkinKeyEnum.G]: {
     content: `
@@ -1365,6 +1393,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.G,
+    widthRatio: 4,
+    widthRatioForMeasure: 4,
   },
   [StandardStaffSkinKeyEnum.A_flat]: {
     content: `
@@ -1405,6 +1435,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.A_flat,
+    widthRatio: 16,
+    widthRatioForMeasure: 16,
   },
   [StandardStaffSkinKeyEnum.A]: {
     content: `
@@ -1438,6 +1470,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.A,
+    widthRatio: 12,
+    widthRatioForMeasure: 12,
   },
   [StandardStaffSkinKeyEnum.B_flat]: {
     content: `
@@ -1462,6 +1496,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.B_flat,
+    widthRatio: 8,
+    widthRatioForMeasure: 8,
   },
   [StandardStaffSkinKeyEnum.B]: {
     content: `
@@ -1511,6 +1547,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.B,
+    widthRatio: 20,
+    widthRatioForMeasure: 20,
   },
   [StandardStaffSkinKeyEnum.C_flat]: {
     content: `
@@ -1574,6 +1612,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 87,
 
     skinKey: StandardStaffSkinKeyEnum.C_flat,
+    widthRatio: 28,
+    widthRatioForMeasure: 28,
   },
 
   // 闭合线
@@ -1785,6 +1825,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
   [StandardStaffSkinKeyEnum.NoteBeam]: makeColorSkin('black', StandardStaffSkinKeyEnum.NoteBeam),
   [StandardStaffSkinKeyEnum.Slur]: makeColorSkin('black', StandardStaffSkinKeyEnum.Slur),
   [StandardStaffSkinKeyEnum.Volta]: makeColorSkin('black', StandardStaffSkinKeyEnum.Volta),
+  [StandardStaffSkinKeyEnum.Pedal]: makeColorSkin('black', StandardStaffSkinKeyEnum.Pedal),
+  [StandardStaffSkinKeyEnum.Strumming]: makeColorSkin('black', StandardStaffSkinKeyEnum.Strumming),
   // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
   [StandardStaffSkinKeyEnum.Accent_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -2069,6 +2111,112 @@ const standardStaffSkin: StandardStaffSkinPack = {
     skinKey: StandardStaffSkinKeyEnum.Dyn_FZ,
   },
 } as StandardStaffSkinPack;
+
+// ======================================鼓谱================================================
+
+// 鼓谱音符头：按 DrumHeadTypeEnum 取皮肤，不随时值变化；Normal 复用五线谱四分音符头
+const DRUM_HEAD_STROKE = `stroke="black" stroke-width="1.2" fill="none"`;
+const drumHeads = {
+  [DrumNotationSkinKeyEnum.DrumHead_normal]: {
+    ...makeNoteHead(StandardStaffSkinKeyEnum.NoteHead_3),
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_normal,
+  },
+  [DrumNotationSkinKeyEnum.DrumHead_cross]: {
+    content: `<path d="M1,1 L10,10 M10,1 L1,10" stroke="black" stroke-width="1.6" stroke-linecap="round" fill="none"/>`,
+    w: 11,
+    h: 11,
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_cross,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+  },
+  [DrumNotationSkinKeyEnum.DrumHead_circledCross]: {
+    content: `<circle cx="6" cy="6" r="5.4" ${DRUM_HEAD_STROKE}/>
+<path d="M2.18,2.18 L9.82,9.82 M9.82,2.18 L2.18,9.82" ${DRUM_HEAD_STROKE}/>`,
+    w: 12,
+    h: 12,
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_circledCross,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+  },
+  [DrumNotationSkinKeyEnum.DrumHead_circledSlash]: {
+    content: `<circle cx="6" cy="6" r="5.4" ${DRUM_HEAD_STROKE}/>
+<path d="M2.18,9.82 L9.82,2.18" ${DRUM_HEAD_STROKE}/>`,
+    w: 12,
+    h: 12,
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_circledSlash,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+  },
+  [DrumNotationSkinKeyEnum.DrumHead_triangle]: {
+    content: `<path d="M6,0 L12,11 L0,11 Z" fill="black"/>`,
+    w: 12,
+    h: 11,
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_triangle,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+  },
+  [DrumNotationSkinKeyEnum.DrumHead_diamond]: {
+    content: `<path d="M6,0 L12,6 L6,12 L0,6 Z" fill="black"/>`,
+    w: 12,
+    h: 12,
+    skinKey: DrumNotationSkinKeyEnum.DrumHead_diamond,
+    widthRatio: 6,
+    widthRatioForMeasure: 6,
+  },
+};
+
+/** 鼓谱谱号：两个矩形，高 2/5 小节高，单个宽略小于 1/5 小节高；后置 / 音符前谱号按 0.75 缩小 */
+function makePercussionClef(key: DrumNotationSkinKeyEnum, scale: number) {
+  const barH = STAFF_HEIGHT * 2 / 5 * scale;
+  const barW = 8 * scale;
+  const gap = 4.5 * scale;
+  const padL = 4 * scale;
+  const padR = 5.5 * scale;
+  return {
+    content: `<rect x="${padL}" y="0" width="${barW}" height="${barH}" fill="black"/>
+<rect x="${padL + barW + gap}" y="0" width="${barW}" height="${barH}" fill="black"/>`,
+    w: padL + barW * 2 + gap + padR,
+    h: barH,
+    skinKey: key,
+    widthRatio: 10,
+    widthRatioForMeasure: 18,
+  };
+}
+
+/** 长休止符：竖线高 = node.h（2/4 小节高），横杠高 = node.h / 2（1/4 小节高），宽度随布局 node.w */
+const LONG_REST_LINE_W = 1.5;
+const LONG_REST_BAR = `<rect x="0" y="calc(node.h/4)" width="node.w" height="calc(node.h/2)" fill="black"/>`;
+/** 头 / 内容右侧紧接下一小节的横杠：多画 1px 盖住相邻 rect 之间的抗锯齿缝 */
+const LONG_REST_BAR_JOINED = `<rect x="0" y="calc(node.h/4)" width="calc(node.w+1)" height="calc(node.h/2)" fill="black"/>`;
+const LONG_REST_LEFT = `<rect x="0" y="0" width="${LONG_REST_LINE_W}" height="node.h" fill="black"/>`;
+const LONG_REST_RIGHT = `<rect x="calc(node.w-${LONG_REST_LINE_W})" y="0" width="${LONG_REST_LINE_W}" height="node.h" fill="black"/>`;
+
+function makeLongRest(key: DrumNotationSkinKeyEnum, content: string) {
+  return {content, w: STAFF_HEIGHT * 0.7, h: STAFF_HEIGHT / 2, skinKey: key};
+}
+
+const {
+  [StandardStaffSkinKeyEnum.NoteHead_1]: _noteHead1,
+  [StandardStaffSkinKeyEnum.NoteHead_2]: _noteHead2,
+  [StandardStaffSkinKeyEnum.NoteHead_3]: _noteHead3,
+  ...staffSkinWithoutNoteHeads
+} = standardStaffSkin;
+
+/** 鼓谱默认皮肤：除音符头 / 鼓谱谱号 / 长休止符外沿用五线谱 */
+const drumNotationSkin = {
+  ...staffSkinWithoutNoteHeads,
+  ...drumHeads,
+  [DrumNotationSkinKeyEnum.Percussion_f]: makePercussionClef(DrumNotationSkinKeyEnum.Percussion_f, 1),
+  [DrumNotationSkinKeyEnum.Percussion]: makePercussionClef(DrumNotationSkinKeyEnum.Percussion, 0.75),
+  [DrumNotationSkinKeyEnum.LongRest_complete]: makeLongRest(
+    DrumNotationSkinKeyEnum.LongRest_complete,
+    LONG_REST_LEFT + LONG_REST_BAR + LONG_REST_RIGHT,
+  ),
+  [DrumNotationSkinKeyEnum.LongRest_head]: makeLongRest(DrumNotationSkinKeyEnum.LongRest_head, LONG_REST_LEFT + LONG_REST_BAR_JOINED),
+  [DrumNotationSkinKeyEnum.LongRest_content]: makeLongRest(DrumNotationSkinKeyEnum.LongRest_content, LONG_REST_BAR_JOINED),
+  [DrumNotationSkinKeyEnum.LongRest_tail]: makeLongRest(DrumNotationSkinKeyEnum.LongRest_tail, LONG_REST_BAR + LONG_REST_RIGHT),
+  [DrumNotationSkinKeyEnum.LongRestNumber]: makeColorSkin('black', DrumNotationSkinKeyEnum.LongRestNumber),
+} as unknown as DrumNotationSkinPack;
 
 // 简谱拍号：复用五线谱的上下数字样式
 function makeNumberNotationTimeSignature(top: string, bottom: string, key: NumberNotationSkinKeyEnum) {
@@ -2524,56 +2672,56 @@ const numberNotationSkin: NumberNotationSkinPack = {
 <g transform="translate(0.0000, 17.2727)">
         <text>1=G</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.G, widthRatio: 4, widthRatioForMeasure: 4,
   },
   [NumberNotationSkinKeyEnum.D]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=D</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.D, widthRatio: 8, widthRatioForMeasure: 8,
   },
   [NumberNotationSkinKeyEnum.A]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=A</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.A, widthRatio: 12, widthRatioForMeasure: 12,
   },
   [NumberNotationSkinKeyEnum.E]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=E</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.E, widthRatio: 16, widthRatioForMeasure: 16,
   },
   [NumberNotationSkinKeyEnum.B]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=B</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B, widthRatio: 20, widthRatioForMeasure: 20,
   },
   [NumberNotationSkinKeyEnum.F_sharp]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=F♯</text>
 </g>
-</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F_sharp, widthRatio: 24, widthRatioForMeasure: 24,
   },
   [NumberNotationSkinKeyEnum.F]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=F</text>
 </g>
-</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 28.79, h: 22.73, skinKey: NumberNotationSkinKeyEnum.F, widthRatio: 4, widthRatioForMeasure: 4,
   },
   [NumberNotationSkinKeyEnum.B_flat]: {
     content: `<g transform="translate(3, 0)">
 <g transform="translate(0.0000, 17.2727)">
         <text>1=B♭</text>
 </g>
-</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 0, widthRatioForMeasure: 0,
+</g>`, w: 42.6, h: 22.73, skinKey: NumberNotationSkinKeyEnum.B_flat, widthRatio: 8, widthRatioForMeasure: 8,
   },
   [NumberNotationSkinKeyEnum.E_flat]: {
     content: `<g transform="translate(3, 0)">
@@ -2583,7 +2731,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 42.6,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.E_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.E_flat, widthRatio: 12, widthRatioForMeasure: 12,
   },
   [NumberNotationSkinKeyEnum.A_flat]: {
     content: `<g transform="translate(3, 0)">
@@ -2593,7 +2741,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.A_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.A_flat, widthRatio: 16, widthRatioForMeasure: 16,
   },
   [NumberNotationSkinKeyEnum.C_sharp]: {
     content: `<g transform="translate(3, 0)">
@@ -2603,7 +2751,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.C_sharp, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.C_sharp, widthRatio: 28, widthRatioForMeasure: 28,
   },
   [NumberNotationSkinKeyEnum.D_flat]: {
     content: `<g transform="translate(3, 0)">
@@ -2613,7 +2761,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.D_flat, widthRatio: 20, widthRatioForMeasure: 20,
   },
   [NumberNotationSkinKeyEnum.G_flat]: {
     content: `<g transform="translate(3, 0)">
@@ -2623,7 +2771,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.G_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.G_flat, widthRatio: 24, widthRatioForMeasure: 24,
   },
   [NumberNotationSkinKeyEnum.C_flat]: {
     content: `<g transform="translate(3, 0)">
@@ -2633,7 +2781,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
 </g>`,
     w: 44.28,
     h: 22.73,
-    skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 0, widthRatioForMeasure: 0,
+    skinKey: NumberNotationSkinKeyEnum.C_flat, widthRatio: 28, widthRatioForMeasure: 28,
   },
   /**
    * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
@@ -2738,6 +2886,8 @@ const numberNotationSkin: NumberNotationSkinPack = {
   },
   [NumberNotationSkinKeyEnum.Slur]: makeColorSkin('black', NumberNotationSkinKeyEnum.Slur),
   [NumberNotationSkinKeyEnum.Volta]: makeColorSkin('black', NumberNotationSkinKeyEnum.Volta),
+  [NumberNotationSkinKeyEnum.Pedal]: makeColorSkin('black', NumberNotationSkinKeyEnum.Pedal),
+  [NumberNotationSkinKeyEnum.Strumming]: makeColorSkin('black', NumberNotationSkinKeyEnum.Strumming),
   // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
   [NumberNotationSkinKeyEnum.Accent_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -3027,6 +3177,7 @@ export const defaultSkin: SkinPack = {
   numberNotation: numberNotationSkin,
   tab6: defaultJsonSkin.tab6 as Tab6SkinPack,
   tab4: defaultJsonSkin.tab4 as Tab4SkinPack,
+  drumNotation: drumNotationSkin,
 };
 
 /** 将皮肤包中所有 fill="black"、stroke="black" 替换为目标颜色，并为隐式黑色元素包一层 g 以应用颜色 */
@@ -3059,6 +3210,7 @@ function applySkinColor(color: string): SkinPack {
     numberNotation: numberNotationSkin ? mapPack(numberNotationSkin, MusicScoreTypeEnum.NumberNotation) : undefined,
     tab6: defaultSkin.tab6 ? mapPack(defaultSkin.tab6, MusicScoreTypeEnum.Tab6) : undefined,
     tab4: defaultSkin.tab4 ? mapPack(defaultSkin.tab4, MusicScoreTypeEnum.Tab4) : undefined,
+    drumNotation: defaultSkin.drumNotation ? mapPack(defaultSkin.drumNotation, MusicScoreTypeEnum.DrumNotation) : undefined,
   };
 }
 

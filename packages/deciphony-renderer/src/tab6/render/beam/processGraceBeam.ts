@@ -10,9 +10,9 @@
 
 import type {Tab6SkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
-import type {NoteSymbol, NotesInfo, StaffSlot} from "@/types/MusicScoreType";
+import type {MeasureNoteSlot, NoteSymbol, NotesInfo} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
-import {isNoteSymbol} from "../utils/staffSlot";
+import {slotIsNoteSymbol, slotSymbol} from "../utils/staffSlot";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
@@ -22,6 +22,7 @@ import {GRACE_NOTE_SCALE} from "@/render/graceNote";
 
 /**
  * 倚音连杠分组，规则同 processBeam.buildBeamGroups（视觉左→右扫描）。
+ * 额外要求相邻倚音 direction 相同；方向不一致即使 Combined 也不连杠。
  * 见 processBeam 中 beamType 说明。
  */
 function buildBeamGroupsLeftToRight(list: NotesInfo[]): NotesInfo[][] {
@@ -34,9 +35,11 @@ function buildBeamGroupsLeftToRight(list: NotesInfo[]): NotesInfo[][] {
         const preHasTail = pre != null && pre.chronaxie <= 32;
         const nextHasTail = next != null && next.chronaxie <= 32;
         const canBeamWithNext = next != null && hasTail && nextHasTail
+            && ni.direction === next.direction
             && ni.beamType !== BeamTypeEnum.None
             && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(next.beamType);
         const canBeamWithPre = pre != null && preHasTail && hasTail
+            && ni.direction === pre.direction
             && pre.beamType !== BeamTypeEnum.None
             && ![BeamTypeEnum.None, BeamTypeEnum.OnlyRight].includes(ni.beamType);
         if (canBeamWithPre && groups.length > 0) {
@@ -58,13 +61,14 @@ function buildGraceBeamGroups(graceList: NotesInfo[], isBefore: boolean): NotesI
 }
 
 /** 扫描小节，收集所有倚音连杠组（吉他谱符干向下） */
-function collectGraceBeamGroups(measure: { notes: StaffSlot[] }): Array<{
+function collectGraceBeamGroups(measure: { notes: MeasureNoteSlot[] }): Array<{
     visualOrder: NotesInfo[];
     isBefore: boolean;
 }> {
     const result: Array<{ visualOrder: NotesInfo[]; isBefore: boolean }> = [];
-    for (const slot of measure.notes) {
-        if (!isNoteSymbol(slot)) continue;
+    for (const measureSlot of measure.notes) {
+        if (!slotIsNoteSymbol(measureSlot)) continue;
+        const slot = slotSymbol(measureSlot) as NoteSymbol;
         if (slot.graceNotes?.length) {
             for (const g of buildGraceBeamGroups(slot.graceNotes, true)) {
                 result.push({visualOrder: g, isBefore: true});
@@ -115,7 +119,7 @@ function getGraceStem(nodeIdMap: NodeIdMap, vDoms: VDom[], niId: string): VDom |
 }
 
 export function processGraceBeam(params: {
-    measure: { notes: StaffSlot[] };
+    measure: { notes: MeasureNoteSlot[] };
     nodeIdMap: NodeIdMap;
     vDoms: VDom[];
     /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */

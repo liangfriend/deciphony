@@ -1,4 +1,4 @@
-export {CHRONAXIES, DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME} from './constants';
+export {CHRONAXIES, DEFAULT_MEASURE_HEIGHT, DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME, defaultSingleSlotEndPoint} from './constants';
 export {newId, assertIndex, clampInsertIndex} from './id';
 export * from './types';
 export * from './locate';
@@ -45,3 +45,4 @@ export {
     tabStringCount,
 } from './tabNote';
 export type {CreateTabNoteOptions, LocatedTabNoteInfo, TabAddKind} from './tabNote';
+export * from './drumNote';

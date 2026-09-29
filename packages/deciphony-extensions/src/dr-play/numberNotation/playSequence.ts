@@ -1,8 +1,8 @@
-import type {Measure, MusicScore, NoteNumber, NotesNumberInfo} from '@deciphony/renderer'
-import {KeySignatureTypeEnum} from '@deciphony/renderer'
+import type {Measure, MeasureNoteSlot, MusicScore, NoteNumber, NotesNumberInfo} from '@deciphony/renderer'
+import {KeySignatureTypeEnum, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
 import {isNoteNumberSlot, isSlotRestLike} from '../../dr-edit/score-builder/noteSlot'
 import {getMeasurePositions, getNoteNumberMidi, getPlayMeasureIndexes} from '../../scoreUtil'
-import {applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
+import {applyPitchOctaveOffset, applySlurTieRealDuration, GRACE_PLAY_DURATION, initialPlayKeySignature, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 
@@ -121,20 +121,21 @@ function appendMeasureSequence(
   applyMeasureKeySignatureFront(state, measure)
   let playTime = measureStart
 
-  for (const slot of measure.notes) {
-    if (!isNoteNumberSlot(slot)) continue
+  for (const measureSlot of getMeasureSlots(measure)) {
+    if (!isNoteNumberSlot(measureSlot)) continue
+    const note = slotSymbol(measureSlot) as NoteNumber
 
-    if (isSlotRestLike(slot)) {
-      const lead = slot.notesInfo[0]
+    if (isSlotRestLike(measureSlot)) {
+      const lead = note.notesInfo[0]
       const duration = getDuration(lead?.chronaxie ?? 64, lead ? getInfoDotCount(lead) : 0)
-      seq.push({note_id: lead?.id ?? slot.id, midi: 0, duration, playTime})
+      seq.push({note_id: lead?.id ?? measureSlot.id, midi: 0, duration, playTime})
       playTime += duration
       continue
     }
 
     playTime = appendNoteNumberSequence(
       seq,
-      slot,
+      note,
       playTime,
       staveIndex,
       state.curKeySignature,
@@ -186,5 +187,6 @@ export function getNumberNotationPlaySequence(musicScoreData: MusicScore): DR_pl
   }
 
   applySlurTieRealDuration(seq, musicScoreData, noteStaveIndex)
+  applyPitchOctaveOffset(seq, musicScoreData)
   return seq.sort((a, b) => a.playTime - b.playTime)
 }

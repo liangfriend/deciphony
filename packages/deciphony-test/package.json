@@ -25,7 +25,7 @@
     "@deciphony/extensions": "workspace:*",
     "@deciphony/tune-judge": "workspace:*",
     "@deciphony/finger": "workspace:*",
-    "typescript": "^5.0.2",
+    "@deciphony/puff": "workspace:*",    "typescript": "^5.0.2",
     "vite": "^7.0.4",
     "vue-tsc": "^2.2.12"
   }

@@ -1,25 +1,27 @@
-import {isNoteRest, isNoteSymbol} from '@deciphony/renderer';
+import {getMeasureNoteList, isNoteRest, isNoteSymbol, isNoteNumberSymbol, slotSymbol} from '@deciphony/renderer';
 import type {Measure, MeasureNoteSlot, NoteNumber, NoteRest, NotesInfo, NoteSymbol, StaffSlot} from '@deciphony/renderer';
 import {assertIndex} from './id';
 import {createNoteNumber, createNoteRest, createNoteSymbol, createNotesInfo, createNotesNumberInfo} from './factories';
 import {computeMeasureOnsetBefore} from './autoBeam';
 import type {CreateNoteNumberOptions, CreateNoteRestOptions, CreateNoteSymbolOptions} from './types';
 
-/** 在小节指定下标插入音符位（五线谱 NoteSymbol/NoteRest 或简谱 NoteNumber） */
+/** 在小节指定下标插入音符槽 */
 export function insertNoteSlot(
     measure: Measure,
     at: number,
     slot: MeasureNoteSlot,
 ): MeasureNoteSlot {
-    assertIndex('noteIndex', at, measure.notes.length + 1);
-    measure.notes.splice(at, 0, slot);
+    const notes = getMeasureNoteList(measure);
+    assertIndex('noteIndex', at, notes.length + 1);
+    notes.splice(at, 0, slot);
     return slot;
 }
 
-/** 移除小节内指定下标的音符位 */
+/** 移除小节内指定下标的音符槽 */
 export function removeNoteSlot(measure: Measure, noteIndex: number): MeasureNoteSlot {
-    assertIndex('noteIndex', noteIndex, measure.notes.length);
-    const [removed] = measure.notes.splice(noteIndex, 1);
+    const notes = getMeasureNoteList(measure);
+    assertIndex('noteIndex', noteIndex, notes.length);
+    const [removed] = notes.splice(noteIndex, 1);
     return removed!;
 }
 
@@ -27,32 +29,32 @@ export function insertNoteSymbol(
     measure: Measure,
     at: number,
     options: CreateNoteSymbolOptions = {},
-): NoteSymbol {
+): MeasureNoteSlot {
     const withBeam =
         options.beamType != null || options.beamOnset != null
             ? options
             : {...options, beamOnset: computeMeasureOnsetBefore(measure, at)};
-    return insertNoteSlot(measure, at, createNoteSymbol(withBeam)) as NoteSymbol;
+    return insertNoteSlot(measure, at, createNoteSymbol(withBeam));
 }
 
 export function insertNoteRest(
     measure: Measure,
     at: number,
     options: CreateNoteRestOptions = {},
-): NoteRest {
-    return insertNoteSlot(measure, at, createNoteRest(options)) as NoteRest;
+): MeasureNoteSlot {
+    return insertNoteSlot(measure, at, createNoteRest(options));
 }
 
 export function insertNoteNumber(
     measure: Measure,
     at: number,
     options: CreateNoteNumberOptions,
-): NoteNumber {
+): MeasureNoteSlot {
     const withBeam =
         options.beamType != null || options.beamOnset != null
             ? options
             : {...options, beamOnset: computeMeasureOnsetBefore(measure, at)};
-    return insertNoteSlot(measure, at, createNoteNumber(withBeam)) as NoteNumber;
+    return insertNoteSlot(measure, at, createNoteNumber(withBeam));
 }
 
 /** 向已有简谱 NoteNumber 追加一个声部（NotesNumberInfo） */
@@ -89,19 +91,27 @@ export function appendNotesInfo(
     return info;
 }
 
-export function isNoteNumberSlot(slot: StaffSlot | NoteNumber): slot is NoteNumber {
-    return !('type' in slot);
+export function isNoteNumberSlot(slot: MeasureNoteSlot | StaffSlot | NoteNumber): boolean {
+    if ('symbol' in slot) return isNoteNumberSymbol(slot.symbol);
+    return isNoteNumberSymbol(slot);
 }
 
-export function isSlotRestLike(slot: StaffSlot | NoteNumber): boolean {
-    if (isNoteRest(slot)) return true;
-    if (isNoteNumberSlot(slot)) {
-        return !slot.notesInfo.length || slot.notesInfo.every((ni) => ni.syllable === 0);
+export function isSlotRestLike(slot: MeasureNoteSlot | StaffSlot | NoteNumber): boolean {
+    const body = 'symbol' in slot ? slot.symbol : slot;
+    if (isNoteRest(body)) return true;
+    if (isNoteNumberSymbol(body)) {
+        return !body.notesInfo.length || body.notesInfo.every((ni) => ni.syllable === 0);
     }
     return false;
 }
 
-export function isSlotNoteLike(slot: StaffSlot | NoteNumber): slot is NoteSymbol | NoteNumber {
-    if (isNoteSymbol(slot)) return true;
-    return isNoteNumberSlot(slot) && !isSlotRestLike(slot);
+export function isSlotNoteLike(slot: MeasureNoteSlot | StaffSlot | NoteNumber): boolean {
+    const body = 'symbol' in slot ? slot.symbol : slot;
+    return isNoteSymbol(body) || (isNoteNumberSymbol(body) && !isSlotRestLike(slot));
+}
+
+/** 取槽内五线 NoteSymbol（否则 null） */
+export function slotNoteSymbol(slot: MeasureNoteSlot): NoteSymbol | null {
+    const body = slotSymbol(slot);
+    return isNoteSymbol(body) ? body : null;
 }

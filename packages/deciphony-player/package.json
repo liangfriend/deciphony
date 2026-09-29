@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/player",
-  "version": "1.0.59",
+  "version": "1.0.64",
   "description": "更高效的播放器",
   "author": "liam",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "registry": "http://localhost:4873"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b --clean && tsc",
     "dev": "node src/index.ts",
     "test": "tsx --test test/envelope.test.ts test/playEnvelope.test.ts",
     "postpublish": "npm version patch --no-git-tag-version",

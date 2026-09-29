@@ -1,6 +1,14 @@
-import {BeamTypeEnum, NoteSymbolTypeEnum} from '@deciphony/renderer'
-import type {Measure, NoteNumber, NoteRest, NoteSymbol, StaffSlot} from '@deciphony/renderer'
-import {isNoteNumberSlot, isSlotRestLike} from './noteSlot'
+import {
+  BeamTypeEnum,
+  getMeasureNoteList,
+  isNoteNumberSymbol,
+  isNoteRest,
+  isNoteSymbol,
+  NoteSymbolTypeEnum,
+  slotSymbol,
+} from '@deciphony/renderer'
+import type {Measure, MeasureNoteSlot, NoteNumber, NoteRest, NoteSymbol} from '@deciphony/renderer'
+import {isSlotRestLike} from './noteSlot'
 
 /** 四分音符 chronaxie；按「四分之一拍」分组连杠 */
 export const AUTO_BEAM_BEAT_CHRONAXIE = 64
@@ -34,14 +42,15 @@ export function chronaxieWithDots(chronaxie: number, dotCount = 0): number {
   return total
 }
 
-function slotDuration(slot: StaffSlot): number {
-  if ('type' in slot && slot.type === NoteSymbolTypeEnum.Rest) {
+function slotDuration(measureSlot: MeasureNoteSlot): number {
+  const slot = slotSymbol(measureSlot)
+  if (isNoteRest(slot)) {
     const rest = slot as NoteRest
     return chronaxieWithDots(rest.chronaxie, rest.augmentationDot?.count ?? 0)
   }
-  if (isNoteNumberSlot(slot)) {
+  if (isNoteNumberSymbol(slot)) {
     const num = slot as NoteNumber
-    if (isSlotRestLike(num)) {
+    if (isSlotRestLike(measureSlot)) {
       const lead = num.notesInfo[0]
       return chronaxieWithDots(lead?.chronaxie ?? 64, lead?.augmentationDot?.count ?? 0)
     }
@@ -55,10 +64,11 @@ function slotDuration(slot: StaffSlot): number {
 
 /** 小节内下标 `index` 之前各槽位时值之和（即该下标处插入/落音的 onset） */
 export function computeMeasureOnsetBefore(measure: Measure, index: number): number {
-  const end = Math.max(0, Math.min(index, measure.notes.length))
+  const slots = getMeasureNoteList(measure)
+  const end = Math.max(0, Math.min(index, slots.length))
   let onset = 0
   for (let i = 0; i < end; i++) {
-    onset += slotDuration(measure.notes[i]!)
+    onset += slotDuration(slots[i]!)
   }
   return onset
 }

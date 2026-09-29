@@ -11,7 +11,7 @@
 
 import type {StandardStaffSkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
-import type {NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
+import type {MeasureNoteSlot, NoteSymbol} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
@@ -19,7 +19,7 @@ import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_R
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 import {getVoiceGroupForDirection} from "../utils/note";
-import {isNoteSymbol} from "../utils/staffSlot";
+import {slotIsNoteSymbol, slotSymbol} from "../utils/staffSlot";
 
 /** 一组连杠成员：一个 NoteSymbol + 该组使用的符干方向 */
 type BeamGroupMember = { note: NoteSymbol; direction: 'up' | 'down' };
@@ -51,20 +51,24 @@ function getExtremeNotesInfoId(n: NoteSymbol, direction: 'up' | 'down'): string 
  * - OnlyRight：只与右侧连，左侧不延伸符杠；
  * - Combined：左右都连。
  */
-function buildBeamGroups(measure: { notes: StaffSlot[] }, direction: 'up' | 'down'): BeamGroupMember[][] {
+function buildBeamGroups(measure: { notes: MeasureNoteSlot[] }, direction: 'up' | 'down'): BeamGroupMember[][] {
   const groups: BeamGroupMember[][] = [];
   for (let i = 0; i < measure.notes.length; i++) {
-    const slot = measure.notes[i];
-    if (!isNoteSymbol(slot)) continue;
-    const note = slot;
+    const measureSlot = measure.notes[i];
+    if (!slotIsNoteSymbol(measureSlot)) continue;
+    const note = slotSymbol(measureSlot) as NoteSymbol;
     const group = getVoiceGroupForDirection(note, direction);
-    const nextSlot = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
-    const nextNote = nextSlot && isNoteSymbol(nextSlot) ? nextSlot : undefined;
+    const nextMeasureSlot = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
+    const nextNote = nextMeasureSlot && slotIsNoteSymbol(nextMeasureSlot)
+      ? slotSymbol(nextMeasureSlot) as NoteSymbol
+      : undefined;
     const nextGroup = nextNote ? getVoiceGroupForDirection(nextNote, direction) : undefined;
     if (!group || group.notesInfo.length === 0) continue;
     const hasTail = group.chronaxie <= 32;
-    const prevSlot = i > 0 ? measure.notes[i - 1] : undefined;
-    const preNote = prevSlot && isNoteSymbol(prevSlot) ? prevSlot : undefined;
+    const prevMeasureSlot = i > 0 ? measure.notes[i - 1] : undefined;
+    const preNote = prevMeasureSlot && slotIsNoteSymbol(prevMeasureSlot)
+      ? slotSymbol(prevMeasureSlot) as NoteSymbol
+      : undefined;
     const preGroup = preNote ? getVoiceGroupForDirection(preNote, direction) : undefined;
     const preHasTail = preGroup && preGroup.chronaxie <= 32;
     const nextHasTail = nextGroup && nextGroup.chronaxie <= 32;
@@ -85,7 +89,7 @@ function buildBeamGroups(measure: { notes: StaffSlot[] }, direction: 'up' | 'dow
 }
 
 export function processBeam(params: {
-  measure: { notes: StaffSlot[] };
+  measure: { notes: MeasureNoteSlot[] };
   nodeIdMap: NodeIdMap;
   vDoms: VDom[];
   /** 本小节符号 VDom 在 vDoms 中的起始下标（push 符号前记录） */

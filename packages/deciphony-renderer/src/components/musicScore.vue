@@ -46,8 +46,11 @@
         <Slur v-if="node.special?.slur" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Volta v-else-if="node.special?.volta !== undefined" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Beam v-else-if="node.special?.beam" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Arpeggio v-else-if="node.tag === 'arpeggio'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Strumming v-else-if="node.tag === 'strumming'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Arpeggio v-else-if="node.special?.arpeggio || node.tag === 'arpeggio'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Strumming v-else-if="node.special?.strumming || node.tag === 'strumming'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Pedal v-else-if="node.special?.pedal" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <Pitch v-else-if="node.special?.pitch" :notation-type="notationType" :skin="skin" :v-dom="node"/>
+        <LongRestNumber v-else-if="node.special?.longRestNumber" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <TabChord v-else-if="node.tag === 'tabChord'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <TabSlap v-else-if="node.tag === 'tabSlap'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
         <Bend v-else-if="node.tag === 'bend'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
@@ -70,7 +73,7 @@
 <script lang="ts" setup>
 import {type Component, computed, onMounted, ref, watch} from 'vue'
 import {resolveMusicScoreToVDom} from '@/render/resolveNotation'
-import {applyVDomUpdate, diffAndMergeVDom} from '@/render/update'
+import {diffAndMergeVDom, patchVDomByTargetId} from '@/render/update'
 import {mergeSlotConfig} from '@/render/mergeSlotConfig'
 import {fanoutExtensionEvent} from '@/render/fanoutExtensionEvent'
 import defaultSkin from '@/skins/default.json'
@@ -81,6 +84,9 @@ import Volta from './volta.vue'
 import Beam from './beam.vue'
 import Arpeggio from './arpeggio.vue'
 import Strumming from './strumming.vue'
+import Pedal from './pedal.vue'
+import Pitch from './pitch.vue'
+import LongRestNumber from './longRestNumber.vue'
 import TabChord from './tabChord.vue'
 import TabSlap from './tabSlap.vue'
 import Bend from './bend.vue'
@@ -90,7 +96,7 @@ import type {MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, SlotName, VDom} from '@/types/common'
 import type {DrExtension, DrExtensionEvents} from '@/types/extension'
 
-const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming', 'tabChord', 'tabSlap', 'bend'])
+const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming', 'tabChord', 'tabSlap', 'bend', 'longRestNumber'])
 
 const props = defineProps<{
   data: MusicScore
@@ -108,7 +114,7 @@ const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.Stand
 const data = computed(() => props.data)//?? defaultMock.value
 const skin = computed<Skin>(() =>
         props.skin ?? {
-          default: defaultSkin as SkinPack,
+          default: defaultSkin as unknown as SkinPack,
         }
 )
 
@@ -305,7 +311,8 @@ watch(
       const next = d
           ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
           : []
-      vDom.value = diffAndMergeVDom(vDom.value, next)//next//
+      vDom.value = diffAndMergeVDom(vDom.value, next)
+      console.log('chicken',)
       dispatchExtension('renderMusicScore', vDom.value)
       emit('renderMusicScore', vDom.value)
     },
@@ -313,11 +320,11 @@ watch(
 )
 
 /**
- * 更新 VDom：传入 updater 对深拷贝后的 vDom 做修改（如替换某符号 skinName），仅替换有变化的节点，实现部分重渲染
- * @param updater (vDom: VDom[]) => VDom[] 用户修改后 return
+ * 按 targetId 原地改某一个 vDom（Object.assign 进现有节点，不换数组/节点引用）。
+ * 高频跟手（连音线拖拽等）必须用这个，不要整表 updater。
  */
-function updateVDomHandler(updater: (vDom: VDom[]) => VDom[]) {
-  vDom.value = applyVDomUpdate(vDom.value, updater)
+function updateVDomHandler(targetId: string, patch: Partial<VDom>): boolean {
+  return patchVDomByTargetId(vDom.value, targetId, patch)
 }
 
 defineExpose({

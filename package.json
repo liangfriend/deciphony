@@ -10,15 +10,19 @@
     "build:player": "pnpm --filter @deciphony/player build",
     "build:extensions": "pnpm --filter @deciphony/extensions build",
     "build:finger": "pnpm --filter @deciphony/finger build",
-    "build:tune-judge": "pnpm --filter @deciphony/tune-judge build",
+    "build:pitch-detection": "pnpm --filter @deciphony/pitch-detection build",
+    "build:tune-judge": "pnpm build:pitch-detection && pnpm --filter @deciphony/tune-judge build",
     "build:work": "pnpm --filter @deciphony/work build",
+    "build:puff": "pnpm --filter @deciphony/puff build",
     "publish:renderer": "pnpm build:renderer && pnpm --filter @deciphony/renderer publish --no-git-checks --registry http://localhost:4873/",
     "publish:player": "pnpm build:player && pnpm --filter @deciphony/player publish --no-git-checks --registry http://localhost:4873/",
     "publish:extensions": "pnpm build:extensions && pnpm --filter @deciphony/extensions publish --no-git-checks --registry http://localhost:4873/",
     "publish:finger": "pnpm build:finger && pnpm --filter @deciphony/finger publish --no-git-checks --registry http://localhost:4873/",
+    "publish:pitch-detection": "pnpm build:pitch-detection && pnpm --filter @deciphony/pitch-detection publish --no-git-checks --registry http://localhost:4873/",
     "publish:tune-judge": "pnpm build:tune-judge && pnpm --filter @deciphony/tune-judge publish --no-git-checks --registry http://localhost:4873/",
     "publish:work": "pnpm build:work && pnpm --filter @deciphony/work publish --no-git-checks --registry http://localhost:4873/",
-    "publish:libs": "pnpm publish:renderer && pnpm publish:player && pnpm publish:extensions && pnpm publish:finger && pnpm publish:tune-judge && pnpm publish:work"
+    "publish:puff": "pnpm build:puff && pnpm --filter @deciphony/puff publish --no-git-checks --registry http://localhost:4873/",
+    "publish:libs": "pnpm publish:renderer && pnpm publish:player && pnpm publish:extensions && pnpm publish:finger && pnpm publish:pitch-detection && pnpm publish:tune-judge && pnpm publish:work && pnpm publish:puff"
   },
   "keywords": [],
   "devDependencies": {

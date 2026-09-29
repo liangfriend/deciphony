@@ -1,0 +1,33 @@
+{
+  "name": "@deciphony/pitch-detection",
+  "version": "0.0.2",
+  "description": "DyWA 时域音高检测（缓冲级 / 麦克风实时）",
+  "author": "liam",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b --clean && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
+  "keywords": [
+    "pitch",
+    "dywa",
+    "audio",
+    "music"
+  ],
+  "packageManager": "pnpm@10.14.0"
+}

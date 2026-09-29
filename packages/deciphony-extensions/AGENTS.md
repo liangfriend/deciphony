@@ -11,13 +11,16 @@
 |--------|------|
 | `@deciphony/extensions/dr-title` | 标题扩展；左侧三块独立：调号 / 拍号 /（beatUnit+bpm），有顶层属性才显示 |
 | `@deciphony/extensions/dr-lyrics` | 歌词扩展 |
+| `@deciphony/extensions/dr-instrument-name` | 乐器名扩展：挂 `s-l`，每个单谱表左侧显示 `singleStaff.data.instrumentName`，未设置时显示参数 `defaultInstrument`；`gap` 控制文本与曲谱间距；按首小节五线区域纵向居中，`\n` 换行 |
 | `@deciphony/extensions/dr-edit` | 锚点增删谱表/小节；tab4/tab6 共用音符 API（品、弦位、拍弦、推弦、连音线类型）；新建 tab 谱默认 `ClefTypeEnum.Tab`（仅展示） |
 | `@deciphony/extensions/dr-edit/score-builder` | 工厂 / 插入删除 / 定位；未显式 `beamType` 时按四分拍 onset 自动 `OnlyRight`/`Combined`/`None`；`tabNote.ts` 为吉他/尤克里里 |
-| `@deciphony/extensions/dr-play` | 播放序列；tab6/tab4 按空弦音高 + 品，`x` 用当前和弦图 |
+| `@deciphony/extensions/dr-play` | 播放序列；tab6/tab4 按空弦音高 + 品，`x` 用当前和弦图；鼓谱按 `${region}-${headType}` 查映射表（`getDrPlaySequence(score, {drumMap})`，内置 `DEFAULT_DRUM_PLAY_MAP` 对应 test 的 `da-ji-yue.json`），item.volume → NPlayer velocity；**音色按单谱表**：`item.toneColor` = 所在 `singleStaff.data.instrumentValue`，缺省 `options.defaultToneColor`（默认 `'piano'`），宿主转 NPlayer 序列时直接用 `it.toneColor`（对应音色需先 `addToneColor`） |
 | `@deciphony/extensions/dr-play-highlight` | 播放高亮（`drPlayHighlight` → `:extensions`，`on.renderMusicScore`） |
 | `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`；反复展开 + `data[timeProp]: number[]` 遍次） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML |
+| `@deciphony/extensions/dr-midi-transfer` | MIDI ↔ MusicScore（自写 SMF 读写）；**依赖 dr-play、dr-edit、score-util**（见 `src/dr-midi-transfer/依赖关系.md`）；导出基于 `getDrPlaySequence`，每谱表一轨；导入为五线谱（量化、和弦、延音线、小节内变音记忆） |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线↔简谱 |
+| `@deciphony/extensions/dr-quick-numberNotation` | 简谱快速打谱文本 ↔ 简谱 MusicScore（规则 + 实现约定见 `src/dr-quick-numberNotation/规则.md`）：`parseQuickNumberNotation`（文本 → 中间结构）、`quickNumberNotationToMusicScore`（文本 → 谱，返回 `{musicScore, warnings}`）、`musicScoreToQuickNumberNotation`（仅简谱 → 文本）；`<` `>` 按复谱表内谱表下标跨行配对成连音线；演示页 test `quickNumberNotationTest.vue` |
 | `@deciphony/extensions/chord-builder` | 和弦图编辑器（`ChordBuilder`，props: `chord: tabChord`，可选 `disabled?: ChordBuilderDisabledField[]`） |
 | `@deciphony/extensions/audio-to-score` | 浏览器端单声部音频分析，输出 standardStaff MusicScore；不支持多声部混音 |
 | `@deciphony/extensions/score-util` | 音高/调号工具（含 `transposeMusicScore` 同谱种转调） |

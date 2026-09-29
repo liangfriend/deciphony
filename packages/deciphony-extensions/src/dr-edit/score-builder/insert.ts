@@ -37,6 +37,7 @@ function newMeasureForInsert(
     if (isNumberNotation) {
         return createMeasure();
     }
+    const isDrum = notationType === MusicScoreTypeEnum.DrumNotation;
     const prev = at > 0 ? singleStaff.measures[at - 1] : singleStaff.measures[singleStaff.measures.length - 1];
     if (prev) {
         const header = cloneMeasureHeaderFromPrev(prev);
@@ -44,13 +45,15 @@ function newMeasureForInsert(
             clef: header.clef_f?.type,
             timeSignature: header.timeSignature_f?.type,
             keySignature: header.keySignature_f?.type,
+            voices: isDrum,
         });
     }
     const isTab =
         notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4;
     return createMeasure({
-        clef: isTab ? ClefTypeEnum.Tab : ClefTypeEnum.Treble,
+        clef: isTab ? ClefTypeEnum.Tab : isDrum ? ClefTypeEnum.Percussion : ClefTypeEnum.Treble,
         timeSignature: TimeSignatureTypeEnum['4_4'],
+        voices: isDrum,
     });
 }
 

@@ -4,9 +4,10 @@ import type {SkinItem} from '@/types/common'
 import SkinContentEditor from './SkinContentEditor.vue'
 import SkinSymbolPreview from './SkinSymbolPreview.vue'
 import {isColorOnlySkinContent} from '@/render/resolveSkinColor'
+import type {SkinBuilderCategory} from './SkinCompareDialog.vue'
 
 export type SkinSymbolEditTarget = {
-  categoryId: 'standardStaff' | 'numberNotation' | 'tab6' | 'tab4'
+  categoryId: SkinBuilderCategory
   categoryLabel: string
   key: string
   item: SkinItem

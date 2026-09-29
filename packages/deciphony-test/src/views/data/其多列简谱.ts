@@ -1,4 +1,5 @@
-import {BeamTypeEnum, KeySignatureTypeEnum} from '@deciphony/renderer'
+import {BeamTypeEnum, getMeasureSlots, KeySignatureTypeEnum, slotSymbol} from '@deciphony/renderer'
+import type {NoteNumber} from '@deciphony/renderer'
 import staffData from './其多列'
 import {convertStandardStaffToNumberNotation, isNoteNumber} from './scoreBuilder'
 import {createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
@@ -10,18 +11,20 @@ import {createNotesNumberInfo} from '@deciphony/extensions/dr-edit/score-builder
 const data = convertStandardStaffToNumberNotation(staffData, KeySignatureTypeEnum.F)
 
 /** 复谱表1-单谱表1-小节1：第二个音符加前倚音、后倚音 */
-const secondNote = data.grandStaffs[0]?.staves[0]?.measures[0]?.notes[1]
-if (isNoteNumber(secondNote)) {
-    const host = secondNote.notesInfo[0]
+const firstMeasure = data.grandStaffs[0]?.staves[0]?.measures[0]
+const secondNote = firstMeasure ? getMeasureSlots(firstMeasure)[1] : undefined
+if (secondNote && isNoteNumber(secondNote)) {
+    const note = slotSymbol(secondNote) as NoteNumber
+    const host = note.notesInfo[0]
     if (host) {
-        secondNote.graceNotes = [
+        note.graceNotes = [
             createNotesNumberInfo(2, {
                 octaveDot: host.octaveDot,
                 chronaxie: 16,
                 beamType: BeamTypeEnum.None,
             }),
         ]
-        secondNote.graceNotesAfter = [
+        note.graceNotesAfter = [
             createNotesNumberInfo(4, {
                 octaveDot: host.octaveDot,
                 chronaxie: 16,

@@ -169,7 +169,9 @@ export enum StandardStaffSkinKeyEnum {
     Trill = 'trill',
     ShortTrill = 'shortTrill',
     Mordent = 'mordent',
-    // Arpeggios
+    // Arpeggios / strumming / pedal
+    Pedal = 'pedal',
+    Strumming = 'strumming',
     Arpeggio = 'arpeggio',
     Up_arpeggio = 'up_arpeggio',
     Down_arpeggio = 'down_arpeggio',

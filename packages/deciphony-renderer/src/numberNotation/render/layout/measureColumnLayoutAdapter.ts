@@ -1,4 +1,5 @@
-import type {Measure, NoteNumber} from '@/types/MusicScoreType';
+import type {Measure, MeasureNoteSlot, NoteNumber} from '@/types/MusicScoreType';
+import {slotSymbol} from '@/standardStaff/render/utils/staffSlot';
 import type {NumberNotationSkinPack} from '@/types/common';
 import type {ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
 import {
@@ -44,11 +45,12 @@ export function createNumberNotationColumnLayoutAdapter(
 ): ColumnLayoutSlotAdapter {
   return {
     isLayoutSlot: () => true,
-    getChronaxie: (note) => getSlotLayoutChronaxie(note as NoteNumber),
+    getChronaxie: (note) =>
+      getSlotLayoutChronaxie(slotSymbol(note as MeasureNoteSlot) as NoteNumber),
     getNoteWidthRatio: (note) =>
-      getNoteHeadColumnWidthRatio(note as NoteNumber, skin, measureHeight),
+      getNoteHeadColumnWidthRatio(note as MeasureNoteSlot, skin, measureHeight),
     getExtraOnsetRatios: (note, slotOnset) =>
-      getNumberNotationExtraOnsetRatios(note as NoteNumber, skin).map((e) => ({
+      getNumberNotationExtraOnsetRatios(note as MeasureNoteSlot, skin).map((e) => ({
         onset: slotOnset + e.onsetOffset,
         ratio: e.ratio,
       })),

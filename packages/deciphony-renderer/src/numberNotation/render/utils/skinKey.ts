@@ -9,6 +9,7 @@ import {
 } from "@/enums/musicScoreEnum";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import type {AugmentationDot} from "@/types/MusicScoreType";
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 export function getBarlineSkinKey(barlineType: BarlineTypeEnum): NumberNotationSkinKeyEnum {
   const map: Record<BarlineTypeEnum, NumberNotationSkinKeyEnum> = {
@@ -71,7 +72,7 @@ export function getClefForMeasure(
   const m = measures[measureIndex];
   if (noteIndex != null && noteIndex >= 0 && m.notes) {
     for (let i = noteIndex; i >= 0; i--) {
-      const note = m.notes[i] as { clef?: { type: ClefTypeEnum } };
+      const note = getMeasureSlots(m)[i] as { clef?: { type: ClefTypeEnum } };
       if (note?.clef) return note.clef.type;
     }
   }

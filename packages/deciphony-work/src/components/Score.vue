@@ -5,6 +5,7 @@ import type {Skin} from '@deciphony/renderer'
 import {drLyrics} from '@deciphony/extensions/dr-lyrics'
 import {drTitle} from '@deciphony/extensions/dr-title'
 import {drPlayHighlight} from '@deciphony/extensions/dr-play-highlight'
+import {drInstrumentName} from '@deciphony/extensions/dr-instrument-name'
 import {parseSkinFile} from '../assets/skinAsset'
 import type {SScore} from '../types/types'
 import type {ScorePlayHost} from '../play/scorePlayback'
@@ -44,8 +45,29 @@ const playHighlight = drPlayHighlight({
   getBpm,
 })
 
+/** 音色名与谱表的间距：须大于连谱号宽度（bracket 约 12px，画在 s-l 最右侧），与宿主编辑器一致 */
+const INSTRUMENT_NAME_GAP = 18
+const instrumentName = drInstrumentName({gap: INSTRUMENT_NAME_GAP})
+const baseExtensions = [drTitle({mode: 'show'}), drLyrics({mode: 'show'}), playHighlight]
+
+type ScoreLayoutData = {
+  /** s-l 插槽宽度（左留白），与宿主编辑器一致 */
+  sLSlotW?: unknown
+  /** 是否在 s-l 显示单谱表音色名（singleStaff.data.instrumentName） */
+  showInstrumentName?: unknown
+}
+
+const layoutData = computed(() => (props.score.musicScore.data ?? {}) as ScoreLayoutData)
+
 /** 进入 SJWPDF 的曲谱固定展示；高亮经 extensions.on.renderMusicScore */
-const extensions = [drTitle({mode: 'show'}), drLyrics({mode: 'show'}), playHighlight]
+const extensions = computed(() =>
+  layoutData.value.showInstrumentName === true ? [...baseExtensions, instrumentName] : baseExtensions,
+)
+
+const slotConfig = computed(() => {
+  const w = Number(layoutData.value.sLSlotW)
+  return Number.isFinite(w) && w >= 0 ? {'s-l': {w}} : {}
+})
 
 const naturalW = computed(() => props.score.musicScore.width || 1)
 const naturalH = computed(() => props.score.musicScore.height || 1)
@@ -125,6 +147,7 @@ onBeforeUnmount(() => {
             ref="musicScoreRef"
             :data="score.musicScore"
             :extensions="extensions"
+            :slot-config="slotConfig"
             :skin="resolvedSkin"
           />
         </div>

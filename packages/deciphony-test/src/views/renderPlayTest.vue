@@ -42,7 +42,8 @@ function toPlaySequence(): PlaySequence {
       midi: it.real_duration === 0 ? 0 : it.midi,
       duration: it.real_duration ? it.real_duration : it.duration,
       playTime: it.playTime,
-      toneColor: 'piano',
+      velocity: it.volume ?? 1,
+      toneColor: it.toneColor ?? 'piano',
       data: {
         note_id: it.note_id,
         duration: it.duration,

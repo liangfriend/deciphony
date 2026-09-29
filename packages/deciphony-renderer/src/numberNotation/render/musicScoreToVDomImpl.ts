@@ -523,7 +523,7 @@ export function musicScoreToVDom(
         * 这个函数内部会调整已经存在的符干和符尾（拉伸符干和去掉符尾）
         * */
         processBeam({
-          measure: measure as { notes: NoteNumber[] },
+          measure: measure as { notes: import("@/types/MusicScoreType").MeasureNoteSlot[] },
           nodeIdMap,
           vDoms,
           symbolVDomsLength: symbolVDoms.length,
@@ -712,6 +712,7 @@ export function musicScoreToVDom(
     skinName: effectiveSkinName,
     notationType: musicScore.type,
     skin,
+    measureHeight,
   });
   /* 【阶段三 · 曲谱级附属】晚于阶段二新建，单独 apply；不能合并为曲谱末尾一次（见文件头）。见五线谱同段注释。 */
   applyRelativeFramesToVDomRange(vDoms, relativeFrameMap, scoreAffiliatedStartIdx, vDoms.length, relativeApplied);

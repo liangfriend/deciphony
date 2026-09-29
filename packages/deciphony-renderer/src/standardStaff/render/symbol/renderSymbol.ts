@@ -21,8 +21,8 @@ import {
   getRestSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
-import {getSlotRestChronaxie, getVoiceGroups, isSlotRest} from "../utils/note";
-import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
+import {computeSecondDisplacement, getSlotRestChronaxie, getStemBuckets, getVoiceGroups, isSlotRest} from "../utils/note";
+import {isStaffSlot, slotSymbol} from "../utils/staffSlot";
 import {renderStemAndTail} from "../note/renderStemAndTail";
 import {
   renderGraceNotesAfter,
@@ -31,6 +31,7 @@ import {
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {buildMeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import {createStandardStaffColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -39,16 +40,6 @@ function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     map.set(id, obj);
   }
   obj[vdom.tag] = vdom;
-}
-
-/**
- * relativeX 参与合并（相同才合并，见合并键），但 relativeY/W/H 偏移会破坏符干的垂直/宽度贴合，
- * 带这类偏移的音符独立渲染符干符尾，不参与合并。
- */
-function hasNonXRelativeOffset(n: NotesInfo): boolean {
-  return (n.relativeY ?? 0) !== 0
-    || (n.relativeW ?? 0) !== 0
-    || (n.relativeH ?? 0) !== 0;
 }
 
 export function renderSymbol(params: RenderSymbolParams): VDom[] {
@@ -201,7 +192,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) x += item.w;
   }
 
-  const notes = measure.notes;
+  const notes = getMeasureSlots(measure);
   const columnAdapter = createStandardStaffColumnLayoutAdapter(skin, measureHeight);
   const layout =
     columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter, measureHeight);
@@ -216,7 +207,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   if (notes.length > 0) {
     for (let i = 0; i < notes.length; i++) {
-      const slot = notes[i];
+      const slot = slotSymbol(notes[i]);
       if (!isStaffSlot(slot)) continue;
       const geo = layout.slotGeometries[i];
       if (!geo) continue;
@@ -328,17 +319,24 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       const addLineSkinD = skin[StandardStaffSkinKeyEnum.AddLine_d];
       const addLineSkinU = skin[StandardStaffSkinKeyEnum.AddLine_u];
 
-      // 1) 音符头：每个 NotesInfo 一个，x=slotX（相对 Frame 由小节级 apply 平移），皮肤按各自时值
+      // 1) 音符头：每个 NotesInfo 一个，x=slotX（相对 Frame 由小节级 apply 平移），皮肤按各自时值；
+      //    同符干组内二度相邻者错位到符干另一侧（符干本身不动）
+      const stemW = skin[StandardStaffSkinKeyEnum.NoteStem]?.w ?? 0;
+      const displacement = computeSecondDisplacement(allNotesInfo);
+      const headShiftX = new Map<string, number>();
       allNotesInfo.forEach((n) => {
         const headKey = getNoteHeadSkinKey(n.chronaxie);
         const headItem = skin[headKey];
         if (!headItem) return;
+        const side = displacement.get(n.id);
+        const shift = side === 'right' ? headItem.w - stemW : side === 'left' ? stemW - headItem.w : 0;
+        if (shift !== 0) headShiftX.set(n.id, shift);
         const ny = noteCenterY(n.region) - headItem.h / 2;
         const vdom: VDom = {
           startPoint: {x: 0, y: 0},
           endPoint: {x: 0, y: 0},
           special: {},
-          x: slotX,
+          x: slotX + shift,
           y: ny,
           w: headItem.w,
           h: headItem.h,
@@ -410,11 +408,25 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       // 3) 前倚音
       renderGraceNotesBefore(note.graceNotes, primaryHeadX, graceCtx);
 
-      // 4) 变音号：每个音符头用自己的 headX
+      // 同符干组内最左 / 最右符头边缘：变音号贴最左、附点贴最右，避免压到错位的符头
+      const bucketLeftX = new Map<string, number>();
+      const bucketRightX = new Map<string, number>();
+      for (const bucket of getStemBuckets(allNotesInfo)) {
+        const heads = bucket.map((n) => idMap.get(n.id)?.noteHead).filter((v): v is VDom => v != null);
+        if (heads.length === 0) continue;
+        const left = Math.min(...heads.map((v) => v.x));
+        const right = Math.max(...heads.map((v) => v.x + v.w));
+        for (const n of bucket) {
+          bucketLeftX.set(n.id, left);
+          bucketRightX.set(n.id, right);
+        }
+      }
+
+      // 4) 变音号：贴所在符干组最左符头
       allNotesInfo.forEach((n) => {
         if (!n.accidental) return;
         const headVDom = idMap.get(n.id)?.noteHead;
-        const noteHeadX = headVDom?.x ?? slotX;
+        const noteHeadX = bucketLeftX.get(n.id) ?? headVDom?.x ?? slotX;
         const hcy = noteCenterY(n.region);
         const accSkinKey = getAccidentalSkinKey(n.accidental.type);
         const accSkin = skin[accSkinKey];
@@ -442,16 +454,16 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
       // 5) 后倚音
       renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
 
-      // 6) 附点：每个带附点的 NotesInfo 独立渲染（与变音号一致）
+      // 6) 附点：贴所在符干组最右符头
       allNotesInfo.forEach((n) => {
         if (!n.augmentationDot) return;
         const headVDom = idMap.get(n.id)?.noteHead;
-        const noteHeadX = headVDom?.x ?? slotX;
-        const noteHeadW = headVDom?.w ?? (skin[getNoteHeadSkinKey(n.chronaxie)]?.w ?? 0);
+        const noteHeadRight = bucketRightX.get(n.id)
+          ?? (headVDom?.x ?? slotX) + (headVDom?.w ?? (skin[getNoteHeadSkinKey(n.chronaxie)]?.w ?? 0));
         const augSkinKey = getAugmentationDotSkinKey(n.augmentationDot);
         const augSkin = skin[augSkinKey];
         if (!augSkin) return;
-        const augX = noteHeadX + noteHeadW + AUGMENTATION_DOT_GAP * measureHeight;
+        const augX = noteHeadRight + AUGMENTATION_DOT_GAP * measureHeight;
         let augY = noteCenterY(n.region) - augSkin.h / 2;
         if (n.region % 2 === 0) augY -= measureHeight / 8;
         out.push({
@@ -487,7 +499,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (!subExtreme) return;
         const headItem = skin[getNoteHeadSkinKey(subChronaxie)];
         const subHeadVDom = idMap.get(subExtreme.id)?.noteHead;
-        const subHeadX = subHeadVDom?.x ?? slotX;
+        const subHeadX = (subHeadVDom?.x ?? slotX) - (headShiftX.get(subExtreme.id) ?? 0);
         const subHeadY = subHeadVDom?.y ?? (noteCenterY(subExtremeRegion) - (headItem?.h ?? 0) / 2);
         const subHeadW = subHeadVDom?.w ?? headItem?.w ?? 0;
         const subHeadH = subHeadVDom?.h ?? headItem?.h ?? 0;
@@ -516,19 +528,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
       };
 
-      const mergeBuckets = new Map<string, NotesInfo[]>();
-      for (const n of allNotesInfo) {
-        if (hasNonXRelativeOffset(n)) {
-          renderStemForSubgroup([n], n.chronaxie, n.direction === 'up');
-        } else {
-          const key = `${n.direction}|${n.chronaxie}|${n.relativeX ?? 0}`;
-          const list = mergeBuckets.get(key) ?? [];
-          list.push(n);
-          mergeBuckets.set(key, list);
-        }
-      }
-      for (const subNotes of mergeBuckets.values()) {
-        renderStemForSubgroup(subNotes, subNotes[0].chronaxie, subNotes[0].direction === 'up');
+      for (const subNotes of getStemBuckets(allNotesInfo)) {
+        renderStemForSubgroup(subNotes, subNotes[0]!.chronaxie, subNotes[0]!.direction === 'up');
       }
     }
   }

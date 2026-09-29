@@ -16,6 +16,7 @@ type SkinPackJson = {
   numberNotation?: Record<string, SkinItem>
   tab6?: Record<string, SkinItem>
   tab4?: Record<string, SkinItem>
+  drumNotation?: Record<string, SkinItem>
 }
 
 type SkinEntry = {
@@ -29,6 +30,7 @@ const CATEGORY_LABEL: Record<SkinBuilderCategory, string> = {
   numberNotation: '简谱 numberNotation',
   tab6: '吉他谱 tab6',
   tab4: '尤克里里谱 tab4',
+  drumNotation: '鼓谱 drumNotation',
 }
 
 const skinPack = ref<SkinPackJson>(
@@ -100,6 +102,7 @@ function isSkinPackJson(data: unknown): data is SkinPackJson {
     || (o.numberNotation != null && typeof o.numberNotation === 'object')
     || (o.tab6 != null && typeof o.tab6 === 'object')
     || (o.tab4 != null && typeof o.tab4 === 'object')
+    || (o.drumNotation != null && typeof o.drumNotation === 'object')
   )
 }
 
@@ -118,7 +121,7 @@ function onImportFile(event: Event) {
     try {
       const parsed: unknown = JSON.parse(String(reader.result ?? ''))
       if (!isSkinPackJson(parsed)) {
-        ElMessage.error('JSON 格式无效：需包含 standardStaff / numberNotation / tab6 / tab4 之一')
+        ElMessage.error('JSON 格式无效：需包含 standardStaff / numberNotation / tab6 / tab4 / drumNotation 之一')
         return
       }
       skinPack.value = JSON.parse(JSON.stringify(parsed)) as SkinPackJson
@@ -127,6 +130,7 @@ function onImportFile(event: Event) {
         parsed.numberNotation ? `简谱 ${Object.keys(parsed.numberNotation).length}` : null,
         parsed.tab6 ? `吉他 ${Object.keys(parsed.tab6).length}` : null,
         parsed.tab4 ? `尤克里里 ${Object.keys(parsed.tab4).length}` : null,
+        parsed.drumNotation ? `鼓谱 ${Object.keys(parsed.drumNotation).length}` : null,
       ].filter(Boolean).join('，')
       ElMessage.success(`已导入 ${file.name}（${parts}）`)
     } catch {
@@ -172,7 +176,7 @@ function onEditSave(payload: {content: string; w: number; h: number}) {
         卡片 100×100，虚线框为符号逻辑边界；content 中
         <code>node.w</code> / <code>node.h</code> 已替换（measure 的 w 固定为 100）。
         <code>slur</code> / <code>volta</code> 的 content 为颜色，展示色块。点击符号卡片可编辑 content / width / height。
-        支持五线 / 简谱 / 吉他 tab6 / 尤克里里 tab4。
+        支持五线 / 简谱 / 吉他 tab6 / 尤克里里 tab4 / 鼓谱 drumNotation。
       </p>
       <div class="skin-builder__toolbar">
         <el-radio-group v-model="activeCategory" size="small">

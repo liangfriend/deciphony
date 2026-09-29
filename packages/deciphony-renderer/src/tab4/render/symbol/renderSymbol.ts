@@ -3,7 +3,7 @@
  */
 
 import {VDom} from "@/types/common";
-import type {NoteRest, NotesInfo, NoteSymbol, StaffSlot, tabChord, TabNote, TabNoteInfo} from "@/types/MusicScoreType";
+import type {tabChord, TabNote, TabNoteInfo, TabRest, TabSlot} from "@/types/MusicScoreType";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
 import {AUGMENTATION_DOT_GAP} from "../constants";
@@ -25,7 +25,7 @@ import {
     resolveAddLineXFromLayout,
     resolveAugmentationDotAnchorXFromLayout,
 } from "../utils/note";
-import {isNoteSymbol, isStaffSlot} from "../utils/staffSlot";
+import {isNoteRest, isNoteSymbol, slotSymbol} from "../utils/staffSlot";
 import {renderTab6StemAndTailForSlot} from "../note/renderStemAndTail";
 import {
     renderGraceNotesAfter,
@@ -46,6 +46,7 @@ import {
 import {buildTabChordVDom, isVisibleTabChord} from "../chord/renderTabChord";
 import {buildTabSlapVDom} from "../slap/renderTabSlap";
 import {buildTabBendVDom} from "../bend/renderTabBend";
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
     let obj = map.get(id);
@@ -189,7 +190,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (item) x += item.w;
     }
 
-    const notes = measure.notes;
+    const notes = getMeasureSlots(measure);
     const columnAdapter = createTab6ColumnLayoutAdapter(skin, measureHeight);
     const layout =
         columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter, measureHeight);
@@ -202,9 +203,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         - region * (measureHeight - 4 * measureLineWidth) / 3
         - region * measureLineWidth;
 
-    function pushTabSlapForNote(note: NoteSymbol): void {
-        const tabNote = note as TabNote;
-        if (!tabNote.isSlap) return;
+    function pushTabSlapForNote(note: TabNote): void {
+        if (!note.isSlap) return;
 
         const slapInfos = note.notesInfo.filter(
             (info): info is TabNoteInfo & { type: TabNoteInfoTypeEnum.Normal; region: number } =>
@@ -239,20 +239,20 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         out.push(vdom);
     }
 
-    function pushTabChordForSlot(slot: StaffSlot, slotCenterX: number): void {
-        const chord = (slot as { chord?: tabChord }).chord;
+    function pushTabChordForSlot(note: TabNote, slotCenterX: number): void {
+        const chord = note.chord;
         if (!isVisibleTabChord(chord)) return;
         const vdom = buildTabChordVDom({
             chord,
             slotCenterX,
             measureY,
             measureHeight,
-            targetId: slot.id,
+            targetId: note.id,
             skinName: skinNameForNodes,
             zIndex: z + 80,
         });
         out.push(vdom);
-        setNodeIdMap(idMap, slot.id, vdom);
+        setNodeIdMap(idMap, note.id, vdom);
     }
 
     function renderAddLines(
@@ -289,16 +289,18 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     if (notes.length > 0) {
         for (let i = 0; i < notes.length; i++) {
-            const slot = notes[i];
-            if (!isStaffSlot(slot)) continue;
+            const sym = slotSymbol(notes[i]);
+            if (!isNoteSymbol(sym) && !isNoteRest(sym)) continue;
+            const slot = sym as TabSlot;
             const geo = layout.slotGeometries[i];
             if (!geo) continue;
             const slotStartX = domainStartX + geo.startInDomain;
             const slotW = geo.width;
-            const isRest = isSlotRest(slot);
-            if (isRest && !skin[getRestSkinKey(getSlotRestChronaxie(slot))]) continue;
+            const tabBody = slot as import('@/types/MusicScoreType').StaffSlot;
+            const isRest = isSlotRest(tabBody);
+            if (isRest && !skin[getRestSkinKey(getSlotRestChronaxie(tabBody))]) continue;
             const slotOnset = computeSlotOnset(measure, i, columnAdapter);
-            const hasAddLines = getSlotAddLineOnsetOffsets(slot).length > 0;
+            const hasAddLines = getSlotAddLineOnsetOffsets(tabBody).length > 0;
             /** 零宽槽位锚点 x（未叠加 Frame）；符头 / 休止 / 符干均相对此点居中 */
             const slotX = slotStartX;
             const slotHeadCenterX = slotX;
@@ -308,7 +310,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
             // 渲染休止符
             if (isRest) {
-                const rest = slot as NoteRest;
+                const rest = sym as TabRest;
                 const restChronaxie = getSlotRestChronaxie(rest);
                 const headKey = getRestSkinKey(restChronaxie);
                 const restItem = skin[headKey];
@@ -380,12 +382,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                     skin,
                     measureHeight,
                 });
-                pushTabChordForSlot(rest, slotX);
                 continue;
             }
 
-            const note = slot;
-            const tabNote = note as TabNote;
+            const note = sym as unknown as TabNote;
             const allNotesInfo = note.notesInfo;
 
             // 1) 普通符头相对 slot 锚点居中；琶音/扫弦仅输出箭头 vDom
@@ -500,11 +500,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             };
 
             // 3) 前倚音
-            renderGraceNotesBefore(tabNote.graceNotes, primaryHeadX, graceCtx);
+            renderGraceNotesBefore(note.graceNotes, primaryHeadX, graceCtx);
 
 
             // 5) 后倚音
-            renderGraceNotesAfter(tabNote.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
+            renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
 
             // 6) 附点：仅普通音符
             allNotesInfo.forEach((n, niIdx) => {

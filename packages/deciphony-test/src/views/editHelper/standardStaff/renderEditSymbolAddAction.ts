@@ -1,9 +1,10 @@
-import {isNoteRest, isNoteSymbol} from '@deciphony/renderer'
+import {isNoteRest, isNoteSymbol, slotSymbol} from '@deciphony/renderer'
 import type {Chronaxie, Measure, MusicScore, NoteSymbol, NotesInfo, SlotData, VDom} from '@deciphony/renderer'
 import {createNoteRest, createNoteSymbol, createNotesInfo} from '@deciphony/extensions/dr-edit/score-builder/factories'
 import {computeMeasureOnsetBefore} from '@deciphony/extensions/dr-edit/score-builder'
 import {DEFAULT_ADD_NOTE_STATE, type AddNoteSlotKind, type AddNoteState} from '../renderEditAddNoteState'
 import {noteSymbolSvg, rest as restSymbolSvg} from './noteSvg'
+import {getMeasureNoteList} from '@deciphony/renderer'
 
 /** 占位音符头高度 */
 export const NOTE_HEAD_HEIGHT = 10.49
@@ -196,15 +197,15 @@ export function resolveMeasureSlotAtPointer(
 /** 按小节顺序收集各音符/休止符锚点 x（相对小节左上角，取符号中心） */
 export function collectSlotAnchors(vDomList: VDom[], measure: Measure, measureX: number): SlotAnchor[] {
     const anchors: SlotAnchor[] = []
-    for (let noteIndex = 0; noteIndex < measure.notes.length; noteIndex++) {
-        const slot = measure.notes[noteIndex]!
+    for (let noteIndex = 0; noteIndex < getMeasureNoteList(measure).length; noteIndex++) {
+        const body = slotSymbol(getMeasureNoteList(measure)[noteIndex]!)
         let id: string | undefined
         let tag: VDom['tag']
-        if (isNoteSymbol(slot)) {
-            id = slot.notesInfo[0]?.id
+        if (isNoteSymbol(body)) {
+            id = body.notesInfo[0]?.id
             tag = 'noteHead'
-        } else if (isNoteRest(slot)) {
-            id = slot.id
+        } else if (isNoteRest(body)) {
+            id = body.id
             tag = 'rest'
         } else {
             continue
@@ -215,7 +216,7 @@ export function collectSlotAnchors(vDomList: VDom[], measure: Measure, measureX:
             anchors.push({
                 centerX: vdom.x + vdom.w / 2 - measureX,
                 noteIndex,
-                isNoteSymbol: isNoteSymbol(slot),
+                isNoteSymbol: isNoteSymbol(body),
             })
         }
     }
@@ -475,10 +476,10 @@ export function applyMeasureAddAction(
     const measure = slot.measure
 
     if (preview.snap.kind === 'insert') {
-        const at = Math.max(0, Math.min(preview.snap.insertIndex, measure.notes.length))
+        const at = Math.max(0, Math.min(preview.snap.insertIndex, getMeasureNoteList(measure).length))
         if (preview.slotKind === 'rest') {
             const rest = createNoteRest({chronaxie: preview.chronaxie})
-            measure.notes.splice(at, 0, rest)
+            getMeasureNoteList(measure).splice(at, 0, rest)
             return {type: 'inserted'}
         }
         const beamOnset = computeMeasureOnsetBefore(measure, at)
@@ -488,14 +489,16 @@ export function applyMeasureAddAction(
             direction: preview.direction,
             beamOnset,
         })
-        measure.notes.splice(at, 0, note)
+        getMeasureNoteList(measure).splice(at, 0, note)
         return {type: 'inserted'}
     }
 
     if (preview.slotKind === 'rest') return null
 
-    const note = measure.notes[preview.snap.noteIndex]
-    if (!note || !isNoteSymbol(note)) return null
+    const measureSlot = getMeasureNoteList(measure)[preview.snap.noteIndex]
+    if (!measureSlot) return null
+    const note = slotSymbol(measureSlot)
+    if (!isNoteSymbol(note)) return null
 
     const existing = note.notesInfo.find((ni) => ni.region === preview.region)
     if (existing) {

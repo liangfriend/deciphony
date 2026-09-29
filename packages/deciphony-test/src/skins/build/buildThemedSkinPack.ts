@@ -1,5 +1,6 @@
 import {defaultSkin} from '@/skins/defaultSkin'
 import type {
+    DrumNotationSkinPack,
     SkinItem,
     SkinPack,
     NumberNotationSkinPack,
@@ -7,7 +8,7 @@ import type {
     Tab4SkinPack,
     Tab6SkinPack,
 } from '@deciphony/renderer'
-import {NumberNotationSkinKeyEnum, StandardStaffSkinKeyEnum} from '@deciphony/renderer'
+import {DrumNotationSkinKeyEnum, NumberNotationSkinKeyEnum, StandardStaffSkinKeyEnum} from '@deciphony/renderer'
 import {isColorOnlySkinContent} from '@/render/resolveSkinColor'
 import type {SkinTheme} from '../theme/types'
 import {getStandardStaffCategory} from './categories'
@@ -162,14 +163,43 @@ export function mapTabPack<T extends Tab6SkinPack | Tab4SkinPack>(
     return out
 }
 
-/** 基于 defaultSkin 几何尺寸，按主题令牌与各符号 builder 生成完整皮肤包（含 tab6 / tab4） */
+/** 鼓谱专有项：普通音符头沿用五线谱四分音符头 builder，其余音符头 / 谱号 / 长休止符按主题重着色 */
+function applyDrumNotationItem(theme: SkinTheme, key: string, base: SkinItem): string {
+    if (key === DrumNotationSkinKeyEnum.DrumHead_normal) {
+        return buildNoteHeadContent(theme, StandardStaffSkinKeyEnum.NoteHead_3, base)
+    }
+    if (key.startsWith('drumHead_')) {
+        return themedRecolor(base.content, theme.noteHeadFill, theme.noteHeadStroke, theme.lineCap)
+    }
+    if (key === DrumNotationSkinKeyEnum.Percussion || key === DrumNotationSkinKeyEnum.Percussion_f) {
+        return themedRecolor(base.content, theme.ink, theme.inkStroke, theme.lineCap)
+    }
+    if (key === DrumNotationSkinKeyEnum.LongRestNumber) return theme.ink
+    if (key.startsWith('longRest_')) {
+        return themedRecolor(base.content, theme.restFill, theme.restStroke, theme.lineCap)
+    }
+    return applyStandardStaffItem(theme, key, base)
+}
+
+function mapDrumNotation(pack: DrumNotationSkinPack, theme: SkinTheme): DrumNotationSkinPack {
+    const out = {} as DrumNotationSkinPack
+    for (const key of Object.keys(pack) as DrumNotationSkinKeyEnum[]) {
+        const item = pack[key]
+        if (!item) continue
+        out[key] = {...item, content: applyDrumNotationItem(theme, key, item)}
+    }
+    return out
+}
+
+/** 基于 defaultSkin 几何尺寸，按主题令牌与各符号 builder 生成完整皮肤包（含 tab6 / tab4 / 鼓谱） */
 export function buildThemedSkinPack(theme: SkinTheme): SkinPack {
-    const {standardStaff, numberNotation, tab6, tab4} = defaultSkin
+    const {standardStaff, numberNotation, tab6, tab4, drumNotation} = defaultSkin
     return {
         standardStaff: mapStandardStaff(standardStaff!, theme),
         numberNotation: mapNumberNotation(numberNotation!, theme),
         ...(tab6 ? {tab6: mapTabPack(tab6, theme)} : {}),
         ...(tab4 ? {tab4: mapTabPack(tab4, theme)} : {}),
+        ...(drumNotation ? {drumNotation: mapDrumNotation(drumNotation, theme)} : {}),
     }
 }
 

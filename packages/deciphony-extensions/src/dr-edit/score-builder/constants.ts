@@ -27,3 +27,14 @@ export const DEFAULT_WIDTH_RATIO = {
   accidental: {w: 2, wm: 2},
   augmentationDot: {w: 2, wm: 2},
 } as const;
+
+/** 与默认皮肤 measure.h 一致；创建附属符号时可用 */
+export const DEFAULT_MEASURE_HEIGHT = 45;
+
+/**
+ * 单 slot 双端点符号（琶音 / 扫弦）：两端默认同锚点（slot.x / 小节底），
+ * end.y 上移一节高度（× measureHeight 的像素值），使符号垂直穿过整节。
+ */
+export function defaultSingleSlotEndPoint(measureHeight = DEFAULT_MEASURE_HEIGHT): {x: number; y: number} {
+  return {x: 0, y: -measureHeight};
+}

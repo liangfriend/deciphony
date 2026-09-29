@@ -1,5 +1,6 @@
 import {
   AccidentalTypeEnum,
+  ArpeggioTypeEnum,
   BarlineTypeEnum,
   BeamTypeEnum,
   BendTypeEnum,
@@ -7,14 +8,19 @@ import {
   ClefTypeEnum,
   DoubleMeasureAffiliatedSymbolNameEnum,
   DoubleNoteAffiliatedSymbolNameEnum,
+  DoubleSlotAffiliatedSymbolNameEnum,
+  DrumHeadTypeEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
   MusicScoreTypeEnum,
   NoteName,
   NoteSymbolTypeEnum,
+  PedalTypeEnum,
+  PitchTypeEnum,
   SingleMeasureAffiliatedSymbolNameEnum,
   SingleNoteAffiliatedSymbolNameEnum,
+  SingleSlotAffiliatedSymbolNameEnum,
   SlurTypeEnum,
   TabNoteInfoTypeEnum,
   TimeSignatureTypeEnum
@@ -37,7 +43,11 @@ export type MusicScore = {
 
   grandStaffs: GrandStaff[],
 
-  affiliatedSymbols: (DoubleNoteAffiliatedSymbol | DoubleMeasureAffiliatedSymbol)[] // 双音符、双小节附属型
+  affiliatedSymbols: (
+      | DoubleNoteAffiliatedSymbol
+      | DoubleMeasureAffiliatedSymbol
+      | DoubleSlotAffiliatedSymbol
+      )[] // 曲谱级附属（跨宿主）：双音符 / 双小节 / 双 slot；单宿主附属挂在宿主自身
 
   width: number,
 
@@ -124,6 +134,7 @@ export type SingleStaff = {
 /** 五线谱小节内的音符位 / 休止符位（简谱为 NoteNumber） */
 
 export type StaffSlot = NoteSymbol | NoteRest;
+export type DrumSlot = DrumNote | DrumRest;
 export type TabSlot = TabNote | TabRest
 
 /** 绑定在音符槽位上的歌词（含 Frame 偏移） */
@@ -131,17 +142,38 @@ export type Lyrics = {
   text: string
 } & Frame
 
-/** 小节内音符槽：五线 / tab / 简谱；lyrics 必选（可为空数组） */
-export type MeasureNoteSlot = (StaffSlot | TabSlot | NoteNumber) & {
-  lyrics: Lyrics[],
-  data: Object, // 用于用户自定义数据，比如范唱，伴奏的播放时间
+/** 槽内记谱体（不含槽级 lyrics / data / Frame） */
+export type MeasureNoteSymbol = StaffSlot | TabSlot | NoteNumber | DrumSlot
+
+/**
+ * 小节内音符槽：树节点（与复谱表 / 单谱表 / 小节同构：id + Frame）。
+ * 单 slot 附属（琶音 / 扫弦）挂在本节点 affiliatedSymbols；双 slot 附属（踏板 / pitch）经 startId/endId 锚定本节点 id；
+ * 符头级附属挂在 symbol 内 NotesInfo / NoteRest / NoteNumber。
+ */
+export type MeasureNoteSlot = {
+  id: string
+  lyrics: Lyrics[]
+  /** 单 slot 附属型（琶音 / 扫弦） */
+  affiliatedSymbols?: SingleSlotAffiliatedSymbol[]
+  data: Object
+  /** 槽内记谱体（自有 id / Frame，用于符头与单音附属） */
+  symbol: MeasureNoteSymbol
+} & Frame
+
+/** 鼓谱小节的上下两个声部：up 声部符干向上，down 声部符干向下；同 onset 的槽位纵向对齐 */
+export type MeasureNoteVoices = {
+  up: MeasureNoteSlot[]
+  down: MeasureNoteSlot[]
 }
 
 export type Measure = {
 
   id: string
 
-  notes: MeasureNoteSlot[],
+  notes: MeasureNoteSlot[] | MeasureNoteVoices,
+
+  /** 长休止符：为 true 时小节不渲染音符，连续的 longRest 小节合并成一组显示 */
+  longRest?: boolean,
 
   barline_f?: Barline, // 前置小节线（TimeSignature_f 之后）
 
@@ -226,6 +258,71 @@ export type DoubleNoteAffiliatedSymbol = {
 
       type?: SlurTypeEnum,
       relativeTextPoint?: { x: 0, y: 0 },
+    },
+
+  }
+
+} & Frame
+
+/** 单 slot 附属：挂在宿主 MeasureNoteSlot.affiliatedSymbols */
+export type SingleSlotAffiliatedSymbol = {
+
+  id: string
+
+  name: SingleSlotAffiliatedSymbolNameEnum,
+
+  data: {
+
+    arpeggio?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      arrow: boolean,
+      type?: ArpeggioTypeEnum,
+    },
+
+    strumming?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      arrow: boolean
+    },
+
+  }
+
+} & Frame
+
+/** 双 slot 附属：锚定起止两列；默认 x=slot 起点，y=小节底 */
+export type DoubleSlotAffiliatedSymbol = {
+
+  id: string
+
+  name: DoubleSlotAffiliatedSymbolNameEnum,
+
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string,
+
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string,
+
+  data: {
+
+    pedal?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      type?: PedalTypeEnum,
+    },
+
+    pitch?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      type?: PitchTypeEnum,
     },
 
   }
@@ -569,3 +666,54 @@ export type TabNoteInfo =
   type: TabNoteInfoTypeEnum.Strumming // 扫弦
   regionRange: TabNoteInfoRegionRange
 } & TabNoteGeometryStyle)
+
+
+// ==========================================鼓谱================================================
+
+export type DrumNote = {
+
+  id: string
+
+  type: NoteSymbolTypeEnum.Note
+
+  notesInfo: DrumNotesInfo[]
+
+} & Frame
+
+export type DrumRest = {
+
+  id: string
+
+  type: NoteSymbolTypeEnum.Rest
+
+  /** 休止符几何中心所在线位（与音符 region 同一坐标） */
+  region: number
+
+  chronaxie: Chronaxie
+
+  augmentationDot?: AugmentationDot
+
+  affiliatedSymbols?: SingleNoteAffiliatedSymbol[]
+
+} & Frame
+
+export type DrumNotesInfo = {
+
+  id: string
+
+  region: number
+
+  headType: DrumHeadTypeEnum
+
+  chronaxie: Chronaxie
+
+  beamType: BeamTypeEnum
+
+  augmentationDot?: AugmentationDot
+
+  affiliatedSymbols: SingleNoteAffiliatedSymbol[]
+
+  ghost?: boolean // 是否魔鬼音符
+
+
+} & Frame

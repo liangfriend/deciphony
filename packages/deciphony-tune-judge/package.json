@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/tune-judge",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "演唱音高与标准序列对比测评",
   "author": "liam",
   "license": "MIT",
@@ -29,6 +29,7 @@
   ],
   "packageManager": "pnpm@10.14.0",
   "dependencies": {
+    "@deciphony/pitch-detection": "workspace:*",
     "recorder-core": "^1.3.25011100"
   }
 }

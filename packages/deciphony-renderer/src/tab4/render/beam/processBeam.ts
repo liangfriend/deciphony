@@ -5,14 +5,14 @@
 
 import type {Tab6SkinPack} from "@/types/common";
 import {VDom} from "@/types/common";
-import type {NoteSymbol, StaffSlot} from "@/types/MusicScoreType";
+import type {MeasureNoteSlot, NoteSymbol} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
 import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {getSlotBeamChronaxie, getSlotBeamType, getSlotStemTargetId} from "../utils/note";
-import {isNoteSymbol} from "../utils/staffSlot";
+import {isNoteSymbol, slotIsNoteSymbol, slotSymbol} from "../utils/staffSlot";
 import {computeTab6BeamFromStemEnds, type StemEndPoint} from "./tab6BeamLine";
 
 const BEAM_DIRECTION = 'down' as const;
@@ -28,22 +28,25 @@ function getStemEndPoint(nodeIdMap: NodeIdMap, note: NoteSymbol): StemEndPoint |
 }
 
 /** 相邻可连杠 slot 分组（时值 / beamType 均用 notes[0]） */
-function buildBeamGroups(measure: { notes: StaffSlot[] }): NoteSymbol[][] {
+function buildBeamGroups(measure: { notes: MeasureNoteSlot[] }): NoteSymbol[][] {
     const groups: NoteSymbol[][] = [];
     for (let i = 0; i < measure.notes.length; i++) {
-        const slot = measure.notes[i];
-        if (!isNoteSymbol(slot) || slot.notesInfo.length === 0) continue;
-        const note = slot;
+        const measureSlot = measure.notes[i];
+        if (!slotIsNoteSymbol(measureSlot)) continue;
+        const note = slotSymbol(measureSlot) as NoteSymbol;
+        if (note.notesInfo.length === 0) continue;
         const chronaxie = getSlotBeamChronaxie(note);
         const beamType = getSlotBeamType(note);
-        const nextSlot = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
-        const nextNote = nextSlot && isNoteSymbol(nextSlot) && nextSlot.notesInfo.length > 0
-            ? nextSlot
+        const nextMeasureSlot = i < measure.notes.length - 1 ? measure.notes[i + 1] : undefined;
+        const nextSym = nextMeasureSlot && slotIsNoteSymbol(nextMeasureSlot) ? slotSymbol(nextMeasureSlot) : undefined;
+        const nextNote = nextSym && isNoteSymbol(nextSym) && nextSym.notesInfo.length > 0
+            ? nextSym as NoteSymbol
             : undefined;
         const hasTail = chronaxie <= 32;
-        const prevSlot = i > 0 ? measure.notes[i - 1] : undefined;
-        const preNote = prevSlot && isNoteSymbol(prevSlot) && prevSlot.notesInfo.length > 0
-            ? prevSlot
+        const prevMeasureSlot = i > 0 ? measure.notes[i - 1] : undefined;
+        const preSym = prevMeasureSlot && slotIsNoteSymbol(prevMeasureSlot) ? slotSymbol(prevMeasureSlot) : undefined;
+        const preNote = preSym && isNoteSymbol(preSym) && preSym.notesInfo.length > 0
+            ? preSym as NoteSymbol
             : undefined;
         const preHasTail = preNote != null && getSlotBeamChronaxie(preNote) <= 32;
         const nextHasTail = nextNote != null && getSlotBeamChronaxie(nextNote) <= 32;
@@ -98,7 +101,7 @@ function buildLinesPerSegment(beamCounts: number[], nStems: number, lineCount: n
 }
 
 export function processBeam(params: {
-    measure: { notes: StaffSlot[] };
+    measure: { notes: MeasureNoteSlot[] };
     nodeIdMap: NodeIdMap;
     vDoms: VDom[];
     symbolVDomsStartIdx: number;

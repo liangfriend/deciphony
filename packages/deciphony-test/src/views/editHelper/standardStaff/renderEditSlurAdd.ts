@@ -1,10 +1,19 @@
-import {isNoteSymbol} from '@deciphony/renderer'
+import {isNoteSymbol, slotSymbol} from '@deciphony/renderer'
 import type {Measure, MusicScore, NotesInfo, NoteSymbol, SingleStaff} from '@deciphony/renderer'
 import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
 import type {NoteHeadEditSlot} from './renderEditNoteHeadProperties'
+import {getMeasureVoices} from '@deciphony/renderer'
+import type {MeasureNoteSlot} from '@deciphony/renderer'
 
 /** 连音线跨越的连续音符位数（含当前音符） */
 export type SlurSpan = 2 | 3 | 4
+
+type VoiceKey = 'up' | 'down'
+
+/** 普通小节只有 up；鼓谱按声部取，连音线只在同一声部内找终点 */
+function voiceSlots(measure: Measure, voice: VoiceKey): MeasureNoteSlot[] {
+  return getMeasureVoices(measure)[voice]
+}
 
 export const SLUR_SPAN_OPTIONS: SlurSpan[] = [2, 3, 4]
 
@@ -26,6 +35,7 @@ export function findNotesInfoAtRightOffset(
   startNoteIndex: number,
   slotsToRight: number,
   voiceIndex: number,
+  voice: VoiceKey = 'up',
 ): NotesInfo | null {
   if (slotsToRight <= 0) return null
 
@@ -37,14 +47,14 @@ export function findNotesInfoAtRightOffset(
     if (measureIndex > startMeasureIndex + 1) return null
     if (measureIndex >= singleStaff.measures.length) return null
 
-    const measure = singleStaff.measures[measureIndex]!
-    if (noteIndex >= measure.notes.length) {
+    const slots = voiceSlots(singleStaff.measures[measureIndex]!, voice)
+    if (noteIndex >= slots.length) {
       measureIndex += 1
       noteIndex = 0
       continue
     }
 
-    const slot = measure.notes[noteIndex]!
+    const slot = slotSymbol(slots[noteIndex]!)
     noteIndex += 1
     if (!isNoteSymbol(slot)) continue
 
@@ -64,6 +74,7 @@ function resolveNoteHeadAnchor(
   measureIndex: number
   noteIndex: number
   voiceIndex: number
+  voice: VoiceKey
   startInfo: NotesInfo
 } | null {
   const {singleStaff, measure, note, info} = editSlot
@@ -72,13 +83,18 @@ function resolveNoteHeadAnchor(
   const measureIndex = singleStaff.measures.indexOf(measure as Measure)
   if (measureIndex < 0) return null
 
-  const noteIndex = measure.notes.indexOf(note)
+  let voice: VoiceKey = 'up'
+  let noteIndex = voiceSlots(measure, 'up').findIndex((s) => slotSymbol(s) === note)
+  if (noteIndex < 0) {
+    voice = 'down'
+    noteIndex = voiceSlots(measure, 'down').findIndex((s) => slotSymbol(s) === note)
+  }
   if (noteIndex < 0) return null
 
   const voiceIndex = note.notesInfo.indexOf(info)
   if (voiceIndex < 0) return null
 
-  return {singleStaff, measureIndex, noteIndex, voiceIndex, startInfo: info}
+  return {singleStaff, measureIndex, noteIndex, voiceIndex, voice, startInfo: info}
 }
 
 /** 在选中音符头与右侧第 (span-1) 个音符头之间添加连音线；不足两小节内音符则失败 */
@@ -92,6 +108,7 @@ export function tryAddSlurFromNoteHead(editSlot: NoteHeadEditSlot, span: SlurSpa
     anchor.noteIndex,
     span - 1,
     anchor.voiceIndex,
+    anchor.voice,
   )
   if (!endInfo || endInfo.id === anchor.startInfo.id) return false
 

@@ -1,5 +1,9 @@
 import {
-  NoteSymbolTypeEnum,
+  isNoteNumberSymbol,
+  isNoteRest,
+  isNoteSymbol,
+  getMeasureSlots,
+  slotSymbol,
   type MeasureNoteSlot,
   type MusicScore,
   type NoteNumber,
@@ -7,13 +11,14 @@ import {
   type NoteSymbol,
   type NotesNumberInfo,
 } from '@deciphony/renderer'
+import {isNoteNumberSlot as isMeasureNoteNumberSlot} from '../dr-edit/score-builder/noteSlot'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../scoreUtil'
 import {MAX_SYNC_SECONDS} from './constants'
 import type {FlattenSlotItem, FlattenStaffRow, NotePassMap} from './types'
 
 function ensureData(slot: MeasureNoteSlot): Record<string, unknown> {
   if (!slot.data || typeof slot.data !== 'object') {
-    ;(slot as {data: Record<string, unknown>}).data = {}
+    slot.data = {}
   }
   return slot.data as Record<string, unknown>
 }
@@ -88,10 +93,6 @@ export function writeSlotTime(
   return writePassTime(slotRef, timePropName, 0, seconds)
 }
 
-function isNoteNumberSlot(slot: MeasureNoteSlot): slot is NoteNumber & MeasureNoteSlot {
-  return !('type' in slot)
-}
-
 function isNumberRestInfo(ni: NotesNumberInfo): boolean {
   return ni.syllable === 0 || ni.syllable === 'X'
 }
@@ -102,9 +103,9 @@ function slotVisual(
   FlattenSlotItem,
   'chronaxie' | 'isRest' | 'regions' | 'syllables' | 'octaveDots' | 'highlightIds'
 > | null {
-  // 简谱 NoteNumber：无 type 字段
-  if (isNoteNumberSlot(slot)) {
-    const infos = slot.notesInfo ?? []
+  if (isMeasureNoteNumberSlot(slot)) {
+    const note = slotSymbol(slot) as NoteNumber
+    const infos = note.notesInfo ?? []
     if (!infos.length) return null
     const pitched = infos.filter((ni) => !isNumberRestInfo(ni))
     const isRest = pitched.length === 0
@@ -130,19 +131,20 @@ function slotVisual(
     }
   }
 
-  const s = slot as MeasureNoteSlot & (NoteSymbol | NoteRest)
-  if (s.type === NoteSymbolTypeEnum.Rest) {
+  const s = slotSymbol(slot)
+  if (isNoteRest(s)) {
+    const rest = s as NoteRest
     return {
-      chronaxie: s.chronaxie,
+      chronaxie: rest.chronaxie,
       isRest: true,
       regions: [],
       syllables: [],
       octaveDots: [],
-      highlightIds: [s.id],
+      highlightIds: [rest.id],
     }
   }
-  if (s.type === NoteSymbolTypeEnum.Note) {
-    const infos = s.notesInfo ?? []
+  if (isNoteSymbol(s)) {
+    const infos = (s as NoteSymbol).notesInfo ?? []
     if (!infos.length) return null
     return {
       chronaxie: infos[0]!.chronaxie,
@@ -201,7 +203,7 @@ export function buildFlattenStaffRows(
       const measure = grandStaffs[grandStaffIndex]?.staves?.[si]?.measures?.[measureIndex]
       if (!measure) continue
 
-      for (const slot of measure.notes ?? []) {
+      for (const slot of getMeasureSlots(measure)) {
         const visual = slotVisual(slot)
         if (!visual) continue
         const slotId = (slot as MeasureNoteSlot & {id: string}).id

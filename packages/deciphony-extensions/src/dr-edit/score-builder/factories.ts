@@ -1,14 +1,19 @@
 import {
     AccidentalTypeEnum,
+    ArpeggioTypeEnum,
     BarlineTypeEnum,
     ClefTypeEnum,
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
+    DoubleSlotAffiliatedSymbolNameEnum,
     KeySignatureTypeEnum,
     MeasureEndRepeatEnum,
     MeasureStartRepeatEnum,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
+    PedalTypeEnum,
+    PitchTypeEnum,
+    SingleSlotAffiliatedSymbolNameEnum,
     TimeSignatureTypeEnum,
 } from '@deciphony/renderer';
 import type {
@@ -19,11 +24,14 @@ import type {
     Clef,
     DoubleMeasureAffiliatedSymbol,
     DoubleNoteAffiliatedSymbol,
+    DoubleSlotAffiliatedSymbol,
     GrandStaff,
     KeySignature,
     Lyrics,
     Measure,
     MeasureEndRepeat,
+    MeasureNoteSlot,
+    MeasureNoteSymbol,
     MeasureStartRepeat,
     MusicScore,
     NoteNumber,
@@ -31,13 +39,15 @@ import type {
     NotesInfo,
     NotesNumberInfo,
     NoteSymbol,
+    SingleSlotAffiliatedSymbol,
     SingleStaff,
     TimeSignature,
 } from '@deciphony/renderer';
-import {DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME} from './constants';
+import {DEFAULT_MEASURE_HEIGHT, DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME, defaultSingleSlotEndPoint} from './constants';
 import {newId} from './id';
 import {resolveDefaultBeamType} from './autoBeam';
 import type {
+    CreateArpeggioOptions,
     CreateGrandStaffOptions,
     CreateMeasureOptions,
     CreateMusicScoreOptions,
@@ -45,8 +55,11 @@ import type {
     CreateNoteRestOptions,
     CreateNotesInfoOptions,
     CreateNoteSymbolOptions,
+    CreatePedalOptions,
+    CreatePitchOptions,
     CreateSingleStaffOptions,
     CreateSlurOptions,
+    CreateStrummingOptions,
     FramePartial,
 } from './types';
 
@@ -63,11 +76,11 @@ function resolveAccidental(
 }
 
 function resolveAugmentationDot(
-    input: AugmentationDot | AccidentalTypeEnum | undefined,
+    input: AugmentationDot | 1 | 2 | 3 | undefined,
 ): AugmentationDot | undefined {
     if (input == null) return undefined;
-    if (typeof input === 'object' && 'count' in input) return input;
-    return createAugmentationDot(input as 1 | 2 | 3);
+    if (typeof input === 'object') return input;
+    return createAugmentationDot(input);
 }
 
 // —— 曲谱 / 结构 ——
@@ -120,6 +133,7 @@ export function createSingleStaff(options: CreateSingleStaffOptions = {}): Singl
     const isTab =
         options.notationType === MusicScoreTypeEnum.Tab6 ||
         options.notationType === MusicScoreTypeEnum.Tab4;
+    const isDrum = options.notationType === MusicScoreTypeEnum.DrumNotation;
     return {
         ...ZERO_FRAME,
         id: newId(),
@@ -129,7 +143,9 @@ export function createSingleStaff(options: CreateSingleStaffOptions = {}): Singl
                     ? {}
                     : isTab
                         ? {clef: ClefTypeEnum.Tab, timeSignature: TimeSignatureTypeEnum['4_4']}
-                        : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
+                        : isDrum
+                            ? {clef: ClefTypeEnum.Percussion, timeSignature: TimeSignatureTypeEnum['4_4'], voices: true}
+                            : {clef: ClefTypeEnum.Treble, timeSignature: TimeSignatureTypeEnum['4_4']},
             )]
             : [],
         uSpaceI: options.uSpaceI ?? DEFAULT_SPACING.singleStaff.uSpaceI,
@@ -141,12 +157,12 @@ export function createSingleStaff(options: CreateSingleStaffOptions = {}): Singl
 }
 
 export function createMeasure(options: CreateMeasureOptions = {}): Measure {
-    const {clef, timeSignature, keySignature, barline, widthRatioForMeasure, data, ...frameRest} = options;
+    const {clef, timeSignature, keySignature, barline, widthRatioForMeasure, data, voices, ...frameRest} = options;
     const measure: Measure = {
         ...ZERO_FRAME,
         ...frameRest,
         id: newId(),
-        notes: [],
+        notes: voices ? {up: [], down: []} : [],
         affiliatedSymbols: [],
         widthRatioForMeasure: widthRatioForMeasure ?? DEFAULT_SPACING.measureWidthRatioForMeasure,
         barline_b: createBarline(barline ?? BarlineTypeEnum.Single_barline),
@@ -326,7 +342,7 @@ function mapGraceList(list: CreateNotesInfoOptions[] | undefined): NotesInfo[] |
     return list.map((g) => createNotesInfo(g));
 }
 
-/** 新建音符默认一行空歌词（g-d 高度全局共享，各谱表起步行数对齐） */
+/** 新建歌词默认一行空歌词（g-d 高度全局共享，各谱表起步行数对齐） */
 function defaultEmptyLyrics(): Lyrics[] {
     return [{
         text: '',
@@ -337,10 +353,38 @@ function defaultEmptyLyrics(): Lyrics[] {
     }];
 }
 
-export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSymbol & {lyrics: Lyrics[]; data: Object} {
+/** 包装槽内记谱体为小节音符槽（树节点：id + Frame） */
+export function createMeasureNoteSlot(options: {
+    symbol: MeasureNoteSymbol
+    lyrics?: Lyrics[]
+    affiliatedSymbols?: SingleSlotAffiliatedSymbol[]
+    data?: Object
+    widthRatio?: number
+    widthRatioForMeasure?: number
+    id?: string
+    relativeX?: number
+    relativeY?: number
+    relativeW?: number
+    relativeH?: number
+}): MeasureNoteSlot {
     const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
-    const widthRatioForMeasure = options.widthRatioForMeasure ?? widthRatio;
+    return {
+        ...ZERO_FRAME,
+        id: options.id ?? newId(),
+        relativeX: options.relativeX ?? 0,
+        relativeY: options.relativeY ?? 0,
+        relativeW: options.relativeW ?? 0,
+        relativeH: options.relativeH ?? 0,
+        widthRatio,
+        widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
+        lyrics: options.lyrics ?? defaultEmptyLyrics(),
+        affiliatedSymbols: options.affiliatedSymbols ?? [],
+        data: options.data ?? {},
+        symbol: options.symbol,
+    };
+}
 
+export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): MeasureNoteSlot {
     let notesInfo: NotesInfo[];
     if (options.notesInfo?.length) {
         notesInfo = options.notesInfo.map((ni) => createNotesInfo(ni));
@@ -359,56 +403,57 @@ export function createNoteSymbol(options: CreateNoteSymbolOptions = {}): NoteSym
         throw new Error('createNoteSymbol：请提供 region 或 notesInfo');
     }
 
-    const note: NoteSymbol & {lyrics: Lyrics[]; data: Object} = {
+    const symbol: NoteSymbol = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Note,
         notesInfo,
-        widthRatio,
-        widthRatioForMeasure,
         graceNotes: mapGraceList(options.graceNotes),
         graceNotesAfter: mapGraceList(options.graceNotesAfter),
-        lyrics: options.lyrics ?? defaultEmptyLyrics(),
-        data: options.data ?? {},
     };
     if (options.clef != null) {
-        note.clef = createClef(options.clef);
+        symbol.clef = createClef(options.clef);
     }
-    return note;
+    return createMeasureNoteSlot({
+        symbol,
+        lyrics: options.lyrics,
+        data: options.data,
+        widthRatio: options.widthRatio,
+        widthRatioForMeasure: options.widthRatioForMeasure,
+    });
 }
 
-export function createNoteRest(options: CreateNoteRestOptions = {}): NoteRest & {lyrics: Lyrics[]; data: Object} {
-    const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
+export function createNoteRest(options: CreateNoteRestOptions = {}): MeasureNoteSlot {
     const augmentationDot = resolveAugmentationDot(options.augmentationDot);
-    const rest: NoteRest & {lyrics: Lyrics[]; data: Object} = {
+    const symbol: NoteRest = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Rest,
         chronaxie: options.chronaxie ?? 64,
         affiliatedSymbols: options.affiliatedSymbols ?? [],
-        widthRatio,
-        widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
-        lyrics: options.lyrics ?? defaultEmptyLyrics(),
-        data: options.data ?? {},
         ...(augmentationDot ? {augmentationDot} : {}),
     };
     if (options.clef != null) {
-        rest.clef = createClef(options.clef);
+        symbol.clef = createClef(options.clef);
     }
-    return rest;
+    return createMeasureNoteSlot({
+        symbol,
+        lyrics: options.lyrics,
+        data: options.data,
+        widthRatio: options.widthRatio,
+        widthRatioForMeasure: options.widthRatioForMeasure,
+    });
 }
 
 export function createNotesNumberInfo(
     syllable: NotesNumberInfo['syllable'],
-    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental' | 'chronaxie' | 'beamType' | 'augmentationDot'>> & {
+    partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'chronaxie' | 'beamType'>> & {
+        accidental?: AccidentalTypeEnum | Accidental
+        augmentationDot?: AugmentationDot | 1 | 2 | 3
         beamOnset?: number
     },
 ): NotesNumberInfo {
-    const accidental = partial?.accidental
-        ? typeof partial.accidental === 'object'
-            ? partial.accidental
-            : createAccidental(partial.accidental)
-        : undefined;
+    const accidental = resolveAccidental(partial?.accidental);
     const augmentationDot = resolveAugmentationDot(partial?.augmentationDot);
     const chronaxie = partial?.chronaxie ?? 64;
     const beamType = resolveDefaultBeamType({
@@ -417,6 +462,7 @@ export function createNotesNumberInfo(
         chronaxie,
     });
     return {
+        ...ZERO_FRAME,
         id: newId(),
         syllable,
         chronaxie,
@@ -427,8 +473,7 @@ export function createNotesNumberInfo(
     };
 }
 
-export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber & {lyrics: Lyrics[]; data: Object} {
-    const widthRatio = options.widthRatio ?? DEFAULT_SPACING.noteWidthRatio;
+export function createNoteNumber(options: CreateNoteNumberOptions): MeasureNoteSlot {
     const chronaxie = options.chronaxie ?? 64;
     const beamType = options.beamType;
     const beamOnset = options.beamOnset;
@@ -459,16 +504,19 @@ export function createNoteNumber(options: CreateNoteNumberOptions): NoteNumber &
         ];
     }
 
-    return {
+    const symbol: NoteNumber = {
         ...ZERO_FRAME,
         id: newId(),
         notesInfo,
         affiliatedSymbols: [],
-        widthRatio,
-        widthRatioForMeasure: options.widthRatioForMeasure ?? widthRatio,
-        lyrics: options.lyrics ?? defaultEmptyLyrics(),
-        data: options.data ?? {},
     };
+    return createMeasureNoteSlot({
+        symbol,
+        lyrics: options.lyrics,
+        data: options.data,
+        widthRatio: options.widthRatio,
+        widthRatioForMeasure: options.widthRatioForMeasure,
+    });
 }
 
 // —— 曲谱级附属 ——
@@ -520,5 +568,125 @@ export function createSlur(options: CreateSlurOptions): DoubleNoteAffiliatedSymb
             },
         },
         ...partial,
+    };
+}
+
+/**
+ * 单 slot 琶音：放入宿主 MeasureNoteSlot.affiliatedSymbols。
+ * 两端默认同锚点；relativeEndPoint.y = -measureHeight，避免创建时挤成一点。
+ */
+export function createArpeggio(options: CreateArpeggioOptions = {}): SingleSlotAffiliatedSymbol {
+    const {
+        measureHeight = DEFAULT_MEASURE_HEIGHT,
+        type = ArpeggioTypeEnum.Normal,
+        arrow = true,
+        partial,
+    } = options;
+    const {data: partialData, id: partialId, name: _name, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: SingleSlotAffiliatedSymbolNameEnum.Arpeggio,
+        data: {
+            arpeggio: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: defaultSingleSlotEndPoint(measureHeight),
+                arrow,
+                type,
+                ...partialData?.arpeggio,
+            },
+        },
+    };
+}
+
+/**
+ * 单 slot 扫弦：放入宿主 MeasureNoteSlot.affiliatedSymbols。
+ * 默认 relativeEndPoint.y = -measureHeight。
+ */
+export function createStrumming(options: CreateStrummingOptions = {}): SingleSlotAffiliatedSymbol {
+    const {
+        measureHeight = DEFAULT_MEASURE_HEIGHT,
+        arrow = true,
+        partial,
+    } = options;
+    const {data: partialData, id: partialId, name: _name, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: SingleSlotAffiliatedSymbolNameEnum.Strumming,
+        data: {
+            strumming: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: defaultSingleSlotEndPoint(measureHeight),
+                arrow,
+                ...partialData?.strumming,
+            },
+        },
+    };
+}
+
+/**
+ * 双 slot 踏板：startId / endId = MeasureNoteSlot.id。
+ * 默认锚点 x=各 slot 列起点、y=小节底；相对端点归零。
+ */
+export function createPedal(options: CreatePedalOptions): DoubleSlotAffiliatedSymbol {
+    const {
+        startId,
+        endId,
+        type = PedalTypeEnum.Normal,
+        partial,
+    } = options;
+    const {data: partialData, id: partialId, name: _name, startId: _s, endId: _e, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: DoubleSlotAffiliatedSymbolNameEnum.Pedal,
+        startId,
+        endId,
+        data: {
+            pedal: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: {x: 0, y: 0},
+                type,
+                ...partialData?.pedal,
+            },
+        },
+    };
+}
+
+/**
+ * 双 slot 八度记号：startId / endId = MeasureNoteSlot.id。
+ * direction 决定 Pitch_up / Pitch_down。
+ */
+export function createPitch(options: CreatePitchOptions): DoubleSlotAffiliatedSymbol {
+    const {
+        startId,
+        endId,
+        direction,
+        type = PitchTypeEnum['8va'],
+        partial,
+    } = options;
+    const {data: partialData, id: partialId, name: _name, startId: _s, endId: _e, ...rest} = partial ?? {};
+    const name = direction === 'up'
+        ? DoubleSlotAffiliatedSymbolNameEnum.Pitch_up
+        : DoubleSlotAffiliatedSymbolNameEnum.Pitch_down;
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name,
+        startId,
+        endId,
+        data: {
+            pitch: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: {x: 0, y: 0},
+                type,
+                ...partialData?.pitch,
+            },
+        },
     };
 }

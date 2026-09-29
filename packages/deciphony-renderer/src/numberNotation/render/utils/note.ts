@@ -1,4 +1,5 @@
-import type {AugmentationDot, Measure, NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
+import type {AugmentationDot, Measure, MeasureNoteSlot, NoteNumber, NotesNumberInfo} from "@/types/MusicScoreType";
+import {slotSymbol} from '@/standardStaff/render/utils/staffSlot';
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import type {NumberNotationSkinPack} from "@/types/common";
 import {resolveWidthRatio} from "@/utils/widthRatio";
@@ -6,10 +7,13 @@ import {
     getAccidentalSkinKey,
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
+    getKeySignatureSkinKey,
     getSyllableSkinKey,
     getTimeSignatureSkinKey,
 } from "./skinKey";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
+import {GRACE_NOTE_SCALE} from "@/render/graceNote";
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 /** 单个 NotesNumberInfo 时值（兼容旧数据 NoteNumber.chronaxie） */
 export function getInfoChronaxie(info: NotesNumberInfo, note?: NoteNumber): number {
@@ -136,15 +140,38 @@ type WidthPick = (
 ) => number;
 
 function getSlotSkinWidthRatio(
+    measureSlot: MeasureNoteSlot,
     note: NoteNumber,
     skin: NumberNotationSkinPack,
     forMeasure: boolean,
 ): number {
     const slotSkinKey = getSyllableSkinKey('X');
     const slotW = forMeasure
-        ? resolveWidthRatio(note.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure)
-        : resolveWidthRatio(note.widthRatio, skin[slotSkinKey]?.widthRatio);
+        ? resolveWidthRatio(measureSlot.widthRatioForMeasure, skin[slotSkinKey]?.widthRatioForMeasure)
+        : resolveWidthRatio(measureSlot.widthRatio, skin[slotSkinKey]?.widthRatio);
     return slotW * getChronaxieWidthCoefficient(getSlotChronaxie(note));
+}
+
+function collectGraceNumberWidthRatio(
+    graceNotes: NotesNumberInfo[] | undefined,
+    skin: NumberNotationSkinPack,
+    pick: WidthPick,
+): number {
+    let sub = 0;
+    for (const g of graceNotes ?? []) {
+        const syl = g.syllable === 0 || g.syllable === 'X'
+            ? 'X' as const
+            : g.syllable as 1 | 2 | 3 | 4 | 5 | 6 | 7;
+        sub += pick(skin[getSyllableSkinKey(syl)], g.widthRatio) * GRACE_NOTE_SCALE;
+        if (g.accidental) {
+            sub += pick(skin[getAccidentalSkinKey(g.accidental.type)], g.accidental.widthRatio) * GRACE_NOTE_SCALE;
+        }
+        if (g.augmentationDot) {
+            sub += pick(skin[getAugmentationDotSkinKey(g.augmentationDot)], g.augmentationDot.widthRatio)
+                * GRACE_NOTE_SCALE;
+        }
+    }
+    return sub;
 }
 
 function collectHeadSubWidthRatio(
@@ -162,6 +189,9 @@ function collectHeadSubWidthRatio(
             sub += pick(skin[getAugmentationDotSkinKey(n.augmentationDot)], n.augmentationDot.widthRatio);
         }
     }
+    // 倚音计入符头列宽（按缩放比例）
+    sub += collectGraceNumberWidthRatio(note.graceNotes, skin, pick);
+    sub += collectGraceNumberWidthRatio(note.graceNotesAfter, skin, pick);
     return sub;
 }
 
@@ -180,71 +210,76 @@ function collectAugDotSubWidthRatio(
     return sub;
 }
 
-/** 符头 onset 列：slot widthRatio + 变音/附点等；有加时线时不含附点。倚音宽不参与列宽。 */
+/** 符头 onset 列：slot widthRatio + 变音/附点/倚音等；有加时线时不含附点。 */
 export function getNoteHeadColumnWidthRatio(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
     _measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     const hasAddLines = getSlotAddLineOnsetOffsets(note).length > 0;
     return (
-        getSlotSkinWidthRatio(note, skin, false)
+        getSlotSkinWidthRatio(measureSlot, note, skin, false)
         + collectHeadSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio), !hasAddLines)
     );
 }
 
 /** 中间加时线 onset 列：仅皮肤 widthRatio */
 export function getAddLineOnlyColumnWidthRatio(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
 ): number {
-    return getSlotSkinWidthRatio(note, skin, false);
+    const note = slotSymbol(measureSlot) as NoteNumber;
+    return getSlotSkinWidthRatio(measureSlot, note, skin, false);
 }
 
 /** 最后一条加时线 onset 列：皮肤 + 附点（若有） */
 export function getLastAddLineColumnWidthRatio(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     return (
-        getSlotSkinWidthRatio(note, skin, false)
+        getSlotSkinWidthRatio(measureSlot, note, skin, false)
         + collectAugDotSubWidthRatio(note, skin, (item, data) => resolveWidthRatio(data, item?.widthRatio))
     );
 }
 
 /** @deprecated 列布局符头 onset 用 getNoteHeadColumnWidthRatio */
 export function getNoteColumnWidthRatio(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
     measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
-    return getNoteHeadColumnWidthRatio(note, skin, measureHeight);
+    return getNoteHeadColumnWidthRatio(measureSlot, skin, measureHeight);
 }
 
 /** 音符在小节内的宽度占比（符头 + 各加时线虚拟列） */
 export function getNoteWidthRatio(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
     measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     const offsets = getSlotAddLineOnsetOffsets(note);
-    let acc = getNoteHeadColumnWidthRatio(note, skin, measureHeight);
+    let acc = getNoteHeadColumnWidthRatio(measureSlot, skin, measureHeight);
     for (let i = 0; i < offsets.length; i++) {
         acc += i === offsets.length - 1
-            ? getLastAddLineColumnWidthRatio(note, skin)
-            : getAddLineOnlyColumnWidthRatio(note, skin);
+            ? getLastAddLineColumnWidthRatio(measureSlot, skin)
+            : getAddLineOnlyColumnWidthRatio(measureSlot, skin);
     }
     return acc;
 }
 
 function getNoteHeadColumnWidthRatioForMeasure(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
     _measureHeight: number,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     const hasAddLines = getSlotAddLineOnsetOffsets(note).length > 0;
     return (
-        getSlotSkinWidthRatio(note, skin, true)
+        getSlotSkinWidthRatio(measureSlot, note, skin, true)
         + collectHeadSubWidthRatio(
             note,
             skin,
@@ -255,18 +290,20 @@ function getNoteHeadColumnWidthRatioForMeasure(
 }
 
 function getAddLineOnlyColumnWidthRatioForMeasure(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
 ): number {
-    return getSlotSkinWidthRatio(note, skin, true);
+    const note = slotSymbol(measureSlot) as NoteNumber;
+    return getSlotSkinWidthRatio(measureSlot, note, skin, true);
 }
 
 function getLastAddLineColumnWidthRatioForMeasure(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     return (
-        getSlotSkinWidthRatio(note, skin, true)
+        getSlotSkinWidthRatio(measureSlot, note, skin, true)
         + collectAugDotSubWidthRatio(
             note,
             skin,
@@ -277,31 +314,33 @@ function getLastAddLineColumnWidthRatioForMeasure(
 
 /** 音符对小节在单谱表内宽度占比的系数 */
 export function getNoteWidthRatioForMeasure(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
     measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45,
 ): number {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     const offsets = getSlotAddLineOnsetOffsets(note);
-    let acc = getNoteHeadColumnWidthRatioForMeasure(note, skin, measureHeight);
+    let acc = getNoteHeadColumnWidthRatioForMeasure(measureSlot, skin, measureHeight);
     for (let i = 0; i < offsets.length; i++) {
         acc += i === offsets.length - 1
-            ? getLastAddLineColumnWidthRatioForMeasure(note, skin)
-            : getAddLineOnlyColumnWidthRatioForMeasure(note, skin);
+            ? getLastAddLineColumnWidthRatioForMeasure(measureSlot, skin)
+            : getAddLineOnlyColumnWidthRatioForMeasure(measureSlot, skin);
     }
     return acc;
 }
 
 /** 简谱列布局：为 slot 登记加时线虚拟 onset 的 widthRatio（不含 DEFAULT） */
 export function getNumberNotationExtraOnsetRatios(
-    note: NoteNumber,
+    measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,
 ): Array<{ onsetOffset: number; ratio: number }> {
+    const note = slotSymbol(measureSlot) as NoteNumber;
     const offsets = getSlotAddLineOnsetOffsets(note);
     return offsets.map((offset, index) => ({
         onsetOffset: offset,
         ratio: index === offsets.length - 1
-            ? getLastAddLineColumnWidthRatio(note, skin)
-            : getAddLineOnlyColumnWidthRatio(note, skin),
+            ? getLastAddLineColumnWidthRatio(measureSlot, skin)
+            : getAddLineOnlyColumnWidthRatio(measureSlot, skin),
     }));
 }
 
@@ -341,14 +380,26 @@ export function resolveAugmentationDotAnchorXFromLayout(
 export function getMeasureWidthRatio(measure: Measure, skin: NumberNotationSkinPack): number {
     let acc = 0;
     acc += resolveWidthRatio(measure.widthRatioForMeasure, skin[NumberNotationSkinKeyEnum.Measure]?.widthRatioForMeasure);
-    for (let i = 0; i < measure.notes.length; i++) {
-        acc += getNoteWidthRatioForMeasure(measure.notes[i] as NoteNumber, skin);
+    for (const measureSlot of getMeasureSlots(measure)) {
+        acc += getNoteWidthRatioForMeasure(measureSlot, skin);
     }
     if (measure.barline_f) {
         acc += resolveWidthRatio(measure.barline_f.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_f.type)]?.widthRatioForMeasure);
     }
     if (measure.barline_b) {
         acc += resolveWidthRatio(measure.barline_b.widthRatioForMeasure, skin[getBarlineSkinKey(measure.barline_b.type)]?.widthRatioForMeasure);
+    }
+    if (measure.keySignature_f) {
+        acc += resolveWidthRatio(
+            measure.keySignature_f.widthRatioForMeasure,
+            skin[getKeySignatureSkinKey(measure.keySignature_f.type)]?.widthRatioForMeasure,
+        );
+    }
+    if (measure.keySignature_b) {
+        acc += resolveWidthRatio(
+            measure.keySignature_b.widthRatioForMeasure,
+            skin[getKeySignatureSkinKey(measure.keySignature_b.type)]?.widthRatioForMeasure,
+        );
     }
     if (measure.timeSignature_f) {
         acc += resolveWidthRatio(measure.timeSignature_f.widthRatioForMeasure, skin[getTimeSignatureSkinKey(measure.timeSignature_f.type)]?.widthRatioForMeasure);

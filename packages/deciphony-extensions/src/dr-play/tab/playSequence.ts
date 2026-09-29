@@ -1,7 +1,7 @@
-import {MusicScoreTypeEnum, NoteSymbolTypeEnum} from '@deciphony/renderer'
-import type {Measure, MusicScore, TabNote, TabNoteInfo, TabRest, tabChord} from '@deciphony/renderer'
+import {isNoteRest, isNoteSymbol, MusicScoreTypeEnum, NoteSymbolTypeEnum, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
+import type {Measure, MeasureNoteSlot, MusicScore, TabNote, TabNoteInfo, tabChord} from '@deciphony/renderer'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../../scoreUtil'
-import {applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
+import {applyPitchOctaveOffset, applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 import {
@@ -21,15 +21,22 @@ function openMidiForScore(type: MusicScore['type']): readonly number[] {
   return type === MusicScoreTypeEnum.Tab4 ? UKULELE_OPEN_MIDI : GUITAR_OPEN_MIDI
 }
 
-function isTabNote(slot: Measure['notes'][number]): slot is TabNote & Measure['notes'][number] {
-  return 'type' in slot
-    && slot.type === NoteSymbolTypeEnum.Note
-    && 'isSlap' in slot
-    && 'notesInfo' in slot
+function isTabNote(measureSlot: MeasureNoteSlot): measureSlot is MeasureNoteSlot {
+  const slot = slotSymbol(measureSlot)
+  return isNoteSymbol(slot) && 'isSlap' in slot
 }
 
-function isTabRest(slot: Measure['notes'][number]): slot is TabRest & Measure['notes'][number] {
-  return 'type' in slot && slot.type === NoteSymbolTypeEnum.Rest && !('notesInfo' in slot)
+function isTabRest(measureSlot: MeasureNoteSlot): boolean {
+  const slot = slotSymbol(measureSlot)
+  return isNoteRest(slot)
+}
+
+function tabNoteBody(measureSlot: MeasureNoteSlot): TabNote {
+  return slotSymbol(measureSlot) as TabNote
+}
+
+function tabRestBody(measureSlot: MeasureNoteSlot): import('@deciphony/renderer').NoteRest {
+  return slotSymbol(measureSlot) as import('@deciphony/renderer').NoteRest
 }
 
 function infoDuration(info: TabNoteInfo): Unit256 {
@@ -156,16 +163,17 @@ function appendMeasureSequence(
   noteStaveIndex: Map<string, number>,
 ): Unit256 {
   let playTime = measureStart
-  for (const slot of measure.notes) {
-    if (isTabRest(slot)) {
-      rememberChord(state, 'chord' in slot ? (slot as {chord?: tabChord}).chord : undefined)
-      const duration = getDuration(slot.chronaxie, slot.augmentationDot?.count ?? 0)
-      seq.push({note_id: slot.id, midi: 0, duration, playTime})
+  for (const measureSlot of getMeasureSlots(measure)) {
+    if (isTabRest(measureSlot)) {
+      const rest = tabRestBody(measureSlot)
+      rememberChord(state, 'chord' in rest ? (rest as {chord?: tabChord}).chord : undefined)
+      const duration = getDuration(rest.chronaxie, rest.augmentationDot?.count ?? 0)
+      seq.push({note_id: rest.id, midi: 0, duration, playTime})
       playTime += duration
       continue
     }
-    if (!isTabNote(slot)) continue
-    playTime = appendTabNote(seq, slot, playTime, state, openMidi, staveIndex, noteStaveIndex)
+    if (!isTabNote(measureSlot)) continue
+    playTime = appendTabNote(seq, tabNoteBody(measureSlot), playTime, state, openMidi, staveIndex, noteStaveIndex)
   }
   return playTime - measureStart
 }
@@ -209,5 +217,6 @@ export function getTabPlaySequence(musicScoreData: MusicScore): DR_playSequence 
   }
 
   applySlurTieRealDuration(seq, musicScoreData, noteStaveIndex)
+  applyPitchOctaveOffset(seq, musicScoreData)
   return seq.sort((a, b) => a.playTime - b.playTime)
 }

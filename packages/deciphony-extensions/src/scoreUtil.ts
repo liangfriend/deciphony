@@ -14,6 +14,10 @@ import {
     NotesInfo,
     NotesNumberInfo,
     NoteSymbolTypeEnum,
+    getMeasureSlots,
+    isNoteNumberSymbol,
+    isNoteSymbol,
+    slotSymbol,
     StaffSlot,
     TimeSignatureTypeEnum
 } from '@deciphony/renderer'
@@ -34,13 +38,14 @@ export const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11]
 export const DIATONIC_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
 
 /** 各谱号第一线下方锚点：startRegion 对应某个 C(do)，startMidi 为该 C 的 midi。
- * Tab 仅展示用，音高换算回退到高音谱号锚点。 */
+ * Tab / 打击乐谱号仅展示用，音高换算回退到高音谱号锚点。 */
 export const CLEF_ANCHOR: Record<ClefTypeEnum, { startRegion: number; startMidi: number }> = {
     [ClefTypeEnum.Treble]: {startRegion: -2, startMidi: 60}, // 第一线下方 C4
     [ClefTypeEnum.Bass]: {startRegion: -4, startMidi: 36}, // 第一线下方 C2
     [ClefTypeEnum.Alto]: {startRegion: -3, startMidi: 48}, // 第一线下方 C3
     [ClefTypeEnum.Tenor]: {startRegion: -1, startMidi: 48}, // 第一线下方 C3
     [ClefTypeEnum.Tab]: {startRegion: -2, startMidi: 60},
+    [ClefTypeEnum.Percussion]: {startRegion: -2, startMidi: 60},
 }
 
 export const ACC_OFFSET_MAP: Record<AlteredAccidental, number> = {
@@ -405,11 +410,11 @@ export function changeMeasureNotesKeySignature(
         }
     }
 
-    for (const slot of measure.notes) {
-        const s = slot as StaffSlot
+    for (const measureSlot of getMeasureSlots(measure)) {
+        const s = slotSymbol(measureSlot)
         // 音符 / 休止符上的 clef 会改变后续音名解析
-        if (s.clef) currentClef = s.clef.type
-        if (s.type !== NoteSymbolTypeEnum.Note) continue
+        if ('clef' in s && s.clef) currentClef = s.clef.type
+        if (!isNoteSymbol(s)) continue
         // 与播放顺序一致：前倚音 → 主音和弦 → 后倚音，共享小节作用域
         for (const g of s.graceNotes ?? []) transformInfo(g)
         for (const ni of s.notesInfo) transformInfo(ni)
@@ -865,13 +870,13 @@ function forEachNoteEndpointId(measure: Measure, visit: (id: string) => void): v
         visit(ni.id)
     }
 
-    for (const slot of measure.notes) {
-        if ('type' in slot) {
-            if (slot.type !== NoteSymbolTypeEnum.Note) continue
+    for (const measureSlot of getMeasureSlots(measure)) {
+        const slot = slotSymbol(measureSlot)
+        if (isNoteSymbol(slot)) {
             for (const ni of slot.notesInfo) visitNotesInfo(ni)
             for (const g of slot.graceNotes ?? []) visitNotesInfo(g)
             for (const g of slot.graceNotesAfter ?? []) visitNotesInfo(g)
-        } else {
+        } else if (isNoteNumberSymbol(slot)) {
             const nn = slot as NoteNumber
             for (const ni of nn.notesInfo) visitNotesNumberInfo(ni)
             for (const g of nn.graceNotes ?? []) visitNotesNumberInfo(g)

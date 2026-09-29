@@ -17,10 +17,48 @@ import {
     createSlurDragSession,
     isSlurSelected,
     isSlurVDom,
-    updateSlurDragFromPointer,
+    previewSlurDrag,
     type SlurDragSession,
     type SlurHandleKind,
+    type SlurHandlePoints,
 } from '../renderEditSlurDrag'
+import {
+    computeArpeggioHandlePoints,
+    createArpeggioDragSession,
+    isArpeggioSelected,
+    isArpeggioVDom,
+    previewArpeggioDrag,
+    type ArpeggioDragSession,
+    type VerticalHandleKind,
+    type VerticalHandlePoints,
+} from '../renderEditArpeggioDrag'
+import {
+    computeStrummingHandlePoints,
+    createStrummingDragSession,
+    isStrummingSelected,
+    isStrummingVDom,
+    previewStrummingDrag,
+    type StrummingDragSession,
+} from '../renderEditStrummingDrag'
+import {
+    computePedalHandlePoints,
+    createPedalDragSession,
+    isPedalSelected,
+    isPedalVDom,
+    previewPedalDrag,
+    type PedalDragSession,
+    type HorizontalHandleKind,
+    type HorizontalHandlePoints,
+} from '../renderEditPedalDrag'
+import {
+    computePitchHandlePoints,
+    createPitchDragSession,
+    isPitchSelected,
+    isPitchVDom,
+    previewPitchDrag,
+    type PitchDragSession,
+} from '../renderEditPitchDrag'
+import {flushScoreWrites} from '../scoreWriteGate'
 import {
     computeVoltaHandlePoints,
     createVoltaDragSession,
@@ -69,6 +107,7 @@ export type MusicScoreComponentExpose = {
     vdomDomId: typeof vdomDomId
     vdomSelectionKey: typeof vdomSelectionKey
     findElementByVDom: (node: VDom) => SVGElement | null
+    updateVDom: (targetId: string, patch: Partial<VDom>) => boolean
 }
 
 const TAB_NOTE_TAGS = new Set(['tabNoteNumber', 'arpeggio', 'strumming', 'bend', 'rest'])
@@ -96,6 +135,16 @@ export function useTabRenderEdit(
     const ghostNotePreview = ref<GhostTabPreview | null>(null)
     const tabHeadDragSession = ref<TabHeadDragSession | null>(null)
     const slurDragSession = ref<SlurDragSession | null>(null)
+    /** 拖拽中把手位置；不写回 vDomList，避免父组件因 computed 换新对象而重渲染 */
+    const slurHandleOverride = ref<SlurHandlePoints | null>(null)
+    const arpeggioDragSession = ref<ArpeggioDragSession | null>(null)
+    const arpeggioHandleOverride = ref<VerticalHandlePoints | null>(null)
+    const strummingDragSession = ref<StrummingDragSession | null>(null)
+    const strummingHandleOverride = ref<VerticalHandlePoints | null>(null)
+    const pedalDragSession = ref<PedalDragSession | null>(null)
+    const pedalHandleOverride = ref<HorizontalHandlePoints | null>(null)
+    const pitchDragSession = ref<PitchDragSession | null>(null)
+    const pitchHandleOverride = ref<HorizontalHandlePoints | null>(null)
     const voltaDragSession = ref<VoltaDragSession | null>(null)
     const relatedHighlightEls = ref<SVGElement[]>([])
     const vDomList = ref<VDom[]>([])
@@ -125,8 +174,57 @@ export function useTabRenderEdit(
     })
 
     const slurHandlePoints = computed(() => {
+        if (slurHandleOverride.value) return slurHandleOverride.value
         const vdom = selectedSlurVdom.value
         return vdom ? computeSlurHandlePoints(vdom) : null
+    })
+
+    const selectedArpeggioVdom = computed(() => {
+        if (!isArpeggioSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return vDomList.value.find((node) => node.targetId === id && isArpeggioVDom(node)) ?? null
+    })
+
+    const arpeggioHandlePoints = computed(() => {
+        if (arpeggioHandleOverride.value) return arpeggioHandleOverride.value
+        const vdom = selectedArpeggioVdom.value
+        return vdom ? computeArpeggioHandlePoints(vdom) : null
+    })
+
+    const selectedStrummingVdom = computed(() => {
+        if (!isStrummingSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return vDomList.value.find((node) => node.targetId === id && isStrummingVDom(node)) ?? null
+    })
+
+    const strummingHandlePoints = computed(() => {
+        if (strummingHandleOverride.value) return strummingHandleOverride.value
+        const vdom = selectedStrummingVdom.value
+        return vdom ? computeStrummingHandlePoints(vdom) : null
+    })
+
+    const selectedPedalVdom = computed(() => {
+        if (!isPedalSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return vDomList.value.find((node) => node.targetId === id && isPedalVDom(node)) ?? null
+    })
+
+    const pedalHandlePoints = computed(() => {
+        if (pedalHandleOverride.value) return pedalHandleOverride.value
+        const vdom = selectedPedalVdom.value
+        return vdom ? computePedalHandlePoints(vdom) : null
+    })
+
+    const selectedPitchVdom = computed(() => {
+        if (!isPitchSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return vDomList.value.find((node) => node.targetId === id && isPitchVDom(node)) ?? null
+    })
+
+    const pitchHandlePoints = computed(() => {
+        if (pitchHandleOverride.value) return pitchHandleOverride.value
+        const vdom = selectedPitchVdom.value
+        return vdom ? computePitchHandlePoints(vdom) : null
     })
 
     const selectedVoltaVdom = computed(() => {
@@ -362,12 +460,138 @@ export function useTabRenderEdit(
         const vdom = vDomList.value.find((node) => node.targetId === session.slurId && isSlurVDom(node))
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
-        updateSlurDragFromPointer(session, musicScore, vdom, x, y)
+        const points = previewSlurDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+            musicScore.type,
+        )
+        if (points) slurHandleOverride.value = points
     }
 
     function endSlurDrag(event: PointerEvent) {
         if (slurDragSession.value?.pointerId === event.pointerId) {
             slurDragSession.value = null
+            slurHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updateArpeggioDragFromEvent(event: PointerEvent) {
+        const session = arpeggioDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const vdom = vDomList.value.find(
+            (node) => node.targetId === session.symbolId && isArpeggioVDom(node),
+        )
+        if (!vdom) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const points = previewArpeggioDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+        )
+        if (points) arpeggioHandleOverride.value = points
+    }
+
+    function endArpeggioDrag(event: PointerEvent) {
+        if (arpeggioDragSession.value?.pointerId === event.pointerId) {
+            arpeggioDragSession.value = null
+            arpeggioHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updateStrummingDragFromEvent(event: PointerEvent) {
+        const session = strummingDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const vdom = vDomList.value.find(
+            (node) => node.targetId === session.symbolId && isStrummingVDom(node),
+        )
+        if (!vdom) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const points = previewStrummingDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+        )
+        if (points) strummingHandleOverride.value = points
+    }
+
+    function endStrummingDrag(event: PointerEvent) {
+        if (strummingDragSession.value?.pointerId === event.pointerId) {
+            strummingDragSession.value = null
+            strummingHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updatePedalDragFromEvent(event: PointerEvent) {
+        const session = pedalDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const vdom = vDomList.value.find(
+            (node) => node.targetId === session.symbolId && isPedalVDom(node),
+        )
+        if (!vdom) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const points = previewPedalDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+        )
+        if (points) pedalHandleOverride.value = points
+    }
+
+    function endPedalDrag(event: PointerEvent) {
+        if (pedalDragSession.value?.pointerId === event.pointerId) {
+            pedalDragSession.value = null
+            pedalHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updatePitchDragFromEvent(event: PointerEvent) {
+        const session = pitchDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const vdom = vDomList.value.find(
+            (node) => node.targetId === session.symbolId && isPitchVDom(node),
+        )
+        if (!vdom) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const points = previewPitchDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+        )
+        if (points) pitchHandleOverride.value = points
+    }
+
+    function endPitchDrag(event: PointerEvent) {
+        if (pitchDragSession.value?.pointerId === event.pointerId) {
+            pitchDragSession.value = null
+            pitchHandleOverride.value = null
             removeAffiliatedDragWindowListeners()
         }
     }
@@ -390,11 +614,19 @@ export function useTabRenderEdit(
 
     function onAffiliatedDragWindowMove(event: PointerEvent) {
         if (slurDragSession.value) updateSlurDragFromEvent(event)
+        if (arpeggioDragSession.value) updateArpeggioDragFromEvent(event)
+        if (strummingDragSession.value) updateStrummingDragFromEvent(event)
+        if (pedalDragSession.value) updatePedalDragFromEvent(event)
+        if (pitchDragSession.value) updatePitchDragFromEvent(event)
         if (voltaDragSession.value) updateVoltaDragFromEvent(event)
     }
 
     function onAffiliatedDragWindowUp(event: PointerEvent) {
         endSlurDrag(event)
+        endArpeggioDrag(event)
+        endStrummingDrag(event)
+        endPedalDrag(event)
+        endPitchDrag(event)
         endVoltaDrag(event)
     }
 
@@ -406,7 +638,14 @@ export function useTabRenderEdit(
     }
 
     function removeAffiliatedDragWindowListeners() {
-        if (slurDragSession.value || voltaDragSession.value) return
+        if (
+            slurDragSession.value
+            || arpeggioDragSession.value
+            || strummingDragSession.value
+            || pedalDragSession.value
+            || pitchDragSession.value
+            || voltaDragSession.value
+        ) return
         if (!affiliatedDragListenersAttached) return
         affiliatedDragListenersAttached = false
         window.removeEventListener('pointermove', onAffiliatedDragWindowMove)
@@ -420,6 +659,84 @@ export function useTabRenderEdit(
         attachAffiliatedDragWindowListeners()
         const el = event.currentTarget
         if (el instanceof SVGElement) el.setPointerCapture(event.pointerId)
+        event.preventDefault()
+    }
+
+    function handleArpeggioHandleDown(handle: VerticalHandleKind, event: PointerEvent) {
+        const vdom = selectedArpeggioVdom.value
+        if (!vdom?.targetId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {x} = pointerToSvg(svg, event.clientX, event.clientY)
+        arpeggioDragSession.value = createArpeggioDragSession(
+            event,
+            vdom.targetId,
+            handle,
+            vdom,
+            x,
+        )
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) el.setPointerCapture(event.pointerId)
+        event.preventDefault()
+    }
+
+    function handleStrummingHandleDown(handle: VerticalHandleKind, event: PointerEvent) {
+        const vdom = selectedStrummingVdom.value
+        if (!vdom?.targetId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {x} = pointerToSvg(svg, event.clientX, event.clientY)
+        strummingDragSession.value = createStrummingDragSession(
+            event,
+            vdom.targetId,
+            handle,
+            vdom,
+            x,
+        )
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) el.setPointerCapture(event.pointerId)
+        event.preventDefault()
+    }
+
+    function handlePedalHandleDown(handle: HorizontalHandleKind, event: PointerEvent) {
+        const vdom = selectedPedalVdom.value
+        if (!vdom?.targetId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {y} = pointerToSvg(svg, event.clientX, event.clientY)
+        pedalDragSession.value = createPedalDragSession(
+            event,
+            vdom.targetId,
+            handle,
+            vdom,
+            y,
+        )
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) el.setPointerCapture(event.pointerId)
+        event.preventDefault()
+    }
+
+    function handlePitchHandleDown(handle: HorizontalHandleKind, event: PointerEvent) {
+        const vdom = selectedPitchVdom.value
+        if (!vdom?.targetId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {y} = pointerToSvg(svg, event.clientX, event.clientY)
+        pitchDragSession.value = createPitchDragSession(
+            event,
+            vdom.targetId,
+            handle,
+            vdom,
+            y,
+        )
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) {
+            el.setPointerCapture(event.pointerId)
+        }
         event.preventDefault()
     }
 
@@ -572,12 +889,32 @@ export function useTabRenderEdit(
     function handleDrUp(event: PointerEvent) {
         endTabHeadDrag(event)
         endSlurDrag(event)
+        endArpeggioDrag(event)
+        endStrummingDrag(event)
+        endPedalDrag(event)
+        endPitchDrag(event)
         endVoltaDrag(event)
     }
 
     function handleTopMove(event: PointerEvent, _vdom: VDom | null) {
         if (slurDragSession.value) {
             updateSlurDragFromEvent(event)
+            return
+        }
+        if (arpeggioDragSession.value) {
+            updateArpeggioDragFromEvent(event)
+            return
+        }
+        if (strummingDragSession.value) {
+            updateStrummingDragFromEvent(event)
+            return
+        }
+        if (pedalDragSession.value) {
+            updatePedalDragFromEvent(event)
+            return
+        }
+        if (pitchDragSession.value) {
+            updatePitchDragFromEvent(event)
             return
         }
         if (voltaDragSession.value) {
@@ -593,13 +930,29 @@ export function useTabRenderEdit(
 
     function handleTopUp(event: PointerEvent, vdom: VDom | null) {
         const wasSlurDragging = slurDragSession.value?.pointerId === event.pointerId
+        const wasArpeggioDragging = arpeggioDragSession.value?.pointerId === event.pointerId
+        const wasStrummingDragging = strummingDragSession.value?.pointerId === event.pointerId
+        const wasPedalDragging = pedalDragSession.value?.pointerId === event.pointerId
+        const wasPitchDragging = pitchDragSession.value?.pointerId === event.pointerId
         const wasVoltaDragging = voltaDragSession.value?.pointerId === event.pointerId
         const wasDragging = tabHeadDragSession.value?.pointerId === event.pointerId
         endSlurDrag(event)
+        endArpeggioDrag(event)
+        endStrummingDrag(event)
+        endPedalDrag(event)
+        endPitchDrag(event)
         endVoltaDrag(event)
         endTabHeadDrag(event)
         if (event.button !== 0) return
-        if (wasSlurDragging || wasVoltaDragging || wasDragging) return
+        if (
+            wasSlurDragging
+            || wasArpeggioDragging
+            || wasStrummingDragging
+            || wasPedalDragging
+            || wasPitchDragging
+            || wasVoltaDragging
+            || wasDragging
+        ) return
         if (vdom && TAB_NOTE_TAGS.has(vdom.tag)) return
         if (vdom != null && vdom.tag !== 'measure') return
 
@@ -635,9 +988,19 @@ export function useTabRenderEdit(
     }
 
     onBeforeUnmount(() => {
+        flushScoreWrites(musicScore)
         clearSelection()
         tabHeadDragSession.value = null
         slurDragSession.value = null
+        slurHandleOverride.value = null
+        arpeggioDragSession.value = null
+        arpeggioHandleOverride.value = null
+        strummingDragSession.value = null
+        strummingHandleOverride.value = null
+        pedalDragSession.value = null
+        pedalHandleOverride.value = null
+        pitchDragSession.value = null
+        pitchHandleOverride.value = null
         voltaDragSession.value = null
         removeAffiliatedDragWindowListeners()
     })
@@ -654,6 +1017,10 @@ export function useTabRenderEdit(
         propertyPanelKind,
         selectedSlurVdom,
         slurHandlePoints,
+        arpeggioHandlePoints,
+        strummingHandlePoints,
+        pedalHandlePoints,
+        pitchHandlePoints,
         voltaHandlePoints,
         handleDrClick,
         handleDrEnter,
@@ -661,6 +1028,10 @@ export function useTabRenderEdit(
         handleDrDown,
         handleDrUp,
         handleSlurHandleDown,
+        handleArpeggioHandleDown,
+        handleStrummingHandleDown,
+        handlePedalHandleDown,
+        handlePitchHandleDown,
         handleVoltaHandleDown,
         handleTopMove,
         handleTopUp,

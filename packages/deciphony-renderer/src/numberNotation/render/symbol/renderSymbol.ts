@@ -53,6 +53,8 @@ import {
   computeSlotOnset,
 } from "@/render/layout/measureColumnLayout";
 import {createNumberNotationColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
+import {slotIsNoteNumber, slotSymbol} from '@/standardStaff/render/utils/staffSlot';
+import {getMeasureSlots} from '@/utils/measureNotes';
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -207,7 +209,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (item) x += item.w;
   }
 
-  const notes = measure.notes as NoteNumber[];
   const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
   const layout =
     columnLayout ?? buildMeasureColumnLayout(measure, noteDomainW, prefixW, columnAdapter, measureHeight);
@@ -274,9 +275,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
   const slots: SlotInfo[] = [];
 
-  if (notes.length > 0) {
-    for (let i = 0; i < notes.length; i++) {
-      const note = notes[i];
+  const measureSlots = getMeasureSlots(measure);
+  if (measureSlots.length > 0) {
+    for (let i = 0; i < measureSlots.length; i++) {
+      if (!slotIsNoteNumber(measureSlots[i])) continue;
+      const note = slotSymbol(measureSlots[i]) as NoteNumber;
       const geo = layout.slotGeometries[i];
       if (!geo) continue;
       const slotStartX = domainStartX + geo.startInDomain;

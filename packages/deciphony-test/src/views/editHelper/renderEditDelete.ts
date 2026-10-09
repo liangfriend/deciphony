@@ -21,6 +21,7 @@ import {isArpeggioSelected} from './renderEditArpeggioDrag'
 import {isStrummingSelected} from './renderEditStrummingDrag'
 import {isPedalSelected} from './renderEditPedalDrag'
 import {isPitchSelected} from './renderEditPitchDrag'
+import {isLineSelected} from './renderEditLineDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isBendSelected} from './tab/renderEditTabSelection'
 import {
@@ -30,7 +31,7 @@ import {
     removeDrumRest,
     setTabNoteInfoBend,
 } from '@deciphony/extensions/dr-edit'
-import type {DrumNote, MeasureNoteSymbol, TabNoteInfo} from '@deciphony/renderer'
+import type {DrumNote, MeasureNoteSlot, MeasureNoteSymbol, TabNoteInfo} from '@deciphony/renderer'
 import {getMeasureNoteList, getMeasureSlots} from '@deciphony/renderer'
 
 /** 小节上可选符号（对象字段，delete 移除）；不含 barline_b */
@@ -49,14 +50,14 @@ const MEASURE_OPTIONAL_SYMBOL_KEYS = [
 export function isRestSelected(
     selected: SlotData | null,
 ): selected is SlotData & { measure: Measure; self: NoteRest } {
-    const self = selected?.self
+    const self = selected?.self as unknown as MeasureNoteSymbol | undefined
     return selected?.measure != null && self != null && isNoteRest(self)
 }
 
 export function isNumberRestSelected(
     selected: SlotData | null,
 ): selected is SlotData & {measure: Measure; self: NoteNumber} {
-    const self = selected?.self
+    const self = selected?.self as unknown as MeasureNoteSlot | NoteNumber | undefined
     return selected?.measure != null && self != null && isNoteNumberSlot(self) && isSlotRestLike(self)
 }
 
@@ -296,7 +297,7 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
     if (!selected) return false
 
     if (isBendSelected(selected) && selected.info) {
-        setTabNoteInfoBend(selected.info as TabNoteInfo, null)
+        setTabNoteInfoBend(selected.info as unknown as TabNoteInfo, null)
         return true
     }
 
@@ -317,7 +318,7 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
         return removeScoreAffiliatedById(musicScore, selected.self.id)
     }
 
-    if (isPitchSelected(selected)) {
+    if (isPitchSelected(selected) || isLineSelected(selected)) {
         return removeScoreAffiliatedById(musicScore, selected.self.id)
     }
 

@@ -177,3 +177,9 @@ export function getReduceLineSkinKey(chronaxie: number): NumberNotationSkinKeyEn
   };
   return map[chronaxie] ?? NumberNotationSkinKeyEnum.ReduceLine_1;
 }
+
+/** 减时线条数 → 皮肤 key（1→reduceLine_1 …，超出按 6 条） */
+export function getReduceLineSkinKeyByCount(count: number): NumberNotationSkinKeyEnum {
+  const n = Math.min(Math.max(Math.round(count), 1), 6);
+  return getReduceLineSkinKey(64 >> n);
+}

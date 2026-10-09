@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type {MusicScore} from '@deciphony/renderer'
-import musicScoreVue, {MusicScoreTypeEnum} from '@deciphony/renderer'
+import musicScoreVue, {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/其多列简谱'
@@ -14,6 +14,8 @@ import {
   EditContextMenu,
   type EditContextMenuItem,
   HorizontalDragHandles,
+  isSlurVDom,
+  MoveDragHandle,
   PropertyPanel,
   SlurDragHandles,
   useDrEdit,
@@ -21,6 +23,7 @@ import {
   VerticalDragHandles,
   VoltaDragHandles,
 } from './editHelper'
+import type {VDom} from '@deciphony/renderer'
 
 /** `?score=drum` 载入鼓谱示例，否则用默认简谱 */
 const useDrumSample = new URLSearchParams(window.location.search).get('score') === 'drum'
@@ -32,8 +35,7 @@ const isNumberNotation = computed(
     () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
 )
 const isTab = computed(
-    () => musicScoreData.type === MusicScoreTypeEnum.Tab4
-        || musicScoreData.type === MusicScoreTypeEnum.Tab6,
+    () => isFretboardScoreType(musicScoreData.type),
 )
 const tabStrings = computed(() => tabStringCount(musicScoreData.type))
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
@@ -61,12 +63,16 @@ const {
   strummingHandlePoints,
   pedalHandlePoints,
   pitchHandlePoints,
+  lineHandlePoints,
+  noteAffiliatedBox,
   voltaHandlePoints,
   handleSlurHandleDown,
   handleArpeggioHandleDown,
   handleStrummingHandleDown,
   handlePedalHandleDown,
   handlePitchHandleDown,
+  handleLineHandleDown,
+  handleNoteAffiliatedBoxDown,
   handleVoltaHandleDown,
   deleteSelected,
   navigateSelectedMeasure,
@@ -89,6 +95,20 @@ const midiHint = computed(() => {
   if (midiDevices.value.length) return `MIDI：${midiDevices.value.join(', ')}（选中小节后按琴键落音）`
   return 'MIDI：已就绪'
 })
+
+function getUpdateVDom() {
+  return musicScoreRef.value?.updateVDom
+}
+
+/** 屏上 live 连音线节点（拖拽预览后的那份） */
+function getLiveVDom(targetId: string): VDom | undefined {
+  const list = musicScoreRef.value?.getVDomList?.() ?? []
+  for (let i = list.length - 1; i >= 0; i--) {
+    const node = list[i]
+    if (node?.targetId === targetId && isSlurVDom(node)) return node
+  }
+  return undefined
+}
 
 const ARROW_TO_MEASURE_NAV = {
   ArrowUp: 'up',
@@ -152,7 +172,7 @@ onBeforeUnmount(() => {
               }"
           />
           <svg
-              v-if="slurHandlePoints || arpeggioHandlePoints || strummingHandlePoints || pedalHandlePoints || pitchHandlePoints || voltaHandlePoints"
+              v-if="slurHandlePoints || arpeggioHandlePoints || strummingHandlePoints || pedalHandlePoints || pitchHandlePoints || lineHandlePoints || noteAffiliatedBox || voltaHandlePoints"
               :height="musicScoreData.height"
               :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
               :width="musicScoreData.width"
@@ -162,7 +182,7 @@ onBeforeUnmount(() => {
             <SlurDragHandles
                 v-if="slurHandlePoints"
                 :handles="slurHandlePoints"
-                :show-control="!isNumberNotation"
+                :vertical-control="isNumberNotation"
                 @handle-down="handleSlurHandleDown"
             />
             <VerticalDragHandles
@@ -185,6 +205,16 @@ onBeforeUnmount(() => {
                 :handles="pitchHandlePoints"
                 @handle-down="handlePitchHandleDown"
             />
+            <HorizontalDragHandles
+                v-if="lineHandlePoints"
+                :handles="lineHandlePoints"
+                @handle-down="handleLineHandleDown"
+            />
+            <MoveDragHandle
+                v-if="noteAffiliatedBox"
+                :box="noteAffiliatedBox"
+                @handle-down="handleNoteAffiliatedBoxDown"
+            />
             <VoltaDragHandles
                 v-if="voltaHandlePoints"
                 :handles="voltaHandlePoints"
@@ -194,7 +224,12 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-    <PropertyPanel :kind="propertyPanelKind" :selected="selectedItem"/>
+    <PropertyPanel
+        :get-live-v-dom="getLiveVDom"
+        :get-update-v-dom="getUpdateVDom"
+        :kind="propertyPanelKind"
+        :selected="selectedItem"
+    />
     <EditContextMenu
         v-if="contextMenuState.open && contextMenuState.items.length"
         :items="contextMenuState.items"
@@ -256,7 +291,8 @@ onBeforeUnmount(() => {
 .play-test__affiliated-drag-layer :deep(.vertical-drag-handles__end),
 .play-test__affiliated-drag-layer :deep(.vertical-drag-handles__middle),
 .play-test__affiliated-drag-layer :deep(.horizontal-drag-handles__end),
-.play-test__affiliated-drag-layer :deep(.horizontal-drag-handles__middle) {
+.play-test__affiliated-drag-layer :deep(.horizontal-drag-handles__middle),
+.play-test__affiliated-drag-layer :deep(.move-drag-handle) {
   pointer-events: all;
 }
 
@@ -268,7 +304,8 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 0 4px rgba(255, 152, 0, 0.95)) brightness(1.14);
 }
 
-:deep(.dr-selected-highlight[data-tag="noteHead"]) {
+:deep(.dr-selected-highlight[data-tag="noteHead"]),
+:deep(.dr-selected-highlight[data-tag="noteNumber"]) {
   cursor: ns-resize;
 }
 

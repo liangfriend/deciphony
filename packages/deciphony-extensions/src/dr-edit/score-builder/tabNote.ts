@@ -1,10 +1,11 @@
 /**
- * 吉他谱（tab6）与尤克里里谱（tab4）共用的音符数据 API。
- * 弦索引用 0 起；展示层的 1 弦对应 region 0。弦数由曲谱类型决定（6 / 4）。
+ * 吉他 / 尤克里里 / 贝斯指板谱共用的音符数据 API。
+ * 弦索引用 0 起；展示层的 1 弦对应 region 0。弦数由曲谱 type 决定。
  */
 import {
     BeamTypeEnum,
     BendTypeEnum,
+    fretboardStringCount,
     MusicScoreTypeEnum,
     NoteSymbolTypeEnum,
     TabNoteInfoTypeEnum,
@@ -30,12 +31,13 @@ import {createMeasureNoteSlot} from './factories'
 import {insertNoteSlot} from './noteSlot'
 
 export const TAB6_STRING_COUNT = 6
+export const TAB5_STRING_COUNT = 5
 export const TAB4_STRING_COUNT = 4
 
 export type TabAddKind = 'normal' | 'harmonic' | 'arpeggio' | 'strumming' | 'rest'
 
 export function tabStringCount(type: MusicScoreTypeEnum | undefined): number {
-    return type === MusicScoreTypeEnum.Tab4 ? TAB4_STRING_COUNT : TAB6_STRING_COUNT
+    return fretboardStringCount(type ?? MusicScoreTypeEnum.Guitar)
 }
 
 export function clampTabFret(value: number): number {

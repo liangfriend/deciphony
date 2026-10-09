@@ -7,15 +7,8 @@
     // 不允许使用ts扩展名
     "resolveJsonModule": true,
     "isolatedModules": false,
-    "noEmit": false,
-    "declaration": true,
-    // 这个被composite强制开启了，所以不写也会是true
-    "emitDeclarationOnly": false,
-    "composite": true,
-    "outDir": "dist",
-    // 必须，输出目录
-    "rootDir": "",
-    // 必须，告诉 TypeScript 从哪里找入口文件
+    "noEmit": true,
+    "skipLibCheck": true,
     "strict": true,
     "baseUrl": ".",
     "noUnusedLocals": false,
@@ -27,9 +20,12 @@
     "strictBindCallApply": true,
     "alwaysStrict": true,
     "noImplicitReturns": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "useUnknownInCatchVariables": true,
     "paths": {
+      "vue": [
+        "./node_modules/vue"
+      ],
       "@deciphony/renderer": [
         "../deciphony-renderer/src/index.ts"
       ],
@@ -47,7 +43,8 @@
       ],
       "@deciphony/puff": [
         "../deciphony-puff/src/index.ts"
-      ],      "j-player": [
+      ],
+      "j-player": [
         "../j-player/src/index.ts"
       ],
       "@deciphony/player": [

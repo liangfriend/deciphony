@@ -10,6 +10,10 @@ export const LINE_SPACING_RATIO = 1 / 8;
 export const BEAM_MAX_SLOPE_DEG = 15;
 /** 最小符干高度相对小节高度的比例 */
 export const MIN_STEM_HEIGHT_RATIO = 7 / 8;
+/** 带符尾时每多一层钩额外加长（单位：间高） */
+export const STEM_EXTRA_PER_FLAG_SPACES = 0.75;
+/** 符尾与符头最小间隙（单位：间高） */
+export const STEM_FLAG_HEAD_CLEARANCE_SPACES = 0.25;
 /** 符杠单线粗细比例 */
 export const BEAM_THICKNESS = 2 / 16;
 /** 符杠多条线之间的空隙比例 */

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@deciphony/renderer": ["../deciphony-renderer/src/index.ts"],
+      "@deciphony/player": ["../deciphony-player/src/index.ts"],
+      "@deciphony/extensions": ["../deciphony-extensions/src/index.ts"],
+      "@deciphony/extensions/*": ["../deciphony-extensions/src/*"],
+      "@/*": ["../deciphony-renderer/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.d.ts"]
+}

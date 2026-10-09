@@ -2,6 +2,7 @@
 import {computed, toRef} from 'vue';
 import {ArpeggioTypeEnum, MusicScoreTypeEnum} from '@/enums/musicScoreEnum';
 import type {Skin, VDom} from '@/types/common';
+import {bravuraLineGlyphs} from '@/skins/generated/bravuraLineGlyphs';
 import {useGeometrySkinColor} from './useGeometrySkinColor';
 
 const props = defineProps<{
@@ -44,9 +45,59 @@ function arrowHeadPath(
   return `M ${x1} ${y1} L ${tipX} ${tipY} L ${x2} ${y2} Z`;
 }
 
-const KAPPA = 0.5522847498;
+const G = bravuraLineGlyphs;
+/** 波浪段中线到基线的距离：平移后中线落在琶音轴线上 */
+const WIGGLE_CENTER_OFFSET = -(G.wiggleArpeggiatoUp.y1 + G.wiggleArpeggiatoUp.y2) / 2;
+/** 向下箭头字形的箭头尖在包围盒左缘，平移到局部 x = 0 */
+const DOWN_ARROW_TIP_X = G.wiggleArpeggiatoDownArrow.x1;
 
-const shapes = computed(() => {
+type Placed = { d: string; x: number };
+
+/**
+ * 波浪琶音：SMuFL wiggleArpeggiato* 为横向字形，沿「下 → 上」方向平铺后整体旋转（字形始终在轴线同一侧）。
+ * 段数取最接近的整数，再沿轴向微缩放，使两端（含箭头尖）正好落在起止点。
+ */
+const wiggle = computed(() => {
+  const s = props.vDom.startPoint;
+  const e = props.vDom.endPoint;
+  const arrowAtEnd = showArrow.value;
+  const endIsUpper = e.y <= s.y;
+  const from = endIsUpper ? s : e;
+  const to = endIsUpper ? e : s;
+  const length = Math.hypot(to.x - from.x, to.y - from.y);
+  if (length <= 0) return null;
+
+  const seg = arrowAtEnd && !endIsUpper ? G.wiggleArpeggiatoDown : G.wiggleArpeggiatoUp;
+  const glyphs: Placed[] = [];
+  let natural: number;
+  if (!arrowAtEnd) {
+    const n = Math.max(1, Math.round(length / seg.advance));
+    for (let i = 0; i < n; i++) glyphs.push({d: seg.d, x: i * seg.advance});
+    natural = n * seg.advance;
+  } else if (endIsUpper) {
+    const arrow = G.wiggleArpeggiatoUpArrow;
+    const n = Math.max(0, Math.round((length - arrow.x2) / seg.advance));
+    for (let i = 0; i < n; i++) glyphs.push({d: seg.d, x: i * seg.advance});
+    glyphs.push({d: arrow.d, x: n * seg.advance});
+    natural = n * seg.advance + arrow.x2;
+  } else {
+    const arrow = G.wiggleArpeggiatoDownArrow;
+    const arrowLen = arrow.advance - DOWN_ARROW_TIP_X;
+    const n = Math.max(0, Math.round((length - arrowLen) / seg.advance));
+    glyphs.push({d: arrow.d, x: -DOWN_ARROW_TIP_X});
+    for (let i = 0; i < n; i++) glyphs.push({d: seg.d, x: arrowLen + i * seg.advance});
+    natural = arrowLen + n * seg.advance;
+  }
+  const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+  const sx = length / natural;
+  return {
+    transform: `translate(${from.x}, ${from.y}) rotate(${angle}) scale(${sx}, 1) translate(0, ${WIGGLE_CENTER_OFFSET})`,
+    glyphs,
+  };
+});
+
+/** 直线琶音：矩形杆 + 三角箭头 */
+const straight = computed(() => {
   const s = props.vDom.startPoint;
   const e = props.vDom.endPoint;
   const dx = e.x - s.x;
@@ -54,88 +105,37 @@ const shapes = computed(() => {
   const total = Math.hypot(dx, dy) || 1;
   const ux = dx / total;
   const uy = dy / total;
-
   const headLen = arrowWidth.value * 0.7;
   const headHalfW = arrowWidth.value * 0.5;
   const withArrow = showArrow.value;
-  const usableHead = withArrow ? headLen : 0;
-
-  if (isStraight.value) {
-    const half = thickness.value / 2;
-    let px = -uy;
-    let py = ux;
-    const shaftLen = Math.max(total - (withArrow ? usableHead * 0.5 : 0), 0);
-    const ex = s.x + ux * shaftLen;
-    const ey = s.y + uy * shaftLen;
-    const shaft =
+  const half = thickness.value / 2;
+  const px = -uy;
+  const py = ux;
+  const shaftLen = Math.max(total - (withArrow ? headLen * 0.5 : 0), 0);
+  const ex = s.x + ux * shaftLen;
+  const ey = s.y + uy * shaftLen;
+  return {
+    shaft:
       `M ${s.x + px * half} ${s.y + py * half}`
       + ` L ${ex + px * half} ${ey + py * half}`
       + ` L ${ex - px * half} ${ey - py * half}`
-      + ` L ${s.x - px * half} ${s.y - py * half} Z`;
-    return {
-      shaft,
-      head: withArrow ? arrowHeadPath(e.x, e.y, ux, uy, headLen, headHalfW) : '',
-    };
-  }
-
-  // 垂直于走向、朝屏幕右侧的一侧为「右半椭圆」
-  let px = -uy;
-  let py = ux;
-  if (px < 0 || (px === 0 && py < 0)) {
-    px = -px;
-    py = -py;
-  }
-
-  const nominalRa = arrowWidth.value * 0.36;
-  const rv = arrowWidth.value * 0.2;
-  const shift = nominalRa * 0.6;
-
-  const bodyLen = Math.max(total - (withArrow ? usableHead * 0.5 : 0), shift + 1);
-  const n = Math.max(1, Math.round((bodyLen - shift) / (2 * nominalRa)));
-  const pitch = (bodyLen - shift) / n;
-  const ra = pitch / 2;
-  const du = uy >= 0 ? shift : -shift;
-  const start = du < 0 ? shift : 0;
-
-  const pt = (u: number, v: number) =>
-    `${s.x + ux * u + px * v} ${s.y + uy * u + py * v}`;
-  const ka = KAPPA * ra;
-  const kv = KAPPA * rv;
-
-  let d = '';
-  for (let i = 0; i < n; i++) {
-    const a = start + i * pitch;
-    const b = a + du;
-    d += `M ${pt(a, 0)}`
-      + ` C ${pt(a, kv)} ${pt(a + ra - ka, rv)} ${pt(a + ra, rv)}`
-      + ` C ${pt(a + ra + ka, rv)} ${pt(a + 2 * ra, kv)} ${pt(a + 2 * ra, 0)}`
-      + ` L ${pt(b + 2 * ra, 0)}`
-      + ` C ${pt(b + 2 * ra, -kv)} ${pt(b + ra + ka, -rv)} ${pt(b + ra, -rv)}`
-      + ` C ${pt(b + ra - ka, -rv)} ${pt(b, -kv)} ${pt(b, 0)}`
-      + ' Z ';
-  }
-
-  return {
-    shaft: d,
+      + ` L ${s.x - px * half} ${s.y - py * half} Z`,
     head: withArrow ? arrowHeadPath(e.x, e.y, ux, uy, headLen, headHalfW) : '',
   };
 });
 </script>
 
 <template>
-  <g>
+  <g v-if="isStraight" :fill="strokeColor" stroke="none">
+    <path :d="straight.shaft"/>
+    <path v-if="straight.head" :d="straight.head"/>
+  </g>
+  <g v-else-if="wiggle" :fill="strokeColor" stroke="none" :transform="wiggle.transform">
     <path
-      :key="shapes.shaft"
-      :d="shapes.shaft"
-      :fill="strokeColor"
-      stroke="none"
-    />
-    <path
-      v-if="shapes.head"
-      :key="shapes.head"
-      :d="shapes.head"
-      :fill="strokeColor"
-      stroke="none"
+      v-for="(g, i) in wiggle.glyphs"
+      :key="i"
+      :d="g.d"
+      :transform="`translate(${g.x}, 0)`"
     />
   </g>
 </template>

@@ -15,6 +15,7 @@ import {computeLongRestRoles, longRestShowsPrefix, longRestShowsSuffix} from "./
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
 import {buildDrumColumnLayouts, computeDrumMeasureFixedWidths} from "./layout/measureColumnLayoutAdapter";
 import {processBeam} from "./beam/processBeam";
+import {processGraceBeam} from "./beam/processGraceBeam";
 import {
   LONG_REST_NUMBER_DIGIT_WIDTH_RATIO,
   LONG_REST_NUMBER_GAP_RATIO,
@@ -567,18 +568,19 @@ export function musicScoreToVDom(
           const voices = getMeasureVoices(measure);
           let symbolVDomsLength = symbolVDoms.length;
           for (const direction of ['up', 'down'] as const) {
-            symbolVDomsLength -= processBeam({
+            const beamParams = {
               slots: voices[direction],
               direction,
               nodeIdMap,
               vDoms,
               symbolVDomsStartIdx,
-              symbolVDomsLength,
               skin,
               measureHeight,
               measureLineWidth,
               skinName: effectiveSkinName,
-            });
+            };
+            symbolVDomsLength -= processBeam({...beamParams, symbolVDomsLength});
+            symbolVDomsLength -= processGraceBeam({...beamParams, symbolVDomsLength});
           }
         }
         vDoms.push({

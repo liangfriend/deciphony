@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/extensions",
-  "version": "0.0.10",
+  "version": "0.0.18",
   "description": "@deciphony/renderer 官方扩展集（标题、歌词、编辑构建、播放、MusicXML/简谱转换等）",
   "type": "module",
   "main": "./dist/index.cjs.js",
@@ -66,6 +66,18 @@
       "types": "./dist/dr-midi-transfer/index.d.ts",
       "import": "./dist/dr-midi-transfer/index.js"
     },
+    "./dr-midi-record": {
+      "types": "./dist/dr-midi-record/index.d.ts",
+      "import": "./dist/dr-midi-record/index.js"
+    },
+    "./dr-mark": {
+      "types": "./dist/dr-mark/index.d.ts",
+      "import": "./dist/dr-mark/index.js"
+    },
+    "./dr-score3d": {
+      "types": "./dist/dr-score3d/index.d.ts",
+      "import": "./dist/dr-score3d/index.js"
+    },
     "./dr-numberNotation-transfer": {
       "types": "./dist/dr-numberNotation-transfer/index.d.ts",
       "import": "./dist/dr-numberNotation-transfer/index.js"
@@ -90,19 +102,30 @@
       "import": "./dist/extensions.css"
     }
   },
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
   "peerDependencies": {
     "@deciphony/player": "*",
     "@deciphony/renderer": "*",
     "fast-xml-parser": "^5.0.0",
+    "three": ">=0.160.0",
     "vue": "^3.3.0",
     "xmlbuilder": "^15.0.0"
   },
+  "peerDependenciesMeta": {
+    "three": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@deciphony/player": "workspace:*",
-    "@deciphony/renderer": "0.0.42",
+    "@deciphony/renderer": "workspace:*",
+    "@types/three": "^0.180.0",
     "@vitejs/plugin-vue": "^5.2.4",
     "fast-xml-parser": "^5.8.0",
     "sass": "^1.83.0",
+    "three": "^0.180.0",
     "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4",

@@ -159,14 +159,24 @@ export function previewRestSvgHtml(chronaxie: Chronaxie): string {
     return restSymbolSvg[chronaxie] ?? restSymbolSvg[64]
 }
 
-export function findMeasureSlotVDom(vDomList: VDom[], measureId: string): VDom | undefined {
+export function findMeasureSlotVDom(
+    vDomList: VDom[],
+    measureId: string,
+    lookup?: import('@deciphony/renderer').VDomLookup | null,
+): VDom | undefined {
+    if (lookup) return lookup.find(`m-${measureId}`, 'slot')
     return vDomList.find(
         (node) => node.tag === 'slot' && node.slotName === 'm' && node.slotData?.measure?.id === measureId,
     )
 }
 
 /** 小节背景 vDom（tag=measure，targetId 为小节 id） */
-export function findMeasureVDom(vDomList: VDom[], measureId: string): VDom | undefined {
+export function findMeasureVDom(
+    vDomList: VDom[],
+    measureId: string,
+    lookup?: import('@deciphony/renderer').VDomLookup | null,
+): VDom | undefined {
+    if (lookup) return lookup.find(measureId, 'measure')
     return vDomList.find((node) => node.tag === 'measure' && node.targetId === measureId)
 }
 
@@ -397,7 +407,9 @@ export function buildNoteHeadSlot(
 }
 
 export function findNoteHeadElement(root: ParentNode, notesInfoId: string): SVGElement | null {
-    const el = root.querySelector(`[data-target-id="${notesInfoId}"][data-tag="noteHead"]`)
+    const el =
+        root.querySelector(`[data-target-id="${notesInfoId}"][data-tag="noteHead"]`)
+        ?? root.querySelector(`[data-target-id="${notesInfoId}"][data-tag="noteNumber"]`)
     return el instanceof SVGElement ? el : null
 }
 

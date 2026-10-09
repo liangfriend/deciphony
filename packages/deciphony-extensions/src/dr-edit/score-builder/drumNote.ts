@@ -131,13 +131,40 @@ export function createDrumNotesInfo(options: CreateDrumNotesInfoOptions = {}): D
     return info
 }
 
-export function createDrumNote(options: CreateDrumNotesInfoOptions = {}): MeasureNoteSlot {
+/** 倚音默认八分音符；多颗且未给 beamType 时默认连杠 */
+export const DRUM_GRACE_DEFAULT_CHRONAXIE: Chronaxie = 32
+
+export type CreateDrumGraceOptions = Omit<CreateDrumNotesInfoOptions, 'beamOnset'>
+
+export type CreateDrumNoteOptions = CreateDrumNotesInfoOptions & {
+    /** 前倚音：index0 最靠主音 */
+    graceNotes?: CreateDrumGraceOptions[]
+    /** 后倚音：index0 最靠主音 */
+    graceNotesAfter?: CreateDrumGraceOptions[]
+}
+
+export function createDrumGraceList(list: CreateDrumGraceOptions[] | undefined): DrumNotesInfo[] | undefined {
+    if (!list?.length) return undefined
+    const beamDefault = list.length > 1 ? BeamTypeEnum.Combined : BeamTypeEnum.None
+    return list.map((g) => createDrumNotesInfo({
+        ...g,
+        chronaxie: g.chronaxie ?? DRUM_GRACE_DEFAULT_CHRONAXIE,
+        beamType: g.beamType ?? beamDefault,
+    }))
+}
+
+export function createDrumNote(options: CreateDrumNoteOptions = {}): MeasureNoteSlot {
+    const {graceNotes, graceNotesAfter, ...infoOptions} = options
     const symbol: DrumNote = {
         ...ZERO_FRAME,
         id: newId(),
         type: NoteSymbolTypeEnum.Note,
-        notesInfo: [createDrumNotesInfo(options)],
+        notesInfo: [createDrumNotesInfo(infoOptions)],
     }
+    const before = createDrumGraceList(graceNotes)
+    const after = createDrumGraceList(graceNotesAfter)
+    if (before) symbol.graceNotes = before
+    if (after) symbol.graceNotesAfter = after
     return createMeasureNoteSlot({symbol})
 }
 
@@ -176,7 +203,7 @@ export function insertDrumNote(
     measure: Measure,
     voice: DrumVoice,
     at: number,
-    options: CreateDrumNotesInfoOptions = {},
+    options: CreateDrumNoteOptions = {},
 ): MeasureNoteSlot {
     const withBeam = options.beamType != null || options.beamOnset != null
         ? options
@@ -193,7 +220,7 @@ export function insertDrumRest(
     return insertIntoVoice(measure, voice, at, createDrumRest({...options, voice}))
 }
 
-export function appendDrumNote(measure: Measure, voice: DrumVoice, options: CreateDrumNotesInfoOptions = {}): MeasureNoteSlot {
+export function appendDrumNote(measure: Measure, voice: DrumVoice, options: CreateDrumNoteOptions = {}): MeasureNoteSlot {
     return insertDrumNote(measure, voice, getDrumVoiceSlots(measure, voice).length, options)
 }
 

@@ -113,7 +113,7 @@ export enum NumberNotationSkinKeyEnum {
     // 单音符附属符号
     Accent_above = 'acccent_above',
     Staccato_above = 'staccato_above',
-    Staccatissimo_above = 'staccato_above',
+    Staccatissimo_above = 'staccatissimo_above',
     Tenuto_above = 'tenuto_above',
     Loure_above = 'loure_above',
     Marcato_above = 'marcato_above',
@@ -130,13 +130,14 @@ export enum NumberNotationSkinKeyEnum {
     Harmonic = 'harmonic',
     Up_bow = 'up_bow',
     Down_bow = 'down_bow',
+    Breath = 'breath',
     // ornaments
     Turn = 'turn',
     InvertedTurn = 'invertedTurn',
     Trill = 'trill',
     ShortTrill = 'shortTrill',
     Mordent = 'mordent',
-    // Arpeggios / strumming / pedal
+    // Arpeggios / strumming / pedal / prelude brackets
     Pedal = 'pedal',
     Strumming = 'strumming',
     Arpeggio = 'arpeggio',
@@ -145,6 +146,8 @@ export enum NumberNotationSkinKeyEnum {
     Bracket_arpeggio = 'bracket_arpeggio',
     Up_arpeggio_straight = 'up_arpeggio_straight',
     Down_arpeggio_straight = 'down_arpeggio_straight',
+    Prelude_bracket_left = 'prelude_bracket_left',
+    Prelude_bracket_right = 'prelude_bracket_right',
     // glissandos TODO 这个暂时不做
     // dynamics 强弱记号
     Dyn_PPP = 'dyn_ppp',

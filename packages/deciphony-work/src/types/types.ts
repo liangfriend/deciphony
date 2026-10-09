@@ -49,12 +49,48 @@ export type STextElement = SElementBase & {
 }
 
 /**
+ * 裁剪区域（源坐标）：图片 = 原始像素，曲谱 = musicScore.width/height 坐标系。
+ * 放置框只显示这块区域并拉伸铺满。
+ */
+export type SCropRect = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/** cropImage / cropScore 入参：起点与终点（源坐标，先后顺序不限，超出源范围会被截断） */
+export type CropArea = {
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+}
+
+export type CropOptions = {
+  /**
+   * true：框尺寸不变，裁出的区域拉伸铺满原框；
+   * false（默认）：保持当前显示比例，框随裁剪变小，裁出的区域留在页面原位
+   */
+  keepFrame?: boolean
+  /**
+   * true：框宽高仍按比例随裁剪变，但放置框的 x/y 不动（左上角钉死）。
+   * 按复谱表裁剪时：起点下移不会改 score.y；与 keepFrame 同时开时以 keepFrame 为准。
+   */
+  keepY?: boolean
+}
+
+/**
  * src：资源缓存 id（数字文件名）或 http(s)。
  * width/height：展示尺寸；addImage 时写入资源原始像素宽高。
  */
 export type SImageElement = SElementBase & {
   type: 'image'
   src: string
+  /** 资源原始像素宽高；addImage 读取尺寸时写入，裁剪必需（cropImage 缺失时自动读取） */
+  naturalWidth?: number
+  naturalHeight?: number
+  crop?: SCropRect
 }
 
 /** 音频放置；src 规则同图片 */
@@ -92,6 +128,8 @@ export type SScore = SElementBase & {
   vocalPerformance?: ScoreAudioRef
   /** 伴奏音频 */
   accompaniment?: ScoreAudioRef
+  /** 裁剪区域（musicScore.width/height 坐标系）；无则显示整份曲谱 */
+  crop?: SCropRect
 }
 
 /**
@@ -105,6 +143,28 @@ export type ScoreAudioRef = {
   /** 作者 */
   author?: string
 }
+
+/**
+ * 曲谱选段（内存态，不序列化）：点击循环为 第 1 次设起点 → 第 2 次设终点 → 第 3 次重设起点（终点清空）。
+ * 起止按点击顺序记录，播放裁剪时再自动交换先后。
+ */
+export type ScoreRangeSelect = {
+  scoreId: string
+  startNoteId: string | null
+  endNoteId: string | null
+}
+
+/** rangeChange 事件 */
+export type ScoreRangeChangePayload = ScoreRangeSelect & {
+  /** 曲谱在当前页 scores 中的下标，可直接传给 play */
+  scoreIndex: number
+}
+
+/** 当前选中项（仅 edit 模式；show 模式、未选中、选中项已被删除都为 null） */
+export type SjwSelection =
+  | {kind: 'score'; score: SScore}
+  | {kind: 'element'; element: SElement}
+  | null
 
 /** SJWPDF / Page 模式 */
 export type SjwMode = 'show' | 'edit'

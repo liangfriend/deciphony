@@ -30,12 +30,14 @@ import type {
   BeamTypeEnum,
   BracketTypeEnum,
   ClefTypeEnum,
+  HairpinTypeEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
   PedalTypeEnum,
   PitchTypeEnum,
   TimeSignatureTypeEnum,
+  TrillTypeEnum,
 } from '@deciphony/renderer';
 
 // —— 树路径（索引定位，供 insert / edit 使用）——
@@ -112,7 +114,10 @@ export type CreateMusicScoreOptions = Partial<
     | 'keySignature'
     | 'timeSignature'
   >
->;
+> & {
+  /** 小节号，默认创建（不带括号、Frame 全 0）；传 false 不加 */
+  measureNumber?: Partial<import('@deciphony/renderer').MeasureNumber> | false;
+};
 
 export type CreateGrandStaffOptions = Partial<
   Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket' | 'data'>
@@ -227,6 +232,11 @@ export type CreateStrummingOptions = {
   partial?: Partial<SingleSlotAffiliatedSymbol>;
 };
 
+/** 前奏括号（左 `(` / 右 `)`）；放入宿主 MeasureNoteSlot.affiliatedSymbols */
+export type CreatePreludeBracketOptions = {
+  partial?: Partial<SingleSlotAffiliatedSymbol>;
+};
+
 export type CreatePedalOptions = {
   /** 开始列 MeasureNoteSlot.id */
   startId: string;
@@ -243,6 +253,26 @@ export type CreatePitchOptions = {
   endId: string;
   direction: 'up' | 'down';
   type?: PitchTypeEnum;
+  partial?: Partial<DoubleSlotAffiliatedSymbol>;
+};
+
+export type CreateTrillOptions = {
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string;
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string;
+  type?: TrillTypeEnum;
+  partial?: Partial<DoubleSlotAffiliatedSymbol>;
+};
+
+export type CreateHairpinOptions = {
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string;
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string;
+  type?: HairpinTypeEnum;
+  /** 楔形开口高度（px） */
+  height?: number;
   partial?: Partial<DoubleSlotAffiliatedSymbol>;
 };
 

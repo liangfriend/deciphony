@@ -17,8 +17,9 @@ import {
 } from '@/enums/musicScoreEnum'
 import {TIME_SIGNATURE_TYPES_ORDERED} from '@/utils/timeSignature'
 import type {Chronaxie} from '@/types/common'
-import type {MusicScore, MeasurePath} from '@/types/MusicScoreType'
+import type {MusicScore} from '@/types/MusicScoreType'
 import {
+  type MeasurePath,
   CHRONAXIES,
   createMusicScore,
   getNote,

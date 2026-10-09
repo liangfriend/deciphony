@@ -1,7 +1,7 @@
 import type {MusicScore} from '@deciphony/renderer'
 import type {PlaySequence, ToneColor} from '@deciphony/player'
 import {APlayer, NPlayer, activeContext, startJPlayer} from '@deciphony/player'
-import {getDrPlaySequence} from '@deciphony/extensions/dr-play'
+import {getDrPlaySequence, type DrPlayRange} from '@deciphony/extensions/dr-play'
 import type {PlayHighlightProgressData} from '@deciphony/extensions/dr-play-highlight'
 import {
   buildFlattenStaffRows,
@@ -26,6 +26,15 @@ export const PLAY_SMOOTH_ENVELOPE = {
 } as const
 
 export type PlaybackMode = 'score' | 'accompaniment' | 'vocal' | null
+
+export type ScorePlayOptions = {
+  /** 选段：起止音符 id（任一缺省 = 从头 / 到尾）；裁剪规则见 dr-play cropDrPlaySequence */
+  range?: DrPlayRange | null
+}
+
+function rangeKey(range: DrPlayRange | null | undefined): string {
+  return `${range?.startNoteId?.trim() ?? ''}|${range?.endNoteId?.trim() ?? ''}`
+}
 
 /** 单份曲谱在 Page 上注册的播放/高亮句柄 */
 export type ScorePlayHost = {
@@ -62,6 +71,8 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
 
   let toneColorName = 'piano'
   let activeScoreId: string | null = null
+  /** 当前 MIDI 播放的选段，续播时须一致 */
+  let activeRangeKey = rangeKey(null)
   let mode: PlaybackMode = null
   /** 当前模式已 pause，再次同模式 play 应续播而非重头 */
   let isPaused = false
@@ -105,8 +116,11 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
     resetNotePassMap(notePassMap)
   }
 
-  function buildPlaySequence(musicScore: MusicScore): PlaySequence {
-    const drSeq = getDrPlaySequence(musicScore, {defaultToneColor: toneColorName})
+  function buildPlaySequence(musicScore: MusicScore, range?: DrPlayRange | null): PlaySequence {
+    const drSeq = getDrPlaySequence(musicScore, {
+      defaultToneColor: toneColorName,
+      ...(range ? {range} : {}),
+    })
     if (!drSeq.length) return []
 
     let curPlayTime = -Infinity
@@ -192,14 +206,16 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
 
   /**
    * 播放指定曲谱 MIDI（默认 scores[0]）。
-   * 暂停后再点同曲谱播放会续播；与范唱/伴奏互斥时会先停止其它播放。
+   * 暂停后再点同曲谱、同选段播放会续播；与范唱/伴奏互斥时会先停止其它播放。
+   * options.range：选段播放（起点平移到 0，高亮只看 playTime 差值不受影响）。
    */
-  async function play(scoreIndex = 0): Promise<void> {
+  async function play(scoreIndex = 0, playOptions: ScorePlayOptions = {}): Promise<void> {
     if (disposed) return
     const score = resolveScore(scoreIndex)
     if (!score) throw new Error(`scores[${scoreIndex}] 不存在`)
+    const key = rangeKey(playOptions.range)
 
-    if (canResume(score, 'score')) {
+    if (canResume(score, 'score') && activeRangeKey === key) {
       await activeContext()
       await nplayer.play(PLAY_SMOOTH_ENVELOPE)
       isPaused = false
@@ -208,14 +224,18 @@ export function createScorePlayback(options: ScorePlaybackOptions) {
 
     stopCurrentSource()
     activeScoreId = score.id
+    activeRangeKey = key
     mode = 'score'
     isPaused = false
 
     const bpm = score.musicScore.bpm ?? 120
     nplayer.bpm = bpm
 
-    const seq = buildPlaySequence(score.musicScore)
-    if (!seq.length) throw new Error('曲谱无可播放音符')
+    const seq = buildPlaySequence(score.musicScore, playOptions.range)
+    if (!seq.length) {
+      mode = null
+      throw new Error(playOptions.range ? '选段内无可播放音符' : '曲谱无可播放音符')
+    }
     nplayer.setPlaySequence(seq)
 
     await activeContext()

@@ -1,5 +1,7 @@
 import {
   ArpeggioTypeEnum,
+  HairpinTypeEnum,
+  TrillTypeEnum,
   PedalTypeEnum,
   PitchTypeEnum,
   BarlineTypeEnum,
@@ -9,9 +11,11 @@ import {
   KeySignatureTypeEnum,
   DoubleNoteAffiliatedSymbolNameEnum,
   DoubleSlotAffiliatedSymbolNameEnum,
+  SingleNoteAffiliatedSymbolNameEnum,
   MusicScore,
   TimeSignatureTypeEnum
 } from "@deciphony/renderer";
+import type {NoteSymbol} from "@deciphony/renderer";
 import {
   createBarline,
   createClef,
@@ -23,8 +27,14 @@ import {
   createNoteSymbol,
   createSingleStaff,
   createTimeSignature,
+  ZERO_FRAME,
 } from "./scoreBuilder";
-import {createArpeggio, createStrumming} from '@deciphony/extensions/dr-edit/score-builder';
+import {
+  createArpeggio,
+  createHairpin,
+  createStrumming,
+  createTrill,
+} from '@deciphony/extensions/dr-edit/score-builder';
 import {getMeasureNoteList} from '@deciphony/renderer'
 // 曲谱结构
 
@@ -34,6 +44,7 @@ for (let i = 0; i < 2; i++) {
   const grandStaff1 = createGrandStaff()
   grandStaff1.linkedStaff = true
   grandStaff1.bracket = {
+    ...ZERO_FRAME,
     id: crypto.randomUUID(),
     type: BracketTypeEnum.Brace,
     startSingleStaffIndex: 0
@@ -155,8 +166,8 @@ getMeasureNoteList(measure3).push(noteSymbol33)
 data.affiliatedSymbols.push({
   id: crypto.randomUUID(),
   name: DoubleNoteAffiliatedSymbolNameEnum.Slur,
-  startId: noteSymbol32.symbol.notesInfo[0]!.id,
-  endId: noteSymbol33.symbol.notesInfo[0]!.id,
+  startId: (noteSymbol32.symbol as NoteSymbol).notesInfo[0]!.id,
+  endId: (noteSymbol33.symbol as NoteSymbol).notesInfo[0]!.id,
   relativeX: 0,
   relativeY: 0,
   relativeW: 0,
@@ -327,6 +338,59 @@ measure16_.barline_b = barline2
 getMeasureNoteList(measure16_).push(noteRest16_1)
 getMeasureNoteList(measure16_).push(noteSymbol16_2)
 getMeasureNoteList(measure16_).push(noteSymbol16_3)
+
+// 颤音线（双 slot，谱表上方）：每种 type 放一个小节
+data.affiliatedSymbols.push(
+  createTrill({startId: noteSymbol31.id, endId: noteSymbol33.id, type: TrillTypeEnum.Trill}),
+  createTrill({startId: noteSymbol41.id, endId: noteSymbol45.id, type: TrillTypeEnum.Upprall}),
+  createTrill({startId: noteSymbol51.id, endId: noteSymbol53.id, type: TrillTypeEnum.Downprall}),
+  createTrill({startId: noteSymbol91.id, endId: noteSymbol94.id, type: TrillTypeEnum.Prallprall}),
+)
+
+// 渐强 / 渐弱（双 slot，谱表下方）：楔形 + 文字线
+data.affiliatedSymbols.push(
+  createHairpin({startId: noteSymbol31.id, endId: noteSymbol33.id, type: HairpinTypeEnum.Crescendo_hairpin}),
+  createHairpin({startId: noteSymbol41.id, endId: noteSymbol45.id, type: HairpinTypeEnum.Diminuendo_hairpin}),
+  createHairpin({startId: noteSymbol10_1.id, endId: noteSymbol10_3.id, type: HairpinTypeEnum.Crescendo_line}),
+  createHairpin({startId: noteSymbol11_1.id, endId: noteSymbol11_3.id, type: HairpinTypeEnum.Diminuendo_line}),
+)
+
+// 单音符附属展示：上方类（奏法 / 弓法 / 呼吸 / 装饰音）依次挂高音谱表音符；力度挂低音谱表，放不下的接到第二行第 1 小节高音
+const N = SingleNoteAffiliatedSymbolNameEnum
+const ABOVE_SYMBOLS = [
+  N.Accent_above, N.Staccato_above, N.Staccatissimo_above, N.Tenuto_above, N.Loure_above,
+  N.Marcato_above, N.Accent_staccato_above, N.Marcato_staccato_above, N.Marcato_tenuto_above,
+  N.Staccatissimo_stroke_above, N.Staccatissimo_wedge_above, N.Stress_above, N.Tenuto_accent_above,
+  N.Unstress_above, N.Open, N.Muted, N.Harmonic, N.Up_bow, N.Down_bow, N.Breath,
+  N.Turn, N.InvertedTurn, N.Trill, N.ShortTrill, N.Mordent,
+]
+// SFF 无 SMuFL 字形，不展示
+const DYNAMIC_SYMBOLS = [
+  N.PPP, N.PP, N.P, N.MP, N.MF, N.F, N.FF, N.FFF, N.FP, N.PF,
+  N.SF, N.SFZ, N.SFFZ, N.SFP, N.RFZ, N.RF, N.FZ,
+]
+
+function staffNotes(staffIndex: number, grandStaffIndex?: number, measureIndex?: number): NoteSymbol[] {
+  return data.grandStaffs
+    .filter((_, g) => grandStaffIndex == null || g === grandStaffIndex)
+    .flatMap((gs) => gs.staves[staffIndex]!.measures.filter((_, m) => measureIndex == null || m === measureIndex))
+    .flatMap((m) => getMeasureNoteList(m))
+    .map((slot) => slot.symbol)
+    .filter((sym): sym is NoteSymbol => 'notesInfo' in sym)
+}
+
+function attachSingleNoteSymbols(notes: NoteSymbol[], names: SingleNoteAffiliatedSymbolNameEnum[]) {
+  names.forEach((name, i) => {
+    const info = notes[i]?.notesInfo[0]
+    if (!info) return
+    ;(info.affiliatedSymbols ??= []).push({...ZERO_FRAME, id: crypto.randomUUID(), name, data: {}})
+  })
+}
+
+attachSingleNoteSymbols(staffNotes(0), ABOVE_SYMBOLS)
+const bassNotes = staffNotes(1)
+attachSingleNoteSymbols(bassNotes, DYNAMIC_SYMBOLS.slice(0, bassNotes.length))
+attachSingleNoteSymbols(staffNotes(0, 1, 0), DYNAMIC_SYMBOLS.slice(bassNotes.length))
 
 // data.grandStaffs[0].staves.splice(1, 1)
 export default data

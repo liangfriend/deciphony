@@ -3,7 +3,8 @@ import {computed} from 'vue'
 import {Skin, SkinItem, SkinPack, VDom} from "@/types/common";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
-import {vdomOuterTransform} from "@/render/vdomScale";
+import {vdomOuterTransform, vdomScaleTransform} from "@/render/vdomScale";
+import {PIXEL_SNAP_TAGS, snapToDevicePixel} from "@/render/pixelSnap";
 import {applySkinContentTemplate} from "@/render/skinContent";
 import {resolveNotationPack} from "@/render/resolveNotation";
 
@@ -17,6 +18,8 @@ const props = defineProps<{
   notationType?: MusicScoreTypeEnum
   /** 多套皮肤包：skinName -> SkinPack；skinName=default 或未找到时使用内置 defaultSkin */
   skin?: Skin
+  /** 父级已 translate(node.x, node.y)（附属 g）：只保留缩放，不再平移 */
+  local?: boolean
 }>()
 
 const comment = computed(() => {
@@ -83,7 +86,12 @@ const notationPack = computed(() => {
   return resolveNotationPack(pack, props.notationType ?? MusicScoreTypeEnum.StandardStaff)
 })
 
-const outerTransform = computed(() => vdomOuterTransform(props.node))
+const outerTransform = computed(() => {
+  if (props.local) return vdomScaleTransform(props.node)
+  return PIXEL_SNAP_TAGS.has(props.node.tag)
+    ? vdomOuterTransform(props.node, snapToDevicePixel)
+    : vdomOuterTransform(props.node)
+})
 
 const SVG_TAGS_WITH_TARGET_ID = /^(g|text|svg|path|rect|circle|line|polyline|polygon|ellipse|tspan)$/i
 

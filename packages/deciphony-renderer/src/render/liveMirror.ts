@@ -1,4 +1,11 @@
-import type {ArpeggioTypeEnum, PedalTypeEnum, PitchTypeEnum, SlurTypeEnum} from '@/enums/musicScoreEnum'
+import type {
+    ArpeggioTypeEnum,
+    HairpinTypeEnum,
+    PedalTypeEnum,
+    PitchTypeEnum,
+    SlurTypeEnum,
+    TrillTypeEnum,
+} from '@/enums/musicScoreEnum'
 import type {Frame, VDom} from '@/types/common'
 
 type Point = { x: number, y: number }
@@ -65,7 +72,23 @@ export type PitchMirror = {
     thickness?: number
 }
 
-/** Frame 的 relativeX/Y 会同时推动连音线、符杠、推弦、琶音/扫弦/踏板/八度记号的端点（与 applyRelativeFrameToVDom 一致） */
+/** 与 VDom.special.trill 同结构，供颤音线拖拽预览 */
+export type TrillMirror = {
+    relativeStartPoint: Point
+    relativeEndPoint: Point
+    type?: TrillTypeEnum
+}
+
+/** 与 VDom.special.hairpin 同结构，供渐强 / 渐弱拖拽预览 */
+export type HairpinMirror = {
+    relativeStartPoint: Point
+    relativeEndPoint: Point
+    type?: HairpinTypeEnum
+    height?: number
+    thickness?: number
+}
+
+/** Frame 的 relativeX/Y 会同时推动连音线、符杠、推弦、琶音/扫弦/踏板/八度记号/颤音线/渐强渐弱的端点（与 applyRelativeFrameToVDom 一致） */
 function shiftsEndpoints(node: VDom): boolean {
     return node.tag === 'noteBeam'
         || node.special?.slur != null
@@ -73,6 +96,8 @@ function shiftsEndpoints(node: VDom): boolean {
         || node.special?.strumming != null
         || node.special?.pedal != null
         || node.special?.pitch != null
+        || node.special?.trill != null
+        || node.special?.hairpin != null
         || node.tag === 'bend'
         || node.tag === 'arpeggio'
         || node.tag === 'strumming'
@@ -312,6 +337,84 @@ export function mirrorPitchData(list: VDom[], targetId: string, pitch: PitchMirr
     return list.map((node) => {
         if (node.targetId !== targetId || !node.special?.pitch) return node
         const patch = pitchVDomPatch(node, pitch)
+        return patch ? {...node, ...patch, special: {...node.special, ...patch.special}} : node
+    })
+}
+
+/** 端点 = 渲染锚点 + relative*；改 relative* 只需按 delta 平移端点 */
+function shiftEndpointsByRel(
+    node: VDom,
+    prev: { relativeStartPoint?: Point, relativeEndPoint?: Point },
+    next: { relativeStartPoint: Point, relativeEndPoint: Point },
+): Pick<VDom, 'startPoint' | 'endPoint'> & { newStart: Point, newEnd: Point } {
+    const oldStart = pt(prev.relativeStartPoint)
+    const oldEnd = pt(prev.relativeEndPoint)
+    const newStart = pt(next.relativeStartPoint)
+    const newEnd = pt(next.relativeEndPoint)
+    return {
+        startPoint: {
+            x: node.startPoint.x - oldStart.x + newStart.x,
+            y: node.startPoint.y - oldStart.y + newStart.y,
+        },
+        endPoint: {
+            x: node.endPoint.x - oldEnd.x + newEnd.x,
+            y: node.endPoint.y - oldEnd.y + newEnd.y,
+        },
+        newStart,
+        newEnd,
+    }
+}
+
+/**
+ * data.trill → 可原地 assign 到 affiliation 节点的 patch。
+ */
+export function trillVDomPatch(node: VDom, trill: TrillMirror): Partial<VDom> | null {
+    const prev = node.special?.trill
+    if (!prev) return null
+    const {startPoint, endPoint, newStart, newEnd} = shiftEndpointsByRel(node, prev, trill)
+    return {
+        startPoint,
+        endPoint,
+        special: {
+            trill: {...prev, ...trill, relativeStartPoint: newStart, relativeEndPoint: newEnd},
+        },
+    }
+}
+
+/**
+ * @deprecated 会换节点引用；高频跟手请用 trillVDomPatch + updateVDom(targetId, patch)
+ */
+export function mirrorTrillData(list: VDom[], targetId: string, trill: TrillMirror): VDom[] {
+    return list.map((node) => {
+        if (node.targetId !== targetId || !node.special?.trill) return node
+        const patch = trillVDomPatch(node, trill)
+        return patch ? {...node, ...patch, special: {...node.special, ...patch.special}} : node
+    })
+}
+
+/**
+ * data.hairpin → 可原地 assign 到 affiliation 节点的 patch。
+ */
+export function hairpinVDomPatch(node: VDom, hairpin: HairpinMirror): Partial<VDom> | null {
+    const prev = node.special?.hairpin
+    if (!prev) return null
+    const {startPoint, endPoint, newStart, newEnd} = shiftEndpointsByRel(node, prev, hairpin)
+    return {
+        startPoint,
+        endPoint,
+        special: {
+            hairpin: {...prev, ...hairpin, relativeStartPoint: newStart, relativeEndPoint: newEnd},
+        },
+    }
+}
+
+/**
+ * @deprecated 会换节点引用；高频跟手请用 hairpinVDomPatch + updateVDom(targetId, patch)
+ */
+export function mirrorHairpinData(list: VDom[], targetId: string, hairpin: HairpinMirror): VDom[] {
+    return list.map((node) => {
+        if (node.targetId !== targetId || !node.special?.hairpin) return node
+        const patch = hairpinVDomPatch(node, hairpin)
         return patch ? {...node, ...patch, special: {...node.special, ...patch.special}} : node
     })
 }

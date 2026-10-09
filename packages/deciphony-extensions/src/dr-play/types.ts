@@ -12,8 +12,17 @@ export type DR_playSequence_item = {
   real_duration?: Unit256
   /** 音量倍数（鼓谱映射表 / ghost / 重音），未设置视为 1；对应 NPlayer 的 velocity */
   volume?: number
-  /** 音色名（所在单谱表 data.instrumentValue，缺省为默认音色）；对应 NPlayer 的 toneColor。getDrPlaySequence 必填 */
+  /**
+   * 音色名（由 applyStaffToneColor 写入）。
+   * 普通：singleStaff / 曲谱 data.instrumentValue；
+   * 有 toneVariant 时优先 data[`instrumentValue_${toneVariant}`]。
+   */
   toneColor?: string
+  /**
+   * 技巧音色后缀（不含前缀）。如 `'harmonic'` → 查 `instrumentValue_harmonic`。
+   * 未设置则只走基础 `instrumentValue`。
+   */
+  toneVariant?: string
 }
 
 export type DR_playSequence = DR_playSequence_item[]

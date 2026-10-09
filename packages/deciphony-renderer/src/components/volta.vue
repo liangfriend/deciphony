@@ -28,6 +28,8 @@ const labelText = computed(() => String(voltaData.value?.text ?? ''));
 </script>
 
 <template>
+  <!-- 透明叠底：只有细线时很难点中 -->
+  <rect :height="h" :width="w" fill="transparent" x="0" y="0"/>
   <!-- 左侧竖线 -->
   <line v-if="!openLeft" :x1="0.5" :x2="0.5" :y1="0" :y2="h" :stroke="lineColor" stroke-width="1"/>
   <!-- 顶部横线 -->

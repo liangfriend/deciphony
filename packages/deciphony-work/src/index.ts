@@ -22,12 +22,40 @@ export type {AddPageOptions} from './api/pages'
 export {setBackground, clearBackground} from './api/background'
 export type {SetBackgroundOptions} from './api/background'
 export {
+  cropImage,
+  cropScore,
+  clearCrop,
+  normalizeCropArea,
+  setCropRect,
+  ensureImageNaturalSize,
+  fitScoreFrameToSource,
+} from './api/crop'
+export {
+  cropScoreByGrandStaff,
+  getScoreVerticalBands,
+  scoreVerticalBands,
+  grandStaffRangeToCropArea,
+} from './api/scoreGrandStaffCrop'
+export type {ScoreVerticalBand, CropScoreByGrandStaffOptions} from './api/scoreGrandStaffCrop'
+export {renderPageToCanvas} from './export/renderPage'
+export type {ExportAssetContext, RenderPageOptions} from './export/renderPage'
+export {exportPageImage, exportPagesAsImages, exportPagesAsPdf, downloadBlob} from './export/exportWork'
+export type {ExportImageType, ExportPagesOptions, ExportImagesOptions, ExportPdfOptions} from './export/exportWork'
+export {buildPdf} from './export/pdfWriter'
+export type {PdfPageImage, PdfInfo} from './export/pdfWriter'
+export {
   createScorePlayback,
   ACCOMPANIMENT_TIME_PROP,
   VOCAL_TIME_PROP,
   PLAY_SMOOTH_ENVELOPE,
 } from './play/scorePlayback'
-export type {ScorePlayback, ScorePlayHost, ScorePlaybackOptions, PlaybackMode} from './play/scorePlayback'
+export type {
+  ScorePlayback,
+  ScorePlayHost,
+  ScorePlaybackOptions,
+  ScorePlayOptions,
+  PlaybackMode,
+} from './play/scorePlayback'
 export {createAssetStore, createAssetFilename, createAssetId} from './assets/assetStore'
 export {readImageSize} from './assets/imageSize'
 export {readVideoSize} from './assets/videoSize'
@@ -70,15 +98,21 @@ export type {
   SElementBase,
   STextElement,
   SImageElement,
+  SCropRect,
+  CropArea,
+  CropOptions,
   SAudioElement,
   SVideoElement,
   SScore,
   ScoreAudioRef,
+  ScoreRangeSelect,
+  ScoreRangeChangePayload,
   AssetMap,
   AssetRecord,
   AssetUsage,
   RemoveAssetOptions,
   SjwMode,
+  SjwSelection,
   DrawStroke,
   DrawBrushOptions,
 } from './types/types'

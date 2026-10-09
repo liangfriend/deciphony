@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import {nextTick, ref, watch} from 'vue'
+import {computed, nextTick, ref, watch} from 'vue'
 import type {SElement, STextElement} from '../types/types'
+import {visibleSourceRect} from '../api/crop'
 import EditFrame from './EditFrame.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import VideoPlayer from './VideoPlayer.vue'
@@ -10,6 +11,8 @@ const props = defineProps<{
   editable: boolean
   selected: boolean
   resolveSrc: (src: string) => string
+  /** 裁剪模式（仅图片）：显示整张原图（裁掉部分由 EditFrame 蒙白），四角改裁剪区域 */
+  cropping?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -71,6 +74,23 @@ function onTextKeydown(ev: KeyboardEvent) {
 function onBodyDblclick() {
   if (isText(props.element)) startTextEdit()
 }
+
+/** 裁剪模式下的源尺寸与整张原图在框局部坐标里的位置；无原始尺寸时不进入裁剪 */
+const imageCrop = computed(() => {
+  const el = props.element
+  if (!props.cropping || el.type !== 'image' || !el.naturalWidth || !el.naturalHeight) return null
+  const source = {width: el.naturalWidth, height: el.naturalHeight}
+  const view = visibleSourceRect(el.crop, source)
+  const sx = el.width / view.width
+  const sy = el.height / view.height
+  return {
+    source,
+    x: -view.x * sx,
+    y: -view.y * sy,
+    width: source.width * sx,
+    height: source.height * sy,
+  }
+})
 </script>
 
 <template>
@@ -79,12 +99,42 @@ function onBodyDblclick() {
     :element="element"
     :move-on-body="element.type !== 'audio' && element.type !== 'video' && !textEditing"
     :selected="selected"
+    :crop-source="imageCrop?.source ?? null"
     @body-dblclick="onBodyDblclick"
     @contextmenu="emit('contextmenu', $event)"
     @select="emit('select')"
   >
     <image
-      v-if="element.type === 'image'"
+      v-if="element.type === 'image' && imageCrop"
+      :height="imageCrop.height"
+      :href="resolveSrc(element.src)"
+      pointer-events="none"
+      preserveAspectRatio="none"
+      :width="imageCrop.width"
+      :x="imageCrop.x"
+      :y="imageCrop.y"
+    />
+    <svg
+      v-else-if="element.type === 'image' && element.crop && element.naturalWidth && element.naturalHeight"
+      :height="element.height"
+      overflow="hidden"
+      preserveAspectRatio="none"
+      :viewBox="`${element.crop.x} ${element.crop.y} ${element.crop.width} ${element.crop.height}`"
+      :width="element.width"
+      x="0"
+      y="0"
+    >
+      <image
+        :height="element.naturalHeight"
+        :href="resolveSrc(element.src)"
+        preserveAspectRatio="none"
+        :width="element.naturalWidth"
+        x="0"
+        y="0"
+      />
+    </svg>
+    <image
+      v-else-if="element.type === 'image'"
       preserveAspectRatio="none"
       :height="element.height"
       :href="resolveSrc(element.src)"
@@ -102,6 +152,7 @@ function onBodyDblclick() {
       <div
         xmlns="http://www.w3.org/1999/xhtml"
         class="sjw-el__box"
+        :data-sjw-element-id="element.id"
         @contextmenu.prevent.stop="emit('contextmenu', $event)"
       >
         <AudioPlayer :src="resolveSrc(element.src)"/>
@@ -117,6 +168,7 @@ function onBodyDblclick() {
       <div
         xmlns="http://www.w3.org/1999/xhtml"
         class="sjw-el__box"
+        :data-sjw-element-id="element.id"
         @contextmenu.prevent.stop="emit('contextmenu', $event)"
       >
         <VideoPlayer :src="resolveSrc(element.src)"/>

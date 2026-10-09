@@ -172,7 +172,7 @@ export enum Tab6SkinKeyEnum {
   // 单音符附属符号
   Accent_above = 'acccent_above',
   Staccato_above = 'staccato_above',
-  Staccatissimo_above = 'staccato_above',
+  Staccatissimo_above = 'staccatissimo_above',
   Tenuto_above = 'tenuto_above',
   Loure_above = 'loure_above',
   Marcato_above = 'marcato_above',
@@ -189,6 +189,7 @@ export enum Tab6SkinKeyEnum {
   Harmonic = 'harmonic',
   Up_bow = 'up_bow',
   Down_bow = 'down_bow',
+  Breath = 'breath',
   // ornaments
   Turn = 'turn',
   InvertedTurn = 'invertedTurn',
@@ -205,6 +206,8 @@ export enum Tab6SkinKeyEnum {
   Bracket_arpeggio = 'bracket_arpeggio',
   Up_arpeggio_straight = 'up_arpeggio_straight',
   Down_arpeggio_straight = 'down_arpeggio_straight',
+  Prelude_bracket_left = 'prelude_bracket_left',
+  Prelude_bracket_right = 'prelude_bracket_right',
   // 和弦图
   TabChord = 'tab_chord',
   // 拍弦框

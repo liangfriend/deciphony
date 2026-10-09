@@ -5,6 +5,7 @@ import {
   SkinPack,
   StandardStaffSkinPack,
   Tab4SkinPack,
+  Tab5SkinPack,
   Tab6SkinPack
 } from "@/types/common";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
@@ -12,6 +13,13 @@ import {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSkinKeyE
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {MusicScoreTypeEnum} from "@/enums/musicScoreEnum";
 import {FRACTION_TIME_SIGNATURE_KEYS} from "@/utils/timeSignature";
+import {
+  bravuraGlyphsByKey,
+  bravuraNumberNotationGlyphs,
+  bravuraStaffTimeSignatures,
+  bravuraStandardStaffPartial,
+} from './generated/bravuraStandardStaff';
+import {overlayBravuraGlyphs} from './generated/bravuraOverlay';
 /*
 * w和h不会影响图形的宽高，图形的宽高是图形本身决定的，w和h是皮肤开发者要计算出图形的宽高显示写到属性中，让坐标系统识别
 * 因为svg嵌套的行为我没有掌握，所以舍弃了svg嵌套这一做法
@@ -32,7 +40,7 @@ const REPEAT_CODA_PATH =
   'M8.5,2.9v5.2H11c0.1-0.8,0-1.8-0.3-3.1c-0.2-0.5-0.4-1-0.8-1.4C9.5,3.1,9.1,2.9,8.5,2.9 M13.5,6.1c0.3,0.7,0.4,1.4,0.5,2h2.1v1H14c0,0.5-0.2,1.1-0.5,1.9c-0.3,0.7-0.6,1.3-0.9,1.8c-0.7,1.1-2.1,1.8-4.1,2.3V17H7.3v-1.9c-1.9-0.5-3.2-1.2-3.9-2.3c-0.4-0.5-0.7-1.1-1-1.8C2.2,10.3,2,9.6,2,9.1H0v-1h2c0-0.6,0.2-1.2,0.5-2c0.2-0.8,0.6-1.4,1-1.8c0.7-1.1,2-1.9,3.9-2.4V0h1.2v1.9c2,0.5,3.3,1.3,4.1,2.4C12.9,4.8,13.2,5.4,13.5,6.1 M5.3,4.9C5,6.3,4.9,7.3,4.9,8.1h2.3V2.9c-0.5,0-1,0.2-1.3,0.7C5.6,4,5.4,4.4,5.3,4.9 M4.9,9.1c0,0.7,0.1,1.7,0.3,3c0.1,0.5,0.4,1,0.7,1.4c0.3,0.4,0.8,0.6,1.3,0.6v-5H4.9 M8.5,9.1v5c0.6,0,1-0.2,1.4-0.6c0.4-0.4,0.6-0.9,0.8-1.4c0.3-1.3,0.4-2.2,0.3-3H8.5';
 
 function repeatCodaSkin(): string {
-  return `<g transform="scale(1.8,1.8) translate(0,-0.6)"><path d="${REPEAT_CODA_PATH}" fill="black" stroke="none"></path></g>`;
+  return `<g transform="scale(1.53,1.53) translate(0,-0.6)"><path d="${REPEAT_CODA_PATH}" fill="black" stroke="none"></path></g>`;
 }
 
 /** 其它反复符号占位（后续替换为正式符号） */
@@ -378,8 +386,8 @@ const singleBarline = {
 
 const doubleBarline = {
   content: `
-      <line x1="4" y1="0" x2="4" y2="45" stroke="black" stroke-width="1" />
-      <line x1="7" y1="0" x2="7" y2="45" stroke="black" stroke-width="1" />
+      <line x1="3.5" y1="0" x2="3.5" y2="45" stroke="black" stroke-width="1" />
+      <line x1="6.5" y1="0" x2="6.5" y2="45" stroke="black" stroke-width="1" />
 `,
   w: 6,
   h: STAFF_HEIGHT,
@@ -391,7 +399,7 @@ const doubleBarline = {
 
 const startRepeatBarline = {
   content: `
-      <line x1="6" y1="0" x2="6" y2="45" stroke="black" stroke-width="3" />
+      <line x1="5.5" y1="0" x2="5.5" y2="45" stroke="black" stroke-width="3" />
       <line x1="10" y1="0" x2="10" y2="45" stroke="black" stroke-width="2" />
       <circle cx="14" cy="15" r="1.5" fill="black" />
       <circle cx="14" cy="30" r="1.5" fill="black" />
@@ -407,7 +415,7 @@ const startRepeatBarline = {
 const endRepeatBarline = {
   content: `
       <line x1="8" y1="0" x2="8" y2="45" stroke="black" stroke-width="2" />
-      <line x1="12" y1="0" x2="12" y2="45" stroke="black" stroke-width="3" />
+      <line x1="11.5" y1="0" x2="11.5" y2="45" stroke="black" stroke-width="3" />
       <circle cx="4" cy="15" r="1.5" fill="black" />
       <circle cx="4" cy="30" r="1.5" fill="black" />
 `,
@@ -423,7 +431,7 @@ const startEndRepeatBarline = {
       <circle cx="4" cy="15" r="1.5" fill="black" />
 <circle cx="4" cy="30" r="1.5" fill="black" />
 <line x1="8" y1="0" x2="8" y2="45" stroke="black" stroke-width="2" />
-<line x1="12" y1="0" x2="12" y2="45" stroke="black" stroke-width="3" />
+<line x1="11.5" y1="0" x2="11.5" y2="45" stroke="black" stroke-width="3" />
 <line x1="16" y1="0" x2="16" y2="45" stroke="black" stroke-width="2" />
 <circle cx="20" cy="15" r="1.5" fill="black" />
 <circle cx="20" cy="30" r="1.5" fill="black" />
@@ -439,8 +447,8 @@ const startEndRepeatBarline = {
 
 const finalBarline = {
   content: `
-      <line x1="4" y1="0" x2="4" y2="45" stroke="black" stroke-width="1" />
-      <line x1="8" y1="0" x2="8" y2="45" stroke="black" stroke-width="3" />
+      <line x1="3.5" y1="0" x2="3.5" y2="45" stroke="black" stroke-width="1" />
+      <line x1="7.5" y1="0" x2="7.5" y2="45" stroke="black" stroke-width="3" />
 `,
   w: 8,
   h: STAFF_HEIGHT,
@@ -452,7 +460,7 @@ const finalBarline = {
 
 const dashedBarline = {
   content: `
-      <line x1="5" y1="0" x2="5" y2="45" stroke="black" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="4.5" y1="0" x2="4.5" y2="45" stroke="black" stroke-width="1" stroke-dasharray="3 3" />
 `,
   w: 4,
   h: STAFF_HEIGHT,
@@ -464,7 +472,7 @@ const dashedBarline = {
 
 const dottedBarline = {
   content: `
-      <line x1="5" y1="0" x2="5" y2="45" stroke="black" stroke-width="1" stroke-dasharray="1 3" />
+      <line x1="4.5" y1="0" x2="4.5" y2="45" stroke="black" stroke-width="1" stroke-dasharray="1 3" />
 `,
   w: 4,
   h: STAFF_HEIGHT,
@@ -476,8 +484,8 @@ const dottedBarline = {
 
 const reverseBarline = {
   content: `
-      <line x1="8" y1="0" x2="8" y2="45" stroke="black" stroke-width="1" />
-      <line x1="4" y1="0" x2="4" y2="45" stroke="black" stroke-width="3" />
+      <line x1="7.5" y1="0" x2="7.5" y2="45" stroke="black" stroke-width="1" />
+      <line x1="3.5" y1="0" x2="3.5" y2="45" stroke="black" stroke-width="3" />
 `,
   w: 8,
   h: STAFF_HEIGHT,
@@ -489,7 +497,7 @@ const reverseBarline = {
 
 const heavyBarline = {
   content: `
-      <line x1="5" y1="0" x2="5" y2="45" stroke="black" stroke-width="3" />
+      <line x1="4.5" y1="0" x2="4.5" y2="45" stroke="black" stroke-width="3" />
 `,
   w: 6,
   h: STAFF_HEIGHT,
@@ -501,8 +509,8 @@ const heavyBarline = {
 
 const heavyDoubleBarline = {
   content: `
-      <line x1="5" y1="0" x2="5" y2="45" stroke="black" stroke-width="3" />
-      <line x1="10" y1="0" x2="10" y2="45" stroke="black" stroke-width="3" />
+      <line x1="4.5" y1="0" x2="4.5" y2="45" stroke="black" stroke-width="3" />
+      <line x1="9.5" y1="0" x2="9.5" y2="45" stroke="black" stroke-width="3" />
 `,
   w: 10,
   h: STAFF_HEIGHT,
@@ -522,7 +530,7 @@ const linkedSingleBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedDoubleBarline = {
-  content: `<line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="1" /><line x1="7" y1="0" x2="7" y2="node.h" stroke="black" stroke-width="1" />`,
+  content: `<line x1="3.5" y1="0" x2="3.5" y2="node.h" stroke="black" stroke-width="1" /><line x1="6.5" y1="0" x2="6.5" y2="node.h" stroke="black" stroke-width="1" />`,
   w: 6,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_double_barline,
@@ -530,7 +538,7 @@ const linkedDoubleBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedStartRepeatBarline = {
-  content: `<line x1="6" y1="0" x2="6" y2="node.h" stroke="black" stroke-width="3" /><line x1="10" y1="0" x2="10" y2="node.h" stroke="black" stroke-width="2" />`,
+  content: `<line x1="5.5" y1="0" x2="5.5" y2="node.h" stroke="black" stroke-width="3" /><line x1="10" y1="0" x2="10" y2="node.h" stroke="black" stroke-width="2" />`,
   w: 11.5,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_startRepeat_barline,
@@ -538,7 +546,7 @@ const linkedStartRepeatBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedEndRepeatBarline = {
-  content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="12" y1="0" x2="12" y2="node.h" stroke="black" stroke-width="3" />`,
+  content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="11.5" y1="0" x2="11.5" y2="node.h" stroke="black" stroke-width="3" />`,
   w: 12,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_endRepeat_barline,
@@ -546,7 +554,7 @@ const linkedEndRepeatBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedStartEndRepeatBarline = {
-  content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="12" y1="0" x2="12" y2="node.h" stroke="black" stroke-width="3" /><line x1="16" y1="0" x2="16" y2="node.h" stroke="black" stroke-width="2" />`,
+  content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="2" /><line x1="11.5" y1="0" x2="11.5" y2="node.h" stroke="black" stroke-width="3" /><line x1="16" y1="0" x2="16" y2="node.h" stroke="black" stroke-width="2" />`,
   w: 21.5,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_start_end_repeat_barline,
@@ -554,7 +562,7 @@ const linkedStartEndRepeatBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedDashedBarline = {
-  content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="3 3" />`,
+  content: `<line x1="4.5" y1="0" x2="4.5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="3 3" />`,
   w: 4,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_dashed_barline,
@@ -562,7 +570,7 @@ const linkedDashedBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedFinalBarline = {
-  content: `<line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="1" /><line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="3" />`,
+  content: `<line x1="3.5" y1="0" x2="3.5" y2="node.h" stroke="black" stroke-width="1" /><line x1="7.5" y1="0" x2="7.5" y2="node.h" stroke="black" stroke-width="3" />`,
   w: 8,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_final_barline,
@@ -570,7 +578,7 @@ const linkedFinalBarline = {
   widthRatioForMeasure: 6,
 };
 const linkedDottedBarline = {
-  content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="1 3" />`,
+  content: `<line x1="4.5" y1="0" x2="4.5" y2="node.h" stroke="black" stroke-width="1" stroke-dasharray="1 3" />`,
   w: 4,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_dotted_barline,
@@ -578,7 +586,7 @@ const linkedDottedBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedReverseBarline = {
-  content: `<line x1="8" y1="0" x2="8" y2="node.h" stroke="black" stroke-width="1" /><line x1="4" y1="0" x2="4" y2="node.h" stroke="black" stroke-width="3" />`,
+  content: `<line x1="7.5" y1="0" x2="7.5" y2="node.h" stroke="black" stroke-width="1" /><line x1="3.5" y1="0" x2="3.5" y2="node.h" stroke="black" stroke-width="3" />`,
   w: 8,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_reverse_barline,
@@ -586,7 +594,7 @@ const linkedReverseBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedHeavyBarline = {
-  content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="3" />`,
+  content: `<line x1="4.5" y1="0" x2="4.5" y2="node.h" stroke="black" stroke-width="3" />`,
   w: 6,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_heavy_barline,
@@ -594,7 +602,7 @@ const linkedHeavyBarline = {
   widthRatioForMeasure: 4,
 };
 const linkedHeavyDoubleBarline = {
-  content: `<line x1="5" y1="0" x2="5" y2="node.h" stroke="black" stroke-width="3" /><line x1="10" y1="0" x2="10" y2="node.h" stroke="black" stroke-width="3" />`,
+  content: `<line x1="4.5" y1="0" x2="4.5" y2="node.h" stroke="black" stroke-width="3" /><line x1="9.5" y1="0" x2="9.5" y2="node.h" stroke="black" stroke-width="3" />`,
   w: 10,
   h: 0,
   skinKey: StandardStaffSkinKeyEnum.linked_heavy_double_barline,
@@ -994,8 +1002,8 @@ function makeRest(key: StandardStaffSkinKeyEnum) {
 
 }
 
-/** 五线谱默认皮肤（单套曲谱模式下的 skinKey -> 内容与尺寸） */
-const standardStaffSkin: StandardStaffSkinPack = {
+/** 五线谱默认皮肤（手绘底稿；下方再用 Bravura 覆盖核心符号） */
+const standardStaffSkinLegacy: StandardStaffSkinPack = {
   [StandardStaffSkinKeyEnum.Measure]: measure,
 
   // 谱号
@@ -1764,8 +1772,8 @@ const standardStaffSkin: StandardStaffSkinPack = {
   },
   [StandardStaffSkinKeyEnum.Repeat_coda]: {
     content: repeatCodaSkin(),
-    w: 30,
-    h: 30,
+    w: 25,
+    h: 26,
     skinKey: StandardStaffSkinKeyEnum.Repeat_coda,
   },
   [StandardStaffSkinKeyEnum.Repeat_to_coda]: {
@@ -1827,7 +1835,7 @@ const standardStaffSkin: StandardStaffSkinPack = {
   [StandardStaffSkinKeyEnum.Volta]: makeColorSkin('black', StandardStaffSkinKeyEnum.Volta),
   [StandardStaffSkinKeyEnum.Pedal]: makeColorSkin('black', StandardStaffSkinKeyEnum.Pedal),
   [StandardStaffSkinKeyEnum.Strumming]: makeColorSkin('black', StandardStaffSkinKeyEnum.Strumming),
-  // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
+  // 单音符附属符号（占位 30×30）
   [StandardStaffSkinKeyEnum.Accent_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
     w: 30,
@@ -1839,6 +1847,12 @@ const standardStaffSkin: StandardStaffSkinPack = {
     w: 30,
     h: 30,
     skinKey: StandardStaffSkinKeyEnum.Staccato_above,
+  },
+  [StandardStaffSkinKeyEnum.Staccatissimo_above]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: StandardStaffSkinKeyEnum.Staccatissimo_above,
   },
   [StandardStaffSkinKeyEnum.Tenuto_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -1936,6 +1950,12 @@ const standardStaffSkin: StandardStaffSkinPack = {
     h: 30,
     skinKey: StandardStaffSkinKeyEnum.Down_bow,
   },
+  [StandardStaffSkinKeyEnum.Breath]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: StandardStaffSkinKeyEnum.Breath,
+  },
   [StandardStaffSkinKeyEnum.Turn]: {
     content: REPEAT_PLACEHOLDER_RECT,
     w: 30,
@@ -1989,6 +2009,18 @@ const standardStaffSkin: StandardStaffSkinPack = {
     w: 30,
     h: 30,
     skinKey: StandardStaffSkinKeyEnum.Bracket_arpeggio,
+  },
+  [StandardStaffSkinKeyEnum.Prelude_bracket_left]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: StandardStaffSkinKeyEnum.Prelude_bracket_left,
+  },
+  [StandardStaffSkinKeyEnum.Prelude_bracket_right]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: StandardStaffSkinKeyEnum.Prelude_bracket_right,
   },
   [StandardStaffSkinKeyEnum.Up_arpeggio_straight]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -2112,56 +2144,70 @@ const standardStaffSkin: StandardStaffSkinPack = {
   },
 } as StandardStaffSkinPack;
 
+/** Bravura/SMuFL 覆盖：谱号、变音、音符头、符尾、休止、力度、分数拍号等（几何组件不覆盖） */
+const standardStaffSkin: StandardStaffSkinPack = {
+  ...standardStaffSkinLegacy,
+  ...bravuraStandardStaffPartial,
+  ...bravuraStaffTimeSignatures,
+} as StandardStaffSkinPack;
+
 // ======================================鼓谱================================================
 
-// 鼓谱音符头：按 DrumHeadTypeEnum 取皮肤，不随时值变化；Normal 复用五线谱四分音符头
-const DRUM_HEAD_STROKE = `stroke="black" stroke-width="1.2" fill="none"`;
+// 鼓谱音符头：优先 Bravura SMuFL
 const drumHeads = {
   [DrumNotationSkinKeyEnum.DrumHead_normal]: {
-    ...makeNoteHead(StandardStaffSkinKeyEnum.NoteHead_3),
+    ...(bravuraGlyphsByKey.drumHead_normal ?? bravuraStandardStaffPartial[StandardStaffSkinKeyEnum.NoteHead_3]!),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_normal,
   },
   [DrumNotationSkinKeyEnum.DrumHead_cross]: {
-    content: `<path d="M1,1 L10,10 M10,1 L1,10" stroke="black" stroke-width="1.6" stroke-linecap="round" fill="none"/>`,
-    w: 11,
-    h: 11,
+    ...(bravuraGlyphsByKey.drumHead_cross ?? {
+      content: `<path d="M1,1 L10,10 M10,1 L1,10" stroke="black" stroke-width="1.6" stroke-linecap="round" fill="none"/>`,
+      w: 11,
+      h: 11,
+      widthRatio: 6,
+      widthRatioForMeasure: 6,
+    }),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_cross,
-    widthRatio: 6,
-    widthRatioForMeasure: 6,
   },
   [DrumNotationSkinKeyEnum.DrumHead_circledCross]: {
-    content: `<circle cx="6" cy="6" r="5.4" ${DRUM_HEAD_STROKE}/>
-<path d="M2.18,2.18 L9.82,9.82 M9.82,2.18 L2.18,9.82" ${DRUM_HEAD_STROKE}/>`,
-    w: 12,
-    h: 12,
+    ...(bravuraGlyphsByKey.drumHead_circledCross ?? {
+      content: `<g><circle cx="6" cy="6" r="5.4" fill="none" stroke="black" stroke-width="1.2"/><path d="M2.18,2.18 L9.82,9.82 M9.82,2.18 L2.18,9.82" fill="none" stroke="black" stroke-width="1.2"/></g>`,
+      w: 12,
+      h: 12,
+      widthRatio: 6,
+      widthRatioForMeasure: 6,
+    }),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_circledCross,
-    widthRatio: 6,
-    widthRatioForMeasure: 6,
   },
   [DrumNotationSkinKeyEnum.DrumHead_circledSlash]: {
-    content: `<circle cx="6" cy="6" r="5.4" ${DRUM_HEAD_STROKE}/>
-<path d="M2.18,9.82 L9.82,2.18" ${DRUM_HEAD_STROKE}/>`,
-    w: 12,
-    h: 12,
+    ...(bravuraGlyphsByKey.drumHead_circledSlash ?? {
+      content: `<g><circle cx="6" cy="6" r="5.4" fill="none" stroke="black" stroke-width="1.2"/><path d="M2.18,9.82 L9.82,2.18" fill="none" stroke="black" stroke-width="1.2"/></g>`,
+      w: 12,
+      h: 12,
+      widthRatio: 6,
+      widthRatioForMeasure: 6,
+    }),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_circledSlash,
-    widthRatio: 6,
-    widthRatioForMeasure: 6,
   },
   [DrumNotationSkinKeyEnum.DrumHead_triangle]: {
-    content: `<path d="M6,0 L12,11 L0,11 Z" fill="black"/>`,
-    w: 12,
-    h: 11,
+    ...(bravuraGlyphsByKey.drumHead_triangle ?? {
+      content: `<path d="M6,0 L12,11 L0,11 Z" fill="black"/>`,
+      w: 12,
+      h: 11,
+      widthRatio: 6,
+      widthRatioForMeasure: 6,
+    }),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_triangle,
-    widthRatio: 6,
-    widthRatioForMeasure: 6,
   },
   [DrumNotationSkinKeyEnum.DrumHead_diamond]: {
-    content: `<path d="M6,0 L12,6 L6,12 L0,6 Z" fill="black"/>`,
-    w: 12,
-    h: 12,
+    ...(bravuraGlyphsByKey.drumHead_diamond ?? {
+      content: `<path d="M6,0 L12,6 L6,12 L0,6 Z" fill="black"/>`,
+      w: 12,
+      h: 12,
+      widthRatio: 6,
+      widthRatioForMeasure: 6,
+    }),
     skinKey: DrumNotationSkinKeyEnum.DrumHead_diamond,
-    widthRatio: 6,
-    widthRatioForMeasure: 6,
   },
 };
 
@@ -2202,12 +2248,16 @@ const {
   ...staffSkinWithoutNoteHeads
 } = standardStaffSkin;
 
-/** 鼓谱默认皮肤：除音符头 / 鼓谱谱号 / 长休止符外沿用五线谱 */
+/** 鼓谱默认皮肤：除音符头 / 鼓谱谱号 / 长休止符外沿用五线谱（已含 Bravura） */
 const drumNotationSkin = {
   ...staffSkinWithoutNoteHeads,
   ...drumHeads,
-  [DrumNotationSkinKeyEnum.Percussion_f]: makePercussionClef(DrumNotationSkinKeyEnum.Percussion_f, 1),
-  [DrumNotationSkinKeyEnum.Percussion]: makePercussionClef(DrumNotationSkinKeyEnum.Percussion, 0.75),
+  [DrumNotationSkinKeyEnum.Percussion_f]: bravuraGlyphsByKey.percussion_f
+    ? {...bravuraGlyphsByKey.percussion_f, skinKey: DrumNotationSkinKeyEnum.Percussion_f}
+    : makePercussionClef(DrumNotationSkinKeyEnum.Percussion_f, 1),
+  [DrumNotationSkinKeyEnum.Percussion]: bravuraGlyphsByKey.percussion
+    ? {...bravuraGlyphsByKey.percussion, skinKey: DrumNotationSkinKeyEnum.Percussion}
+    : makePercussionClef(DrumNotationSkinKeyEnum.Percussion, 0.75),
   [DrumNotationSkinKeyEnum.LongRest_complete]: makeLongRest(
     DrumNotationSkinKeyEnum.LongRest_complete,
     LONG_REST_LEFT + LONG_REST_BAR + LONG_REST_RIGHT,
@@ -2265,7 +2315,24 @@ function buildNumberNotationTimeSignatures() {
 }
 
 
-const numberNotationSkin: NumberNotationSkinPack = {
+const NUMBER_GLYPH_W = 14.16;
+const NUMBER_GLYPH_H = 35;
+const NUMBER_GLYPH_FONT_SIZE = 24;
+/** 必须显式指定齐线数字字体：继承宿主字体时 Georgia 等旧式数字会高低不齐、看起来发扁 */
+const NUMBER_GLYPH_FONT_FAMILY = 'Arial, Helvetica, sans-serif';
+/** Arial 数字高 ≈ 0.716em，基线下移半个数字高使字形在盒内垂直居中（与加时线对齐） */
+const NUMBER_GLYPH_BASELINE = NUMBER_GLYPH_H / 2 + NUMBER_GLYPH_FONT_SIZE * 0.716 / 2;
+
+function makeNumberGlyph(digit: string, key: NumberNotationSkinKeyEnum) {
+  return {
+    content: `<text x="${NUMBER_GLYPH_W / 2}" y="${NUMBER_GLYPH_BASELINE.toFixed(2)}" text-anchor="middle" font-family="${NUMBER_GLYPH_FONT_FAMILY}" font-size="${NUMBER_GLYPH_FONT_SIZE}" font-weight="600" style="font-variant-numeric:lining-nums" fill="black">${digit}</text>`,
+    w: NUMBER_GLYPH_W,
+    h: NUMBER_GLYPH_H,
+    skinKey: key,
+  };
+}
+
+const numberNotationSkinLegacy: NumberNotationSkinPack = {
   [NumberNotationSkinKeyEnum.Measure]: {
     content: `<rect x="0" y="0" width="node.w" height="45" stroke="transparent" fill="transparent"></rect>`,
     w: 1,
@@ -2273,78 +2340,15 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Measure,
     widthRatioForMeasure: 100,
   },
-  [NumberNotationSkinKeyEnum.Number_0]: {
-    content: `<g transform="translate(0, 0)">
-        <ellipse cx="10" cy="20" rx="6" ry="14" fill="none" stroke="black" stroke-width="3"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_0
-  },
-  [NumberNotationSkinKeyEnum.Number_1]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 6 11 L 10 6 V 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_1
-  },
-  [NumberNotationSkinKeyEnum.Number_2]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 4 12 C 4 6 16 6 16 13 C 16 19 7 25 4 34 H 16" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_2
-  },
-  [NumberNotationSkinKeyEnum.Number_3]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 4 12 C 4 6 16 5 16 12 C 16 17 11 20 7 20 C 11 20 16 22 16 28 C 16 35 4 35 4 28" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_3
-  },
-  [NumberNotationSkinKeyEnum.Number_4]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 13 6 L 4 26 H 17 M 13 6 V 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_4
-  },
-  [NumberNotationSkinKeyEnum.Number_5]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 15 6 H 6 V 18 H 11 C 16 18 16 34 6 33" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_5
-  },
-  [NumberNotationSkinKeyEnum.Number_6]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 14 8 C 8 6 5 14 5 24 C 5 16 16 16 16 25 C 16 34 5 34 5 25" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_6
-  },
-  [NumberNotationSkinKeyEnum.Number_7]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 4 6 H 16 L 8 34" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_7
-  },
-  [NumberNotationSkinKeyEnum.Number_X]: {
-    content: `<g transform="translate(0, 0)">
-        <path d="M 5 8 L 15 32 M 15 8 L 5 32" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-</g>`,
-    w: 20,
-    h: 40,
-    skinKey: NumberNotationSkinKeyEnum.Number_X
-  },
+  [NumberNotationSkinKeyEnum.Number_0]: makeNumberGlyph('0', NumberNotationSkinKeyEnum.Number_0),
+  [NumberNotationSkinKeyEnum.Number_1]: makeNumberGlyph('1', NumberNotationSkinKeyEnum.Number_1),
+  [NumberNotationSkinKeyEnum.Number_2]: makeNumberGlyph('2', NumberNotationSkinKeyEnum.Number_2),
+  [NumberNotationSkinKeyEnum.Number_3]: makeNumberGlyph('3', NumberNotationSkinKeyEnum.Number_3),
+  [NumberNotationSkinKeyEnum.Number_4]: makeNumberGlyph('4', NumberNotationSkinKeyEnum.Number_4),
+  [NumberNotationSkinKeyEnum.Number_5]: makeNumberGlyph('5', NumberNotationSkinKeyEnum.Number_5),
+  [NumberNotationSkinKeyEnum.Number_6]: makeNumberGlyph('6', NumberNotationSkinKeyEnum.Number_6),
+  [NumberNotationSkinKeyEnum.Number_7]: makeNumberGlyph('7', NumberNotationSkinKeyEnum.Number_7),
+  [NumberNotationSkinKeyEnum.Number_X]: makeNumberGlyph('X', NumberNotationSkinKeyEnum.Number_X),
   // 减时线h多写一些，相当于增加下边距，防止八度点贴在减时线上
   [NumberNotationSkinKeyEnum.ReduceLine_1]: {
     content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>`,
@@ -2826,8 +2830,8 @@ const numberNotationSkin: NumberNotationSkinPack = {
   },
   [NumberNotationSkinKeyEnum.Repeat_coda]: {
     content: repeatCodaSkin(),
-    w: 30,
-    h: 30,
+    w: 25,
+    h: 26,
     skinKey: NumberNotationSkinKeyEnum.Repeat_coda,
   },
   [NumberNotationSkinKeyEnum.Repeat_to_coda]: {
@@ -2888,7 +2892,7 @@ const numberNotationSkin: NumberNotationSkinPack = {
   [NumberNotationSkinKeyEnum.Volta]: makeColorSkin('black', NumberNotationSkinKeyEnum.Volta),
   [NumberNotationSkinKeyEnum.Pedal]: makeColorSkin('black', NumberNotationSkinKeyEnum.Pedal),
   [NumberNotationSkinKeyEnum.Strumming]: makeColorSkin('black', NumberNotationSkinKeyEnum.Strumming),
-  // 单音符附属符号（占位 30×30；Staccatissimo_above 与 Staccato_above 同 skinKey）
+  // 单音符附属符号（占位 30×30）
   [NumberNotationSkinKeyEnum.Accent_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
     w: 30,
@@ -2900,6 +2904,12 @@ const numberNotationSkin: NumberNotationSkinPack = {
     w: 30,
     h: 30,
     skinKey: NumberNotationSkinKeyEnum.Staccato_above,
+  },
+  [NumberNotationSkinKeyEnum.Staccatissimo_above]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: NumberNotationSkinKeyEnum.Staccatissimo_above,
   },
   [NumberNotationSkinKeyEnum.Tenuto_above]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -2997,6 +3007,12 @@ const numberNotationSkin: NumberNotationSkinPack = {
     h: 30,
     skinKey: NumberNotationSkinKeyEnum.Down_bow,
   },
+  [NumberNotationSkinKeyEnum.Breath]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: NumberNotationSkinKeyEnum.Breath,
+  },
   [NumberNotationSkinKeyEnum.Turn]: {
     content: REPEAT_PLACEHOLDER_RECT,
     w: 30,
@@ -3050,6 +3066,18 @@ const numberNotationSkin: NumberNotationSkinPack = {
     w: 30,
     h: 30,
     skinKey: NumberNotationSkinKeyEnum.Bracket_arpeggio,
+  },
+  [NumberNotationSkinKeyEnum.Prelude_bracket_left]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: NumberNotationSkinKeyEnum.Prelude_bracket_left,
+  },
+  [NumberNotationSkinKeyEnum.Prelude_bracket_right]: {
+    content: REPEAT_PLACEHOLDER_RECT,
+    w: 30,
+    h: 30,
+    skinKey: NumberNotationSkinKeyEnum.Prelude_bracket_right,
   },
   [NumberNotationSkinKeyEnum.Up_arpeggio_straight]: {
     content: REPEAT_PLACEHOLDER_RECT,
@@ -3172,11 +3200,25 @@ const numberNotationSkin: NumberNotationSkinPack = {
     skinKey: NumberNotationSkinKeyEnum.Dyn_FZ,
   },
 }
+
+/** Bravura 覆盖同名 key（变音/力度/反复等）；分数拍号用 Bravura 拍号数字，音符数字 0–7 / X 保持普通字体 text */
+const numberNotationSkin: NumberNotationSkinPack = {
+  ...overlayBravuraGlyphs(numberNotationSkinLegacy),
+  ...bravuraNumberNotationGlyphs,
+} as NumberNotationSkinPack
+
+const tab6Skin: Tab6SkinPack = overlayBravuraGlyphs(defaultJsonSkin.tab6 as Tab6SkinPack)
+const tab4Skin: Tab4SkinPack = overlayBravuraGlyphs(defaultJsonSkin.tab4 as Tab4SkinPack)
+const tab5Skin: Tab5SkinPack = overlayBravuraGlyphs(
+  ((defaultJsonSkin as unknown as {tab5?: Tab5SkinPack}).tab5 ?? defaultJsonSkin.tab4) as Tab5SkinPack,
+)
+
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,
   numberNotation: numberNotationSkin,
-  tab6: defaultJsonSkin.tab6 as Tab6SkinPack,
-  tab4: defaultJsonSkin.tab4 as Tab4SkinPack,
+  tab6: tab6Skin,
+  tab4: tab4Skin,
+  tab5: tab5Skin,
   drumNotation: drumNotationSkin,
 };
 
@@ -3208,8 +3250,9 @@ function applySkinColor(color: string): SkinPack {
   return {
     standardStaff: standardStaffSkin ? mapPack(standardStaffSkin, MusicScoreTypeEnum.StandardStaff) : undefined,
     numberNotation: numberNotationSkin ? mapPack(numberNotationSkin, MusicScoreTypeEnum.NumberNotation) : undefined,
-    tab6: defaultSkin.tab6 ? mapPack(defaultSkin.tab6, MusicScoreTypeEnum.Tab6) : undefined,
-    tab4: defaultSkin.tab4 ? mapPack(defaultSkin.tab4, MusicScoreTypeEnum.Tab4) : undefined,
+    tab6: defaultSkin.tab6 ? mapPack(defaultSkin.tab6, MusicScoreTypeEnum.Guitar) : undefined,
+    tab4: defaultSkin.tab4 ? mapPack(defaultSkin.tab4, MusicScoreTypeEnum.Ukulele) : undefined,
+    tab5: defaultSkin.tab5 ? mapPack(defaultSkin.tab5, MusicScoreTypeEnum.Bass5) : undefined,
     drumNotation: defaultSkin.drumNotation ? mapPack(defaultSkin.drumNotation, MusicScoreTypeEnum.DrumNotation) : undefined,
   };
 }

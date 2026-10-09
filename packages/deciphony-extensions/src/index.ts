@@ -30,3 +30,4 @@ export {
 // dr-edit 与 score-builder 存在同名函数（如 insertMeasure），请走子路径：
 //   @deciphony/extensions/dr-edit
 //   @deciphony/extensions/dr-edit/score-builder
+// dr-score3d 依赖可选 peer three，只走子路径：@deciphony/extensions/dr-score3d

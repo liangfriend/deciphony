@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {ElMessage} from 'element-plus'
-import type {SkinItem} from '@/types/common'
+import type {SkinItem, SkinPack} from '@/types/common'
 import defaultSkinJson from './skins/default.json'
 import SkinSymbolCard from './skinBuilder/SkinSymbolCard.vue'
 import SkinSymbolEditDialog, {
@@ -41,6 +41,10 @@ const skinPack = ref<SkinPackJson>(
 const sourceSkinPack = ref<SkinPackJson>(
   JSON.parse(JSON.stringify(defaultSkinJson)) as SkinPackJson
 )
+
+// 编辑时按松散的 Record 处理；对照预览交给渲染器，按完整 SkinPack 使用
+const sourceSkinForCompare = computed(() => sourceSkinPack.value as SkinPack)
+const draftSkinForCompare = computed(() => skinPack.value as SkinPack)
 
 const compareDialogVisible = ref(false)
 
@@ -234,8 +238,8 @@ function onEditSave(payload: {content: string; w: number; h: number}) {
 
     <SkinCompareDialog
       v-model="compareDialogVisible"
-      :source-skin="sourceSkinPack"
-      :draft-skin="skinPack"
+      :source-skin="sourceSkinForCompare"
+      :draft-skin="draftSkinForCompare"
       :notation-category="activeCategory"
     />
   </div>

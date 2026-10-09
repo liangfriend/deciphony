@@ -17,6 +17,7 @@ export function drTitle(options: DrTitleOptions = {}): DrExtension {
       mode: options.mode ?? 'show',
       paddingLeft,
       paddingRight,
+      fontFamily: options.fontFamily,
     }),
   }
 }

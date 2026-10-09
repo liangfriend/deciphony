@@ -1,4 +1,4 @@
-import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
 import type {MusicScore} from '@deciphony/renderer'
 import type {Ref} from 'vue'
 import {ref} from 'vue'
@@ -26,7 +26,7 @@ export function useRenderEdit(
   musicScore: MusicScore,
   options?: {musicScoreRef?: Ref<MusicScoreComponentExpose | null>},
 ): RenderEditController {
-  if (musicScore.type === MusicScoreTypeEnum.Tab4 || musicScore.type === MusicScoreTypeEnum.Tab6) {
+  if (isFretboardScoreType(musicScore.type)) {
     return Object.assign(useTabRenderEdit(musicScore, options), {addDrumState: unusedDrumState()})
   }
   if (musicScore.type === MusicScoreTypeEnum.DrumNotation) {

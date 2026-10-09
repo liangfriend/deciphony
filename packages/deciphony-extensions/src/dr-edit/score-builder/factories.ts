@@ -6,15 +6,18 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     DoubleSlotAffiliatedSymbolNameEnum,
+    HairpinTypeEnum,
     KeySignatureTypeEnum,
     MeasureEndRepeatEnum,
     MeasureStartRepeatEnum,
     MusicScoreTypeEnum,
+    isFretboardScoreType,
     NoteSymbolTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
     SingleSlotAffiliatedSymbolNameEnum,
     TimeSignatureTypeEnum,
+    TrillTypeEnum,
 } from '@deciphony/renderer';
 import type {
     Accidental,
@@ -31,6 +34,7 @@ import type {
     Measure,
     MeasureEndRepeat,
     MeasureNoteSlot,
+    MeasureNumber,
     MeasureNoteSymbol,
     MeasureStartRepeat,
     MusicScore,
@@ -49,6 +53,7 @@ import {resolveDefaultBeamType} from './autoBeam';
 import type {
     CreateArpeggioOptions,
     CreateGrandStaffOptions,
+    CreateHairpinOptions,
     CreateMeasureOptions,
     CreateMusicScoreOptions,
     CreateNoteNumberOptions,
@@ -57,9 +62,11 @@ import type {
     CreateNoteSymbolOptions,
     CreatePedalOptions,
     CreatePitchOptions,
+    CreatePreludeBracketOptions,
     CreateSingleStaffOptions,
     CreateSlurOptions,
     CreateStrummingOptions,
+    CreateTrillOptions,
     FramePartial,
 } from './types';
 
@@ -110,6 +117,9 @@ export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicSc
         if (options.keySignature != null) score.keySignature = options.keySignature;
         if (options.timeSignature != null) score.timeSignature = options.timeSignature;
     }
+    if (options.measureNumber !== false) {
+        score.measureNumber = createMeasureNumber(options.measureNumber);
+    }
     return score;
 }
 
@@ -130,9 +140,7 @@ export function createGrandStaff(options: CreateGrandStaffOptions = {}): GrandSt
 export function createSingleStaff(options: CreateSingleStaffOptions = {}): SingleStaff {
     const withDefaultMeasure = options.withDefaultMeasure !== false;
     const isNumberNotation = options.notationType === MusicScoreTypeEnum.NumberNotation;
-    const isTab =
-        options.notationType === MusicScoreTypeEnum.Tab6 ||
-        options.notationType === MusicScoreTypeEnum.Tab4;
+    const isTab = isFretboardScoreType(options.notationType);
     const isDrum = options.notationType === MusicScoreTypeEnum.DrumNotation;
     return {
         ...ZERO_FRAME,
@@ -277,6 +285,10 @@ export function createBracket(
         startSingleStaffIndex,
         ...partial,
     };
+}
+
+export function createMeasureNumber(partial?: Partial<MeasureNumber>): MeasureNumber {
+    return {...ZERO_FRAME, id: newId(), ...partial};
 }
 
 // —— 音符 ——
@@ -628,6 +640,38 @@ export function createStrumming(options: CreateStrummingOptions = {}): SingleSlo
 }
 
 /**
+ * 前奏括号左 `(`：放入宿主 MeasureNoteSlot.affiliatedSymbols。
+ * 默认在 slot 列左侧、小节垂直居中（见 SingleSlotAffiliatedSymbolRenderRule）。
+ */
+export function createPreludeBracketLeft(options: CreatePreludeBracketOptions = {}): SingleSlotAffiliatedSymbol {
+    const {partial} = options;
+    const {data: partialData, id: partialId, name: _name, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: SingleSlotAffiliatedSymbolNameEnum.Prelude_bracket_left,
+        data: {...partialData},
+    };
+}
+
+/**
+ * 前奏括号右 `)`：放入宿主 MeasureNoteSlot.affiliatedSymbols。
+ * 默认在 slot 列右侧（间距更大，跨过音符）。
+ */
+export function createPreludeBracketRight(options: CreatePreludeBracketOptions = {}): SingleSlotAffiliatedSymbol {
+    const {partial} = options;
+    const {data: partialData, id: partialId, name: _name, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: SingleSlotAffiliatedSymbolNameEnum.Prelude_bracket_right,
+        data: {...partialData},
+    };
+}
+
+/**
  * 双 slot 踏板：startId / endId = MeasureNoteSlot.id。
  * 默认锚点 x=各 slot 列起点、y=小节底；相对端点归零。
  */
@@ -686,6 +730,57 @@ export function createPitch(options: CreatePitchOptions): DoubleSlotAffiliatedSy
                 relativeEndPoint: {x: 0, y: 0},
                 type,
                 ...partialData?.pitch,
+            },
+        },
+    };
+}
+
+/**
+ * 双 slot 颤音线：startId / endId = MeasureNoteSlot.id。
+ * type 决定起始符号（tr / upprall / downprall / prallprall），后接波浪线。
+ */
+export function createTrill(options: CreateTrillOptions): DoubleSlotAffiliatedSymbol {
+    const {startId, endId, type = TrillTypeEnum.Trill, partial} = options;
+    const {data: partialData, id: partialId, name: _name, startId: _s, endId: _e, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: DoubleSlotAffiliatedSymbolNameEnum.Trill_line,
+        startId,
+        endId,
+        data: {
+            trill: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: {x: 0, y: 0},
+                type,
+                ...partialData?.trill,
+            },
+        },
+    };
+}
+
+/**
+ * 双 slot 渐强 / 渐弱：startId / endId = MeasureNoteSlot.id。
+ * type 决定楔形（< / >）或文字线（cresc.___ / dim.___）。
+ */
+export function createHairpin(options: CreateHairpinOptions): DoubleSlotAffiliatedSymbol {
+    const {startId, endId, type = HairpinTypeEnum.Crescendo_hairpin, height, partial} = options;
+    const {data: partialData, id: partialId, name: _name, startId: _s, endId: _e, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: DoubleSlotAffiliatedSymbolNameEnum.Hairpin,
+        startId,
+        endId,
+        data: {
+            hairpin: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: {x: 0, y: 0},
+                type,
+                ...(height != null ? {height} : {}),
+                ...partialData?.hairpin,
             },
         },
     };

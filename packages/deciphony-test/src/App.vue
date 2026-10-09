@@ -1,16 +1,13 @@
 <script lang="ts" setup>
 import RenderEditTest from "./views/renderEditTest.vue";
-import MidiTest from "./views/midiTest.vue";
-import PuffTest from "./views/puffTest.vue";
-import DrumTest from "./views/drumTest.vue";
-import QuickNumberNotationTest from "./views/quickNumberNotationTest.vue";
 </script>
 
 <template>
-  <!--  <audio-to-score-test />-->
+  <!--  <bravura-skin-test />-->
+  <!--  <work-test></work-test>-->
   <!--  <render-edit-test></render-edit-test>-->
-  <!--  <midi-test />-->
-  <!--  <puff-test />-->
-  <!--  <drum-test/>-->
-  <quick-number-notation-test/>
+  <!--  <midi-record-test></midi-record-test>-->
+  <!--  <mark-test></mark-test>-->
+  <render-edit-test></render-edit-test>
+  <!--  <score3d-test></score3d-test>-->
 </template>

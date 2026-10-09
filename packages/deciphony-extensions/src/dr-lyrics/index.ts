@@ -1,12 +1,13 @@
 import type {DrExtension, VDom} from '@deciphony/renderer'
-import {reactive, ref, type MaybeRef} from 'vue'
+import {reactive, shallowRef} from 'vue'
 import LyricsSlot from './components/LyricsSlot.vue'
 import {
+  LYRICS_FONT_SIZE,
   LYRICS_PAD_BOTTOM,
   LYRICS_PAD_TOP,
   LYRICS_ROW_GAP,
 } from './constants'
-import type {LyricsMode} from './types'
+import type {DrLyricsOptions} from './types'
 
 /** 扩展内默认 g-d 高度（约 4 行）；宿主可用页面 slotConfig 覆盖，不随歌词行数变化 */
 function initialGdHeight() {
@@ -18,12 +19,8 @@ function initialGdHeight() {
  * 展示行数 = max(各槽 lyrics.length)；编辑写入时自动补齐中间空项。
  * g-d 高度不随行数同步，由 slotConfig / 宿主常量控制。
  */
-export function drLyrics(options: {
-  mode?: MaybeRef<LyricsMode>
-  /** 最前方是否显示行号（1. 2.），默认 false */
-  showRowIndex?: MaybeRef<boolean>
-} = {}): DrExtension {
-  const vDomList = ref<VDom[]>([])
+export function drLyrics(options: DrLyricsOptions = {}): DrExtension {
+  const vDomList = shallowRef<VDom[]>([])
   const slotConfig = reactive({
     'g-d': {h: initialGdHeight()},
   })
@@ -35,6 +32,8 @@ export function drLyrics(options: {
     props: () => ({
       mode: options.mode ?? 'show',
       showRowIndex: options.showRowIndex ?? false,
+      fontSize: options.fontSize ?? LYRICS_FONT_SIZE,
+      fontFamily: options.fontFamily,
       vDomList,
     }),
     on: {
@@ -48,9 +47,11 @@ export function drLyrics(options: {
 export {default as LyricsSlot} from './components/LyricsSlot.vue'
 export {
   LYRICS_EDIT_MIN_ROWS,
+  LYRICS_FONT_SIZE,
   LYRICS_PAD_BOTTOM,
   LYRICS_PAD_TOP,
   LYRICS_ROW_GAP,
+  resolveLyricsMetrics,
 } from './constants'
 export {
   addLyricRow,
@@ -62,4 +63,4 @@ export {
   removeLyricRow,
   writeSlotLyricLine,
 } from './lyricsFields'
-export type {LyricsMode} from './types'
+export type {DrLyricsOptions, LyricsMode} from './types'

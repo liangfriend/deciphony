@@ -17,6 +17,7 @@ import {
   ClefTypeEnum,
   KeySignatureTypeEnum,
   MusicScoreTypeEnum,
+  isFretboardScoreType,
   NoteSymbolTypeEnum,
   TimeSignatureTypeEnum,
 } from '@/enums/musicScoreEnum';
@@ -409,11 +410,14 @@ export function createNoteRest(opts: InsertRestOptions = {}): MeasureNoteSlot {
 
 export function createNotesNumberInfo(
   syllable: NotesNumberInfo['syllable'],
-  partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental'>>,
+  partial?: Partial<Pick<NotesNumberInfo, 'octaveDot' | 'accidental' | 'chronaxie' | 'beamType'>>,
 ): NotesNumberInfo {
   return {
+    ...ZERO_FRAME,
     id: newId(),
     syllable,
+    chronaxie: partial?.chronaxie ?? 64,
+    beamType: partial?.beamType ?? BeamTypeEnum.None,
     octaveDot: partial?.octaveDot ?? 0,
     ...(partial?.accidental != null
       ? {accidental: typeof partial.accidental === 'object' ? partial.accidental : createAccidental(partial.accidental)}
@@ -431,6 +435,8 @@ export function createNoteNumber(opts: InsertNoteNumberOptions): MeasureNoteSlot
       createNotesNumberInfo(ni.syllable, {
         octaveDot: ni.octaveDot,
         accidental: ni.accidental != null ? createAccidental(ni.accidental) : undefined,
+        chronaxie,
+        beamType: opts.beamType,
       }),
     );
   } else {
@@ -438,6 +444,8 @@ export function createNoteNumber(opts: InsertNoteNumberOptions): MeasureNoteSlot
       createNotesNumberInfo(opts.syllable, {
         octaveDot: opts.octaveDot,
         accidental: opts.accidental != null ? createAccidental(opts.accidental) : undefined,
+        chronaxie,
+        beamType: opts.beamType,
       }),
     ];
   }
@@ -518,8 +526,7 @@ function cloneMeasureHeaderFromPrev(prev: Measure): Pick<Measure, 'clef_f' | 'ti
 export function createSingleStaff(partial?: InsertSingleStaffOptions): SingleStaff {
   const withDefaultMeasure = partial?.withDefaultMeasure !== false;
   const {withDefaultMeasure: _w, at: _at, notationType, ...rest} = partial ?? {};
-  const isTab =
-    notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4;
+  const isTab = isFretboardScoreType(notationType);
   const isNumber = notationType === MusicScoreTypeEnum.NumberNotation;
   return {
     ...ZERO_FRAME,
@@ -766,10 +773,13 @@ export function insertNotesNumberInfo(
   if (!isNoteNumberSymbol(raw)) {
     throw new TypeError('insertNotesNumberInfo 仅用于简谱 NoteNumber');
   }
+  const lead = raw.notesInfo[0];
   raw.notesInfo.push(
     createNotesNumberInfo(options.syllable, {
       octaveDot: options.octaveDot,
       accidental: options.accidental != null ? createAccidental(options.accidental) : undefined,
+      chronaxie: lead?.chronaxie,
+      beamType: lead?.beamType,
     }),
   );
 }
@@ -803,7 +813,7 @@ export function getMeasure(score: MusicScore, path: MeasurePath): Measure {
   return resolveMeasure(score, path);
 }
 
-export function getSlot(score: MusicScore, path: NotePath): StaffSlot | NoteNumber {
+export function getSlot(score: MusicScore, path: NotePath): MeasureNoteSlot {
   const measure = resolveMeasure(score, path);
   return getMeasureNoteList(measure)[path.noteIndex]!;
 }
@@ -864,6 +874,7 @@ export function notesInfoToNotesNumberInfo(
   keySignature: KeySignatureTypeEnum,
 ): NotesNumberInfo {
   return {
+    ...ZERO_FRAME,
     id: info.id,
     syllable: syllableFromRegion(clef, info.region, keySignature),
     octaveDot: octaveDotFromRegion(clef, info.region, keySignature),

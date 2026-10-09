@@ -9,6 +9,7 @@ import type {DrumVoice, LongRestRole} from "../types";
 import {getAugmentationDotSkinKey, getDrumHeadSkinKey, getRestSkinKey} from "./skinKey";
 import {isDrumNote, isDrumRest, slotSymbol} from "./staffSlot";
 import {getPrefixParts, getSuffixParts} from "./measureParts";
+import {GRACE_NOTE_SCALE} from "@/render/graceNote";
 
 type WidthPick = (item: { widthRatio?: number; widthRatioForMeasure?: number } | undefined, data?: number) => number;
 
@@ -156,6 +157,17 @@ function slotBaseSkinKey(slot: DrumSlot): DrumNotationSkinKeyEnum {
   return getDrumHeadSkinKey(slot.notesInfo[0]?.headType ?? DrumHeadTypeEnum.Normal);
 }
 
+function collectGraceNotesWidthRatio(graceNotes: DrumNotesInfo[] | undefined, skin: DrumNotationSkinPack, pick: WidthPick): number {
+  let sub = 0;
+  for (const g of graceNotes ?? []) {
+    sub += pick(skin[getDrumHeadSkinKey(g.headType)], g.widthRatio) * GRACE_NOTE_SCALE;
+    if (g.augmentationDot) {
+      sub += pick(skin[getAugmentationDotSkinKey(g.augmentationDot)], g.augmentationDot.widthRatio) * GRACE_NOTE_SCALE;
+    }
+  }
+  return sub;
+}
+
 function collectSlotSubWidthRatio(slot: DrumSlot, voice: DrumVoice, skin: DrumNotationSkinPack, pick: WidthPick): number {
   let sub = 0;
   if (isDrumNote(slot)) {
@@ -169,6 +181,8 @@ function collectSlotSubWidthRatio(slot: DrumSlot, voice: DrumVoice, skin: DrumNo
         sub += pick(skin[getAugmentationDotSkinKey(ni.augmentationDot)], ni.augmentationDot.widthRatio);
       }
     }
+    sub += collectGraceNotesWidthRatio(slot.graceNotes, skin, pick);
+    sub += collectGraceNotesWidthRatio(slot.graceNotesAfter, skin, pick);
   } else if (slot.augmentationDot) {
     sub += pick(skin[getAugmentationDotSkinKey(slot.augmentationDot)], slot.augmentationDot.widthRatio);
   }

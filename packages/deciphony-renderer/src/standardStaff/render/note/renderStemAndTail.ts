@@ -3,14 +3,25 @@ import {VDom} from "@/types/common";
 import {NoteSymbol} from "@/types/MusicScoreType";
 import {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {NodeIdMap} from "../types";
-import {LINE_SPACING_RATIO, MIN_STEM_HEIGHT_RATIO, STEM_Y_OFFSET} from "../constants";
-import {getNoteTailSkinKey} from "../utils/skinKey";
+import {
+    LINE_SPACING_RATIO,
+    MIN_STEM_HEIGHT_RATIO,
+    STEM_EXTRA_PER_FLAG_SPACES,
+    STEM_FLAG_HEAD_CLEARANCE_SPACES,
+    STEM_Y_OFFSET,
+} from "../constants";
+import {chronaxieToBeamLineCount, getNoteTailSkinKey} from "../utils/skinKey";
 import {
     GRACE_NOTE_SCALE,
     graceScaleCenterOffsetX,
     graceScaleCenterOffsetY,
     graceTailCenterOffset
 } from "@/render/graceNote";
+
+/** 一线一间距离（完整间高） */
+function staffSpace(measureHeight: number): number {
+    return measureHeight * LINE_SPACING_RATIO * 2;
+}
 
 function getStemLength(params: {
     direction: 'up' | 'down';
@@ -40,6 +51,35 @@ function getStemLength(params: {
         }
     } else {
         len = minStem;
+    }
+    return len;
+}
+
+/**
+ * 有符尾时加长符干：刻谱惯例（钩越多干越长）+ 保证符尾高度不盖过符头。
+ */
+function stemLengthWithFlags(params: {
+    baseLength: number;
+    chronaxie: number;
+    measureHeight: number;
+    lengthScale: number;
+    flagHeight?: number;
+}): number {
+    const {baseLength, chronaxie, measureHeight, lengthScale, flagHeight} = params;
+    if (chronaxie > 32) return baseLength;
+
+    const flagCount = chronaxieToBeamLineCount(chronaxie);
+    const space = staffSpace(measureHeight) * lengthScale;
+    const extra =
+        flagCount > 1
+            ? (flagCount - 1) * STEM_EXTRA_PER_FLAG_SPACES * space
+            : 0;
+    let len = baseLength + extra;
+
+    if (flagHeight != null && flagHeight > 0) {
+        const clearance = STEM_FLAG_HEAD_CLEARANCE_SPACES * space;
+        const minForFlag = flagHeight * lengthScale + clearance;
+        if (minForFlag > len) len = minForFlag;
     }
     return len;
 }
@@ -97,12 +137,22 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
     const headCenterX = headX + headW / 2;
     const visualHalfW = (headW * g) / 2;
 
-    const stemLength = getStemLength({
+    const tailKey = chronaxie <= 32 ? getNoteTailSkinKey(chronaxie, direction) : undefined;
+    const tailSkin = tailKey ? skin[tailKey] : undefined;
+
+    const baseLength = getStemLength({
         direction,
         headCenterY,
         measureY,
         measureHeight,
         lengthScale: g,
+    });
+    const stemLength = stemLengthWithFlags({
+        baseLength,
+        chronaxie,
+        measureHeight,
+        lengthScale: g,
+        flagHeight: tailSkin?.h,
     });
     const stemW = stemSkin.w;
     const targetId = stemTargetId ?? note.id ?? '';
@@ -131,47 +181,40 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
             skinKey: StandardStaffSkinKeyEnum.NoteStem,
             dataComment: isGrace ? '倚音符干' : '符干',
         });
-        if (chronaxie <= 32) {
-            const tailKey = getNoteTailSkinKey(chronaxie, direction);
-            const tailSkin = skin[tailKey];
-            let noteTailYOffset = 0;
-            if (chronaxie === 2) noteTailYOffset = measureHeight / 8;
-            if (chronaxie === 1) noteTailYOffset = measureHeight * 2 / 8;
-            if (tailSkin) {
-                if (isGrace) {
-                    out.push({
-                        startPoint: {x: 0, y: 0},
-                        endPoint: {x: 0, y: 0},
-                        special: {},
-                        x: stemX - graceScaleCenterOffsetX(tailSkin.w, GRACE_NOTE_SCALE),
-                        y: stemY - noteTailYOffset - graceScaleCenterOffsetY(tailSkin.h, GRACE_NOTE_SCALE),
-                        w: tailSkin.w,
-                        h: tailSkin.h,
-                        zIndex,
-                        tag: 'noteTail',
-                        skinName: skinNameForNodes,
-                        targetId,
-                        skinKey: tailKey,
-                        dataComment: '倚音符尾',
-                        scale: GRACE_NOTE_SCALE,
-                    });
-                } else {
-                    out.push({
-                        startPoint: {x: 0, y: 0},
-                        endPoint: {x: 0, y: 0},
-                        special: {},
-                        x: stemX,
-                        y: stemY - noteTailYOffset,
-                        w: tailSkin.w,
-                        h: tailSkin.h,
-                        zIndex,
-                        tag: 'noteTail',
-                        skinName: skinNameForNodes,
-                        targetId,
-                        skinKey: tailKey,
-                        dataComment: '符尾',
-                    });
-                }
+        if (tailKey && tailSkin) {
+            if (isGrace) {
+                out.push({
+                    startPoint: {x: 0, y: 0},
+                    endPoint: {x: 0, y: 0},
+                    special: {},
+                    x: stemX - graceScaleCenterOffsetX(tailSkin.w, GRACE_NOTE_SCALE),
+                    y: stemY - graceScaleCenterOffsetY(tailSkin.h, GRACE_NOTE_SCALE),
+                    w: tailSkin.w,
+                    h: tailSkin.h,
+                    zIndex,
+                    tag: 'noteTail',
+                    skinName: skinNameForNodes,
+                    targetId,
+                    skinKey: tailKey,
+                    dataComment: '倚音符尾',
+                    scale: GRACE_NOTE_SCALE,
+                });
+            } else {
+                out.push({
+                    startPoint: {x: 0, y: 0},
+                    endPoint: {x: 0, y: 0},
+                    special: {},
+                    x: stemX,
+                    y: stemY,
+                    w: tailSkin.w,
+                    h: tailSkin.h,
+                    zIndex,
+                    tag: 'noteTail',
+                    skinName: skinNameForNodes,
+                    targetId,
+                    skinKey: tailKey,
+                    dataComment: '符尾',
+                });
             }
         }
     } else {
@@ -192,35 +235,26 @@ export function renderStemAndTail(params: RenderStemAndTailParams): VDom[] {
             skinKey: StandardStaffSkinKeyEnum.NoteStem,
             dataComment: isGrace ? '倚音符干' : '符干',
         });
-        if (chronaxie <= 32) {
-            const tailKey = getNoteTailSkinKey(chronaxie, direction);
-            const tailSkin = skin[tailKey];
-            let noteTailYOffset = 0;
-            if (chronaxie === 8) noteTailYOffset = measureHeight / 8;
-            if (chronaxie === 4) noteTailYOffset = measureHeight * 2 / 8;
-            if (chronaxie === 2) noteTailYOffset = measureHeight * 3 / 8;
-            if (chronaxie === 1) noteTailYOffset = measureHeight * 4 / 8;
-            if (tailSkin) {
-                const {dx, dy} = isGrace
-                    ? graceTailCenterOffset(tailSkin.w, tailSkin.h, 'down', GRACE_NOTE_SCALE)
-                    : {dx: 0, dy: 0};
-                out.push({
-                    startPoint: {x: 0, y: 0},
-                    endPoint: {x: 0, y: 0},
-                    special: {},
-                    x: stemX + dx,
-                    y: stemYTop + totalStemH - tailSkin.h + noteTailYOffset + dy,
-                    w: tailSkin.w,
-                    h: tailSkin.h,
-                    zIndex,
-                    tag: 'noteTail',
-                    skinName: skinNameForNodes,
-                    targetId,
-                    skinKey: tailKey,
-                    dataComment: isGrace ? '倚音符尾' : '符尾',
-                    ...(isGrace ? {scale: GRACE_NOTE_SCALE} : {}),
-                });
-            }
+        if (tailKey && tailSkin) {
+            const {dx, dy} = isGrace
+                ? graceTailCenterOffset(tailSkin.w, tailSkin.h, 'down', GRACE_NOTE_SCALE)
+                : {dx: 0, dy: 0};
+            out.push({
+                startPoint: {x: 0, y: 0},
+                endPoint: {x: 0, y: 0},
+                special: {},
+                x: stemX + dx,
+                y: stemYTop + totalStemH - tailSkin.h + dy,
+                w: tailSkin.w,
+                h: tailSkin.h,
+                zIndex,
+                tag: 'noteTail',
+                skinName: skinNameForNodes,
+                targetId,
+                skinKey: tailKey,
+                dataComment: isGrace ? '倚音符尾' : '符尾',
+                ...(isGrace ? {scale: GRACE_NOTE_SCALE} : {}),
+            });
         }
     }
     return out;

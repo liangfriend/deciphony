@@ -12,6 +12,8 @@ export default defineConfig({
       entryRoot: 'src',
       cleanVueFileName: true,
       copyDtsFiles: true,
+      // 兄弟包在声明里保留包名，否则会被改写成 monorepo 源码相对路径，发布后消费方找不到类型
+      aliasesExclude: [/^@deciphony\//],
     }),
   ],
   resolve: {
@@ -36,6 +38,9 @@ export default defineConfig({
         'dr-time-offset/index': path.resolve(__dirname, './src/dr-time-offset/index.ts'),
         'dr-musicxml-transfer/index': path.resolve(__dirname, './src/dr-musicxml-transfer/index.ts'),
         'dr-midi-transfer/index': path.resolve(__dirname, './src/dr-midi-transfer/index.ts'),
+        'dr-midi-record/index': path.resolve(__dirname, './src/dr-midi-record/index.ts'),
+        'dr-mark/index': path.resolve(__dirname, './src/dr-mark/index.ts'),
+        'dr-score3d/index': path.resolve(__dirname, './src/dr-score3d/index.ts'),
         'dr-numberNotation-transfer/index': path.resolve(
           __dirname,
           './src/dr-numberNotation-transfer/index.ts',
@@ -48,7 +53,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@deciphony/renderer', '@deciphony/player', 'fast-xml-parser', 'xmlbuilder'],
+      external: ['vue', '@deciphony/renderer', '@deciphony/player', 'fast-xml-parser', 'xmlbuilder', 'fflate', 'three', /^three\//],
     },
   },
 })

@@ -28,6 +28,8 @@ export default defineConfig({
             entry: path.resolve(__dirname, './src/index.ts'),
             name: 'DeciphonyRender',
             fileName: (format) => `index.${format}.js`,
+            /** 与 package.json exports["./css"] 一致；Vite 6 默认按包名生成 renderer.css */
+            cssFileName: 'deciphony-renderer',
             formats: ['es', 'cjs']
         },
         rollupOptions: {

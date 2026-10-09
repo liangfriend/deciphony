@@ -71,6 +71,7 @@ export {
   isSlurSelected,
   isSlurVDom,
   previewSlurDrag,
+  resetSlurRelativeOffset,
   type SlurDragSession,
   type SlurHandleKind,
   type SlurHandlePoints,
@@ -107,6 +108,26 @@ export {
   previewPitchDrag,
   type PitchDragSession,
 } from './renderEditPitchDrag'
+export {
+  computeLineHandlePoints,
+  createLineDragSession,
+  isLineSelected,
+  isLineVDom,
+  previewLineDrag,
+  type LineDragSession,
+  type LineSymbolKey,
+} from './renderEditLineDrag'
+export {
+  computeNoteAffiliatedBox,
+  createNoteAffiliatedDragSession,
+  isNoteAffiliatedSelected,
+  isNoteAffiliatedVDom,
+  locateNoteAffiliatedById,
+  previewNoteAffiliatedDrag,
+  type FrameBox,
+  type LocatedNoteAffiliated,
+  type NoteAffiliatedDragSession,
+} from './renderEditNoteAffiliatedDrag'
 export {
   computeHorizontalHandlePoints,
   type HorizontalHandleKind,
@@ -198,8 +219,8 @@ export {default as GhostNumberPreview} from './numberNotation/components/GhostNu
 export {default as AddNumberStatePanel} from './numberNotation/components/AddNumberStatePanel.vue'
 export {default as AddTabStatePanel} from './tab/components/AddTabStatePanel.vue'
 export {useTabRenderEdit} from './tab/useRenderEdit'
-export type {StaffGhostNotePreview as GhostNotePreviewState}
-export type {NumberGhostPreview as GhostNumberPreviewState}
+export type {GhostNotePreview as GhostNotePreviewState} from './standardStaff/renderEditSymbolAddAction'
+export type {GhostNumberPreview as GhostNumberPreviewState} from './numberNotation/renderEditNumberAddAction'
 
 // —— 鼓谱 ——
 export {
@@ -230,12 +251,14 @@ export {default as DrumRestPropertyPanel} from './drumNotation/components/DrumRe
 // —— 共用 UI ——
 export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'
 export {default as PropertyPanel} from './components/PropertyPanel.vue'
+export {default as SlurPropertyPanel} from './components/SlurPropertyPanel.vue'
 export {default as MeasurePropertyPanel} from './components/MeasurePropertyPanel.vue'
 export {default as VoltaPropertyPanel} from './components/VoltaPropertyPanel.vue'
 export {default as VoltaDragHandles} from './components/VoltaDragHandles.vue'
 export {default as SlurDragHandles} from './components/SlurDragHandles.vue'
 export {default as VerticalDragHandles} from './components/VerticalDragHandles.vue'
 export {default as HorizontalDragHandles} from './components/HorizontalDragHandles.vue'
+export {default as MoveDragHandle} from './components/MoveDragHandle.vue'
 export {default as AddGrandStaffButton} from './components/AddGrandStaffButton.vue'
 export {default as DeleteGrandStaffButton} from './components/DeleteGrandStaffButton.vue'
 export {default as EditSlotGdButtons} from './components/EditSlotGdButtons.vue'

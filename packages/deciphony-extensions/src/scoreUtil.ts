@@ -476,12 +476,18 @@ export function getMeasurePositions(musicScoreData: MusicScore): MeasurePosition
     return positions
 }
 
+type VoltaSegment = VoltaInfo & {openLeft: boolean, openRight: boolean}
+
+/**
+ * 跨行的房子在数据里拆成多段（前段 openRight、后段 openLeft，首尾小节相邻），先拼回一整段；
+ * 只有结尾小节是反复结束线的房子参与跳转。
+ */
 function getVoltaList(
     musicScoreData: MusicScore,
     measureIndexMap: Map<string, number>,
     measurePositions: MeasurePosition[]
 ): VoltaInfo[] {
-    return musicScoreData.affiliatedSymbols.flatMap((symbol) => {
+    const segments: VoltaSegment[] = musicScoreData.affiliatedSymbols.flatMap((symbol) => {
         if (
             symbol.name !== DoubleMeasureAffiliatedSymbolNameEnum.Volta ||
             !('volta' in symbol.data) ||
@@ -492,16 +498,33 @@ function getVoltaList(
         const startIndex = measureIndexMap.get(symbol.startId)
         const endIndex = measureIndexMap.get(symbol.endId)
         if (startIndex == null || endIndex == null) return []
+        const {value, openLeft, openRight} = symbol.data.volta
+        return [{
+            id: symbol.id,
+            startIndex: Math.min(startIndex, endIndex),
+            endIndex: Math.max(startIndex, endIndex),
+            value,
+            openLeft: Boolean(openLeft),
+            openRight: Boolean(openRight),
+        }]
+    })
+    segments.sort((a, b) => a.startIndex - b.startIndex)
+
+    const merged: VoltaSegment[] = []
+    for (const seg of segments) {
+        const prev = merged[merged.length - 1]
+        if (prev && prev.endIndex + 1 === seg.startIndex && (prev.openRight || seg.openLeft)) {
+            prev.endIndex = seg.endIndex
+            prev.openRight = seg.openRight
+            continue
+        }
+        merged.push({...seg})
+    }
+
+    return merged.flatMap(({id, startIndex, endIndex, value}) => {
         const endMeasure = measurePositions[endIndex]?.measure
         if (!isEndRepeatBarline(endMeasure?.barline_b?.type)) return []
-        return [
-            {
-                id: symbol.id,
-                startIndex,
-                endIndex,
-                value: symbol.data.volta.value
-            }
-        ]
+        return [{id, startIndex, endIndex, value}]
     })
 }
 
@@ -608,7 +631,6 @@ function getRepeatJumpIndex(
     if (reapeatState.barLine && isEndRepeatBarline(measure.barline_b?.type)) {
         const barlineId = measure.barline_b?.id ?? `barline:${measureIndex}`
         if (!actived.has(barlineId) || hasNextVoltaRound) {
-            console.log('chicken', hasNextVoltaRound)
             actived.add(barlineId)
             increaseVoltaRound()
             return currentRepeatStartIndex

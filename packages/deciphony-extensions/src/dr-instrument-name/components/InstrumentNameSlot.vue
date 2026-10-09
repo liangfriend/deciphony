@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type {MusicScore, VDom} from '@deciphony/renderer'
-import {computed, unref, type MaybeRef, type Ref} from 'vue'
+import {DR_ROW_VDOMS_KEY} from '@deciphony/renderer'
+import {computed, inject, unref, type MaybeRef, type Ref} from 'vue'
 import {resolveInstrumentName} from '../instrumentNameFields'
 import type {InstrumentNameAlign} from '../types'
 
@@ -37,10 +38,17 @@ const lines = computed(() => {
 
 const lineHeight = computed(() => props.fontSize * 1.2)
 
+/** 所在复谱表的节点：有就只在本行里找小节，别的行重排时本插槽不跟着重算 */
+const rowVDoms = inject<Ref<VDom[]> | null>(DR_ROW_VDOMS_KEY, null)
+
 /** 相对插槽顶部的五线中心；找不到小节时取插槽中心 */
 const centerY = computed(() => {
   const firstMeasureId = staff.value?.measures[0]?.id
-  const measure = firstMeasureId ? unref(props.measureVDomMap).get(firstMeasureId) : undefined
+  const measure = !firstMeasureId
+    ? undefined
+    : rowVDoms
+      ? rowVDoms.value.find((n) => n.tag === 'measure' && n.targetId === firstMeasureId)
+      : unref(props.measureVDomMap).get(firstMeasureId)
   if (measure) return measure.y + measure.h / 2 - props.node.y
   return props.node.h / 2
 })

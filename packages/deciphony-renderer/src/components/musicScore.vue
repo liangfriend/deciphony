@@ -10,93 +10,49 @@
        @pointerleave="onTopSvgLeave"
        @pointermove="onTopMove"
        @pointerup="onTopUp">
-    <text data-test="1">{{ Date.now() }}</text>
-    <template v-for="(node, domIndex) in vDom"
-              :key="vdomDomId(node, domIndex)">
-
-      <g
-          v-if="!AFFILIATION_TAGS.has(node.tag)"
-          :id="vdomDomId(node, domIndex)"
-          @click="onDrClick($event, node)"
-          @contextmenu="onDrContextMenu($event, node)"
-          @pointerdown="onDrDown($event, node)"
-          @pointerenter="onDrEnter($event, node)"
-          @pointerleave="onDrLeave($event, node)"
-          @pointermove="onDrMove($event, node)"
-          @pointerup="onDrUp($event, node)"
-      >
-
-        <Group :node="node" :notation-type="data.type" :skin="skin"/>
+    <template v-if="layers">
+      <!-- 外层 g 只负责整行平移（行高变化时），平移不触发行内重渲染 -->
+      <g v-for="row in layers.rows" :key="`b-${row.key}`" :transform="row.dy ? `translate(0, ${row.dy})` : undefined">
+        <ScoreLayer :layer-key="`b-${row.key}`" :nodes="row.back" :row-nodes="row.nodes"/>
       </g>
-      <g
-          v-else-if="AFFILIATION_TAGS.has(node.tag)"
-          :id="vdomDomId(node, domIndex)"
-          :data-comment="node.dataComment"
-          :data-slot-name="node.slotName??''"
-          :data-target-id="node.targetId"
-          :transform="`translate(${node.x}, ${node.y})`"
-          @click="onDrClick($event, node)"
-          @contextmenu="onDrContextMenu($event, node)"
-          @pointerdown="onDrDown($event, node)"
-          @pointerenter="onDrEnter($event, node)"
-          @pointerleave="onDrLeave($event, node)"
-          @pointermove="onDrMove($event, node)"
-          @pointerup="onDrUp($event, node)"
-      >
-        <Slur v-if="node.special?.slur" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Volta v-else-if="node.special?.volta !== undefined" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Beam v-else-if="node.special?.beam" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Arpeggio v-else-if="node.special?.arpeggio || node.tag === 'arpeggio'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Strumming v-else-if="node.special?.strumming || node.tag === 'strumming'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Pedal v-else-if="node.special?.pedal" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Pitch v-else-if="node.special?.pitch" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <LongRestNumber v-else-if="node.special?.longRestNumber" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <TabChord v-else-if="node.tag === 'tabChord'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <TabSlap v-else-if="node.tag === 'tabSlap'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <Bend v-else-if="node.tag === 'bend'" :notation-type="notationType" :skin="skin" :v-dom="node"/>
-        <slot v-else-if="node.tag === 'slot'" :name="node.slotName" v-bind="{ node }">
-          <component
-              :is="item.component"
-              v-for="item in extensionsForSlot(node.slotName)"
-              :key="`${item.name}:${node.targetId}`"
-              :music-score="data"
-              :node="node"
-              v-bind="resolveExtensionProps(item.extension)"
-          />
-        </slot>
-        <Group v-else :node="node" :notation-type="data.type" :skin="skin"/>
+      <ScoreLayer key="global" :nodes="layers.global.back" :row-nodes="layers.global.nodes" layer-key="global"/>
+      <g v-for="row in layers.rows" :key="`f-${row.key}`" :transform="row.dy ? `translate(0, ${row.dy})` : undefined">
+        <ScoreLayer :layer-key="`f-${row.key}`" :nodes="row.front" :row-nodes="row.nodes"/>
       </g>
     </template>
   </svg>
 </template>
 
 <script lang="ts" setup>
-import {type Component, computed, onMounted, ref, watch} from 'vue'
-import {resolveMusicScoreToVDom} from '@/render/resolveNotation'
-import {diffAndMergeVDom, patchVDomByTargetId} from '@/render/update'
+import {
+  computed,
+  type ComputedRef,
+  effectScope,
+  type EffectScope,
+  onBeforeUnmount,
+  provide,
+  ref,
+  shallowRef,
+  toRaw,
+  triggerRef,
+  useSlots,
+  watch,
+} from 'vue'
+import {resolveLayoutNotationPack, resolveNotationToVDom} from '@/render/resolveNotation'
 import {mergeSlotConfig} from '@/render/mergeSlotConfig'
 import {fanoutExtensionEvent} from '@/render/fanoutExtensionEvent'
-import defaultSkin from '@/skins/default.json'
+import {defaultSkin} from '@/skins/defaultSkin'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
-import Group from './group.vue'
-import Slur from './slur.vue'
-import Volta from './volta.vue'
-import Beam from './beam.vue'
-import Arpeggio from './arpeggio.vue'
-import Strumming from './strumming.vue'
-import Pedal from './pedal.vue'
-import Pitch from './pitch.vue'
-import LongRestNumber from './longRestNumber.vue'
-import TabChord from './tabChord.vue'
-import TabSlap from './tabSlap.vue'
-import Bend from './bend.vue'
+import ScoreLayer from './scoreLayer.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
-import type {MusicScore} from '@/types/MusicScoreType'
+import {layoutGrandStaffRow, layoutScoreFrame, type RowLayoutResult} from '@/render/incremental/rowLayout'
+import {ScoreAssembler, type ScoreAssembleOutput} from '@/render/incremental/scoreAssembler'
+import {SCORE_LAYER_CONTEXT, type SlotExtensionItem} from '@/render/incremental/layerContext'
+import type {VDomLookup} from '@/render/vdomIndex'
+import type {GrandStaff, MusicScore} from '@/types/MusicScoreType'
 import type {Skin, SkinPack, SlotConfig, SlotName, VDom} from '@/types/common'
-import type {DrExtension, DrExtensionEvents} from '@/types/extension'
-
-const AFFILIATION_TAGS = new Set<string>(['slot', 'affiliation', 'beam', 'noteBeam', 'arpeggio', 'strumming', 'tabChord', 'tabSlap', 'bend', 'longRestNumber'])
+import type {DrExtension, DrExtensionEvents, RenderMusicScoreInfo} from '@/types/extension'
 
 const props = defineProps<{
   data: MusicScore
@@ -108,14 +64,13 @@ const props = defineProps<{
   skin?: Skin
   skinName?: string
 }>()
-// 测试：更改谱子类型
 const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
 
-const data = computed(() => props.data)//?? defaultMock.value
+const data = computed(() => props.data)
 const skin = computed<Skin>(() =>
-        props.skin ?? {
-          default: defaultSkin as unknown as SkinPack,
-        }
+    props.skin ?? {
+      default: defaultSkin,
+    }
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -124,15 +79,7 @@ const effectiveSkinName = computed(() => {
   const s = skin.value
   return sn && s && sn in s ? sn : 'default'
 })
-onMounted(() => {
-})
 const skinPackForLayout = computed<SkinPack>(() => skin.value?.[effectiveSkinName.value] ?? defaultSkin)
-
-type SlotExtensionItem = {
-  name: string
-  component: Component
-  extension: DrExtension
-}
 
 const mergedSlotConfig = computed(() =>
     mergeSlotConfig(
@@ -145,7 +92,7 @@ const slotContributions = computed(() => {
   const map = new Map<SlotName, SlotExtensionItem[]>()
   for (const ext of props.extensions ?? []) {
     if (!ext.slots) continue
-    for (const [slotName, component] of Object.entries(ext.slots) as [SlotName, Component | undefined][]) {
+    for (const [slotName, component] of Object.entries(ext.slots) as [SlotName, SlotExtensionItem['component'] | undefined][]) {
       if (!component) continue
       const list = map.get(slotName) ?? []
       list.push({name: ext.name, component, extension: ext})
@@ -174,7 +121,7 @@ function dispatchExtension<K extends keyof DrExtensionEvents>(
 }
 
 const emit = defineEmits<{
-  renderMusicScore: [vDom: VDom[]]
+  renderMusicScore: [vDom: VDom[], info: RenderMusicScoreInfo]
   'dr-click': [event: MouseEvent, vDom: VDom]
   'dr-contextmenu': [event: MouseEvent, vDom: VDom]
   'dr-down': [event: PointerEvent, vDom: VDom]
@@ -191,16 +138,24 @@ const emit = defineEmits<{
   'top-enter': [event: PointerEvent, vDom: VDom]
   'top-leave': [event: PointerEvent, vDom: VDom]
 }>()
-const vDom = ref<VDom[]>([])
+
+const assembler = new ScoreAssembler()
+const layers = shallowRef<ScoreAssembleOutput | null>(null)
+const vDom = shallowRef<VDom[]>([])
 const svgRef = ref<SVGSVGElement | null>(null)
-const topHoverVDom = ref<VDom | null>(null)
+const topHoverVDom = shallowRef<VDom | null>(null)
 
 function findElementByVDom(node: VDom): SVGElement | null {
   const root = svgRef.value
   return root ? findElementByVdomDomId(root, node) : null
 }
 
+function toApiNode(node: VDom): VDom {
+  return assembler.toApiNode(node)
+}
+
 function onDrClick(event: MouseEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-click', event, node)
   emit('dr-click', event, node)
 }
@@ -208,37 +163,59 @@ function onDrClick(event: MouseEvent, node: VDom) {
 function onDrContextMenu(event: MouseEvent, node: VDom) {
   event.preventDefault()
   event.stopPropagation()
+  node = toApiNode(node)
   dispatchExtension('dr-contextmenu', event, node)
   emit('dr-contextmenu', event, node)
 }
 
 function onDrDown(event: PointerEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-down', event, node)
   emit('dr-down', event, node)
 }
 
 function onDrUp(event: PointerEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-up', event, node)
   emit('dr-up', event, node)
 }
 
 function onDrMove(event: PointerEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-move', event, node)
   emit('dr-move', event, node)
 }
 
 function onDrEnter(event: PointerEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-enter', event, node)
   emit('dr-enter', event, node)
 }
 
 function onDrLeave(event: PointerEvent, node: VDom) {
+  node = toApiNode(node)
   dispatchExtension('dr-leave', event, node)
   emit('dr-leave', event, node)
 }
 
+provide(SCORE_LAYER_CONTEXT, {
+  data,
+  skin,
+  notationType,
+  slots: useSlots(),
+  extensionsForSlot,
+  resolveExtensionProps,
+  onClick: onDrClick,
+  onContextMenu: onDrContextMenu,
+  onDown: onDrDown,
+  onUp: onDrUp,
+  onMove: onDrMove,
+  onEnter: onDrEnter,
+  onLeave: onDrLeave,
+})
+
 function resolveTopVDom(event: Event): VDom | null {
-  return resolveVDomFromEvent(event, vDom.value)
+  return resolveVDomFromEvent(event, assembler.lookup)
 }
 
 function syncTopHover(event: PointerEvent) {
@@ -302,33 +279,134 @@ function onTopSvgLeave(event: PointerEvent) {
   topHoverVDom.value = null
 }
 
-const musicScoreToVDom = computed(() => resolveMusicScoreToVDom(notationType.value))
+/*
+ * 增量排版：每个复谱表一个 computed（排版时读到的数据自动成为依赖），
+ * 改哪行只重排哪行；行高变了后面的行只平移。跨行附属 / 小节号每次在组装时重算。
+ */
+const layoutFn = computed(() => resolveNotationToVDom(notationType.value))
+const layoutOptions = computed(() => ({skin: skin.value, skinName: effectiveSkinName.value}))
 
-// data、slotConfig、skin、skinName 变化时重新计算 vDom，使用 diff 原地更新以提升性能
+type RowEntry = { scope: EffectScope; result: ComputedRef<RowLayoutResult> }
+const rowEntries = new Map<GrandStaff, RowEntry>()
+
+function emptyRow(): RowLayoutResult {
+  return {nodes: [], height: 0, slotIndex: new Map(), noteIndex: {staffOf: new Map(), stemUp: new Set()}}
+}
+
+function rowEntry(grandStaff: GrandStaff): RowEntry {
+  const raw = toRaw(grandStaff)
+  const cached = rowEntries.get(raw)
+  if (cached) return cached
+  const scope = effectScope(true)
+  let last: RowLayoutResult | null = null
+  const result = scope.run(() => computed(() => {
+    try {
+      last = layoutGrandStaffRow(layoutFn.value, data.value, grandStaff, mergedSlotConfig.value, layoutOptions.value)
+    } catch (err) {
+      // 数据异常时这一行保留上一次结果，避免整个组件抛错白屏
+      console.error('[musicScore] 复谱表渲染失败，保留上一次结果', err)
+      last ??= emptyRow()
+    }
+    return last
+  }))!
+  const entry = {scope, result}
+  rowEntries.set(raw, entry)
+  return entry
+}
+
+const frameResult = computed(() =>
+    layoutScoreFrame(layoutFn.value, data.value, mergedSlotConfig.value, layoutOptions.value))
+
+/** 曲谱级附属 / 小节号的数据：只读不算，挂上依赖 */
+function track(value: unknown, seen = new Set<unknown>()): void {
+  if (value === null || typeof value !== 'object' || seen.has(value)) return
+  seen.add(value)
+  if (Array.isArray(value)) {
+    for (const item of value) track(item, seen)
+    return
+  }
+  for (const key in value as Record<string, unknown>) track((value as Record<string, unknown>)[key], seen)
+}
+
+function disposeRows(alive?: Set<GrandStaff>): void {
+  for (const [raw, entry] of rowEntries) {
+    if (alive?.has(raw)) continue
+    entry.scope.stop()
+    rowEntries.delete(raw)
+  }
+}
+
 watch(
-    [data, mergedSlotConfig, skinPackForLayout, effectiveSkinName],
-    ([d, slotConfig]) => {
-      const next = d
-          ? musicScoreToVDom.value(d, slotConfig, {skin: skin.value, skinName: effectiveSkinName.value})
-          : []
-      vDom.value = diffAndMergeVDom(vDom.value, next)
-      console.log('chicken',)
-      dispatchExtension('renderMusicScore', vDom.value)
-      emit('renderMusicScore', vDom.value)
+    () => {
+      const musicScore = data.value
+      if (!musicScore) return null
+      const rows = (musicScore.grandStaffs ?? []).map((grandStaff) => ({
+        grandStaff: toRaw(grandStaff),
+        result: rowEntry(grandStaff).result.value,
+      }))
+      track(musicScore.affiliatedSymbols)
+      track(musicScore.measureNumber)
+      return {
+        musicScore,
+        rows,
+        frame: frameResult.value,
+        pack: skinPackForLayout.value,
+        type: notationType.value,
+        skinName: effectiveSkinName.value,
+      }
     },
-    {immediate: true, deep: true}
+    (snapshot) => {
+      if (!snapshot) {
+        disposeRows()
+        assembler.reset()
+        layers.value = null
+        vDom.value = []
+        return
+      }
+      let out: ScoreAssembleOutput
+      try {
+        const pack = resolveLayoutNotationPack(snapshot.pack, snapshot.type) as unknown as Record<string, { w: number; h: number }>
+        out = assembler.assemble({
+          musicScore: snapshot.musicScore,
+          frame: snapshot.frame,
+          rows: snapshot.rows,
+          skinName: snapshot.skinName,
+          pack,
+          measureHeight: pack.measure?.h ?? 45,
+        })
+      } catch (err) {
+        console.error('[musicScore] 渲染失败，保留上一次结果', err)
+        return
+      }
+      disposeRows(new Set(snapshot.rows.map((row) => row.grandStaff)))
+      layers.value = out
+      triggerRef(layers)
+      vDom.value = out.list
+      const info: RenderMusicScoreInfo = {lookup: assembler.lookup, changedRowIds: out.changedRowIds}
+      dispatchExtension('renderMusicScore', out.list, info)
+      emit('renderMusicScore', out.list, info)
+    },
+    {immediate: true},
 )
 
+onBeforeUnmount(() => disposeRows())
+
 /**
- * 按 targetId 原地改某一个 vDom（Object.assign 进现有节点，不换数组/节点引用）。
+ * 按 targetId 原地改某一个 vDom（不换对外节点引用，只重渲染它所在的那一层）。
  * 高频跟手（连音线拖拽等）必须用这个，不要整表 updater。
  */
 function updateVDomHandler(targetId: string, patch: Partial<VDom>): boolean {
-  return patchVDomByTargetId(vDom.value, targetId, patch)
+  const found = assembler.patch(targetId, patch)
+  if (found) triggerRef(layers)
+  return found
 }
 
 defineExpose({
   updateVDom: updateVDomHandler,
+  /** 当前扁平 vDom 列表（与 renderMusicScore 回调同一个数组） */
+  getVDomList: (): VDom[] => vDom.value,
+  /** targetId → vDom 索引（O(1) 查找，替代对整表 find） */
+  getVDomLookup: (): VDomLookup => assembler.lookup,
   vdomDomId,
   vdomSelectionKey,
   findElementByVDom,

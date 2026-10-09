@@ -6,6 +6,7 @@ export const PLAY_HIGHLIGHT_CLASS = 'dr-play-highlight'
  * - 五线：符头 / 符干 / 符尾 / 休止符
  * - 简谱：数字 / 加时线 / 休止符（减时线、八度点在渲染里 tag 为 accidental，一并纳入）
  * - 吉他 / 尤克里里：品格、琶音、扫弦；符干符尾与加时线沿用 noteStem / noteTail / addLine
+ * - 鼓谱长休止符：targetId 为小节 id（dr-play 以 measure.id 作 note_id）；小节数挂在整组首小节
  */
 export const NOTE_PART_TAGS = new Set([
   'noteHead',
@@ -18,4 +19,6 @@ export const NOTE_PART_TAGS = new Set([
   'tabNoteNumber',
   'arpeggio',
   'strumming',
+  'longRest',
+  'longRestNumber',
 ])

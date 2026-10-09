@@ -1,4 +1,4 @@
-import type {MusicScore, SlotData, VDom} from '@deciphony/renderer'
+import type {MusicScore, RenderMusicScoreInfo, SlotData, VDom, VDomLookup} from '@deciphony/renderer'
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
@@ -6,7 +6,8 @@ import {
     vdomSelectionKey,
 } from '@deciphony/renderer'
 import type {Ref} from 'vue'
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
+import {findVDomByTarget, findVDomByTargetTag} from '../findVDomByTarget'
 import {DEFAULT_ADD_NUMBER_STATE, type AddNumberState} from './renderEditNumberAddState'
 import {EXCLUDED_INTERACTION_TAGS, HIGHLIGHT_CLASS} from '../constants'
 import {createEditHighlight} from '../renderEditHighlight'
@@ -61,6 +62,23 @@ import {
     previewPitchDrag,
     type PitchDragSession,
 } from '../renderEditPitchDrag'
+import {
+    computeLineHandlePoints,
+    createLineDragSession,
+    isLineSelected,
+    isLineVDom,
+    previewLineDrag,
+    type LineDragSession,
+} from '../renderEditLineDrag'
+import {
+    computeNoteAffiliatedBox,
+    createNoteAffiliatedDragSession,
+    isNoteAffiliatedSelected,
+    isNoteAffiliatedVDom,
+    previewNoteAffiliatedDrag,
+    type FrameBox,
+    type NoteAffiliatedDragSession,
+} from '../renderEditNoteAffiliatedDrag'
 import {flushScoreWrites} from '../scoreWriteGate'
 import {
     computeVoltaHandlePoints,
@@ -99,6 +117,7 @@ export type MusicScoreComponentExpose = {
     vdomSelectionKey: typeof vdomSelectionKey
     findElementByVDom: (node: VDom) => SVGElement | null
     updateVDom: (targetId: string, patch: Partial<VDom>) => boolean
+    getVDomList?: () => VDom[]
 }
 
 /**
@@ -131,9 +150,18 @@ export function useNumberNotationRenderEdit(
     const pedalHandleOverride = ref<HorizontalHandlePoints | null>(null)
     const pitchDragSession = ref<PitchDragSession | null>(null)
     const pitchHandleOverride = ref<HorizontalHandlePoints | null>(null)
+    const lineDragSession = ref<LineDragSession | null>(null)
+    const lineHandleOverride = ref<HorizontalHandlePoints | null>(null)
+    const noteAffiliatedDragSession = ref<NoteAffiliatedDragSession | null>(null)
+    const noteAffiliatedBoxOverride = ref<FrameBox | null>(null)
     const voltaDragSession = ref<VoltaDragSession | null>(null)
     const relatedHighlightEls = ref<SVGElement[]>([])
-    const vDomList = ref<VDom[]>([])
+    const vDomList = shallowRef<VDom[]>([])
+    const vDomLookup = shallowRef<VDomLookup | null>(null)
+    const findByTarget = (targetId: string, pred?: (node: VDom) => boolean) =>
+        findVDomByTarget(vDomList.value, vDomLookup.value, targetId, pred)
+    const findByTargetTag = (targetId: string, tag: VDom['tag']) =>
+        findVDomByTargetTag(vDomList.value, vDomLookup.value, targetId, tag)
     /** 持续选中的添加状态：决定 ghost 与插入的音符/休止符 */
     const addNoteState = ref<AddNumberState>({...DEFAULT_ADD_NUMBER_STATE})
     const lastTopPointer = ref<{ clientX: number; clientY: number } | null>(null)
@@ -154,7 +182,7 @@ export function useNumberNotationRenderEdit(
     const selectedSlurVdom = computed(() => {
         if (!isSlurSelected(selectedItem.value)) return null
         const slurId = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === slurId && isSlurVDom(node)) ?? null
+        return findByTarget(slurId, isSlurVDom) ?? null
     })
 
     const slurHandlePoints = computed(() => {
@@ -166,7 +194,7 @@ export function useNumberNotationRenderEdit(
     const selectedArpeggioVdom = computed(() => {
         if (!isArpeggioSelected(selectedItem.value)) return null
         const id = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === id && isArpeggioVDom(node)) ?? null
+        return findByTarget(id, isArpeggioVDom) ?? null
     })
 
     const arpeggioHandlePoints = computed(() => {
@@ -178,7 +206,7 @@ export function useNumberNotationRenderEdit(
     const selectedStrummingVdom = computed(() => {
         if (!isStrummingSelected(selectedItem.value)) return null
         const id = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === id && isStrummingVDom(node)) ?? null
+        return findByTarget(id, isStrummingVDom) ?? null
     })
 
     const strummingHandlePoints = computed(() => {
@@ -190,7 +218,7 @@ export function useNumberNotationRenderEdit(
     const selectedPedalVdom = computed(() => {
         if (!isPedalSelected(selectedItem.value)) return null
         const id = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === id && isPedalVDom(node)) ?? null
+        return findByTarget(id, isPedalVDom) ?? null
     })
 
     const pedalHandlePoints = computed(() => {
@@ -202,7 +230,7 @@ export function useNumberNotationRenderEdit(
     const selectedPitchVdom = computed(() => {
         if (!isPitchSelected(selectedItem.value)) return null
         const id = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === id && isPitchVDom(node)) ?? null
+        return findByTarget(id, isPitchVDom) ?? null
     })
 
     const pitchHandlePoints = computed(() => {
@@ -211,10 +239,34 @@ export function useNumberNotationRenderEdit(
         return vdom ? computePitchHandlePoints(vdom) : null
     })
 
+    const selectedLineVdom = computed(() => {
+        if (!isLineSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return findByTarget(id, isLineVDom) ?? null
+    })
+
+    const lineHandlePoints = computed(() => {
+        if (lineHandleOverride.value) return lineHandleOverride.value
+        const vdom = selectedLineVdom.value
+        return vdom ? computeLineHandlePoints(vdom) : null
+    })
+
+    const selectedNoteAffiliatedVdom = computed(() => {
+        if (!isNoteAffiliatedSelected(selectedItem.value)) return null
+        const id = selectedItem.value.self.id
+        return findByTarget(id, (node) => isNoteAffiliatedVDom(node, id)) ?? null
+    })
+
+    const noteAffiliatedBox = computed(() => {
+        if (noteAffiliatedBoxOverride.value) return noteAffiliatedBoxOverride.value
+        const vdom = selectedNoteAffiliatedVdom.value
+        return vdom ? computeNoteAffiliatedBox(vdom) : null
+    })
+
     const selectedVoltaVdom = computed(() => {
         if (!isVoltaSelected(selectedItem.value)) return null
         const voltaId = selectedItem.value.self.id
-        return vDomList.value.find((node) => node.targetId === voltaId && isVoltaVDom(node)) ?? null
+        return findByTarget(voltaId, isVoltaVDom) ?? null
     })
 
     const voltaHandlePoints = computed(() => {
@@ -243,9 +295,9 @@ export function useNumberNotationRenderEdit(
             const fromDom = findNoteHeadElement(root, notesInfoId)
             if (fromDom) return fromDom
         }
-        const vdom = vDomList.value.find(
-            (node) => node.tag === 'noteHead' && node.targetId === notesInfoId,
-        )
+        const vdom =
+            findByTargetTag(notesInfoId, 'noteNumber')
+            ?? findByTargetTag(notesInfoId, 'noteHead')
         return vdom ? resolveSelectionElement(vdom) : null
     }
 
@@ -255,7 +307,7 @@ export function useNumberNotationRenderEdit(
             const fromDom = findMeasureElement(root, measureId)
             if (fromDom) return fromDom
         }
-        const vdom = findMeasureVDom(vDomList.value, measureId)
+        const vdom = findMeasureVDom(vDomList.value, measureId, vDomLookup.value)
         return vdom ? resolveSelectionElement(vdom) : null
     }
 
@@ -308,12 +360,12 @@ export function useNumberNotationRenderEdit(
     function normalizeMeasureSelectionVdom(vdom: VDom): VDom {
         if (vdom.tag === 'slot' && vdom.slotName === 'm') return vdom
         if (vdom.tag === 'measure' && vdom.targetId) {
-            const slotVdom = findMeasureSlotVDom(vDomList.value, vdom.targetId)
+            const slotVdom = findMeasureSlotVDom(vDomList.value, vdom.targetId, vDomLookup.value)
             if (slotVdom) return slotVdom
         }
         const measureId = selectedItem.value?.measure?.id
         if (measureId) {
-            const slotVdom = findMeasureSlotVDom(vDomList.value, measureId)
+            const slotVdom = findMeasureSlotVDom(vDomList.value, measureId, vDomLookup.value)
             if (slotVdom) return slotVdom
         }
         return vdom
@@ -354,7 +406,8 @@ export function useNumberNotationRenderEdit(
         let vdom: VDom | undefined
 
         if (session) {
-            vdom = list.find((node) => node.tag === 'noteHead' && node.targetId === session.notesNumberInfoId)
+            vdom = findByTargetTag(session.notesNumberInfoId, 'noteNumber')
+                ?? findByTargetTag(session.notesNumberInfoId, 'noteHead')
         } else {
             const key = selectedVdomKey.value
             if (!key) return
@@ -368,7 +421,7 @@ export function useNumberNotationRenderEdit(
     function selectMeasureSlot(slot: SlotData) {
         highlight.clearHoverHighlight()
         const measureId = slot.measure?.id
-        const vdom = measureId ? findMeasureSlotVDom(vDomList.value, measureId) : undefined
+        const vdom = measureId ? findMeasureSlotVDom(vDomList.value, measureId, vDomLookup.value) : undefined
         if (vdom) {
             bindSelectionVdom(vdom, vdom.slotData ?? slot)
         } else {
@@ -381,9 +434,9 @@ export function useNumberNotationRenderEdit(
 
     function selectNoteHeadSlot(slot: SlotData, notesInfoId: string) {
         highlight.clearHoverHighlight()
-        const vdom = vDomList.value.find(
-            (node) => node.tag === 'noteHead' && node.targetId === notesInfoId,
-        )
+        const vdom =
+            findByTargetTag(notesInfoId, 'noteNumber')
+            ?? findByTargetTag(notesInfoId, 'noteHead')
         if (vdom) {
             bindSelectionVdom(vdom, slot)
         } else {
@@ -467,9 +520,7 @@ export function useNumberNotationRenderEdit(
         if (!session || event.pointerId !== session.pointerId) return
         const svg = resolveScoreSvg()
         if (!svg) return
-        const vdom = vDomList.value.find(
-            (node) => node.targetId === session.slurId && isSlurVDom(node),
-        )
+        const vdom = findByTarget(session.slurId, isSlurVDom)
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
         const points = previewSlurDrag(
@@ -497,9 +548,7 @@ export function useNumberNotationRenderEdit(
         if (!session || event.pointerId !== session.pointerId) return
         const svg = resolveScoreSvg()
         if (!svg) return
-        const vdom = vDomList.value.find(
-            (node) => node.targetId === session.symbolId && isArpeggioVDom(node),
-        )
+        const vdom = findByTarget(session.symbolId, isArpeggioVDom)
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
         const points = previewArpeggioDrag(
@@ -526,9 +575,7 @@ export function useNumberNotationRenderEdit(
         if (!session || event.pointerId !== session.pointerId) return
         const svg = resolveScoreSvg()
         if (!svg) return
-        const vdom = vDomList.value.find(
-            (node) => node.targetId === session.symbolId && isStrummingVDom(node),
-        )
+        const vdom = findByTarget(session.symbolId, isStrummingVDom)
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
         const points = previewStrummingDrag(
@@ -555,9 +602,7 @@ export function useNumberNotationRenderEdit(
         if (!session || event.pointerId !== session.pointerId) return
         const svg = resolveScoreSvg()
         if (!svg) return
-        const vdom = vDomList.value.find(
-            (node) => node.targetId === session.symbolId && isPedalVDom(node),
-        )
+        const vdom = findByTarget(session.symbolId, isPedalVDom)
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
         const points = previewPedalDrag(
@@ -584,9 +629,7 @@ export function useNumberNotationRenderEdit(
         if (!session || event.pointerId !== session.pointerId) return
         const svg = resolveScoreSvg()
         if (!svg) return
-        const vdom = vDomList.value.find(
-            (node) => node.targetId === session.symbolId && isPitchVDom(node),
-        )
+        const vdom = findByTarget(session.symbolId, isPitchVDom)
         if (!vdom) return
         const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
         const points = previewPitchDrag(
@@ -604,6 +647,56 @@ export function useNumberNotationRenderEdit(
         if (pitchDragSession.value?.pointerId === event.pointerId) {
             pitchDragSession.value = null
             pitchHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updateLineDragFromEvent(event: PointerEvent) {
+        const session = lineDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const vdom = findByTarget(session.symbolId, isLineVDom)
+        if (!vdom) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const points = previewLineDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            vdom,
+            x,
+            y,
+        )
+        if (points) lineHandleOverride.value = points
+    }
+
+    function endLineDrag(event: PointerEvent) {
+        if (lineDragSession.value?.pointerId === event.pointerId) {
+            lineDragSession.value = null
+            lineHandleOverride.value = null
+            removeAffiliatedDragWindowListeners()
+        }
+    }
+
+    function updateNoteAffiliatedDragFromEvent(event: PointerEvent) {
+        const session = noteAffiliatedDragSession.value
+        if (!session || event.pointerId !== session.pointerId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        noteAffiliatedBoxOverride.value = previewNoteAffiliatedDrag(
+            musicScore,
+            () => options?.musicScoreRef?.value?.updateVDom,
+            session,
+            x,
+            y,
+        )
+    }
+
+    function endNoteAffiliatedDrag(event: PointerEvent) {
+        if (noteAffiliatedDragSession.value?.pointerId === event.pointerId) {
+            noteAffiliatedDragSession.value = null
+            noteAffiliatedBoxOverride.value = null
             removeAffiliatedDragWindowListeners()
         }
     }
@@ -630,6 +723,8 @@ export function useNumberNotationRenderEdit(
         if (strummingDragSession.value) updateStrummingDragFromEvent(event)
         if (pedalDragSession.value) updatePedalDragFromEvent(event)
         if (pitchDragSession.value) updatePitchDragFromEvent(event)
+        if (lineDragSession.value) updateLineDragFromEvent(event)
+        if (noteAffiliatedDragSession.value) updateNoteAffiliatedDragFromEvent(event)
         if (voltaDragSession.value) updateVoltaDragFromEvent(event)
     }
 
@@ -639,6 +734,8 @@ export function useNumberNotationRenderEdit(
         endStrummingDrag(event)
         endPedalDrag(event)
         endPitchDrag(event)
+        endLineDrag(event)
+        endNoteAffiliatedDrag(event)
         endVoltaDrag(event)
     }
 
@@ -656,6 +753,8 @@ export function useNumberNotationRenderEdit(
             || strummingDragSession.value
             || pedalDragSession.value
             || pitchDragSession.value
+            || lineDragSession.value
+            || noteAffiliatedDragSession.value
             || voltaDragSession.value
         ) return
         if (!affiliatedDragListenersAttached) return
@@ -667,7 +766,10 @@ export function useNumberNotationRenderEdit(
     function handleSlurHandleDown(handle: SlurHandleKind, event: PointerEvent) {
         const vdom = selectedSlurVdom.value
         if (!vdom?.targetId) return
-        slurDragSession.value = createSlurDragSession(event, vdom.targetId, handle, vdom)
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {y} = pointerToSvg(svg, event.clientX, event.clientY)
+        slurDragSession.value = createSlurDragSession(event, vdom.targetId, handle, vdom, y)
         attachAffiliatedDragWindowListeners()
         const el = event.currentTarget
         if (el instanceof SVGElement) {
@@ -752,6 +854,40 @@ export function useNumberNotationRenderEdit(
             vdom,
             y,
         )
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) {
+            el.setPointerCapture(event.pointerId)
+        }
+        event.preventDefault()
+    }
+
+    function handleLineHandleDown(handle: HorizontalHandleKind, event: PointerEvent) {
+        const vdom = selectedLineVdom.value
+        if (!vdom?.targetId) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const session = createLineDragSession(event, vdom.targetId, handle, vdom, y)
+        if (!session) return
+        lineDragSession.value = session
+        attachAffiliatedDragWindowListeners()
+        const el = event.currentTarget
+        if (el instanceof SVGElement) {
+            el.setPointerCapture(event.pointerId)
+        }
+        event.preventDefault()
+    }
+
+    function handleNoteAffiliatedBoxDown(event: PointerEvent) {
+        const vdom = selectedNoteAffiliatedVdom.value
+        if (!vdom) return
+        const svg = resolveScoreSvg()
+        if (!svg) return
+        const {x, y} = pointerToSvg(svg, event.clientX, event.clientY)
+        const session = createNoteAffiliatedDragSession(event, musicScore, vdom, x, y)
+        if (!session) return
+        noteAffiliatedDragSession.value = session
         attachAffiliatedDragWindowListeners()
         const el = event.currentTarget
         if (el instanceof SVGElement) {
@@ -918,6 +1054,8 @@ export function useNumberNotationRenderEdit(
         endStrummingDrag(event)
         endPedalDrag(event)
         endPitchDrag(event)
+        endLineDrag(event)
+        endNoteAffiliatedDrag(event)
         endVoltaDrag(event)
     }
 
@@ -942,6 +1080,14 @@ export function useNumberNotationRenderEdit(
         }
         if (pitchDragSession.value) {
             updatePitchDragFromEvent(event)
+            return
+        }
+        if (lineDragSession.value) {
+            updateLineDragFromEvent(event)
+            return
+        }
+        if (noteAffiliatedDragSession.value) {
+            updateNoteAffiliatedDragFromEvent(event)
             return
         }
         if (voltaDragSession.value) {
@@ -970,12 +1116,16 @@ export function useNumberNotationRenderEdit(
         const wasStrummingDragging = strummingDragSession.value?.pointerId === event.pointerId
         const wasPedalDragging = pedalDragSession.value?.pointerId === event.pointerId
         const wasPitchDragging = pitchDragSession.value?.pointerId === event.pointerId
+        const wasLineDragging = lineDragSession.value?.pointerId === event.pointerId
+        const wasNoteAffiliatedDragging = noteAffiliatedDragSession.value?.pointerId === event.pointerId
         const wasVoltaDragging = voltaDragSession.value?.pointerId === event.pointerId
         endSlurDrag(event)
         endArpeggioDrag(event)
         endStrummingDrag(event)
         endPedalDrag(event)
         endPitchDrag(event)
+        endLineDrag(event)
+        endNoteAffiliatedDrag(event)
         endVoltaDrag(event)
         const wasDragging = noteHeadDragSession.value?.pointerId === event.pointerId
         endNoteHeadDrag(event)
@@ -986,6 +1136,8 @@ export function useNumberNotationRenderEdit(
             || wasStrummingDragging
             || wasPedalDragging
             || wasPitchDragging
+            || wasLineDragging
+            || wasNoteAffiliatedDragging
             || wasVoltaDragging
             || wasDragging
         ) return
@@ -1024,8 +1176,9 @@ export function useNumberNotationRenderEdit(
         selectMeasureSlot(slotData)
     }
 
-    function handleRenderMusicScore(list: VDom[]) {
+    function handleRenderMusicScore(list: VDom[], info?: RenderMusicScoreInfo) {
         vDomList.value = list
+        vDomLookup.value = info?.lookup ?? null
         rebindSelectionAfterRender(list)
         refreshGhostFromLastPointer()
     }
@@ -1044,6 +1197,10 @@ export function useNumberNotationRenderEdit(
         pedalHandleOverride.value = null
         pitchDragSession.value = null
         pitchHandleOverride.value = null
+        lineDragSession.value = null
+        lineHandleOverride.value = null
+        noteAffiliatedDragSession.value = null
+        noteAffiliatedBoxOverride.value = null
         voltaDragSession.value = null
         removeAffiliatedDragWindowListeners()
     })
@@ -1062,6 +1219,8 @@ export function useNumberNotationRenderEdit(
         strummingHandlePoints,
         pedalHandlePoints,
         pitchHandlePoints,
+        lineHandlePoints,
+        noteAffiliatedBox,
         voltaHandlePoints,
         handleDrClick,
         handleDrEnter,
@@ -1073,6 +1232,8 @@ export function useNumberNotationRenderEdit(
         handleStrummingHandleDown,
         handlePedalHandleDown,
         handlePitchHandleDown,
+        handleLineHandleDown,
+        handleNoteAffiliatedBoxDown,
         handleVoltaHandleDown,
         handleTopMove,
         handleTopUp,

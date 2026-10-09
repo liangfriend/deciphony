@@ -32,6 +32,7 @@ import {computeSecondDisplacement, getStemAttachY, getStemBuckets} from "../util
 import {isDrumNote, isDrumRest, slotSymbol} from "../utils/staffSlot";
 import {getPrefixParts, getSuffixParts, sumPartsWidth} from "../utils/measureParts";
 import {renderStemAndTail} from "../note/renderStemAndTail";
+import {renderGraceDrumAfter, renderGraceDrumBefore} from "../grace/renderGraceDrum";
 import {buildDrumColumnLayouts} from "../layout/measureColumnLayoutAdapter";
 
 const LONG_REST_LABEL: Record<LongRestRole['kind'], string> = {
@@ -319,7 +320,29 @@ function renderVoice(
       }
     }
 
-    // 4) 符干符尾：每个符干组一条；长度从符杠端音符头量起，接点由另一端音符头类型决定
+    // 4) 前后倚音：前倚音贴所有主音符头最左缘，后倚音排在主音符头 / 附点最右缘之后
+    if (note.graceNotes?.length || note.graceNotesAfter?.length) {
+      const mainHeads = allNotesInfo.map((n) => idMap.get(n.id)?.noteHead).filter((v): v is VDom => v != null);
+      const dotIds = new Set(allNotesInfo.map((n) => n.augmentationDot?.id).filter((id): id is string => id != null));
+      const dots = out.filter((v) => v.tag === 'augmentationDot' && dotIds.has(v.targetId));
+      const mainLeftX = mainHeads.length ? Math.min(...mainHeads.map((v) => v.x)) : slotX;
+      const mainRightX = Math.max(slotX, ...mainHeads.map((v) => v.x + v.w), ...dots.map((v) => v.x + v.w));
+      const graceCtx = {
+        voice,
+        noteCenterY,
+        measureY,
+        measureHeight,
+        skin,
+        skinName: skinNameForNodes,
+        zIndex: z,
+        idMap,
+        out,
+      };
+      renderGraceDrumBefore(note.graceNotes, mainLeftX, graceCtx);
+      renderGraceDrumAfter(note.graceNotesAfter, mainRightX, graceCtx);
+    }
+
+    // 5) 符干符尾：每个符干组一条；长度从符杠端音符头量起，接点由另一端音符头类型决定
     for (const bucket of buckets) {
       const regions = bucket.map((n) => n.region);
       const up = voice === 'up';

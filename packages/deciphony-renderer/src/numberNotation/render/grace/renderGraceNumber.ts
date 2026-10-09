@@ -22,6 +22,7 @@ import {
     getAugmentationDotSkinKey,
     getReduceLineLastLineY,
     getReduceLineSkinKey,
+    getReduceLineSkinKeyByCount,
     getSyllableSkinKey,
 } from "../utils/skinKey";
 import {getInfoChronaxie} from "../utils/note";
@@ -36,8 +37,6 @@ import {
     withGraceScale
 } from "@/render/graceNote";
 import {boxYForVisualTop, scaledSpan} from "@/render/vdomScale";
-import {BeamTypeEnum} from "@/enums/musicScoreEnum";
-
 const S = GRACE_NOTE_SCALE;
 const REDUCE_LINE_STROKE = 1;
 
@@ -226,60 +225,35 @@ function processGracePedestals(
 /** 第二遍：倚音减时线连接（规则同 renderSymbol 主音符） */
 function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumberCtx): void {
     const {skin, skinName, zIndex, out, measureHeight} = ctx;
-    for (let i = 0; i < slots.length; i++) {
-        const slot = slots[i]!;
-        const ni = slot.ni;
+    const reduceLineCount = (ni: NotesNumberInfo): number => {
         const ch = getInfoChronaxie(ni);
-        if (ch > 32) continue;
-        const reduceLineKey = getReduceLineSkinKey(ch);
+        return ch > 32 ? 0 : chronaxieToBeamLineCount(ch);
+    };
+    const pushReduceLine = (slot: GraceReduceSlot, count: number, visualLeft: number, visualRight: number) => {
+        const reduceLineKey = getReduceLineSkinKeyByCount(count);
         const reduceLineSkin = skin[reduceLineKey];
-        if (!reduceLineSkin) continue;
-
-        const beamType = ni.beamType ?? BeamTypeEnum.None;
-        const myCount = chronaxieToBeamLineCount(ch);
-        let leftIdx = i;
-        let rightIdx = i;
-        if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
-            if (beamType === BeamTypeEnum.Combined) {
-                for (let j = i - 1; j >= 0; j--) {
-                    const s = slots[j]!;
-                    if (getInfoChronaxie(s.ni) > 32) break;
-                    if (!canJoinReduceLineFromLeft(s.ni.beamType)) break;
-                    leftIdx = j;
-                }
-            }
-            for (let j = i + 1; j < slots.length; j++) {
-                const s = slots[j]!;
-                if (getInfoChronaxie(s.ni) > 32) break;
-                if (!canJoinReduceLineToRight(s.ni.beamType)) break;
-                rightIdx = j;
-            }
-        }
-        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
-        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
-        const leftCount = leftSlot && getInfoChronaxie(leftSlot.ni) <= 32
-            ? chronaxieToBeamLineCount(getInfoChronaxie(leftSlot.ni)) : Infinity;
-        const rightCount = rightSlot && getInfoChronaxie(rightSlot.ni) <= 32
-            ? chronaxieToBeamLineCount(getInfoChronaxie(rightSlot.ni)) : Infinity;
-
-        let visualLineLeft = slot.visualLeft;
-        let visualLineRight = slot.visualRight;
-        if (myCount < leftCount && leftSlot) {
-            visualLineLeft = leftSlot.visualRight;
-        }
-        if (myCount <= rightCount && rightSlot) {
-            visualLineRight = rightSlot.visualRight;
-        }
-        visualLineRight = Math.max(visualLineRight, visualLineLeft + slot.visualW);
-
+        if (!reduceLineSkin) return;
         const targetReduceTop = slot.visualBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
-        const box = layoutBoxFromVisualSpan(visualLineLeft, targetReduceTop, visualLineRight - visualLineLeft, reduceLineSkin.h);
+        const box = layoutBoxFromVisualSpan(visualLeft, targetReduceTop, visualRight - visualLeft, reduceLineSkin.h);
         pushGrace(out, {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             ...box, zIndex,
             tag: 'accidental', skinName, targetId: slot.ni.id,
             skinKey: reduceLineKey, dataComment: '倚音减时线',
         });
+    };
+
+    for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]!;
+        const count = reduceLineCount(slot.ni);
+        if (!count) continue;
+        pushReduceLine(slot, count, slot.visualLeft, Math.max(slot.visualRight, slot.visualLeft + slot.visualW));
+
+        const next = slots[i + 1];
+        const nextCount = next ? reduceLineCount(next.ni) : 0;
+        if (!next || !nextCount) continue;
+        if (!canJoinReduceLineFromLeft(slot.ni.beamType) || !canJoinReduceLineToRight(next.ni.beamType)) continue;
+        pushReduceLine(slot, Math.min(count, nextCount), slot.visualLeft, next.visualRight);
     }
 }
 

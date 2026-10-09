@@ -6,7 +6,6 @@ import {
   createGrandStaff,
   createLyrics,
   createMusicScore,
-  createNotesInfo,
   createNoteSymbol,
 } from '@deciphony/extensions/dr-edit/score-builder'
 import {drLyrics, type LyricsMode} from '@deciphony/extensions/dr-lyrics'
@@ -22,15 +21,9 @@ const musicScoreData = reactive<MusicScore>(
     const grandStaff = createGrandStaff()
     score.grandStaffs.push(grandStaff)
     const measure = grandStaff.staves[0]!.measures[0]!
-    const n1 = createNoteSymbol({region: 5, chronaxie: 64})
-    n1.notesInfo = [createNotesInfo({region: 5, chronaxie: 64})]
-    n1.lyrics = [createLyrics('你'), createLyrics('啊')]
-    const n2 = createNoteSymbol({region: 7, chronaxie: 64})
-    n2.notesInfo = [createNotesInfo({region: 7, chronaxie: 64})]
-    n2.lyrics = [createLyrics('好')]
-    const n3 = createNoteSymbol({region: 5, chronaxie: 128})
-    n3.notesInfo = [createNotesInfo({region: 5, chronaxie: 128})]
-    n3.lyrics = []
+    const n1 = createNoteSymbol({region: 5, chronaxie: 64, lyrics: [createLyrics('你'), createLyrics('啊')]})
+    const n2 = createNoteSymbol({region: 7, chronaxie: 64, lyrics: [createLyrics('好')]})
+    const n3 = createNoteSymbol({region: 5, chronaxie: 128, lyrics: []})
     getMeasureNoteList(measure).push(n1, n2, n3)
     return score
   })(),

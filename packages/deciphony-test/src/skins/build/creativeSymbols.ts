@@ -143,6 +143,17 @@ function glacierNoteHead(theme: SkinTheme, key: StandardStaffSkinKeyEnum): strin
 
 // ─── 休止符：风止 / 冰封 ─────────────────────────────
 
+/** 八分及更短休止符的层数（叶片 / 冰棱数），未列出的按 2 */
+const REST_TIERS: Partial<Record<StandardStaffSkinKeyEnum, number>> = {
+    [StandardStaffSkinKeyEnum.Rest_3]: 1,
+    [StandardStaffSkinKeyEnum.Rest_4]: 2,
+    [StandardStaffSkinKeyEnum.Rest_5]: 3,
+    [StandardStaffSkinKeyEnum.Rest_6]: 4,
+    [StandardStaffSkinKeyEnum.Rest_7]: 5,
+    [StandardStaffSkinKeyEnum.Rest_8]: 6,
+    [StandardStaffSkinKeyEnum.Rest_9]: 7,
+}
+
 function bambooRest(theme: SkinTheme, key: StandardStaffSkinKeyEnum): string {
     const id = pid(theme, 'r')
     if (key === StandardStaffSkinKeyEnum.Rest_1 || key === StandardStaffSkinKeyEnum.Rest_2) {
@@ -152,15 +163,7 @@ function bambooRest(theme: SkinTheme, key: StandardStaffSkinKeyEnum): string {
     <ellipse cx="5" cy="3" rx="5" ry="2.5" fill="url(#${id})" opacity="0.85"/>
     <path d="M1 3 Q5 1 9 3" fill="none" stroke="${theme.restStroke}" stroke-width="0.5" opacity="0.5"/>`
     }
-    const leafCount = {
-        [StandardStaffSkinKeyEnum.Rest_3]: 1,
-        [StandardStaffSkinKeyEnum.Rest_4]: 2,
-        [StandardStaffSkinKeyEnum.Rest_5]: 3,
-        [StandardStaffSkinKeyEnum.Rest_6]: 4,
-        [StandardStaffSkinKeyEnum.Rest_7]: 5,
-        [StandardStaffSkinKeyEnum.Rest_8]: 6,
-        [StandardStaffSkinKeyEnum.Rest_9]: 7,
-    }[key] ?? 2
+    const leafCount = REST_TIERS[key] ?? 2
     const leaves = Array.from({length: leafCount}, (_, i) => {
         const rot = -30 + i * 18
         const ty = i * 2.5
@@ -178,15 +181,7 @@ function glacierRest(theme: SkinTheme, key: StandardStaffSkinKeyEnum): string {
         return `<ellipse cx="5" cy="3" rx="5" ry="2" fill="${theme.accentSoft}" stroke="${theme.restStroke}" stroke-width="0.5" opacity="0.9"/>
     <ellipse cx="5" cy="2.5" rx="3" ry="1" fill="${theme.glow}" opacity="0.4"/>`
     }
-    const tiers = {
-        [StandardStaffSkinKeyEnum.Rest_3]: 1,
-        [StandardStaffSkinKeyEnum.Rest_4]: 2,
-        [StandardStaffSkinKeyEnum.Rest_5]: 3,
-        [StandardStaffSkinKeyEnum.Rest_6]: 4,
-        [StandardStaffSkinKeyEnum.Rest_7]: 5,
-        [StandardStaffSkinKeyEnum.Rest_8]: 6,
-        [StandardStaffSkinKeyEnum.Rest_9]: 7,
-    }[key] ?? 2
+    const tiers = REST_TIERS[key] ?? 2
     const icicles = Array.from({length: tiers}, (_, i) => {
         const x = 1 + i * 1.2
         const h = 4 + i * 2.5
@@ -517,12 +512,13 @@ function glacierAddLine(theme: SkinTheme): string {
 
 function bambooNumberGlyph(theme: SkinTheme, digit: string): string {
     return `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
-    fill="${theme.timeSigColor}" font-family="Georgia, serif">${digit}</text>
+    fill="${theme.timeSigColor}" font-family="Arial, Helvetica, sans-serif" style="font-variant-numeric:lining-nums">${digit}</text>
   <ellipse cx="10" cy="30" rx="8" ry="2" fill="${theme.staffLineMuted}" opacity="0.2"/>`
 }
 
 function glacierNumberGlyph(theme: SkinTheme, digit: string): string {
     return `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
+    font-family="Arial, Helvetica, sans-serif" style="font-variant-numeric:lining-nums"
     fill="${theme.timeSigColor}" stroke="${theme.glow}" stroke-width="0.3">${digit}</text>`
 }
 

@@ -1,6 +1,7 @@
 import {isNoteSymbol, slotSymbol} from '@deciphony/renderer'
-import type {Measure, MusicScore, NotesInfo, NoteSymbol, SingleStaff} from '@deciphony/renderer'
+import type {MusicScore, NotesInfo, NoteSymbol, SingleStaff} from '@deciphony/renderer'
 import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
+import {locateNotesInfoById} from '@deciphony/extensions/dr-edit/score-builder/locate'
 import type {NoteHeadEditSlot} from './renderEditNoteHeadProperties'
 import {getMeasureVoices} from '@deciphony/renderer'
 import type {MeasureNoteSlot} from '@deciphony/renderer'
@@ -77,24 +78,32 @@ function resolveNoteHeadAnchor(
   voice: VoiceKey
   startInfo: NotesInfo
 } | null {
-  const {singleStaff, measure, note, info} = editSlot
-  if (!singleStaff || !measure || !note || !info) return null
+  const info = editSlot.info
+  if (!info?.id) return null
 
-  const measureIndex = singleStaff.measures.indexOf(measure as Measure)
-  if (measureIndex < 0) return null
+  const located = locateNotesInfoById(editSlot.musicScore, info.id)
+  if (!located) return null
 
+  const voiceIndex = located.note.notesInfo.findIndex((ni) => ni.id === info.id)
+  if (voiceIndex < 0) return null
+
+  const measure = located.measure
   let voice: VoiceKey = 'up'
-  let noteIndex = voiceSlots(measure, 'up').findIndex((s) => slotSymbol(s) === note)
+  let noteIndex = voiceSlots(measure, 'up').findIndex((s) => slotSymbol(s) === located.note)
   if (noteIndex < 0) {
     voice = 'down'
-    noteIndex = voiceSlots(measure, 'down').findIndex((s) => slotSymbol(s) === note)
+    noteIndex = voiceSlots(measure, 'down').findIndex((s) => slotSymbol(s) === located.note)
   }
   if (noteIndex < 0) return null
 
-  const voiceIndex = note.notesInfo.indexOf(info)
-  if (voiceIndex < 0) return null
-
-  return {singleStaff, measureIndex, noteIndex, voiceIndex, voice, startInfo: info}
+  return {
+    singleStaff: located.singleStaff,
+    measureIndex: located.measureIndex,
+    noteIndex,
+    voiceIndex,
+    voice,
+    startInfo: located.notesInfo,
+  }
 }
 
 /** 在选中音符头与右侧第 (span-1) 个音符头之间添加连音线；不足两小节内音符则失败 */

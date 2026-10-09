@@ -11,8 +11,9 @@ import {
   TabNoteInfoTypeEnum,
   type MusicScore,
   type TabNote,
+  type TabRest,
 } from '@deciphony/renderer'
-import {createGrandStaff, createMusicScore, newId} from './scoreBuilder'
+import {createGrandStaff, createMeasureNoteSlot, createMusicScore, newId} from './scoreBuilder'
 import {getMeasureNoteList} from '@deciphony/renderer'
 
 const ZERO = {relativeX: 0, relativeY: 0, relativeW: 1, relativeH: 1} as const
@@ -36,13 +37,13 @@ function emptyChord(stringCount: number): TabNote['chord'] {
   }
 }
 
-function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4): MusicScore {
-  const stringCount = type === MusicScoreTypeEnum.Tab4 ? 4 : 6
+function buildTabExhibit(type: MusicScoreTypeEnum.Guitar | MusicScoreTypeEnum.Ukulele): MusicScore {
+  const stringCount = type === MusicScoreTypeEnum.Ukulele ? 4 : 6
   const data = createMusicScore({
     height: 420,
     width: 720,
     type,
-    title: type === MusicScoreTypeEnum.Tab4 ? '尤克里里皮肤展' : '吉他皮肤展',
+    title: type === MusicScoreTypeEnum.Ukulele ? '尤克里里皮肤展' : '吉他皮肤展',
   })
   const gs = createGrandStaff()
   data.grandStaffs.push(gs)
@@ -56,7 +57,7 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
   const idSlapA = newId()
   const idSlapB = newId()
 
-  const noteNormal: TabNote & {lyrics: []; data: object} = {
+  const noteNormal: TabNote = {
     id: newId(),
     type: NoteSymbolTypeEnum.Note,
     isSlap: false,
@@ -83,12 +84,10 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
         ...ZERO,
       },
     ],
-    lyrics: [],
-    data: {},
     ...ZERO,
   }
 
-  const noteGeom: TabNote & {lyrics: []; data: object} = {
+  const noteGeom: TabNote = {
     id: newId(),
     type: NoteSymbolTypeEnum.Note,
     isSlap: false,
@@ -115,12 +114,10 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
         ...ZERO,
       },
     ],
-    lyrics: [],
-    data: {},
     ...ZERO,
   }
 
-  const noteSlap: TabNote & {lyrics: []; data: object} = {
+  const noteSlap: TabNote = {
     id: newId(),
     type: NoteSymbolTypeEnum.Note,
     isSlap: true,
@@ -147,23 +144,17 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
         ...ZERO,
       },
     ],
-    lyrics: [],
-    data: {},
     ...ZERO,
   }
 
+  const rest: TabRest = {
+    id: newId(),
+    type: NoteSymbolTypeEnum.Rest,
+    chronaxie: 64,
+    ...ZERO,
+  }
   getMeasureNoteList(measure).push(
-    noteNormal,
-    noteGeom,
-    noteSlap,
-    {
-      id: newId(),
-      type: NoteSymbolTypeEnum.Rest,
-      chronaxie: 64,
-      lyrics: [],
-      data: {},
-      ...ZERO,
-    },
+    ...[noteNormal, noteGeom, noteSlap, rest].map((symbol) => createMeasureNoteSlot({symbol})),
   )
 
   data.affiliatedSymbols.push({
@@ -189,7 +180,7 @@ function buildTabExhibit(type: MusicScoreTypeEnum.Tab6 | MusicScoreTypeEnum.Tab4
   return data
 }
 
-export const skinExhibitTab6 = buildTabExhibit(MusicScoreTypeEnum.Tab6)
-export const skinExhibitTab4 = buildTabExhibit(MusicScoreTypeEnum.Tab4)
+export const skinExhibitTab6 = buildTabExhibit(MusicScoreTypeEnum.Guitar)
+export const skinExhibitTab4 = buildTabExhibit(MusicScoreTypeEnum.Ukulele)
 
 export default skinExhibitTab6

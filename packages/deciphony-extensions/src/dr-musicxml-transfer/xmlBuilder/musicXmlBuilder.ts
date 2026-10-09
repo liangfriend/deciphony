@@ -15,7 +15,12 @@ import {
   timeSignatureToBeats,
   timeSignatureTypeToMusicXml,
 } from './musicXmlEncode'
-import type { MusicXmlBuilderOptions, MusicXmlMeasureAttributes, MusicXmlNoteInput } from './types'
+import {
+  musicXmlVersionForTarget,
+  type MusicXmlBuilderOptions,
+  type MusicXmlMeasureAttributes,
+  type MusicXmlNoteInput,
+} from './types'
 
 const DEFAULT_DIVISIONS = 16
 
@@ -33,7 +38,7 @@ export class MusicXmlBuilder {
     this.divisions = options.divisions ?? DEFAULT_DIVISIONS
 
     this.root = createXmlDocument('score-partwise')
-    attr(this.root, 'version', '4.0')
+    attr(this.root, 'version', musicXmlVersionForTarget(options.target ?? 'ms4'))
 
     if (options.title) {
       const work = elem(this.root, 'work')
@@ -168,10 +173,12 @@ export class MusicXmlBuilder {
       text(note, 'voice', input.voice)
     }
 
-    if (input.beam) {
-      const beam = elem(note, 'beam')
-      attr(beam, 'number', 1)
-      beam.text('begin')
+    if (input.beams?.length) {
+      for (const item of input.beams) {
+        const beam = elem(note, 'beam')
+        attr(beam, 'number', item.number)
+        beam.text(item.value)
+      }
     }
 
     return note

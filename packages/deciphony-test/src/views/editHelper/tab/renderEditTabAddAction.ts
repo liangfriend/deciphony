@@ -131,7 +131,7 @@ export type GhostTabPreview = {
 
 function asTabNote(measureSlot: MeasureNoteSlot): TabNote | null {
   const body = slotSymbol(measureSlot)
-  if (isNoteSymbol(body) && 'isSlap' in body) return body as TabNote
+  if ('isSlap' in body && body.type === NoteSymbolTypeEnum.Note) return body
   return null
 }
 

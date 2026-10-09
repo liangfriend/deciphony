@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
 import type {MusicScore, VDom} from '@deciphony/renderer'
 import {computed, inject} from 'vue'
 import {DR_EDIT_INJECTION_KEY} from '../editInject'
@@ -24,8 +24,7 @@ const isNumberNotation = computed(
   () => props.musicScore.type === MusicScoreTypeEnum.NumberNotation,
 )
 const isTab = computed(
-  () => props.musicScore.type === MusicScoreTypeEnum.Tab4
-    || props.musicScore.type === MusicScoreTypeEnum.Tab6,
+  () => isFretboardScoreType(props.musicScore.type),
 )
 const isDrum = computed(() => props.musicScore.type === MusicScoreTypeEnum.DrumNotation)
 const selectedMeasureId = computed(() => edit.selectedItem.value?.measure?.id)

@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import type {SlotData} from '@deciphony/renderer'
+import type {SlotData, VDom} from '@deciphony/renderer'
+import {isFretboardScoreType} from '@deciphony/renderer'
 import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {computed} from 'vue'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
+import type {UpdateVDomFn} from '../scoreWriteGate'
+import {isVoltaSelected} from '../renderEditVoltaDrag'
 import NumberHeadPropertyPanel from '../numberNotation/components/NumberHeadPropertyPanel.vue'
 import NoteHeadPropertyPanel from '../standardStaff/components/NoteHeadPropertyPanel.vue'
 import BendPropertyPanel from '../tab/components/BendPropertyPanel.vue'
@@ -13,13 +16,19 @@ import DrumNotePropertyPanel from '../drumNotation/components/DrumNotePropertyPa
 import DrumRestPropertyPanel from '../drumNotation/components/DrumRestPropertyPanel.vue'
 import MeasurePropertyPanel from './MeasurePropertyPanel.vue'
 import VoltaPropertyPanel from './VoltaPropertyPanel.vue'
+import SlurPropertyPanel from './SlurPropertyPanel.vue'
 
 const props = defineProps<{
   kind: PropertyPanelKind
   selected: SlotData | null
+  getUpdateVDom?: () => UpdateVDomFn | undefined
+  getLiveVDom?: (targetId: string) => VDom | undefined
 }>()
 
 const stringCount = computed(() => tabStringCount(props.selected?.musicScore.type))
+const isTabSlur = computed(() =>
+    !!props.selected && isFretboardScoreType(props.selected.musicScore.type),
+)
 
 const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
   measure: '小节属性',
@@ -56,7 +65,7 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
         :edit-slot="selected as any"
       />
       <VoltaPropertyPanel
-        v-else-if="kind === 'volta'"
+        v-else-if="kind === 'volta' && isVoltaSelected(selected)"
         :edit-slot="selected"
       />
       <TabMeasurePropertyPanel
@@ -68,10 +77,14 @@ const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {
         :edit-slot="selected"
         :string-count="stringCount"
       />
-      <TabSlurPropertyPanel
-        v-else-if="kind === 'slur'"
-        :edit-slot="selected"
-      />
+      <template v-else-if="kind === 'slur'">
+        <TabSlurPropertyPanel v-if="isTabSlur" :edit-slot="selected"/>
+        <SlurPropertyPanel
+          :edit-slot="selected"
+          :get-update-v-dom="getUpdateVDom"
+          :get-live-v-dom="getLiveVDom"
+        />
+      </template>
       <BendPropertyPanel
         v-else-if="kind === 'bend'"
         :edit-slot="selected"

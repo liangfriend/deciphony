@@ -1,13 +1,16 @@
-import {defineConfig} from 'vite';
-import vue from '@vitejs/plugin-vue';
-import path from 'path';
+import {defineConfig} from 'vite'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
+import {createRequire} from 'node:module'
 
-const rendererSrc = path.resolve(__dirname, '../deciphony-renderer/src');
-console.log('chicken',)
+const require = createRequire(import.meta.url)
+const rendererSrc = path.resolve(__dirname, '../deciphony-renderer/src')
+/** 强制全仓同一份 Vue，否则 alias 到兄弟包 src 时会解析到各自 node_modules，props/ref 跨包不更新 */
+const vueRuntime = path.dirname(require.resolve('vue/package.json'))
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(),
-  ],
+  plugins: [vue()],
   server: {
     port: 12345, // 指定开发服务器端口
     host: '0.0.0.0', // 可选，允许局域网访问
@@ -19,7 +22,10 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.glb', '**/*.sjw'],
   resolve: {
+    // 兄弟包各自装了不同版本的 vue，不去重会出现多个 Vue 实例，跨包的 ref/reactive 无法互相追踪
+    dedupe: ['vue'],
     alias: {
+      vue: vueRuntime,
       '@deciphony/renderer': path.resolve(rendererSrc, 'index.ts'),
       '@deciphony/player': path.resolve(__dirname, '../deciphony-player/src/index.ts'),
       '@deciphony/ui': path.resolve(__dirname, '../deciphony-ui/src/index.ts'),
@@ -32,8 +38,6 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, '../deciphony-ui/src/assets'),
       // 必须与 @deciphony/renderer 指向同一份源码，否则 @/ 与包入口会被 Vite 当成两个模块实例
       '@': rendererSrc,
-    }
+    },
   },
-
-});
-console.log('chicken', path.resolve(__dirname, '../j-player/src/index.ts'))
+})

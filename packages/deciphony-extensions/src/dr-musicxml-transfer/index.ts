@@ -1,4 +1,12 @@
-export {getXmlJson, xmlToMusicScore, musicScoreToXml} from './musicxml-util'
+export {
+  decodeMusicXml,
+  getXmlJson,
+  musicScoreToXml,
+  musicXmlFileToMusicScore,
+} from './musicxml-util'
+export type {MusicXmlExportOptions, MusicXmlExportTarget} from './musicxml-util'
+export {xmlToMusicScore, xmlToMusicScoreWithWarnings} from './xmlToMusicScore'
+export type {XmlToMusicScoreOptions, XmlToMusicScoreResult} from './xmlToMusicScore'
 export {
     isXmlRestNote,
     parseXmlNoteBlock,
@@ -10,4 +18,3 @@ export {
     xmlTimeToType,
     xmlTypeToChronaxie,
 } from './xmlSymbolParse'
-

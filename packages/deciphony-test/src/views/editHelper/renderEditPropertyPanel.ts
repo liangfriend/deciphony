@@ -8,6 +8,8 @@ import {isArpeggioSelected} from './renderEditArpeggioDrag'
 import {isStrummingSelected} from './renderEditStrummingDrag'
 import {isPedalSelected} from './renderEditPedalDrag'
 import {isPitchSelected} from './renderEditPitchDrag'
+import {isLineSelected} from './renderEditLineDrag'
+import {isNoteAffiliatedSelected} from './renderEditNoteAffiliatedDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
 import {isBendSelected, isTabInfoSelected, isTabScore} from './tab/renderEditTabSelection'
@@ -45,13 +47,16 @@ export function resolvePropertyPanelKind(selected: SlotData | null): PropertyPan
     return null
   }
   if (isMeasureAddMode(selected)) return 'measure'
-  if (isNoteHeadSelected(selected)) return 'noteHead'
+  // 简谱须先于五线：两者都是「选中 info」，旧 isNoteHeadSelected 会误吃简谱
   if (isNumberHeadSelected(selected)) return 'numberHead'
+  if (isNoteHeadSelected(selected)) return 'noteHead'
   if (isVoltaSelected(selected)) return 'volta'
-  if (isSlurSelected(selected)) return null
+  if (isSlurSelected(selected)) return 'slur'
   if (isArpeggioSelected(selected)) return null
   if (isStrummingSelected(selected)) return null
   if (isPedalSelected(selected)) return null
   if (isPitchSelected(selected)) return null
+  if (isLineSelected(selected)) return null
+  if (isNoteAffiliatedSelected(selected)) return null
   return null
 }

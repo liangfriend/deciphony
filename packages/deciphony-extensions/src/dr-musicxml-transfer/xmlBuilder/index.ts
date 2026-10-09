@@ -26,7 +26,9 @@ export {
 
 export type {
   MusicXmlBuilderOptions,
+  MusicXmlExportTarget,
   MusicXmlPitch,
   MusicXmlMeasureAttributes,
   MusicXmlNoteInput
 } from './types'
+export {musicXmlVersionForTarget} from './types'

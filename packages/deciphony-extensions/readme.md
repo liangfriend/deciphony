@@ -14,8 +14,11 @@
 | `@deciphony/extensions/dr-play` | 播放序列；鼓谱需映射表 `{drumMap}`（缺省 `DEFAULT_DRUM_PLAY_MAP`）；每项 `toneColor` 取所在单谱表 `data.instrumentValue`，缺省 `{defaultToneColor}`（默认 `'piano'`） |
 | `@deciphony/extensions/dr-play-highlight` | 播放高亮（`drPlayHighlight` 放入 `:extensions`） |
 | `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`） |
-| `@deciphony/extensions/dr-musicxml-transfer` | MusicXML ↔ MusicScore |
+| `@deciphony/extensions/dr-musicxml-transfer` | MusicXML ↔ MusicScore（导入支持 .xml / .musicxml / .mxl，`musicXmlFileToMusicScore` 返回 `{musicScore, warnings}`） |
 | `@deciphony/extensions/dr-midi-transfer` | MIDI（.mid）↔ MusicScore；导出走 dr-play 播放序列，导入生成五线谱（依赖 dr-play、dr-edit、score-util） |
+| `@deciphony/extensions/dr-midi-record` | MIDI 实时录制 → 钢琴大谱表（`createMidiRecorder` + `connectWebMidi`）；和弦窗口 + 左右手分配规则见 `src/dr-midi-record/规则.md` |
+| `@deciphony/extensions/dr-mark` | 标记扩展（`drMark({type})`，挂 `m-d`）：`type: 'flute'` + `flute: {key: 'D'}`（笛子调必填）在每个 noteSlot 第一个音符下方画六孔笛指法图；`type: 'ocarina'` + `ocarina: {model: 'transverse12', key: 'AC'}` 画陶笛指法（单张图、吹口朝下；12 孔为三角形、拇指孔在底部两侧，4 孔吊坠为椭圆、只有正面）；`type: 'xiao'` + `xiao: {model: 'hole8', key: 'G'}` 画箫指法（单图，背孔左偏画在最上） |
+| `@deciphony/extensions/dr-score3d` | 3D 曲谱可视化：`Score3D` 组件把曲谱转成单行复谱表，用 three.js 在 3D 场景里展示，可拖动视角；暴露相机 / 背景色等 API；`toSingleLineMusicScore` 单独可用（需要 `three`） |
 | `@deciphony/extensions/dr-numberNotation-transfer` | 五线 ↔ 简谱 |
 | `@deciphony/extensions/dr-quick-numberNotation` | 简谱快速打谱：文本 ↔ 简谱 MusicScore（规则见 `src/dr-quick-numberNotation/规则.md`） |
 | `@deciphony/extensions/chord-builder` | 和弦图编辑器（`ChordBuilder`，传入 `chord: tabChord`） |
@@ -77,8 +80,34 @@ const {musicScore, notes, bpm, warnings} = await audioToScore(file, {
 输入支持 `Blob` / `File` / `ArrayBuffer` / `AudioBuffer`。当前实现针对清晰哼唱和单音乐器；
 和弦、钢琴双手及完整歌曲混音不属于本地 DSP 首版的支持范围。
 
+## 3D 曲谱
+
+```vue
+<script setup lang="ts">
+import {ref} from 'vue'
+import {Score3D, type Score3DExpose} from '@deciphony/extensions/dr-score3d'
+import {drTitle} from '@deciphony/extensions/dr-title'
+
+const view = ref<Score3DExpose | null>(null)
+// view.value.setCamera({position: {x: 0, y: 0, z: 800}, target: {x: 400, y: -200, z: 0}}, {duration: 800})
+// view.value.setBackground('#000') / fitView() / focusX(1200) / resetCamera() / getCamera()
+</script>
+
+<template>
+  <div style="height: 600px">
+    <Score3D ref="view" :music-score="score" :extensions="[drTitle()]" background="#1f2228" :depth="2"/>
+  </div>
+</template>
+```
+
+- 先把多行（多个复谱表）合并成一个复谱表的单行谱，再交给 `musicScore` 在不可见容器里渲染，读取 SVG 转成 three 网格（形状挤出 `depth` 厚度，文字栅格化成贴图）
+- 世界坐标：x = 曲谱 x（px），y = −曲谱 y，z 朝向观察者；`scoreToWorld(x, y)` 换算
+- 左键旋转、右键平移、滚轮缩放（OrbitControls，可用 `controls` / `setControls` 配置）
+- 只适合展示：曲谱内容不可点击编辑；播放高亮会让整份重建，暂不建议接 `drPlayHighlight`
+
 ## Peer 依赖
 
 - `vue`
 - `@deciphony/renderer`
 - `fast-xml-parser` / `xmlbuilder`（MusicXML 扩展需要）
+- `three`（可选，仅 `dr-score3d` 需要，≥ 0.160）

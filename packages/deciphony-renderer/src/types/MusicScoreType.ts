@@ -10,6 +10,7 @@ import {
   DoubleNoteAffiliatedSymbolNameEnum,
   DoubleSlotAffiliatedSymbolNameEnum,
   DrumHeadTypeEnum,
+  HairpinTypeEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
   MeasureStartRepeatEnum,
@@ -23,7 +24,8 @@ import {
   SingleSlotAffiliatedSymbolNameEnum,
   SlurTypeEnum,
   TabNoteInfoTypeEnum,
-  TimeSignatureTypeEnum
+  TimeSignatureTypeEnum,
+  TrillTypeEnum
 } from "@/enums/musicScoreEnum";
 
 import {Chronaxie, Frame} from "@/types/common";
@@ -71,9 +73,26 @@ export type MusicScore = {
 
   timeSignature?: TimeSignatureTypeEnum
 
+  /** 小节号；不设则不显示 */
+  measureNumber?: MeasureNumber
+
   data: Object // 自定义数据
 
 }
+
+/**
+ * 小节号：从第 2 个复谱表起，在每个复谱表首小节左上方显示该行第一小节的序号
+ * （= 之前各复谱表第一个单谱表的小节数之和 + 1）。
+ * Frame 对所有小节号统一生效。
+ */
+export type MeasureNumber = {
+
+  id: string
+
+  /** 是否带括号，如 (5) */
+  bracket?: boolean
+
+} & Frame
 
 export type GrandStaff = {
 
@@ -191,7 +210,7 @@ export type Measure = {
 
   timeSignature_b?: TimeSignature,
 
-  /** 简谱：notesInfo 向上叠层；第 n 层与第 n+1 层中心距 = measureHeight + (floorSpan[n] ?? 0)，更高层 y 更小 */
+  /** 简谱：notesInfo 向上叠层，第 n+1 层默认紧贴第 n 层（中间夹着第 n 层的上八度点、第 n+1 层的下八度点）；floorSpan[n] 为两层之间额外加的间距 */
 
   floorSpan?: number[],
 
@@ -257,7 +276,7 @@ export type DoubleNoteAffiliatedSymbol = {
       thickness: number,
 
       type?: SlurTypeEnum,
-      relativeTextPoint?: { x: 0, y: 0 },
+      relativeTextPoint?: { x: number, y: number },
     },
 
   }
@@ -323,6 +342,25 @@ export type DoubleSlotAffiliatedSymbol = {
       relativeEndPoint: { x: number, y: number },
 
       type?: PitchTypeEnum,
+    },
+
+    trill?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      type?: TrillTypeEnum,
+    },
+
+    hairpin?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      type?: HairpinTypeEnum,
+
+      /** 楔形开口高度（px）；仅 *_hairpin 生效，缺省 12 */
+      height?: number,
     },
 
   }
@@ -543,6 +581,7 @@ export type NotesNumberInfo = {
 
 // 简谱音乐符号（简谱无谱号概念，无 clef）
 
+/** 多层（和弦）notesInfo[0] 为最底层；减时线、加时线只画 notesInfo[0] 的 */
 export type NoteNumber = {
 
   id: string
@@ -677,6 +716,12 @@ export type DrumNote = {
   type: NoteSymbolTypeEnum.Note
 
   notesInfo: DrumNotesInfo[]
+
+  /** 前倚音：index0 最靠主音；符干方向随所在声部 */
+  graceNotes?: DrumNotesInfo[]
+
+  /** 后倚音：index0 最靠主音；符干方向随所在声部 */
+  graceNotesAfter?: DrumNotesInfo[]
 
 } & Frame
 

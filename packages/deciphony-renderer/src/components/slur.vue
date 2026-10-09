@@ -6,8 +6,13 @@ import type {Skin, VDom} from '@/types/common';
 import {useGeometrySkinColor} from './useGeometrySkinColor';
 import {
   isNumberNotationSlur,
+  isSplitSlur,
   numberNotationSlurGeom,
   numberNotationSlurPathD,
+  numberNotationSplitSlurGeom,
+  slurBulgeSign,
+  slurDefaultControlPoint,
+  splitSlurGeom,
 } from '@/render/slurGeom';
 
 const props = defineProps<{
@@ -31,26 +36,43 @@ const SLUR_LABEL: Record<SlurTypeEnum, string> = {
 
 const isJianpu = computed(() => isNumberNotationSlur(props.notationType));
 
-// 两条二次贝塞尔曲线围成月牙形；控制点 = 默认中点上方 + relativeControlPoint
+// 两条二次贝塞尔曲线围成月牙形；控制点 = 默认控制点（按 direction 在两端上方 / 下方）+ relativeControlPoint
 const geom = computed(() => {
   const s = props.vDom.startPoint;
   const e = props.vDom.endPoint;
   const slur = props.vDom.special?.slur;
   const thickness = slur?.thickness != null ? slur.thickness : 4;
   const relCtrl = slur?.relativeControlPoint ?? {x: 0, y: 0};
-  const defaultCx = (s.x + e.x) / 2;
-  const defaultCy = Math.min(s.y, e.y) - Math.max(8, Math.abs(e.x - s.x) * 0.2);
-  const cx = defaultCx + relCtrl.x;
-  const cy = defaultCy + relCtrl.y;
-  const cy2 = cy + thickness;
+  const def = slurDefaultControlPoint(props.vDom);
+  const cx = def.x + relCtrl.x;
+  const cy = def.y + relCtrl.y;
+  // 内侧曲线往符头方向收 thickness
+  const cy2 = cy - slurBulgeSign(props.vDom) * thickness;
   return {s, e, slur, cx, cy, cy2};
 });
 
+const isSplit = computed(() => isSplitSlur(props.vDom));
+
 const jianpuGeom = computed(() =>
-  isJianpu.value ? numberNotationSlurGeom(props.vDom) : null,
+  isJianpu.value && !isSplit.value ? numberNotationSlurGeom(props.vDom) : null,
 );
 
+/** 起止不在同一单谱表：两段，controlPoint 不参与 */
+const splitGeom = computed(() => {
+  if (!isSplit.value) return null;
+  return isJianpu.value
+    ? {...numberNotationSplitSlurGeom(props.vDom), stroke: true}
+    : {...splitSlurGeom(props.vDom), thickness: 0, stroke: false};
+});
+
+/** 简谱（整段 / 分段）用描边 */
+const strokeWidth = computed(() => {
+  if (splitGeom.value) return splitGeom.value.stroke ? splitGeom.value.thickness : null;
+  return jianpuGeom.value ? jianpuGeom.value.thickness : null;
+});
+
 const pathD = computed(() => {
+  if (splitGeom.value) return splitGeom.value.d;
   if (jianpuGeom.value) {
     return numberNotationSlurPathD(jianpuGeom.value);
   }
@@ -65,6 +87,13 @@ const slurLabel = computed(() => {
 });
 
 const textPos = computed(() => {
+  const relTextPoint = geom.value.slur?.relativeTextPoint ?? {x: 0, y: 0};
+  if (splitGeom.value) {
+    return {
+      x: splitGeom.value.apex.x + relTextPoint.x,
+      y: splitGeom.value.apex.y + relTextPoint.y,
+    };
+  }
   if (jianpuGeom.value) {
     const g = jianpuGeom.value;
     const relText = geom.value.slur?.relativeTextPoint ?? {x: 0, y: 0};
@@ -86,12 +115,12 @@ const textPos = computed(() => {
   <g>
     <!-- 简谱：两端圆弧 + 中间横线，圆角端点 -->
     <path
-      v-if="jianpuGeom"
+      v-if="strokeWidth != null"
       :key="pathD"
       :d="pathD"
       fill="none"
       :stroke="fillColor"
-      :stroke-width="jianpuGeom.thickness"
+      :stroke-width="strokeWidth"
       stroke-linecap="round"
       stroke-linejoin="round"
     />

@@ -1,10 +1,12 @@
-import type {VDom} from '@deciphony/renderer'
+import type {VDom, VDomLookup} from '@deciphony/renderer'
 import {NOTE_PART_TAGS, PLAY_HIGHLIGHT_CLASS} from './constants'
 
 export type PlayHighlightTarget = VDom | string
 
 export type PlayHighlightDeps = {
     getVDomList: () => readonly VDom[]
+    /** 有索引时按 targetId 直接取，不扫整表 */
+    getVDomLookup?: () => VDomLookup | null
     findElementByVDom: (node: VDom) => SVGElement | null
 }
 
@@ -13,8 +15,10 @@ function normalizeNoteId(target: PlayHighlightTarget): string | null {
     return target.targetId?.trim() || null
 }
 
-function findNotePartVDoms(vDomList: readonly VDom[], noteId: string): VDom[] {
-    return vDomList.filter((node) => node.targetId === noteId && NOTE_PART_TAGS.has(node.tag))
+function findNotePartVDoms(deps: PlayHighlightDeps, noteId: string): VDom[] {
+    const lookup = deps.getVDomLookup?.()
+    const candidates = lookup ? lookup.byTargetId(noteId) : deps.getVDomList()
+    return candidates.filter((node) => node.targetId === noteId && NOTE_PART_TAGS.has(node.tag))
 }
 
 function applyHighlight(el: SVGElement) {
@@ -35,7 +39,7 @@ export function createPlayHighlight(deps: PlayHighlightDeps) {
     const highlightedByNoteId = new Map<string, Set<SVGElement>>()
 
     function applyHighlightForNoteId(noteId: string) {
-        const vdoms = findNotePartVDoms(deps.getVDomList(), noteId)
+        const vdoms = findNotePartVDoms(deps, noteId)
         const els = new Set<SVGElement>()
         for (const vdom of vdoms) {
             const el = deps.findElementByVDom(vdom)
@@ -102,6 +106,6 @@ export function createPlayHighlight(deps: PlayHighlightDeps) {
         addNoteHighlight,
         removeNoteHighlight,
         rebindAfterRender,
-        findNotePartVDoms: (noteId: string) => findNotePartVDoms(deps.getVDomList(), noteId),
+        findNotePartVDoms: (noteId: string) => findNotePartVDoms(deps, noteId),
     }
 }

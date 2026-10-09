@@ -17,7 +17,12 @@ function unzipAsync(data: Uint8Array): Promise<Record<string, Uint8Array>> {
   })
 }
 
-function zipAsync(files: Record<string, Uint8Array>): Promise<Uint8Array> {
+type ZipInput = Record<string, Uint8Array | [Uint8Array, {level: 0}]>
+
+/** 图片 / 音视频本身已压缩，deflate 几乎不省空间却很耗时（50MB 视频约 0.6s+），直接存储 */
+const STORED_MIME = /^(image\/(png|jpeg|gif|webp)|audio\/|video\/)/
+
+function zipAsync(files: ZipInput): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     zip(files, (err, result) => {
       if (err) reject(err)
@@ -101,14 +106,16 @@ export async function buildSjwBlob(data: SJW, assets: AssetMap): Promise<Blob> {
   }
   const payload: SJW = {...data, assetNames}
 
-  const files: Record<string, Uint8Array> = {
+  const files: ZipInput = {
     [WORK_JSON]: strToU8(JSON.stringify(payload)),
   }
 
   for (const [id, rec] of assets) {
     const key = basename(id)
     if (!key || key === WORK_JSON) continue
-    files[key] = toU8(await rec.file.arrayBuffer())
+    const bytes = toU8(await rec.file.arrayBuffer())
+    const mime = rec.file.type || guessMime(rec.name || key)
+    files[key] = STORED_MIME.test(mime) ? [bytes, {level: 0}] : bytes
   }
 
   const zipped = await zipAsync(files)

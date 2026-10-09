@@ -21,6 +21,15 @@ function isPointEqual(
   return a.x === b.x && a.y === b.y
 }
 
+function isExtentEqual(
+  a: VDom['numberNotationExtent'],
+  b: VDom['numberNotationExtent'],
+): boolean {
+  if (a === b) return true
+  if (!a || !b) return !a && !b
+  return a.top === b.top && a.bottom === b.bottom && a.left === b.left && a.right === b.right
+}
+
 /** 比较影响 Group / 附属组件绘制的字段 */
 export function isVDomRenderEqual(a: VDom, b: VDom): boolean {
   return (
@@ -37,6 +46,8 @@ export function isVDomRenderEqual(a: VDom, b: VDom): boolean {
     a.dataComment === b.dataComment &&
     isPointEqual(a.startPoint, b.startPoint) &&
     isPointEqual(a.endPoint, b.endPoint) &&
+    // 简谱八度点/减时线包围盒：连音线等附属锚点读此字段，不可复用旧节点
+    isExtentEqual(a.numberNotationExtent, b.numberNotationExtent) &&
     JSON.stringify(a.special ?? {}) === JSON.stringify(b.special ?? {})
   )
 }

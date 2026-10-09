@@ -7,11 +7,14 @@ import {
     setNotesInfoRegion,
 } from './renderEditSymbolAddAction'
 
-/** 当前选中项是否为「音符头选中」模式 */
+/** 当前选中项是否为「五线/鼓音符头选中」模式（排除简谱 NotesNumberInfo） */
 export function isNoteHeadSelected(
     selected: SlotData | null,
 ): selected is SlotData & { info: NotesInfo; note: NoteSymbol; measure: Measure } {
-    return selected?.info != null && selected.self === selected.info && selected.note != null && selected.measure != null
+    const info = selected?.info
+    if (!info || selected.self !== info || !selected.note || !selected.measure) return false
+    // NotesInfo 有 region；简谱 NotesNumberInfo 有 syllable，不能走五线属性栏
+    return 'region' in info
 }
 
 export type NoteHeadDragSession = {

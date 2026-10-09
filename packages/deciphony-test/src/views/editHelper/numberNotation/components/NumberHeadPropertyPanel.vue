@@ -56,7 +56,6 @@ const augmentationDot = computed({
   get: (): 0 | 1 | 2 | 3 => notesInfo.value.augmentationDot?.count ?? 0,
   set: (v: 0 | 1 | 2 | 3) => setNotesNumberInfoAugmentationDot(notesInfo.value, v),
 })
-
 function onAddSlur(span: SlurSpan) {
   tryAddSlurFromNumberHead(props.editSlot, span)
 }

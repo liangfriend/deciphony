@@ -11,4 +11,6 @@ export type DrTitleOptions = {
   paddingLeft?: number
   /** 右侧内缩（px），默认 0 */
   paddingRight?: number
+  /** 字体族；未传则沿用宿主 / 浏览器默认 */
+  fontFamily?: MaybeRef<string | undefined>
 }

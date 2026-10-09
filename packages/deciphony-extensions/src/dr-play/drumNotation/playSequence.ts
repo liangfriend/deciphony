@@ -7,7 +7,7 @@ import {
 } from '@deciphony/renderer'
 import type {DrumNote, DrumNotesInfo, DrumRest, Measure, MeasureNoteSlot, MusicScore} from '@deciphony/renderer'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../../scoreUtil'
-import {applySlurTieRealDuration, pushPitchItem} from '../playCommon'
+import {applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 import {
@@ -93,16 +93,23 @@ function appendVoice(
     const lead = body.notesInfo[0]
     if (!lead) continue
     const duration = getDuration(lead.chronaxie, lead.augmentationDot?.count ?? 0)
-    for (const info of body.notesInfo) {
+    const push = (info: DrumNotesInfo, at: Unit256, itemDuration: Unit256) => {
       const entry = drumMap[drumPlayMapKey(info.region, info.headType)]
       pushPitchItem(seq, noteStaveIndex, staveIndex, {
         note_id: info.id,
         midi: entry?.midi ?? 0,
-        duration,
-        playTime,
+        duration: itemDuration,
+        playTime: at,
         volume: notesInfoVolume(info, entry?.volume ?? 1),
       })
     }
+    // 前倚音 index0 最靠主音：按视觉左→右（倒序）依次占用主音之前的时间
+    const before = [...(body.graceNotes ?? [])].reverse()
+    before.forEach((g, i) => push(g, playTime - (before.length - i) * GRACE_PLAY_DURATION, GRACE_PLAY_DURATION))
+    for (const info of body.notesInfo) push(info, playTime, duration)
+    const after = body.graceNotesAfter ?? []
+    const steal = Math.min(duration, after.length * GRACE_PLAY_DURATION)
+    after.forEach((g, i) => push(g, playTime + duration - steal + i * GRACE_PLAY_DURATION, GRACE_PLAY_DURATION))
     playTime += duration
   }
   return playTime - measureStart

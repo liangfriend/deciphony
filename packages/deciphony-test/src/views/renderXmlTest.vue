@@ -3,7 +3,7 @@ import musicScoreVue from '@deciphony/renderer'
 import type {MusicScore} from '@deciphony/renderer'
 import {reactive, ref} from 'vue'
 import initialData from './data/其多列'
-import {getXmlJson, musicScoreToXml, xmlToMusicScore} from '@deciphony/extensions/dr-musicxml-transfer'
+import {musicScoreToXml, musicXmlFileToMusicScore} from '@deciphony/extensions/dr-musicxml-transfer'
 
 const musicScoreData = reactive(JSON.parse(JSON.stringify(initialData)) as MusicScore)
 
@@ -12,6 +12,7 @@ const selectedFileName = ref('')
 const statusMessage = ref('')
 const statusType = ref<'info' | 'success' | 'error'>('info')
 const exportedXmlPreview = ref('')
+const importWarnings = ref<string[]>([])
 const isBusy = ref(false)
 
 function setStatus(message: string, type: 'info' | 'success' | 'error' = 'info') {
@@ -43,19 +44,17 @@ async function handleFileChange(event: Event) {
 
   selectedFileName.value = file.name
   exportedXmlPreview.value = ''
+  importWarnings.value = []
   isBusy.value = true
   setStatus(`正在解析 ${file.name}…`)
 
   try {
-    const xmlJson = await getXmlJson(file)
-    if (!xmlJson) {
-      setStatus('未读取到 XML 内容', 'error')
-      return
-    }
-    const score = xmlToMusicScore(xmlJson)
+    const {musicScore: score, warnings} = await musicXmlFileToMusicScore(file)
+    importWarnings.value = warnings
     musicScoreData.grandStaffs = score.grandStaffs
     musicScoreData.affiliatedSymbols = score.affiliatedSymbols
     musicScoreData.title = score.title
+    musicScoreData.subTitle = score.subTitle
     musicScoreData.author = score.author
     musicScoreData.type = score.type
     musicScoreData.width = score.width
@@ -106,13 +105,13 @@ async function handleExportXml() {
 
     <aside class="xml-test__panel">
       <h3 class="xml-test__title">MusicXML 转换</h3>
-      <p class="xml-test__desc">左侧为当前曲谱预览；右侧用于导入 / 导出 MusicXML（转换逻辑待实现）。</p>
+      <p class="xml-test__desc">左侧为当前曲谱预览；右侧用于导入（.xml / .musicxml / .mxl）/ 导出 MusicXML。</p>
 
       <section class="xml-test__section">
         <h4 class="xml-test__section-title">导入 MusicXML</h4>
         <input
             ref="fileInputRef"
-            accept=".xml,.musicxml,text/xml,application/xml"
+            accept=".xml,.musicxml,.mxl,text/xml,application/xml"
             class="xml-test__file-input"
             type="file"
             @change="handleFileChange"
@@ -147,6 +146,13 @@ async function handleExportXml() {
       >
         {{ statusMessage }}
       </p>
+
+      <section v-if="importWarnings.length" class="xml-test__section">
+        <h4 class="xml-test__section-title">导入提示</h4>
+        <ul class="xml-test__warnings">
+          <li v-for="(w, i) in importWarnings" :key="i">{{ w }}</li>
+        </ul>
+      </section>
 
       <section v-if="exportedXmlPreview" class="xml-test__section">
         <h4 class="xml-test__section-title">导出预览</h4>
@@ -269,6 +275,14 @@ async function handleExportXml() {
 .xml-test__status--error {
   background: #fef0f0;
   color: #f56c6c;
+}
+
+.xml-test__warnings {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #b88230;
 }
 
 .xml-test__preview {

@@ -65,10 +65,10 @@ function collectNumberSlotAnchors(vDomList: VDom[], measure: Measure, measureX: 
   for (let noteIndex = 0; noteIndex < getMeasureNoteList(measure).length; noteIndex++) {
     const slot = getMeasureNoteList(measure)[noteIndex]!
     if (!isNoteNumberSlot(slot)) continue
-    const body = slotSymbol(slot)
+    const body = slotSymbol(slot) as NoteNumber
     const id = isSlotRestLike(slot) ? slot.id : body.notesInfo[0]?.id
     if (!id) continue
-    const tag = isSlotRestLike(slot) ? 'rest' : 'noteHead'
+    const tag = isSlotRestLike(slot) ? 'rest' : 'noteNumber'
     const vdom = vDomList.find((node) => node.targetId === id && node.tag === tag)
     if (vdom) {
       anchors.push({

@@ -1,24 +1,43 @@
-import {isNoteRest, isNoteSymbol, MusicScoreTypeEnum, NoteSymbolTypeEnum, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
+import {isFretboardScoreType, isNoteRest, isNoteSymbol, slotSymbol, getMeasureSlots, TabNoteInfoTypeEnum} from '@deciphony/renderer'
 import type {Measure, MeasureNoteSlot, MusicScore, TabNote, TabNoteInfo, tabChord} from '@deciphony/renderer'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../../scoreUtil'
 import {applyPitchOctaveOffset, applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
+import {TONE_VARIANT_HARMONIC} from '../toneColor'
 import type {DR_playSequence, Unit256} from '../types'
 import {getDuration} from '../types'
 import {
-  GUITAR_OPEN_MIDI,
-  UKULELE_OPEN_MIDI,
   isChordSymbol,
-  resolveTabStringMidi,
+  openMidiForFretInstrument,
+  resolveOpenMidiForScoreType,
+  resolveStringMidi,
   type ChordShape,
+  type FretInstrument,
 } from './pitch'
 
-type TabPlayState = {
-  /** 沿播放顺序最近一次出现的和弦图；空占位不更新 */
-  chord: ChordShape | null
+export type FretInstrumentPlayOptions = {
+  /**
+   * 整份谱强制空弦表（MIDI）。传入后忽略曲谱 type。
+   * 长度应 ≥ 实际用到的最大 region+1。
+   */
+  openMidi?: readonly number[]
+  /**
+   * 整份谱强制乐器；一般不需要——直接设 MusicScore.type 为 Guitar / Ukulele / Bass4|5|6。
+   * 与 openMidi 同时传时以 openMidi 为准。
+   */
+  instrument?: FretInstrument
 }
 
-function openMidiForScore(type: MusicScore['type']): readonly number[] {
-  return type === MusicScoreTypeEnum.Tab4 ? UKULELE_OPEN_MIDI : GUITAR_OPEN_MIDI
+/** @deprecated 使用 FretInstrumentPlayOptions */
+export type TabPlaySequenceOptions = FretInstrumentPlayOptions & {
+  /** @deprecated 使用 instrument */
+  tabInstrument?: 'guitar' | 'ukulele' | 'bass'
+  /** @deprecated type 已区分贝斯，不再需要 */
+  bassInstrumentValues?: string[]
+}
+
+type FretPlayState = {
+  /** 沿播放顺序最近一次出现的和弦图；空占位不更新 */
+  chord: ChordShape | null
 }
 
 function isTabNote(measureSlot: MeasureNoteSlot): measureSlot is MeasureNoteSlot {
@@ -54,8 +73,24 @@ function regionsOf(info: TabNoteInfo): number[] {
   return [info.region]
 }
 
-function rememberChord(state: TabPlayState, chord: tabChord | null | undefined): void {
+function rememberChord(state: FretPlayState, chord: tabChord | null | undefined): void {
   if (isChordSymbol(chord)) state.chord = chord
+}
+
+function resolveOpenMidi(scoreType: MusicScore['type'], options: TabPlaySequenceOptions): readonly number[] {
+  if (options.openMidi) return options.openMidi
+  if (options.instrument) return openMidiForFretInstrument(options.instrument)
+  if (options.tabInstrument === 'guitar') return openMidiForFretInstrument('guitar')
+  if (options.tabInstrument === 'ukulele') return openMidiForFretInstrument('ukulele')
+  if (options.tabInstrument === 'bass') {
+    // 兼容旧 API：按当前 type 推弦数，否则六弦贝斯
+    return resolveOpenMidiForScoreType(scoreType)
+  }
+  return resolveOpenMidiForScoreType(scoreType)
+}
+
+function toneVariantOf(info: TabNoteInfo): string | undefined {
+  return info.type === TabNoteInfoTypeEnum.Harmonic ? TONE_VARIANT_HARMONIC : undefined
 }
 
 /**
@@ -72,13 +107,14 @@ function appendInfoPitches(
   staveIndex: number,
   noteStaveIndex: Map<string, number>,
 ): void {
+  const toneVariant = toneVariantOf(info)
   const pitches: {region: number; midi: number}[] = []
   for (const region of regionsOf(info)) {
-    const midi = resolveTabStringMidi(openMidi, region, info.value, chord)
+    const midi = resolveStringMidi(openMidi, region, info.value, chord)
     if (midi != null) pitches.push({region, midi})
   }
   if (!pitches.length) {
-    seq.push({note_id: info.id, midi: 0, duration, playTime})
+    seq.push({note_id: info.id, midi: 0, duration, playTime, ...(toneVariant ? {toneVariant} : {})})
     return
   }
   pitches.forEach((pitch, index) => {
@@ -88,6 +124,7 @@ function appendInfoPitches(
       midi: pitch.midi,
       duration,
       playTime,
+      ...(toneVariant ? {toneVariant} : {}),
     })
   })
 }
@@ -113,7 +150,7 @@ function appendTabNote(
   seq: DR_playSequence,
   note: TabNote,
   playTime: Unit256,
-  state: TabPlayState,
+  state: FretPlayState,
   openMidi: readonly number[],
   staveIndex: number,
   noteStaveIndex: Map<string, number>,
@@ -157,7 +194,7 @@ function appendMeasureSequence(
   seq: DR_playSequence,
   measure: Measure,
   measureStart: Unit256,
-  state: TabPlayState,
+  state: FretPlayState,
   openMidi: readonly number[],
   staveIndex: number,
   noteStaveIndex: Map<string, number>,
@@ -179,19 +216,21 @@ function appendMeasureSequence(
 }
 
 /**
- * 吉他谱 / 尤克里里谱 → 可播放序列。
- * 空弦音高按谱种固定。品优先；x 用当前生效和弦图；都没有则空弦。
- * 泛音、拍弦、推弦不改变音高。
+ * 指板类谱（吉他 / 尤克里里 / 贝斯）→ 可播放序列。
+ * 空弦音高由 MusicScore.type 决定；options.openMidi / instrument 可覆盖。
  */
-export function getTabPlaySequence(musicScoreData: MusicScore): DR_playSequence {
-  const openMidi = openMidiForScore(musicScoreData.type)
+export function getFretInstrumentPlaySequence(
+  musicScoreData: MusicScore,
+  options: TabPlaySequenceOptions = {},
+): DR_playSequence {
+  const openMidi = resolveOpenMidi(musicScoreData.type, options)
   const measurePositions = getMeasurePositions(musicScoreData)
   const playMeasureIndexes = getPlayMeasureIndexes(musicScoreData)
 
   const seq: DR_playSequence = []
   const noteStaveIndex = new Map<string, number>()
   const maxStaves = Math.max(0, ...musicScoreData.grandStaffs.map((gs) => gs.staves.length))
-  const staveStates: TabPlayState[] = Array.from({length: maxStaves}, () => ({chord: null}))
+  const staveStates: FretPlayState[] = Array.from({length: maxStaves}, () => ({chord: null}))
   let globalPlayTime: Unit256 = 0
 
   for (const measureIndex of playMeasureIndexes) {
@@ -219,4 +258,29 @@ export function getTabPlaySequence(musicScoreData: MusicScore): DR_playSequence 
   applySlurTieRealDuration(seq, musicScoreData, noteStaveIndex)
   applyPitchOctaveOffset(seq, musicScoreData)
   return seq.sort((a, b) => a.playTime - b.playTime)
+}
+
+export function getGuitarPlaySequence(score: MusicScore, options: FretInstrumentPlayOptions = {}): DR_playSequence {
+  return getFretInstrumentPlaySequence(score, {...options, instrument: options.instrument ?? 'guitar'})
+}
+
+export function getUkulelePlaySequence(score: MusicScore, options: FretInstrumentPlayOptions = {}): DR_playSequence {
+  return getFretInstrumentPlaySequence(score, {...options, instrument: options.instrument ?? 'ukulele'})
+}
+
+/** 贝斯：不传 instrument 时按 score.type（Bass4/5/6）选空弦表 */
+export function getBassPlaySequence(score: MusicScore, options: FretInstrumentPlayOptions = {}): DR_playSequence {
+  return getFretInstrumentPlaySequence(score, options)
+}
+
+/** @deprecated 使用 getFretInstrumentPlaySequence / getGuitarPlaySequence 等 */
+export function getTabPlaySequence(
+  musicScoreData: MusicScore,
+  options: TabPlaySequenceOptions = {},
+): DR_playSequence {
+  return getFretInstrumentPlaySequence(musicScoreData, options)
+}
+
+export function isFretboardMusicScore(score: MusicScore): boolean {
+  return isFretboardScoreType(score.type)
 }

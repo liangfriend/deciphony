@@ -12,6 +12,8 @@ export default defineConfig({
       entryRoot: 'src',
       cleanVueFileName: true,
       copyDtsFiles: true,
+      // 兄弟包在声明里保留包名，否则会被改写成 monorepo 源码相对路径，发布后消费方找不到类型
+      aliasesExclude: [/^@deciphony\//],
     }),
   ],
   resolve: {
@@ -30,13 +32,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: [
-        'vue',
-        '@deciphony/renderer',
-        '@deciphony/player',
-        '@deciphony/extensions',
-        'fflate',
-      ],
+      external: ['vue', /^@deciphony\//, 'fflate'],
     },
   },
 })

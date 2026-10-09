@@ -14,6 +14,8 @@ export type * from './types/common'
 export type * from './types/extension'
 export {mergeSlotConfig} from './render/mergeSlotConfig'
 export {fanoutExtensionEvent} from './render/fanoutExtensionEvent'
+export {resolveMusicScoreToVDom, resolveNotationToVDom} from './render/resolveNotation'
+export type {MusicScoreToVDomFn} from './render/resolveNotation'
 
 /** 曲谱相关枚举 */
 export * from './enums/musicScoreEnum'
@@ -28,6 +30,11 @@ export {getMeasureNoteList, getMeasureSlots, getMeasureVoices, isMeasureNoteVoic
 
 /** 默认皮肤与 content 模板 */
 export {defaultSkin} from './skins/defaultSkin'
+export {
+  bravuraStandardStaffPartial,
+  bravuraGlyphsByKey,
+  BRAVURA_SKIN_ATTRIBUTION,
+} from './skins/generated/bravuraStandardStaff'
 export {applySkinContentTemplate} from './render/skinContent'
 export {
   getNoteHeadSkinKey,
@@ -55,36 +62,56 @@ export type {MeasureNoteSymbol} from './types/MusicScoreType'
 /** 顶层 svg 事件：由 DOM 命中解析 VDom */
 export {getHitElement, resolveVDomFromEvent} from './render/resolveVDomFromEvent'
 
-/** 简谱连音线几何（两端圆弧 + 中间横线） */
-export {isNumberNotationSlur, numberNotationSlurGeom} from './render/slurGeom'
+/** 连音线几何（默认控制点 / 朝向 / 分段 / 简谱两端圆弧 + 中间横线） */
+export {
+    isNumberNotationSlur,
+    isSplitSlur,
+    numberNotationSlurGeom,
+    numberNotationSplitSlurGeom,
+    slurBulgeSign,
+    slurDefaultControlPoint,
+    splitSlurBreaks,
+    splitSlurGeom,
+} from './render/slurGeom'
 
 /** Frame / 附属符号 data 到当前 vDom 的即时对照（不跑整谱布局） */
 export {
     arpeggioVDomPatch,
     mirrorArpeggioData,
+    hairpinVDomPatch,
     mirrorBendData,
     mirrorFrame,
+    mirrorHairpinData,
     mirrorPedalData,
     mirrorPitchData,
     mirrorSlurData,
     mirrorStrummingData,
+    mirrorTrillData,
     mirrorVoltaData,
     pedalVDomPatch,
     pitchVDomPatch,
     slurVDomPatch,
     strummingVDomPatch,
+    trillVDomPatch,
 } from './render/liveMirror'
 export type {
     ArpeggioMirror,
     FrameMirror,
+    HairpinMirror,
     PedalMirror,
     PitchMirror,
     SlurMirror,
     StrummingMirror,
+    TrillMirror,
     VoltaMirror,
 } from './render/liveMirror'
 
 export {assignVDomPatch, patchVDomByTargetId} from './render/update'
+
+/** targetId → vDom 索引；插槽组件 inject DR_ROW_VDOMS_KEY 拿所在复谱表的节点 */
+export {createVDomLookup, VDomIndex} from './render/vdomIndex'
+export type {VDomLookup} from './render/vdomIndex'
+export {DR_ROW_VDOMS_KEY} from './render/incremental/layerContext'
 
 /** VDom 顶层 g 的语义键 / DOM id 与查找 */
 export {

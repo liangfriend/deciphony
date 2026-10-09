@@ -4,8 +4,10 @@ import SJWPDF, {
   Page,
   type ElementContextMenuItem,
   type ElementContextMenuPayload,
+  type ScoreRangeChangePayload,
   type SJW,
   type SjwMode,
+  type SjwSelection,
 } from '@deciphony/work'
 import {computed, nextTick, onMounted, reactive, ref} from 'vue'
 import mockSjw from './data/mockSjw'
@@ -115,7 +117,8 @@ function selectPage(index: number) {
 
 function toggleMode() {
   mode.value = mode.value === 'edit' ? 'show' : 'edit'
-  status.value = `已切换为${mode.value === 'edit' ? '编辑' : '展示'}模式`
+  pdfRef.value?.endDraw()
+  status.value = `已切换为${mode.value === 'edit' ? '编辑' : '展示'}模式（mode=${mode.value}）`
 }
 
 function onPageSizeInput(field: 'width' | 'height', ev: Event) {
@@ -384,6 +387,53 @@ async function handlePlayVocal() {
   }
 }
 
+const rangeSelecting = ref(false)
+
+function toggleRangeSelect() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  if (rangeSelecting.value) {
+    pdf.endRangeSelect()
+    rangeSelecting.value = false
+    status.value = '已结束选段'
+    return
+  }
+  const score = pdf.getPage()?.scores?.[0]
+  if (!score) {
+    status.value = '当前页没有曲谱'
+    return
+  }
+  pdf.startRangeSelect(score.id)
+  rangeSelecting.value = true
+  status.value = '选段中：点音符设起点，再点设终点，第三次重设起点'
+}
+
+function onSelectionChange(sel: SjwSelection) {
+  status.value = !sel
+    ? '未选中'
+    : sel.kind === 'score'
+      ? `选中曲谱 ${sel.score.id}`
+      : `选中${sel.element.type} ${sel.element.id}`
+}
+
+function onRangeChange(payload: ScoreRangeChangePayload) {
+  const short = (id: string | null) => (id ? id.slice(0, 8) : '—')
+  status.value = `选段 scores[${payload.scoreIndex}]：起点 ${short(payload.startNoteId)}，终点 ${short(payload.endNoteId)}`
+}
+
+async function handlePlayRange() {
+  const pdf = pdfRef.value
+  const range = pdf?.getRangeSelect()
+  if (!pdf || !range) return
+  const scoreIndex = pdf.getPage()?.scores?.findIndex((s) => s.id === range.scoreId) ?? 0
+  try {
+    await pdf.play(scoreIndex, {range})
+    status.value = '选段播放'
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
 function handlePause() {
   pdfRef.value?.pause()
   status.value = '已暂停'
@@ -425,6 +475,72 @@ async function exportDemo() {
   status.value = '已导出 .sjw'
 }
 
+async function exportImagesDemo() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  const blob = await pdf.exportImages({
+    filename: `${data.name || 'courseware'}-图片`,
+    onProgress: (done: number, total: number) => (status.value = `导出图片 ${done}/${total}`),
+  })
+  status.value = `已导出图片 zip（${(blob.size / 1024).toFixed(0)} KB）`
+}
+
+async function exportPdfDemo() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  const blob = await pdf.exportPdf({
+    filename: data.name || 'courseware',
+    onProgress: (done: number, total: number) => (status.value = `导出 PDF ${done}/${total}`),
+  })
+  status.value = `已导出 PDF（${(blob.size / 1024).toFixed(0)} KB）`
+}
+
+/** 当前页最后一张图片裁左上 1/4，最后一份曲谱裁上半 */
+async function cropDemo() {
+  const pdf = pdfRef.value
+  const page = pdf?.getPage()
+  if (!pdf || !page) return
+  const img = [...(page.elements ?? [])].reverse().find((e) => e.type === 'image')
+  const score = page.scores?.[page.scores.length - 1]
+  const done: string[] = []
+  if (img && img.type === 'image') {
+    const w = img.naturalWidth ?? img.width
+    const h = img.naturalHeight ?? img.height
+    const rect = await pdf.cropImage(img.id, {startX: 0, startY: 0, endX: w / 2, endY: h / 2})
+    done.push(`图片 ${JSON.stringify(rect)}`)
+  }
+  if (score) {
+    const {width, height} = score.musicScore
+    const rect = pdf.cropScore(score.id, {startX: 0, startY: 0, endX: width, endY: height / 2})
+    done.push(`曲谱 ${JSON.stringify(rect)}`)
+  }
+  status.value = done.length ? `已裁剪：${done.join('；')}` : '当前页没有图片或曲谱'
+}
+
+function clearCropDemo() {
+  const pdf = pdfRef.value
+  const page = pdf?.getPage()
+  if (!pdf || !page) return
+  const ids = [...(page.elements ?? []).filter((e) => e.type === 'image'), ...(page.scores ?? [])].map((e) => e.id)
+  const n = ids.filter((id) => pdf.clearCrop(id)).length
+  status.value = `已取消 ${n} 个裁剪`
+}
+
+async function toggleCropMode() {
+  const pdf = pdfRef.value
+  if (!pdf) return
+  if (pdf.getCropTarget()) {
+    pdf.endCrop()
+    return
+  }
+  try {
+    await pdf.startCrop()
+    status.value = '裁剪模式：拖四角裁剪，Esc / Enter 或点空白退出'
+  } catch (e) {
+    status.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
 async function onImportSjw(ev: Event) {
   const input = ev.target as HTMLInputElement
   const file = input.files?.[0]
@@ -446,9 +562,17 @@ function onLoaded(payload: {data: SJW}) {
 function startDrawSession() {
   const pdf = pdfRef.value
   if (!pdf) return
+  if (mode.value !== 'show' && mode.value !== 'edit') return
   pdf.startDraw()
-  pdf.setTool(DrawToolEnum.Pen, {color: '#222222', lineWidth: 3})
-  status.value = '绘制中：笔'
+  pdf.setTool(DrawToolEnum.Pen, {color: '#e11d48', lineWidth: 3})
+  void nextTick(() => {
+    const ok = pdf.isDrawing()
+    status.value = !ok
+      ? '绘制会话未启动（请检查 mode）'
+      : mode.value === 'show'
+        ? '展示标注中：笔（不保存，应挡住文本拖拽）'
+        : '编辑绘制中：笔'
+  })
 }
 
 function usePen() {
@@ -463,12 +587,13 @@ function useEraser() {
 
 function endDrawSession() {
   pdfRef.value?.endDraw()
-  status.value = '已结束绘制'
+  status.value = mode.value === 'show' ? '已结束展示标注' : '已结束绘制'
 }
 
 function clearPageDrawings() {
   pdfRef.value?.clearDrawings()
-  status.value = '已清空笔迹'
+  status.value =
+    mode.value === 'show' ? '已清空教学标注' : '已清空持久笔迹'
 }
 </script>
 
@@ -488,6 +613,8 @@ function clearPageDrawings() {
         <button :disabled="!toneReady" type="button" @click="handlePlayVocal">范唱播放</button>
         <button type="button" @click="handlePause">暂停</button>
         <button type="button" @click="handleStop">停止</button>
+        <button type="button" @click="toggleRangeSelect">{{ rangeSelecting ? '结束选段' : '开启选段' }}</button>
+        <button :disabled="!toneReady || !rangeSelecting" type="button" @click="handlePlayRange">选段播放</button>
         <button type="button" @click="addDemoImage">添加图片(FromFile)</button>
         <button type="button" @click="addDemoSvg">添加SVG(先load再id)</button>
         <button type="button" @click="addDemoAudio">添加音频(FromFile)</button>
@@ -500,13 +627,24 @@ function clearPageDrawings() {
         <button type="button" @click="setBackgroundByLastId">按上次id设背景</button>
         <button type="button" @click="clearDemoBackground">清背景</button>
         <button type="button" @click="addDemoScore">添加曲谱</button>
-        <button type="button" @click="startDrawSession">开始绘制</button>
+        <button type="button" @click="startDrawSession">
+          {{ mode === 'show' ? '开始标注' : '开始绘制' }}
+        </button>
         <button type="button" @click="usePen">笔</button>
         <button type="button" @click="useEraser">橡皮</button>
-        <button type="button" @click="endDrawSession">结束绘制</button>
-        <button type="button" @click="clearPageDrawings">清空笔迹</button>
+        <button type="button" @click="endDrawSession">
+          {{ mode === 'show' ? '结束标注' : '结束绘制' }}
+        </button>
+        <button type="button" @click="clearPageDrawings">
+          {{ mode === 'show' ? '清空标注' : '清空笔迹' }}
+        </button>
         <button type="button" @click="checkAssets">检测资源引用</button>
         <button type="button" @click="exportDemo">导出 sjw</button>
+        <button type="button" @click="exportImagesDemo">导出图片(zip)</button>
+        <button type="button" @click="exportPdfDemo">导出 PDF</button>
+        <button type="button" @click="cropDemo">裁剪(图片1/4·曲谱上半)</button>
+        <button type="button" @click="clearCropDemo">取消裁剪</button>
+        <button type="button" @click="toggleCropMode">裁剪模式(选中项)</button>
         <label class="work-test__volume">
           音量
           <input
@@ -611,6 +749,8 @@ function clearPageDrawings() {
           :page-index="pageIndex"
           @before-context-menu="onBeforeContextMenu"
           @loaded="onLoaded"
+          @range-change="onRangeChange"
+          @selection-change="onSelectionChange"
         />
       </div>
     </div>

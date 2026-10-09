@@ -3,6 +3,7 @@ import {
     DoubleNoteAffiliatedSymbolRenderRule,
     DoubleSlotAffiliatedSymbolRenderRule,
     type AffiliatedOffsetRule,
+    type NumberNotationAnchor,
     SingleMeasureAffiliatedSymbolRenderRule,
     SingleNoteAffiliatedSymbolRenderRule,
     SingleSlotAffiliatedSymbolRenderRule,
@@ -12,6 +13,7 @@ import type {
     DoubleMeasureAffiliatedSymbol,
     DoubleNoteAffiliatedSymbol,
     DoubleSlotAffiliatedSymbol,
+    GrandStaff,
     Measure,
     MeasureNoteSlot,
     MusicScore,
@@ -23,18 +25,23 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     DoubleSlotAffiliatedSymbolNameEnum,
+    HairpinTypeEnum,
+    isFretboardScoreType,
     MusicScoreTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
     SingleSlotAffiliatedSymbolNameEnum,
+    TrillTypeEnum,
 } from '@/enums/musicScoreEnum';
 import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSkinKeyEnum';
 import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
 import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {NodeIdMap} from '@/standardStaff/render/types';
-import {getMeasureSlots} from '@/utils/measureNotes';
+import {getMeasureSlots, isMeasureNoteVoices} from '@/utils/measureNotes';
 
 const AFFILIATED_Z = 1200;
+/** 反复房子带透明叠底，需压在音符（1200）之下，否则挡住音符头点击；仍高于插槽（1000 / m 1100） */
+const VOLTA_Z = 1150;
 
 export type RenderAffiliatedContext = {
     VDoms: VDom[];
@@ -46,13 +53,23 @@ export type RenderAffiliatedContext = {
     measureHeight?: number;
     /** 解析 slot 附属时需要曲谱树 */
     musicScore?: MusicScore;
+    /** 本次渲染内懒建：音符 id → 所在单谱表 / 符干方向（连音线分段与朝向） */
+    noteIndex?: NoteIndex;
+    /** slot id → 所在小节 + slot；给了就不再遍历曲谱树查找 */
+    slotIndex?: ReadonlyMap<string, LocatedSlot>;
+};
+
+export type NoteIndex = {
+    staffOf: Map<string, string>;
+    /** 符干向上的音符 id；不在表里 = 向下或无符干（吉他谱符干固定向下，简谱无符干） */
+    stemUp: Set<string>;
 };
 
 function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Slur;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
+    if (isFretboardScoreType(notationType)) {
         return Tab6SkinKeyEnum.Slur;
     }
     return StandardStaffSkinKeyEnum.Slur;
@@ -66,7 +83,7 @@ function arpeggioSkinKey(
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Arpeggio;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
+    if (isFretboardScoreType(notationType)) {
         return Tab6SkinKeyEnum.Arpeggio;
     }
     return StandardStaffSkinKeyEnum.Arpeggio;
@@ -76,7 +93,7 @@ function strummingSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Strumming;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
+    if (isFretboardScoreType(notationType)) {
         return Tab6SkinKeyEnum.Strumming;
     }
     return StandardStaffSkinKeyEnum.Strumming;
@@ -86,7 +103,7 @@ function pedalSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Pedal;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
+    if (isFretboardScoreType(notationType)) {
         return Tab6SkinKeyEnum.Pedal;
     }
     return StandardStaffSkinKeyEnum.Pedal;
@@ -97,7 +114,7 @@ function pitchSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
         return NumberNotationSkinKeyEnum.Pedal;
     }
-    if (notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4) {
+    if (isFretboardScoreType(notationType)) {
         return Tab6SkinKeyEnum.Pedal;
     }
     return StandardStaffSkinKeyEnum.Pedal;
@@ -127,15 +144,21 @@ function resolveMeasureHeight(ctx: RenderAffiliatedContext, noteHead: VDom): num
 function resolveMeasureVDomForNote(map: NodeIdMap, noteHead: VDom): VDom | undefined {
     const cx = noteHead.x + noteHead.w / 2;
     const cy = noteHead.y + noteHead.h / 2;
-    let horizontalHit: VDom | undefined;
+    // 加线音符头在五线外：横向命中多行时取纵向最近的小节，不能取第一个
+    let nearest: VDom | undefined;
+    let nearestDist = Infinity;
     for (const entry of map.values()) {
         const m = entry.measure;
         if (!m) continue;
         if (cx < m.x || cx > m.x + m.w) continue;
         if (cy >= m.y && cy <= m.y + m.h) return m;
-        horizontalHit ??= m;
+        const dist = cy < m.y ? m.y - cy : cy - (m.y + m.h);
+        if (dist < nearestDist) {
+            nearestDist = dist;
+            nearest = m;
+        }
     }
-    return horizontalHit;
+    return nearest;
 }
 
 function setNodeIdMap(map: NodeIdMap, id: string, tag: VDomTagType, vdom: VDom): void {
@@ -194,32 +217,104 @@ function resolveNoteHeadByNotesInfoId(map: NodeIdMap, notesInfoId: string): VDom
     return entry.noteHead ?? entry.noteNumber ?? entry.tabNoteNumber ?? entry.rest;
 }
 
-/** 音符附属锚点：相对符头中心（简谱/tab 顶边） */
-function noteAnchorPoint(
-    noteHead: VDom,
-    rule: AffiliatedOffsetRule,
-    measureHeight: number,
-    notationType?: MusicScoreTypeEnum,
-    extraX = 0,
-    extraY = 0,
-) {
-    const {dx, dy} = offsetPx(rule, measureHeight);
-    const useTop = notationType === MusicScoreTypeEnum.NumberNotation
-        || notationType === MusicScoreTypeEnum.Tab6
-        || notationType === MusicScoreTypeEnum.Tab4;
-    const anchorY = useTop
-        ? noteHead.y + dy + extraY
-        : noteHead.y + noteHead.h / 2 + dy + extraY;
+/**
+ * 简谱数字音符包围盒 = 数字框 + 渲染时写在 vDom 上的 numberNotationExtent（八度点 / 减时线 / 变音）。
+ * extent 跟着 vDom 走，增量排版、Frame 平移后仍成立；不要在这里按数据重算布局。
+ */
+function numberNotationNoteBounds(noteHead: VDom) {
+    const e = noteHead.numberNotationExtent;
     return {
-        x: noteHead.x + noteHead.w / 2 + dx + extraX,
-        y: anchorY,
+        left: noteHead.x - (e?.left ?? 0),
+        right: noteHead.x + noteHead.w + (e?.right ?? 0),
+        top: noteHead.y - (e?.top ?? 0),
+        bottom: noteHead.y + noteHead.h + (e?.bottom ?? 0),
     };
 }
 
+type NoteAnchorOptions = {
+    rule: AffiliatedOffsetRule;
+    measureHeight: number;
+    notationType?: MusicScoreTypeEnum;
+    extraX?: number;
+    extraY?: number;
+    /** 简谱边缘锚点；仅 NumberNotation 生效 */
+    numberNotationAnchor?: NumberNotationAnchor;
+    /** bottom/right 时加到锚点上的待绘符号尺寸 */
+    symbolSize?: {w: number; h: number};
+};
+
+/**
+ * 音符附属锚点：默认符头几何中心 + offset。
+ * 简谱若规则带 numberNotationAnchor，则改到数字包围盒对应边（见 NumberNotationAnchor）。
+ * tab 仍用品号顶边（历史行为）。
+ */
+function noteAnchorPoint(noteHead: VDom, opts: NoteAnchorOptions) {
+    const {dx, dy} = offsetPx(opts.rule, opts.measureHeight);
+    const extraX = opts.extraX ?? 0;
+    const extraY = opts.extraY ?? 0;
+    const cx = noteHead.x + noteHead.w / 2;
+    const cy = noteHead.y + noteHead.h / 2;
+
+    if (opts.notationType === MusicScoreTypeEnum.NumberNotation && opts.numberNotationAnchor) {
+        const b = numberNotationNoteBounds(noteHead);
+        const sw = opts.symbolSize?.w ?? 0;
+        const sh = opts.symbolSize?.h ?? 0;
+        switch (opts.numberNotationAnchor) {
+            case 'top':
+                return {x: (b.left + b.right) / 2 + dx + extraX, y: b.top + dy + extraY};
+            case 'bottom':
+                return {x: (b.left + b.right) / 2 + dx + extraX, y: b.bottom + sh + dy + extraY};
+            case 'left':
+                return {x: b.left + dx + extraX, y: (b.top + b.bottom) / 2 + dy + extraY};
+            case 'right':
+                return {x: b.right + sw + dx + extraX, y: (b.top + b.bottom) / 2 + dy + extraY};
+        }
+    }
+
+    if (isFretboardScoreType(opts.notationType)) {
+        return {x: cx + dx + extraX, y: noteHead.y + dy + extraY};
+    }
+
+    return {x: cx + dx + extraX, y: cy + dy + extraY};
+}
+
+/**
+ * 简谱双音符附属：两端需同水平时，按 numberNotationAnchor 对齐基准边
+ * （先去掉各自 relative y，对齐后再加回）。
+ * - top → 取更高一侧（y 更小）
+ * - bottom → 取更低一侧（y 更大）
+ * 跨单谱表分段（split）时不对齐。
+ */
+function levelNumberNotationDoubleAnchors(
+    startPt: {x: number; y: number},
+    endPt: {x: number; y: number},
+    opts: {
+        notationType?: MusicScoreTypeEnum;
+        numberNotationAnchor?: NumberNotationAnchor;
+        relStartY?: number;
+        relEndY?: number;
+        skip?: boolean;
+    },
+): void {
+    if (opts.skip) return;
+    if (opts.notationType !== MusicScoreTypeEnum.NumberNotation) return;
+    const anchor = opts.numberNotationAnchor;
+    if (anchor !== 'top' && anchor !== 'bottom') return;
+    const rs = opts.relStartY ?? 0;
+    const re = opts.relEndY ?? 0;
+    const startBase = startPt.y - rs;
+    const endBase = endPt.y - re;
+    const baseY = anchor === 'top' ? Math.min(startBase, endBase) : Math.max(startBase, endBase);
+    startPt.y = baseY + rs;
+    endPt.y = baseY + re;
+}
+
 function locateSlot(
+    ctx: RenderAffiliatedContext,
     musicScore: MusicScore,
     slotId: string,
-): { measure: Measure; slot: MeasureNoteSlot } | null {
+): LocatedSlot | null {
+    if (ctx.slotIndex) return ctx.slotIndex.get(slotId) ?? null;
     for (const gs of musicScore.grandStaffs) {
         for (const staff of gs.staves) {
             for (const measure of staff.measures) {
@@ -229,6 +324,19 @@ function locateSlot(
         }
     }
     return null;
+}
+
+/** slot id → 所在小节 + slot（全局附属按 id 定位 slot 用） */
+export function buildSlotIndex(grandStaffs: readonly GrandStaff[]): Map<string, LocatedSlot> {
+    const index = new Map<string, LocatedSlot>();
+    for (const gs of grandStaffs) {
+        for (const staff of gs.staves) {
+            for (const measure of staff.measures) {
+                for (const slot of getMeasureSlots(measure)) index.set(slot.id, {measure, slot});
+            }
+        }
+    }
+    return index;
 }
 
 /** 列内可视锚点：符头 / 简谱数字 / tab 数字 / 休止符 */
@@ -253,7 +361,12 @@ function slotStartX(heads: VDom[]): number {
     return Math.min(...heads.map((h) => h.x));
 }
 
-type LocatedSlot = { measure: Measure; slot: MeasureNoteSlot };
+export type LocatedSlot = { measure: Measure; slot: MeasureNoteSlot };
+
+/** slot 附属锚在所属小节上，不随符头 y 变化；仅当小节节点缺失时才按符头几何命中 */
+function resolveSlotMeasureVDom(ctx: RenderAffiliatedContext, located: LocatedSlot, head: VDom): VDom | undefined {
+    return ctx.idMap.get(located.measure.id)?.measure ?? resolveMeasureVDomForNote(ctx.idMap, head);
+}
 
 /**
  * 单 / 双 slot 共用列锚点：x = slot 列起点 + horizontal，y = 小节底 + vertical，再加相对偏移。
@@ -268,8 +381,7 @@ function resolveSlotColumnAnchor(
     if (!heads.length) return null;
     const measureHeight = resolveMeasureHeight(ctx, heads[0]!);
     const {dx, dy} = offsetPx(rule, measureHeight);
-    const measure = resolveMeasureVDomForNote(ctx.idMap, heads[0]!)
-        ?? ctx.idMap.get(located.measure.id)?.measure;
+    const measure = resolveSlotMeasureVDom(ctx, located, heads[0]!);
     const baseY = measure ? measure.y + measure.h : heads[0]!.y + heads[0]!.h;
     return {
         x: slotStartX(heads) + dx + rel.x,
@@ -287,8 +399,62 @@ function resolveDoubleSlotAnchor(
     rule: AffiliatedOffsetRule,
     rel: { x: number; y: number },
 ): { x: number; y: number } | null {
-    const located = locateSlot(musicScore, slotId);
+    const located = locateSlot(ctx, musicScore, slotId);
     return located ? resolveSlotColumnAnchor(ctx, located, rule, rel) : null;
+}
+
+type IndexedNote = {id: string; direction?: 'up' | 'down'};
+
+/**
+ * 音符（含倚音）/ 休止符 id → 所在单谱表 id + 符干方向；曲谱会被原地修改，每次渲染现建。
+ * 符干方向：五线谱看 NotesInfo.direction；鼓谱（上下声部）看所在声部；其余无方向字段视为向下。
+ */
+export function buildNoteIndex(grandStaffs: readonly GrandStaff[]): NoteIndex {
+    const staffOf = new Map<string, string>();
+    const stemUp = new Set<string>();
+    const add = (note: IndexedNote, staffId: string, voiceUp: boolean) => {
+        staffOf.set(note.id, staffId);
+        if (note.direction ? note.direction === 'up' : voiceUp) stemUp.add(note.id);
+    };
+    for (const gs of grandStaffs) {
+        for (const staff of gs.staves) {
+            for (const measure of staff.measures) {
+                const voices = isMeasureNoteVoices(measure.notes) ? measure.notes : null;
+                for (const slot of getMeasureSlots(measure)) {
+                    const voiceUp = voices != null && (voices.up ?? []).includes(slot);
+                    const sym = slot.symbol;
+                    staffOf.set(sym.id, staff.id);
+                    if (!('notesInfo' in sym) || !Array.isArray(sym.notesInfo)) continue;
+                    const {graceNotes, graceNotesAfter} = sym as {graceNotes?: IndexedNote[]; graceNotesAfter?: IndexedNote[]};
+                    for (const n of [...(sym.notesInfo as IndexedNote[]), ...(graceNotes ?? []), ...(graceNotesAfter ?? [])]) {
+                        add(n, staff.id, voiceUp);
+                    }
+                }
+            }
+        }
+    }
+    return {staffOf, stemUp};
+}
+
+function noteIndexOf(ctx: RenderAffiliatedContext): NoteIndex | null {
+    if (!ctx.musicScore) return null;
+    ctx.noteIndex ??= buildNoteIndex(ctx.musicScore.grandStaffs);
+    return ctx.noteIndex;
+}
+
+function isCrossSingleStaff(ctx: RenderAffiliatedContext, startId: string, endId: string): boolean {
+    const index = noteIndexOf(ctx);
+    if (!index) return false;
+    const a = index.staffOf.get(startId);
+    const b = index.staffOf.get(endId);
+    return a != null && b != null && a !== b;
+}
+
+/** 连音线朝向：起止符干都向上 → 向下翻（画在符头下方），否则向上 */
+function resolveSlurDirection(ctx: RenderAffiliatedContext, startId: string, endId: string): 'up' | 'down' {
+    const index = noteIndexOf(ctx);
+    if (!index) return 'up';
+    return index.stemUp.has(startId) && index.stemUp.has(endId) ? 'down' : 'up';
 }
 
 function renderSlur(
@@ -304,12 +470,32 @@ function renderSlur(
     const slurData = sym.data?.slur;
     const relStart = slurData?.relativeStartPoint ?? {x: 0, y: 0};
     const relEnd = slurData?.relativeEndPoint ?? {x: 0, y: 0};
-    const startPt = noteAnchorPoint(
-        startNote, rule.start, measureHeight, ctx.notationType, relStart.x, relStart.y,
-    );
-    const endPt = noteAnchorPoint(
-        endNote, rule.end, measureHeight, ctx.notationType, relEnd.x, relEnd.y,
-    );
+    const startPt = noteAnchorPoint(startNote, {
+        rule: rule.start,
+        measureHeight,
+        notationType: ctx.notationType,
+        extraX: relStart.x,
+        extraY: relStart.y,
+        numberNotationAnchor: rule.numberNotationAnchor,
+    });
+    const endPt = noteAnchorPoint(endNote, {
+        rule: rule.end,
+        measureHeight,
+        notationType: ctx.notationType,
+        extraX: relEnd.x,
+        extraY: relEnd.y,
+        numberNotationAnchor: rule.numberNotationAnchor,
+    });
+    // 起止不在同一单谱表（换行等）：同一个 vDom 由 slur.vue 画成两段，targetId 仍唯一
+    const split = isCrossSingleStaff(ctx, sym.startId, sym.endId);
+    levelNumberNotationDoubleAnchors(startPt, endPt, {
+        notationType: ctx.notationType,
+        numberNotationAnchor: rule.numberNotationAnchor,
+        relStartY: relStart.y,
+        relEndY: relEnd.y,
+        skip: split,
+    });
+    const direction = resolveSlurDirection(ctx, sym.startId, sym.endId);
     const defaultSlur = {
         relativeStartPoint: {x: 0, y: 0},
         relativeEndPoint: {x: 0, y: 0},
@@ -330,7 +516,11 @@ function renderSlur(
         skinKey: slurSkinKey(ctx.notationType),
         dataComment: '连音线',
         special: {
-            slur: slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur,
+            slur: {
+                ...(slurData ? JSON.parse(JSON.stringify(slurData)) : defaultSlur),
+                direction,
+                ...(split ? {split: true, splitGap: measureHeight * 0.6} : {}),
+            },
         },
     };
     ctx.VDoms.push(vdom);
@@ -351,8 +541,7 @@ function renderSlotArpeggio(
     if (rule?.kind !== 'arpeggio') return;
     const heads = resolveSlotHeadVDoms(ctx, located.slot);
     if (heads.length < 1) return;
-    const measure = resolveMeasureVDomForNote(ctx.idMap, heads[0]!)
-        ?? ctx.idMap.get(located.measure.id)?.measure;
+    const measure = resolveSlotMeasureVDom(ctx, located, heads[0]!);
     const measureHeight = resolveMeasureHeight(ctx, heads[0]!);
     const spanY = measure?.h ?? measureHeight;
     const arpData = sym.data?.arpeggio;
@@ -404,8 +593,7 @@ function renderSlotStrumming(
     if (rule?.kind !== 'strumming') return;
     const heads = resolveSlotHeadVDoms(ctx, located.slot);
     if (heads.length < 1) return;
-    const measure = resolveMeasureVDomForNote(ctx.idMap, heads[0]!)
-        ?? ctx.idMap.get(located.measure.id)?.measure;
+    const measure = resolveSlotMeasureVDom(ctx, located, heads[0]!);
     const measureHeight = resolveMeasureHeight(ctx, heads[0]!);
     const spanY = measure?.h ?? measureHeight;
     const strumData = sym.data?.strumming;
@@ -521,6 +709,86 @@ function renderSlotPitch(
     setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
 }
 
+function renderSlotTrill(
+    sym: DoubleSlotAffiliatedSymbol,
+    ctx: RenderAffiliatedContext,
+    musicScore: MusicScore,
+    rule = DoubleSlotAffiliatedSymbolRenderRule[sym.name],
+): void {
+    if (rule?.kind !== 'trill') return;
+    const trillData = sym.data?.trill;
+    const relStart = trillData?.relativeStartPoint ?? {x: 0, y: 0};
+    const relEnd = trillData?.relativeEndPoint ?? {x: 0, y: 0};
+    const startPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.startId, rule.start, relStart);
+    const endPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.endId, rule.end, relEnd);
+    if (!startPt || !endPt) return;
+    const vdom: VDom = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        startPoint: startPt,
+        endPoint: endPt,
+        targetId: sym.id,
+        zIndex: AFFILIATED_Z,
+        tag: 'affiliation',
+        skinName: ctx.skinName ?? 'default',
+        skinKey: pedalSkinKey(ctx.notationType),
+        dataComment: '颤音线',
+        special: {
+            trill: {
+                type: trillData?.type ?? TrillTypeEnum.Trill,
+                relativeStartPoint: {...relStart},
+                relativeEndPoint: {...relEnd},
+            },
+        },
+    };
+    ctx.VDoms.push(vdom);
+    setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
+}
+
+function renderSlotHairpin(
+    sym: DoubleSlotAffiliatedSymbol,
+    ctx: RenderAffiliatedContext,
+    musicScore: MusicScore,
+    rule = DoubleSlotAffiliatedSymbolRenderRule[sym.name],
+): void {
+    if (rule?.kind !== 'hairpin') return;
+    const hairpinData = sym.data?.hairpin;
+    const relStart = hairpinData?.relativeStartPoint ?? {x: 0, y: 0};
+    const relEnd = hairpinData?.relativeEndPoint ?? {x: 0, y: 0};
+    const startPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.startId, rule.start, relStart);
+    const endPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.endId, rule.end, relEnd);
+    if (!startPt || !endPt) return;
+    const type = hairpinData?.type ?? HairpinTypeEnum.Crescendo_hairpin;
+    const crescendo = type === HairpinTypeEnum.Crescendo_hairpin || type === HairpinTypeEnum.Crescendo_line;
+    const vdom: VDom = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        startPoint: startPt,
+        endPoint: endPt,
+        targetId: sym.id,
+        zIndex: AFFILIATED_Z,
+        tag: 'affiliation',
+        skinName: ctx.skinName ?? 'default',
+        skinKey: pedalSkinKey(ctx.notationType),
+        dataComment: crescendo ? '渐强' : '渐弱',
+        special: {
+            hairpin: {
+                thickness: 1.5,
+                type,
+                height: hairpinData?.height ?? 12,
+                relativeStartPoint: {...relStart},
+                relativeEndPoint: {...relEnd},
+            },
+        },
+    };
+    ctx.VDoms.push(vdom);
+    setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
+}
+
 function renderVolta(
     sym: DoubleMeasureAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
@@ -554,7 +822,7 @@ function renderVolta(
         y: baseY + relY,
         w: baseW + relW,
         h: baseH + relH,
-        zIndex: AFFILIATED_Z,
+        zIndex: VOLTA_Z,
         tag: 'affiliation',
         skinName: ctx.skinName ?? 'default',
         skinKey: voltaSkinKey(ctx.notationType),
@@ -577,8 +845,25 @@ function renderDoubleNoteSkin(
     const measureHeight = resolveMeasureHeight(ctx, startNote);
     const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
     if (!size) return;
-    const start = noteAnchorPoint(startNote, rule.start, measureHeight, ctx.notationType);
-    const end = noteAnchorPoint(endNote, rule.end, measureHeight, ctx.notationType);
+    const start = noteAnchorPoint(startNote, {
+        rule: rule.start,
+        measureHeight,
+        notationType: ctx.notationType,
+        numberNotationAnchor: rule.numberNotationAnchor,
+        symbolSize: size,
+    });
+    const end = noteAnchorPoint(endNote, {
+        rule: rule.end,
+        measureHeight,
+        notationType: ctx.notationType,
+        numberNotationAnchor: rule.numberNotationAnchor,
+        symbolSize: size,
+    });
+    levelNumberNotationDoubleAnchors(start, end, {
+        notationType: ctx.notationType,
+        numberNotationAnchor: rule.numberNotationAnchor,
+        skip: isCrossSingleStaff(ctx, sym.startId, sym.endId),
+    });
     const cx = (start.x + end.x) / 2;
     const cy = (start.y + end.y) / 2;
     pushSkinAffiliated(
@@ -605,6 +890,36 @@ function renderDoubleNoteAffiliated(sym: DoubleNoteAffiliatedSymbol, ctx: Render
     }
 }
 
+/**
+ * 单 slot 皮肤类：锚点 = slot 列起点 + offset（× measureHeight），y=小节底 + vertical；
+ * 符号中心对齐锚点（与单音符 skin 一致）。
+ */
+function renderSlotSkin(
+    sym: SingleSlotAffiliatedSymbol,
+    ctx: RenderAffiliatedContext,
+    located: LocatedSlot,
+    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name],
+): void {
+    if (rule?.kind !== 'skin') return;
+    const heads = resolveSlotHeadVDoms(ctx, located.slot);
+    if (!heads.length) return;
+    const measureHeight = resolveMeasureHeight(ctx, heads[0]!);
+    const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
+    if (!size) return;
+    const anchor = resolveSlotColumnAnchor(ctx, located, rule.offset, {x: 0, y: 0});
+    if (!anchor) return;
+    pushSkinAffiliated(
+        ctx,
+        sym.id,
+        rule.skinKey ?? String(sym.name),
+        anchor.x - size.w / 2,
+        anchor.y - size.h / 2,
+        size.w,
+        size.h,
+        String(sym.name),
+    );
+}
+
 function renderSingleSlotAffiliated(
     sym: SingleSlotAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
@@ -618,6 +933,10 @@ function renderSingleSlotAffiliated(
     }
     if (rule.kind === 'strumming') {
         renderSlotStrumming(sym, ctx, located, rule);
+        return;
+    }
+    if (rule.kind === 'skin') {
+        renderSlotSkin(sym, ctx, located, rule);
     }
 }
 
@@ -634,6 +953,14 @@ function renderDoubleSlotAffiliated(
     }
     if (rule.kind === 'pitch') {
         renderSlotPitch(sym, ctx, musicScore, rule);
+        return;
+    }
+    if (rule.kind === 'trill') {
+        renderSlotTrill(sym, ctx, musicScore, rule);
+        return;
+    }
+    if (rule.kind === 'hairpin') {
+        renderSlotHairpin(sym, ctx, musicScore, rule);
     }
 }
 
@@ -647,6 +974,12 @@ function renderDoubleMeasureAffiliated(sym: DoubleMeasureAffiliatedSymbol, ctx: 
 
 /** musicScore.affiliatedSymbols（双音符 / 双小节 / 双 slot）+ 各 slot.affiliatedSymbols（单 slot） */
 export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAffiliatedContext): void {
+    renderScoreLevelAffiliatedSymbols(musicScore, ctx);
+    renderSlotLevelAffiliatedSymbols(musicScore, ctx);
+}
+
+/** 只画 musicScore.affiliatedSymbols（可能跨复谱表，增量排版里放全局层） */
+export function renderScoreLevelAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAffiliatedContext): void {
     const fullCtx = {...ctx, musicScore};
     for (const sym of musicScore.affiliatedSymbols ?? []) {
         const measureRule = DoubleMeasureAffiliatedSymbolRenderRule[sym.name as DoubleMeasureAffiliatedSymbolNameEnum];
@@ -660,10 +993,15 @@ export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: R
             continue;
         }
         const doubleSlotRule = DoubleSlotAffiliatedSymbolRenderRule[sym.name as DoubleSlotAffiliatedSymbolNameEnum];
-        if (doubleSlotRule && 'startId' in sym && locateSlot(musicScore, sym.startId)) {
+        if (doubleSlotRule && 'startId' in sym && locateSlot(fullCtx, musicScore, sym.startId)) {
             renderDoubleSlotAffiliated(sym as DoubleSlotAffiliatedSymbol, fullCtx, musicScore);
         }
     }
+}
+
+/** 各 slot.affiliatedSymbols（单 slot，不跨行） */
+function renderSlotLevelAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAffiliatedContext): void {
+    const fullCtx = {...ctx, musicScore};
     for (const gs of musicScore.grandStaffs) {
         for (const staff of gs.staves) {
             for (const measure of staff.measures) {
@@ -691,7 +1029,13 @@ export function renderSingleNoteAffiliatedSymbols(
         if (rule.kind !== 'skin') continue;
         const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
         if (!size) continue;
-        const anchor = noteAnchorPoint(noteHead, rule, measureHeight, ctx.notationType);
+        const anchor = noteAnchorPoint(noteHead, {
+            rule,
+            measureHeight,
+            notationType: ctx.notationType,
+            numberNotationAnchor: rule.numberNotationAnchor,
+            symbolSize: size,
+        });
         pushSkinAffiliated(
             ctx,
             sym.id,

@@ -33,6 +33,9 @@ export function fifthsToKey(sf: number): KeySignatureTypeEnum {
 }
 
 export const DEFAULT_PROGRAM: Partial<Record<MusicScoreTypeEnum, number>> = {
-  [MusicScoreTypeEnum.Tab6]: 25,
-  [MusicScoreTypeEnum.Tab4]: 24,
+  [MusicScoreTypeEnum.Guitar]: 25,
+  [MusicScoreTypeEnum.Ukulele]: 24,
+  [MusicScoreTypeEnum.Bass4]: 33,
+  [MusicScoreTypeEnum.Bass5]: 33,
+  [MusicScoreTypeEnum.Bass6]: 33,
 }

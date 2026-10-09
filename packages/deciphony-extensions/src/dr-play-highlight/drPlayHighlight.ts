@@ -1,4 +1,4 @@
-import type {DrExtension, VDom} from '@deciphony/renderer'
+import type {DrExtension, VDom, VDomLookup} from '@deciphony/renderer'
 import {findElementByVdomDomId} from '@deciphony/renderer'
 import {createPlayHighlight} from './playHighlight'
 import {
@@ -46,6 +46,7 @@ export type DrPlayHighlightExtension = DrExtension & {
  */
 export function drPlayHighlight(options: DrPlayHighlightOptions = {}): DrPlayHighlightExtension {
   let vDomList: VDom[] = []
+  let lookup: VDomLookup | null = null
 
   function resolveElement(node: VDom): SVGElement | null {
     if (options.findElementByVDom) return options.findElementByVDom(node)
@@ -55,6 +56,7 @@ export function drPlayHighlight(options: DrPlayHighlightOptions = {}): DrPlayHig
 
   const playHighlight = createPlayHighlight({
     getVDomList: () => vDomList,
+    getVDomLookup: () => lookup,
     findElementByVDom: resolveElement,
   })
 
@@ -70,8 +72,9 @@ export function drPlayHighlight(options: DrPlayHighlightOptions = {}): DrPlayHig
   return {
     name: 'dr-play-highlight',
     on: {
-      renderMusicScore(list) {
+      renderMusicScore(list, info) {
         vDomList = list
+        lookup = info?.lookup ?? null
         playHighlight.rebindAfterRender()
       },
     },

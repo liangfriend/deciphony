@@ -7,19 +7,12 @@ import type {NodeIdMap} from '../types';
 import {
   TAB_6_STEM_END_OFFSET_RATIO,
   TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL,
+  TAB_6_STEM_EXTRA_PER_FLAG_RATIO,
+  TAB_6_STEM_FLAG_CLEARANCE_RATIO,
   TAB_6_STEM_START_OFFSET_RATIO,
 } from '../constants';
-import {getNoteTailSkinKey} from '../utils/skinKey';
+import {chronaxieToBeamLineCount, getNoteTailSkinKey} from '../utils/skinKey';
 import {GRACE_NOTE_SCALE} from '@/render/graceNote';
-
-/** 符尾相对符干底端的 y 微调（向下符干） */
-function getNoteTailYOffset(chronaxie: number, measureHeight: number): number {
-  if (chronaxie === 8) return measureHeight / 8;
-  if (chronaxie === 4) return measureHeight * 2 / 8;
-  if (chronaxie === 2) return measureHeight * 3 / 8;
-  if (chronaxie === 1) return measureHeight * 4 / 8;
-  return 0;
-}
 
 export type RenderTab6StemAndTailParams = {
   note: TabNote;
@@ -68,10 +61,23 @@ function renderStemFromHeadAnchor(params: {
 
   const stemStartY = headCenterY + TAB_6_STEM_START_OFFSET_RATIO * measureHeight;
   const hasTail = chronaxie <= 32;
-  const stemEndOffsetRatio = hasTail
+  const tailKey = hasTail ? getNoteTailSkinKey(chronaxie, 'down') : undefined;
+  const tailSkin = tailKey ? skin[tailKey] : undefined;
+  let stemEndOffsetRatio = hasTail
     ? TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL
     : TAB_6_STEM_END_OFFSET_RATIO;
-  const stemEndY = measureY + measureHeight + stemEndOffsetRatio * measureHeight;
+  if (hasTail) {
+    const flagCount = chronaxieToBeamLineCount(chronaxie);
+    if (flagCount > 1) {
+      stemEndOffsetRatio += (flagCount - 1) * TAB_6_STEM_EXTRA_PER_FLAG_RATIO;
+    }
+  }
+  let stemEndY = measureY + measureHeight + stemEndOffsetRatio * measureHeight;
+  if (tailSkin) {
+    const scale = isGrace ? GRACE_NOTE_SCALE : 1;
+    const minEnd = stemStartY + tailSkin.h * scale + TAB_6_STEM_FLAG_CLEARANCE_RATIO * measureHeight;
+    if (minEnd > stemEndY) stemEndY = minEnd;
+  }
   const stemW = stemSkin.w * (isGrace ? GRACE_NOTE_SCALE : 1);
   const stemX = headCenterX - stemW / 2;
   const stemH = Math.max(0, stemEndY - stemStartY);
@@ -92,17 +98,13 @@ function renderStemFromHeadAnchor(params: {
     dataComment: isGrace ? '倚音符干' : '符干',
   });
 
-  if (hasTail) {
-    const tailKey = getNoteTailSkinKey(chronaxie, 'down');
-    const tailSkin = skin[tailKey];
-    if (tailSkin) {
-      const noteTailYOffset = getNoteTailYOffset(chronaxie, measureHeight);
+  if (tailKey && tailSkin) {
       out.push({
         startPoint: {x: 0, y: 0},
         endPoint: {x: 0, y: 0},
         special: {},
         x: stemX,
-        y: stemEndY - tailSkin.h + noteTailYOffset,
+        y: stemEndY - tailSkin.h,
         w: tailSkin.w,
         h: tailSkin.h,
         zIndex,
@@ -113,7 +115,6 @@ function renderStemFromHeadAnchor(params: {
         dataComment: isGrace ? '倚音符尾' : '符尾',
         ...(isGrace ? {scale: GRACE_NOTE_SCALE} : {}),
       });
-    }
   }
   return out;
 }

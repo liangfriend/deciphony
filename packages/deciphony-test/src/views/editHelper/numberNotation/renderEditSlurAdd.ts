@@ -1,6 +1,7 @@
 import {slotSymbol} from '@deciphony/renderer'
-import type {Measure, MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from '@deciphony/renderer'
+import type {MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from '@deciphony/renderer'
 import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
+import {locateNotesNumberInfoById} from '@deciphony/extensions/dr-edit/score-builder/locate'
 import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import type {NumberHeadEditSlot} from './renderEditNumberHeadProperties'
 import {getMeasureNoteList} from '@deciphony/renderer'
@@ -64,19 +65,24 @@ function resolveNumberHeadAnchor(
   voiceIndex: number
   startInfo: NotesNumberInfo
 } | null {
-  const {singleStaff, measure, note, info} = editSlot
-  if (!singleStaff || !measure || !note || !info) return null
+  const info = editSlot.info
+  if (!info?.id) return null
 
-  const measureIndex = singleStaff.measures.indexOf(measure as Measure)
-  if (measureIndex < 0) return null
+  // 用 id 定位，避免 Vue proxy / 引用不相等导致 indexOf 失败
+  const located = locateNotesNumberInfoById(editSlot.musicScore, info.id)
+  if (!located) return null
 
-  const noteIndex = getMeasureNoteList(measure).findIndex((s) => slotSymbol(s) === note)
-  if (noteIndex < 0) return null
-
-  const voiceIndex = note.notesInfo.indexOf(info)
+  // 倚音不做跨度连音线起点（只连主音符）
+  const voiceIndex = located.note.notesInfo.findIndex((ni) => ni.id === info.id)
   if (voiceIndex < 0) return null
 
-  return {singleStaff, measureIndex, noteIndex, voiceIndex, startInfo: info}
+  return {
+    singleStaff: located.singleStaff,
+    measureIndex: located.measureIndex,
+    noteIndex: located.noteIndex,
+    voiceIndex,
+    startInfo: located.notesNumberInfo,
+  }
 }
 
 export function tryAddSlurFromNumberHead(editSlot: NumberHeadEditSlot, span: SlurSpan): boolean {

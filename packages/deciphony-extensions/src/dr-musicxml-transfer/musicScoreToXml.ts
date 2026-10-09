@@ -17,7 +17,12 @@ import {
 } from '@deciphony/renderer'
 import {getNoteMidi, type AlteredAccidental} from '../scoreUtil'
 import {chronaxieToDuration, createMusicXmlBuilder, midiToPitch} from './xmlBuilder'
-import type {MusicXmlMeasureAttributes} from './xmlBuilder'
+import type {MusicXmlExportTarget, MusicXmlMeasureAttributes} from './xmlBuilder'
+
+export type MusicXmlExportOptions = {
+  /** 默认 ms4（version 4.0）；传 ms3 时 version 写成 3.1，beam 等规则不变 */
+  target?: MusicXmlExportTarget
+}
 
 const DEFAULT_DIVISIONS = 16
 
@@ -151,6 +156,83 @@ function toAlteredAccidental(
   return accidental
 }
 
+/** chronaxie → MusicXML beam number 层数：四分及以上 0，八分 1，十六分 2… */
+function chronaxieBeamLevels(chronaxie: number): number {
+  if (chronaxie >= 64) return 0
+  let levels = 0
+  for (let c = 32; c >= chronaxie && c >= 1; c /= 2) levels++
+  return levels
+}
+
+type BeamNeighbor = {chronaxie: number; beamType: BeamTypeEnum}
+
+/**
+ * OnlyRight / Combined → MusicXML begin / continue / end。
+ * 不同时值连杠时，按自身层数与前后音符层数决定每一层的取值。
+ */
+function resolveBeams(
+  chronaxie: number,
+  beamType: BeamTypeEnum,
+  prev: BeamNeighbor | null,
+  next: BeamNeighbor | null,
+): Array<{number: number; value: string}> {
+  if (beamType === BeamTypeEnum.None) return []
+  const levels = chronaxieBeamLevels(chronaxie)
+  if (levels === 0) return []
+
+  const nextLevelsRaw = next != null ? chronaxieBeamLevels(next.chronaxie) : 0
+  const nextInGroup =
+    next != null &&
+    nextLevelsRaw > 0 &&
+    next.beamType === BeamTypeEnum.Combined &&
+    (beamType === BeamTypeEnum.OnlyRight || beamType === BeamTypeEnum.Combined)
+  // 孤立的 OnlyRight（右侧没有可连杠的 Combined）不写 beam
+  if (beamType === BeamTypeEnum.OnlyRight && !nextInGroup) return []
+
+  const prevLevelsRaw = prev != null ? chronaxieBeamLevels(prev.chronaxie) : 0
+  const prevInGroup =
+    prev != null &&
+    prevLevelsRaw > 0 &&
+    prev.beamType !== BeamTypeEnum.None &&
+    beamType === BeamTypeEnum.Combined
+  const prevLevels = prevInGroup ? prevLevelsRaw : 0
+  const nextLevels = nextInGroup ? nextLevelsRaw : 0
+
+  const beams: Array<{number: number; value: string}> = []
+  for (let n = 1; n <= levels; n++) {
+    let value: string
+    if (prevLevels < n && nextLevels < n) {
+      // 这一层只在本音上出现（如八分连杠里夹的十六分）：用 hook，不能只写 begin
+      value = nextInGroup ? 'forward hook' : 'backward hook'
+    } else if (prevLevels < n) value = 'begin'
+    else if (nextLevels < n) value = 'end'
+    else value = 'continue'
+    beams.push({number: n, value})
+  }
+  return beams
+}
+
+/** 小节内主音（和弦第一个）的前后邻居，用于决定 beam begin/continue/end */
+function beamNeighborsInMeasure(measure: Measure): Array<BeamNeighbor | null> {
+  const notes: BeamNeighbor[] = []
+  for (const measureSlot of getMeasureSlots(measure)) {
+    if (!isExportableSlot(measureSlot)) continue
+    const slot = slotSymbol(measureSlot)
+    if (isNoteRest(slot)) {
+      notes.push({chronaxie: slot.chronaxie, beamType: BeamTypeEnum.None})
+      continue
+    }
+    if (!isNoteSymbol(slot)) continue
+    const lead = slot.notesInfo[0]
+    if (!lead) continue
+    notes.push({
+      chronaxie: lead.chronaxie,
+      beamType: lead.beamType ?? BeamTypeEnum.None,
+    })
+  }
+  return notes
+}
+
 function writeStaffMeasureNotes(
   builder: ReturnType<typeof createMusicXmlBuilder>,
   measure: Measure,
@@ -159,6 +241,8 @@ function writeStaffMeasureNotes(
   divisions: number,
 ): number {
   let currentTime = 0
+  const neighbors = beamNeighborsInMeasure(measure)
+  let noteIdx = 0
 
   for (const measureSlot of getMeasureSlots(measure)) {
     if (!isExportableSlot(measureSlot)) continue
@@ -183,10 +267,20 @@ function writeStaffMeasureNotes(
         ...(slot.augmentationDot ? {dots: slot.augmentationDot.count} : {}),
       })
       currentTime += duration
+      noteIdx++
       continue
     }
 
     if (!isNoteSymbol(slot)) continue
+
+    const prev = noteIdx > 0 ? neighbors[noteIdx - 1]! : null
+    const next = noteIdx + 1 < neighbors.length ? neighbors[noteIdx + 1]! : null
+    const lead = slot.notesInfo[0]
+    const beams =
+      lead != null
+        ? resolveBeams(lead.chronaxie, lead.beamType ?? BeamTypeEnum.None, prev, next)
+        : []
+    noteIdx++
 
     for (let toneIdx = 0; toneIdx < slot.notesInfo.length; toneIdx++) {
       const notesInfo = slot.notesInfo[toneIdx]!
@@ -208,7 +302,8 @@ function writeStaffMeasureNotes(
         stem: notesInfo.direction,
         ...(notesInfo.augmentationDot ? {dots: notesInfo.augmentationDot.count} : {}),
         ...(accidentalType != null ? {accidental: accidentalType} : {}),
-        ...(notesInfo.beamType !== BeamTypeEnum.None ? {beam: true} : {}),
+        // 符杠只写在和弦主音上
+        ...(toneIdx === 0 && beams.length ? {beams} : {}),
       })
 
       if (toneIdx === 0) currentTime += duration
@@ -220,14 +315,19 @@ function writeStaffMeasureNotes(
 
 /**
  * musicScore → MusicXML（仅导出 xmlToMusicScore 可解析的符号）
+ * @param options.target ms4（默认，MusicXML 4.0）| ms3（MusicXML 3.1，给 MuseScore 3）
  */
-export function buildMusicScoreToXml(musicScore: MusicScore): File {
+export function buildMusicScoreToXml(
+  musicScore: MusicScore,
+  options: MusicXmlExportOptions = {},
+): File {
   const mergedStaves = mergeMeasuresFromGrandStaffs(musicScore)
   const staffCount = mergedStaves.length
   const measureCount = mergedStaves[0]?.length ?? 0
 
   const builder = createMusicXmlBuilder({
     divisions: DEFAULT_DIVISIONS,
+    target: options.target ?? 'ms4',
     ...(musicScore.bpm != null ? {bpm: musicScore.bpm} : {}),
     ...(musicScore.title ? {title: musicScore.title} : {}),
     ...(musicScore.author ? {composer: musicScore.author} : {}),

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, onMounted, provide, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch} from 'vue'
 import {DrawToolEnum} from '../enums/drawToolEnum'
 import {paintStroke, paintStrokeSegment, paintStrokes} from '../draw/paintStrokes'
 import type {DrawBrushOptions, DrawStroke, SElement, SPage, SScore, SjwMode} from '../types/types'
@@ -13,10 +13,13 @@ const props = withDefaults(
     thumbnail?: boolean
     /** show：不显示编辑框；edit：显示通用编辑框 */
     mode?: SjwMode
+    /** 宿主 startDraw～endDraw；仅 edit 下开启持久绘制（show 的教学标注在 SJWPDF 顶层） */
+    inkSession?: boolean
     resolveSrc?: (src: string) => string
   }>(),
   {
     mode: 'show',
+    inkSession: false,
     resolveSrc: (src: string) => src,
   },
 )
@@ -24,14 +27,21 @@ const props = withDefaults(
 const emit = defineEmits<{
   elementContextmenu: [payload: {element: SElement; event: MouseEvent}]
   scoreContextmenu: [payload: {score: SScore; event: MouseEvent}]
+  /** 选中的曲谱 / 元素 id 变化（null = 取消选中） */
+  selectionChange: [id: string | null]
+  /** 裁剪模式的目标 id 变化（null = 退出裁剪） */
+  cropChange: [id: string | null]
 }>()
 
 const drawCanvasRef = ref<HTMLCanvasElement | null>(null)
 const svgRef = ref<SVGSVGElement | null>(null)
 const selectedId = ref<string | null>(null)
+/** 裁剪模式目标；始终等于 selectedId 或为 null，选中项一变就退出 */
+const cropId = ref<string | null>(null)
 
-/** 是否处于绘制会话（startDraw～endDraw） */
+/** 编辑模式：持久绘制会话（startDraw～endDraw → page.drawings） */
 const drawingSession = ref(false)
+
 const activeTool = ref<DrawToolEnum>(DrawToolEnum.Pen)
 const brushByTool = ref<Record<DrawToolEnum, {color: string; lineWidth: number}>>({
   [DrawToolEnum.Pen]: {color: '#000000', lineWidth: 3},
@@ -53,7 +63,7 @@ const elements = computed(() => props.page.elements ?? [])
 const scores = computed(() => props.page.scores ?? [])
 const editable = computed(() => props.mode === 'edit' && !props.thumbnail)
 const drawInteractive = computed(
-  () => drawingSession.value && !props.thumbnail,
+  () => drawingSession.value && props.mode === 'edit' && !props.thumbnail,
 )
 const brushCursorSize = computed(
   () => brushByTool.value[activeTool.value]?.lineWidth ?? 3,
@@ -70,13 +80,7 @@ function ensureDrawings(): DrawStroke[] {
   return props.page.drawings
 }
 
-function getDrawCtx(): CanvasRenderingContext2D | null {
-  const canvas = drawCanvasRef.value
-  if (!canvas) return null
-  return canvas.getContext('2d')
-}
-
-function paintDrawLayer() {
+function syncDrawLayer() {
   const canvas = drawCanvasRef.value
   if (!canvas) return
   canvas.width = props.page.width
@@ -87,8 +91,12 @@ function paintDrawLayer() {
   paintStrokes(ctx, props.page.drawings ?? [])
 }
 
-function syncDrawLayer() {
-  paintDrawLayer()
+/** 开始持久绘制（仅 edit；show 下的教学标注由 SJWPDF 顶层负责） */
+function startDraw() {
+  if (props.thumbnail || props.mode !== 'edit') return
+  drawingSession.value = true
+  void nextTick(() => syncDrawLayer())
+  clearSelection()
 }
 
 function clearSelection() {
@@ -97,6 +105,17 @@ function clearSelection() {
 
 function selectItem(id: string) {
   selectedId.value = id
+}
+
+/** 进入裁剪模式（会选中该项）；调用方负责确认是曲谱或已知原始尺寸的图片 */
+function startCrop(id: string) {
+  if (!editable.value) return
+  selectedId.value = id
+  cropId.value = id
+}
+
+function endCrop() {
+  cropId.value = null
 }
 
 function onElementContextMenu(el: SElement, ev: MouseEvent) {
@@ -137,12 +156,17 @@ function hideBrushCursor() {
   brushCursorVisible.value = false
 }
 
-function onDrawPointerDown(ev: PointerEvent) {
+function onPointerDown(ev: PointerEvent) {
   if (!drawInteractive.value) return
   if (ev.button !== 0) return
   const canvas = drawCanvasRef.value
-  const ctx = getDrawCtx()
-  if (!canvas || !ctx) return
+  if (!canvas) return
+  // 未正确初始化时补齐 bitmap，否则笔画会画在默认 300×150 外
+  if (canvas.width !== props.page.width || canvas.height !== props.page.height) {
+    syncDrawLayer()
+  }
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
 
   canvas.setPointerCapture(ev.pointerId)
   activePointerId = ev.pointerId
@@ -164,10 +188,10 @@ function onDrawPointerDown(ev: PointerEvent) {
   paintStroke(ctx, currentStroke)
 }
 
-function onDrawPointerMove(ev: PointerEvent) {
+function onPointerMove(ev: PointerEvent) {
   updateBrushCursor(ev)
   if (!stroking || !currentStroke || ev.pointerId !== activePointerId) return
-  const ctx = getDrawCtx()
+  const ctx = drawCanvasRef.value?.getContext('2d') ?? null
   if (!ctx) return
 
   const next = toPagePoint(ev)
@@ -198,18 +222,31 @@ function endStroke(ev: PointerEvent) {
   updateBrushCursor(ev)
 }
 
-function startDraw() {
-  if (props.thumbnail) return
-  drawingSession.value = true
-  clearSelection()
-}
-
-function endDraw() {
-  drawingSession.value = false
+function resetStrokeState() {
   stroking = false
   activePointerId = null
   currentStroke = null
   hideBrushCursor()
+}
+
+/** 与 SJWPDF inkSession 对齐：优先听 prop，兼容直接调 Page.startDraw */
+watch(
+  () => [props.inkSession, props.mode] as const,
+  ([on, mode]) => {
+    if (props.thumbnail || !on || mode !== 'edit') {
+      drawingSession.value = false
+      resetStrokeState()
+      return
+    }
+    drawingSession.value = true
+    void nextTick(() => syncDrawLayer())
+    clearSelection()
+  },
+)
+
+function endDraw() {
+  drawingSession.value = false
+  resetStrokeState()
 }
 
 function setTool(tool: DrawToolEnum, options: DrawBrushOptions = {}) {
@@ -232,25 +269,39 @@ function setBrush(tool: DrawToolEnum, options: DrawBrushOptions = {}) {
   setTool(tool, options)
 }
 
+/** 清空持久笔迹 page.drawings */
 function clearDrawings() {
   props.page.drawings = []
-  paintDrawLayer()
+  syncDrawLayer()
 }
 
-onMounted(syncDrawLayer)
+onMounted(() => {
+  syncDrawLayer()
+})
 onBeforeUnmount(() => {
   endDraw()
 })
 
 watch(
   () => [props.page.id, props.page.width, props.page.height] as const,
-  syncDrawLayer,
+  (next, prev) => {
+    if (prev && next[0] !== prev[0]) {
+      if (stroking) resetStrokeState()
+      clearSelection()
+    }
+    syncDrawLayer()
+  },
 )
+watch(selectedId, (id) => {
+  if (id !== cropId.value) cropId.value = null
+  emit('selectionChange', id)
+})
+watch(cropId, (id) => emit('cropChange', id))
 watch(
   () => props.page.drawings,
   () => {
     if (stroking) return
-    paintDrawLayer()
+    syncDrawLayer()
   },
   {deep: true},
 )
@@ -269,6 +320,11 @@ defineExpose({
   clearDrawings,
   isDrawing: () => drawingSession.value,
   getTool: () => activeTool.value,
+  getSelectedId: () => selectedId.value,
+  clearSelection,
+  startCrop,
+  endCrop,
+  getCropId: () => cropId.value,
 })
 </script>
 
@@ -278,8 +334,10 @@ defineExpose({
     :class="{
       'sjw-page--thumbnail': thumbnail,
       'sjw-page--edit': editable,
+      'sjw-page--show': mode === 'show' && !thumbnail,
       'sjw-page--drawing': drawInteractive,
     }"
+    :data-sjw-mode="mode"
     :style="{width: `${page.width}px`, height: `${page.height}px`}"
   >
     <div class="sjw-page__layer sjw-page__bg" aria-hidden="true">
@@ -294,6 +352,7 @@ defineExpose({
     <svg
       ref="svgRef"
       class="sjw-page__layer sjw-page__svg"
+      :class="{'sjw-page__svg--ink': drawInteractive}"
       :height="page.height"
       preserveAspectRatio="none"
       :viewBox="`0 0 ${page.width} ${page.height}`"
@@ -325,6 +384,7 @@ defineExpose({
           :editable="editable"
           :score="sc"
           :selected="editable && selectedId === sc.id"
+          :cropping="editable && cropId === sc.id"
           @contextmenu="onScoreContextMenu(sc, $event)"
           @select="selectItem(sc.id)"
         />
@@ -337,6 +397,7 @@ defineExpose({
           :element="el"
           :resolve-src="resolveSrc"
           :selected="editable && selectedId === el.id"
+          :cropping="editable && cropId === el.id"
           @contextmenu="onElementContextMenu(el, $event)"
           @select="selectItem(el.id)"
         />
@@ -346,12 +407,11 @@ defineExpose({
       ref="drawCanvasRef"
       class="sjw-page__layer sjw-page__draw"
       :class="{'sjw-page__draw--active': drawInteractive}"
-      :style="{pointerEvents: drawInteractive ? 'auto' : 'none'}"
       @pointercancel="endStroke"
-      @pointerdown="onDrawPointerDown"
+      @pointerdown="onPointerDown"
       @pointerenter="updateBrushCursor"
       @pointerleave="hideBrushCursor"
-      @pointermove="onDrawPointerMove"
+      @pointermove="onPointerMove"
       @pointerup="endStroke"
     />
     <div
@@ -405,18 +465,27 @@ defineExpose({
   height: 100%;
 }
 
+/* 绘制中禁用 svg（含 foreignObject 文本），避免抢走指针去拖元素 */
+.sjw-page__svg--ink {
+  pointer-events: none;
+}
+
 .sjw-page__draw {
   z-index: 3;
+  width: 100%;
+  height: 100%;
   touch-action: none;
+  pointer-events: none;
 }
 
 .sjw-page__draw--active {
   cursor: none;
+  pointer-events: auto;
 }
 
 .sjw-page__brush-cursor {
   position: absolute;
-  z-index: 4;
+  z-index: 6;
   box-sizing: border-box;
   pointer-events: none;
   border: 1px dashed #606266;

@@ -3,14 +3,51 @@
 export enum MusicScoreTypeEnum {
   StandardStaff = 1,        // 五线谱
 
-  NumberNotation,      // 简谱（数字谱）
+  NumberNotation = 2,      // 简谱（数字谱）
 
-  Tab6,           // 吉他谱（TAB）
+  /** 吉他 TAB（6 弦）；渲染用 tab6 皮肤。数值 3 兼容旧 Tab6 */
+  Guitar = 3,
 
-  DrumNotation,          // 鼓谱
+  DrumNotation = 4,          // 鼓谱
 
-  Tab4,          // 尤克里里/贝斯谱（TAB）
+  /** 尤克里里 TAB（4 弦）；渲染用 tab4 皮肤。数值 5 兼容旧 Tab4 */
+  Ukulele = 5,
 
+  /** 五弦贝斯 TAB；渲染用 tab5 皮肤。数值 6 兼容旧 Tab5 */
+  Bass5 = 6,
+
+  /** 四弦贝斯 TAB；渲染用 tab4 皮肤（与尤克里里同几何，乐器语义不同） */
+  Bass4 = 7,
+
+  /** 六弦贝斯 TAB；渲染用 tab6 皮肤（与吉他同几何，乐器语义不同） */
+  Bass6 = 8,
+}
+
+/** 指板类谱（吉他 / 尤克里里 / 贝斯）——扩展里判断「是不是 tab 谱」用这个 */
+export function isFretboardScoreType(type: MusicScoreTypeEnum | undefined | null): boolean {
+  return (
+      type === MusicScoreTypeEnum.Guitar
+      || type === MusicScoreTypeEnum.Ukulele
+      || type === MusicScoreTypeEnum.Bass4
+      || type === MusicScoreTypeEnum.Bass5
+      || type === MusicScoreTypeEnum.Bass6
+  )
+}
+
+/** 指板谱弦数：决定用哪套 tab 皮肤 / 渲染几何 */
+export function fretboardStringCount(type: MusicScoreTypeEnum | undefined | null): 4 | 5 | 6 {
+  if (type === MusicScoreTypeEnum.Ukulele || type === MusicScoreTypeEnum.Bass4) return 4
+  if (type === MusicScoreTypeEnum.Bass5) return 5
+  return 6
+}
+
+/** SkinPack 中的 tab 键（按弦数，一几何多用） */
+export type TabSkinPackKey = 'tab4' | 'tab5' | 'tab6'
+
+export function tabSkinPackKeyForType(type: MusicScoreTypeEnum | undefined | null): TabSkinPackKey | undefined {
+  if (!isFretboardScoreType(type)) return undefined
+  const n = fretboardStringCount(type)
+  return n === 4 ? 'tab4' : n === 5 ? 'tab5' : 'tab6'
 }
 
 
@@ -142,15 +179,15 @@ export enum TimeSignatureTypeEnum {
 }
 
 
-// 跨小节符号类型
-
-export enum SpanSymbolTypeEnum {
-
-  DoubleNote = 1, // 双音符型 如连音线、通过起始，结束音符定位   符杠beam不属于跨小节符号，beam属于一种特殊逻辑
-
-  DoubleMeasure// 双小节型 如volta(反复房子符号) 通过起始，结束小节定位
-
-}
+// // 跨小节符号类型
+//
+// export enum SpanSymbolTypeEnum {
+//
+//   DoubleNote = 1, // 双音符型 如连音线、通过起始，结束音符定位   符杠beam不属于跨小节符号，beam属于一种特殊逻辑
+//
+//   DoubleMeasure// 双小节型 如volta(反复房子符号) 通过起始，结束小节定位
+//
+// }
 
 
 // 跨小节符号名称
@@ -178,24 +215,19 @@ export enum NoteSymbolTypeEnum {
 export enum DoubleNoteAffiliatedSymbolNameEnum {
   // 连音线/延音线
   Slur = 'slur',
-  // ornaments
-  Trill_line = 'trill_line',
-  Upprail_line = 'upprail_line',
-  Downprail_line = 'downprail_line',
-  Prallprall_line = 'prallprall_line',
-  // dynamics
-  Crescendo_line = 'crescendo_line',
-  Diminuendo_line = 'diminuendo_line',
-  Crescendo_hairpin = 'crescendo_hairpin',
-  Diminuendo_hairpin = 'diminuendo_hairpin',
+
 }
 
-/** 单 slot 附属（锚定一个音符列 / 休止符列；如琶音、扫弦） */
+/** 单 slot 附属（锚定一个音符列 / 休止符列；如琶音、扫弦、前奏括号） */
 export enum SingleSlotAffiliatedSymbolNameEnum {
   // 吉他谱另有音符级琶音/扫弦；此处为五线/简谱等列级附属
   Arpeggio = 'arpeggio',
   arpeggio_straight = 'arpeggio_straight',
   Strumming = 'strumming',
+  /** 前奏括号左 `(`：默认在 slot 列左侧 */
+  Prelude_bracket_left = 'prelude_bracket_left',
+  /** 前奏括号右 `)`：默认在 slot 列右侧（间距更大，跨过音符） */
+  Prelude_bracket_right = 'prelude_bracket_right',
 }
 
 /** 双 slot 附属（锚定起止两列；如踏板、八度记号） */
@@ -203,6 +235,25 @@ export enum DoubleSlotAffiliatedSymbolNameEnum {
   Pedal = 'pedal',
   Pitch_down = 'pitch_down',
   Pitch_up = 'pitch_up',
+  /** 颤音线；起始符号见 data.trill.type（TrillTypeEnum） */
+  Trill_line = 'trill_line',
+  /** 渐强 / 渐弱；造型见 data.hairpin.type（HairpinTypeEnum） */
+  Hairpin = 'hairpin',
+}
+
+/** 颤音线起始符号；后面都接 SMuFL 波浪线 */
+export enum TrillTypeEnum {
+  Trill = 'trill', // tr~~~~
+  Upprall = 'upprall',
+  Downprall = 'downprall',
+  Prallprall = 'prallprall',
+}
+
+export enum HairpinTypeEnum {
+  Crescendo_hairpin = 'crescendo_hairpin', // 小于号形状
+  Diminuendo_hairpin = 'diminuendo_hairpin', // 大于号形状
+  Crescendo_line = 'crescendo_line', // cresc._____
+  Diminuendo_line = 'diminuendo_line', // dim.____
 }
 
 export enum PitchTypeEnum {
@@ -236,7 +287,7 @@ export enum SingleNoteAffiliatedSymbolNameEnum {
   // Articulations
   Accent_above = 'acccent_above',
   Staccato_above = 'staccato_above',
-  Staccatissimo_above = 'staccato_above',
+  Staccatissimo_above = 'staccatissimo_above',
   Tenuto_above = 'tenuto_above',
   Loure_above = 'loure_above',
   Marcato_above = 'marcato_above',
@@ -253,6 +304,8 @@ export enum SingleNoteAffiliatedSymbolNameEnum {
   Harmonic = 'harmonic',
   Up_bow = 'up_bow',
   Down_bow = 'down_bow',
+  /** 呼吸记号（SMuFL breathMarkComma） */
+  Breath = 'breath',
   // ornaments
   Turn = 'turn',
   InvertedTurn = 'invertedTurn',
@@ -261,7 +314,7 @@ export enum SingleNoteAffiliatedSymbolNameEnum {
   Mordent = 'mordent',
 
   // glissandos TODO 这个暂时不做
-  // dynamics 强弱记号
+  // dynamics 强弱记号（skinKey 为 dyn_*，见 renderRules）
   PPP = 'ppp',
   PP = 'pp',
   P = 'p',
@@ -274,6 +327,7 @@ export enum SingleNoteAffiliatedSymbolNameEnum {
   PF = 'pf',
   SF = 'sf',
   SFZ = 'sfz',
+  /** SMuFL 无独立 sff 字形，暂不配皮肤 / 规则 */
   SFF = 'sff',
   SFFZ = 'sffz',
   SFP = 'sfp',

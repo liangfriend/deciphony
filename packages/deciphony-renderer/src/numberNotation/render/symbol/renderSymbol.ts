@@ -30,6 +30,7 @@ import {
   getClefForMeasure,
   getKeySignatureSkinKey,
   getReduceLineSkinKey,
+  getReduceLineSkinKeyByCount,
   getSyllableSkinKey,
   getTimeSignatureSkinKey,
 } from "../utils/skinKey";
@@ -45,8 +46,7 @@ import {
   renderGraceNotesNumberAfter,
   renderGraceNotesNumberBefore,
 } from "../grace/renderGraceNumber";
-import {floorCenterY} from "../utils/noteLayout";
-import {BeamTypeEnum} from "@/enums/musicScoreEnum";
+import {floorCenterY, stackCenterYs} from "../utils/noteLayout";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {
   buildMeasureColumnLayout,
@@ -55,6 +55,7 @@ import {
 import {createNumberNotationColumnLayoutAdapter} from "../layout/measureColumnLayoutAdapter";
 import {slotIsNoteNumber, slotSymbol} from '@/standardStaff/render/utils/staffSlot';
 import {getMeasureSlots} from '@/utils/measureNotes';
+import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum';
 
 function setNodeIdMap(map: NodeIdMap, id: string, vdom: VDom): void {
   let obj = map.get(id);
@@ -225,25 +226,45 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     isRest: boolean;
   };
 
-  function getFloorInfo(slot: SlotInfo, floorIdx: number): NotesNumberInfo | null {
-    if (slot.isRest) return floorIdx === 0 ? (slot.note.notesInfo[0] ?? null) : null;
-    return slot.note.notesInfo[floorIdx] ?? null;
+  /** 减时线只画最底层（notesInfo[0]） */
+  function getReduceLineInfo(slot: SlotInfo): NotesNumberInfo | null {
+    return slot.note.notesInfo[0] ?? null;
   }
 
-  function maxFloorCount(slotList: SlotInfo[]): number {
-    let max = 0;
-    for (const s of slotList) {
-      if (s.isRest) max = Math.max(max, 1);
-      else max = Math.max(max, s.note.notesInfo.length);
-    }
-    return max;
+  /** 本音符自身减时线段超出数字底边的距离（只有最底层画减时线） */
+  function reduceLineExtent(info: NotesNumberInfo, stackIdx: number): number {
+    if (stackIdx !== 0 || info.syllable === 'X') return 0;
+    const ch = getInfoChronaxie(info);
+    if (ch > 32) return 0;
+    const reduceLineSkin = skin[getReduceLineSkinKey(ch)];
+    return REDUCE_LINE_Y_OFFSET * measureHeight + (reduceLineSkin?.h ?? 0);
   }
 
+  /** count 个八度点（含与数字/减时线的首距）占用的高度 */
+  function octaveDotsExtent(count: number): number {
+    const dotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
+    if (count <= 0 || !dotSkin) return 0;
+    return OCTAVE_DOT_FIRST_OFFSET * measureHeight + count * dotSkin.h
+      + (count - 1) * OCTAVE_DOT_SPACING * measureHeight;
+  }
+
+  /** 附属物超出数字框的距离，写到 vDom 上供附属锚点 numberNotationAnchor 使用 */
+  function numberNotationExtent(info: NotesNumberInfo, stackIdx: number): NonNullable<VDom['numberNotationExtent']> {
+    const octave = info.syllable !== 0 && info.syllable !== 'X' ? (info.octaveDot ?? 0) : 0;
+    const accSkin = info.accidental ? skin[getAccidentalSkinKey(info.accidental.type)] : undefined;
+    return {
+      top: octave > 0 ? octaveDotsExtent(octave) : 0,
+      bottom: reduceLineExtent(info, stackIdx) + (octave < 0 ? octaveDotsExtent(-octave) : 0),
+      left: accSkin ? ACCIDENTAL_NOTE_X_GAP * measureHeight + accSkin.w : 0,
+      right: 0,
+    };
+  }
+
+  /** 加时线只画最底层（notesInfo[0]） */
   function renderAddLines(
     info: NotesNumberInfo,
     note: NoteNumber,
     slotOnset: number,
-    floorIdx: number,
     targetId: string,
   ): void {
     const chronaxie = getInfoChronaxie(info, note);
@@ -251,7 +272,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     if (addLineCount <= 0) return;
     const addLineSkin = skin[NumberNotationSkinKeyEnum.Addline];
     if (!addLineSkin) return;
-    const lineY = floorCenterY(measureY, measureHeight, floorIdx, measure.floorSpan) - addLineSkin.h / 2;
+    const lineY = floorCenterY(measureY, measureHeight) - addLineSkin.h / 2;
     for (let k = 0; k < addLineCount; k++) {
       const lineX = resolveAddLineXFromLayout(layout, domainStartX, slotOnset, k);
       if (lineX == null) continue;
@@ -346,6 +367,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           targetId: restInfo?.id ?? note.id,
           skinKey: headKey,
           dataComment: '休止符',
+          numberNotationExtent: restInfo ? numberNotationExtent(restInfo, 0) : undefined,
         };
         out.push(vdom);
         setNodeIdMap(idMap, restInfo?.id ?? note.id, vdom);
@@ -388,22 +410,33 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           }
         }
         if (restInfo) {
-          renderAddLines(restInfo, note, slotOnset, 0, restInfo.id);
+          renderAddLines(restInfo, note, slotOnset, restInfo.id);
         }
       } else { // 音符渲染
+        const stackY = stackCenterYs(
+          measureY,
+          measureHeight,
+          allNotes.map((n) => ({
+            h: skin[getSyllableSkinKey(n.syllable)]?.h ?? measureHeight,
+            octaveDot: n.syllable !== 0 && n.syllable !== 'X' ? (n.octaveDot ?? 0) : 0,
+          })),
+          octaveDotSkin ? {h: octaveDotSkin.h, firstOffset: fOff, spacing} : null,
+          measure.floorSpan,
+        );
         // 先渲染音符头（slotX）；变音/八度点/附点等 NotesNumberInfo 符号再从音符头 vDom 取 headX
         for (let stackIdx = 0; stackIdx < allNotes.length; stackIdx++) {
           const n = allNotes[stackIdx];
           const numKey = getSyllableSkinKey(n.syllable);
           const numItem = skin[numKey];
           if (!numItem) continue;
-          const hcy = floorCenterY(measureY, measureHeight, stackIdx, measure.floorSpan);
+          const hcy = stackY[stackIdx]!;
           const ny = hcy - numItem.h / 2;
           const vdom: VDom = {
             startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},
             x: slotX, y: ny, w: numItem.w, h: numItem.h, zIndex: z,
             tag: 'noteNumber', skinName: skinNameForNodes, targetId: n.id, skinKey: numKey,
             dataComment: n.syllable === 'X' ? '节奏音符' : '简谱音符',
+            numberNotationExtent: numberNotationExtent(n, stackIdx),
           };
           out.push(vdom);
           setNodeIdMap(idMap, n.id, vdom);
@@ -428,7 +461,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           const headVDom = idMap.get(n.id)?.noteNumber;
           const noteHeadX = headVDom?.x ?? slotX;
           const noteHeadW = headVDom?.w ?? numItem?.w ?? referenceW;
-          const hcy = floorCenterY(measureY, measureHeight, stackIdx, measure.floorSpan);
+          const hcy = stackY[stackIdx]!;
 
           if (n.accidental) {
             const accSkinKey = getAccidentalSkinKey(n.accidental.type);
@@ -509,13 +542,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 dotY -= octaveDotSkin.h + spacing;
               }
             } else {
-              const ch = getInfoChronaxie(n);
-              let baseBottom = hcy + numItem.h / 2;
-              if (ch <= 32) {
-                const reduceLineSkin = skin[getReduceLineSkinKey(ch)];
-                const reduceY = hcy + numItem.h / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
-                baseBottom = reduceY + (reduceLineSkin?.h ?? 0);
-              }
+              const baseBottom = hcy + numItem.h / 2 + reduceLineExtent(n, stackIdx);
               let dotY = baseBottom + fOff;
               for (let k = 0; k < dotCount; k++) {
                 out.push({
@@ -528,7 +555,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
               }
             }
           }
-          renderAddLines(n, note, slotOnset, stackIdx, n.id);
+          if (stackIdx === 0) renderAddLines(n, note, slotOnset, n.id);
         }
         if (firstHeadVDom) {
           renderSingleNoteAffiliatedSymbols(note.affiliatedSymbols, firstHeadVDom, {
@@ -537,6 +564,7 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             skinName: skinNameForNodes,
             skin,
             measureHeight,
+            notationType: MusicScoreTypeEnum.NumberNotation,
           });
         }
         if (primaryInfo && primaryHeadVDom) {
@@ -554,65 +582,23 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     }
 
-    // 第二遍：按层渲染减时线（每层独立 beam 连接；休止符 0 同样需要减时线）
-    const floorCount = maxFloorCount(slots);
-    for (let floorIdx = 0; floorIdx < floorCount; floorIdx++) {
-      const hasReduceLineAt = (_slot: SlotInfo, info: NotesNumberInfo) =>
-        info.syllable !== 'X' && getInfoChronaxie(info) <= 32;
-
-      for (let i = 0; i < slots.length; i++) {
-        const slot = slots[i]!;
-        const info = getFloorInfo(slot, floorIdx);
-        if (!info || info.syllable === 'X') continue;
+    // 第二遍：渲染减时线（只有最底层；休止符 0 同样需要减时线）
+    // 每个音符画自己的条数；相邻两音按 beam 相连时，只补两者都有的那几层（取较少条数），
+    // 如 16-8-16：第一条贯穿三音，第二条只在两个十六分音符下各一段
+    {
+      const reduceLineCount = (slot: SlotInfo): number => {
+        const info = getReduceLineInfo(slot);
+        if (!info || info.syllable === 'X') return 0;
         const ch = getInfoChronaxie(info);
-        if (ch > 32) continue;
+        return ch > 32 ? 0 : chronaxieToBeamLineCount(ch);
+      };
 
-        const reduceLineKey = getReduceLineSkinKey(ch);
+      const pushReduceLine = (info: NotesNumberInfo, count: number, lineX: number, lineW: number) => {
+        const reduceLineKey = getReduceLineSkinKeyByCount(count);
         const reduceLineSkin = skin[reduceLineKey];
-        if (!reduceLineSkin) continue;
-
-        const beamType = info.beamType ?? BeamTypeEnum.None;
-        const myCount = chronaxieToBeamLineCount(ch);
-        let leftIdx = i;
-        let rightIdx = i;
-        if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
-          if (beamType === BeamTypeEnum.Combined) {
-            for (let j = i - 1; j >= 0; j--) {
-              const leftInfo = getFloorInfo(slots[j]!, floorIdx);
-              if (!leftInfo || getInfoChronaxie(leftInfo) > 32) break;
-              if (!canJoinReduceLineFromLeft(leftInfo.beamType)) break;
-              leftIdx = j;
-            }
-          }
-          for (let j = i + 1; j < slots.length; j++) {
-            const rightInfo = getFloorInfo(slots[j]!, floorIdx);
-            if (!rightInfo || getInfoChronaxie(rightInfo) > 32) break;
-            if (!canJoinReduceLineToRight(rightInfo.beamType)) break;
-            rightIdx = j;
-          }
-        }
-        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
-        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
-        const leftInfo = leftSlot ? getFloorInfo(leftSlot, floorIdx) : null;
-        const rightInfo = rightSlot ? getFloorInfo(rightSlot, floorIdx) : null;
-        const leftCount = leftInfo && leftSlot && hasReduceLineAt(leftSlot, leftInfo)
-          ? chronaxieToBeamLineCount(getInfoChronaxie(leftInfo)) : Infinity;
-        const rightCount = rightInfo && rightSlot && hasReduceLineAt(rightSlot, rightInfo)
-          ? chronaxieToBeamLineCount(getInfoChronaxie(rightInfo)) : Infinity;
-
-        const slotHeadX = slot.slotX;
-        const leftHeadX = leftSlot ? leftSlot.slotX : slotHeadX;
-        const rightHeadX = rightSlot ? rightSlot.slotX : slotHeadX;
-        const lineX = myCount < leftCount && leftSlot
-          ? leftHeadX + leftSlot.refW
-          : slotHeadX;
-        const lineEnd = myCount <= rightCount && rightSlot
-          ? rightHeadX + rightSlot.refW
-          : slotHeadX + slot.refW;
-        const lineW = Math.max(lineEnd - lineX, slot.refW);
-
+        if (!reduceLineSkin) return;
         const numSkin = skin[getSyllableSkinKey(info.syllable)];
-        const hcy = floorCenterY(measureY, measureHeight, floorIdx, measure.floorSpan);
+        const hcy = floorCenterY(measureY, measureHeight);
         const reduceY = hcy + (numSkin?.h ?? 0) / 2 + REDUCE_LINE_Y_OFFSET * measureHeight;
         out.push({
           startPoint: {x: 0, y: 0},
@@ -629,6 +615,21 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
           skinKey: reduceLineKey,
           dataComment: '减时线',
         });
+      };
+
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]!;
+        const info = getReduceLineInfo(slot);
+        const count = reduceLineCount(slot);
+        if (!info || !count) continue;
+        pushReduceLine(info, count, slot.slotX, slot.refW);
+
+        const next = slots[i + 1];
+        const nextInfo = next ? getReduceLineInfo(next) : null;
+        const nextCount = next ? reduceLineCount(next) : 0;
+        if (!next || !nextInfo || !nextCount) continue;
+        if (!canJoinReduceLineFromLeft(info.beamType) || !canJoinReduceLineToRight(nextInfo.beamType)) continue;
+        pushReduceLine(info, Math.min(count, nextCount), slot.slotX, next.slotX + next.refW - slot.slotX);
       }
     }
   }

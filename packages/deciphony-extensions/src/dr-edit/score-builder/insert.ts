@@ -1,4 +1,4 @@
-import {ClefTypeEnum, MusicScoreTypeEnum, TimeSignatureTypeEnum} from '@deciphony/renderer';
+import {ClefTypeEnum, isFretboardScoreType, MusicScoreTypeEnum, TimeSignatureTypeEnum} from '@deciphony/renderer';
 import type {GrandStaff, Measure, MusicScore, SingleStaff} from '@deciphony/renderer';
 import {assertIndex} from './id';
 import {
@@ -48,8 +48,7 @@ function newMeasureForInsert(
             voices: isDrum,
         });
     }
-    const isTab =
-        notationType === MusicScoreTypeEnum.Tab6 || notationType === MusicScoreTypeEnum.Tab4;
+    const isTab = isFretboardScoreType(notationType);
     return createMeasure({
         clef: isTab ? ClefTypeEnum.Tab : isDrum ? ClefTypeEnum.Percussion : ClefTypeEnum.Treble,
         timeSignature: TimeSignatureTypeEnum['4_4'],

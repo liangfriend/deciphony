@@ -1,9 +1,12 @@
 import {
   DoubleNoteAffiliatedSymbolNameEnum,
+  isSplitSlur,
   mirrorSlurData,
   MusicScoreTypeEnum,
   numberNotationSlurGeom,
+  slurDefaultControlPoint,
   slurVDomPatch,
+  splitSlurBreaks,
 } from '@deciphony/renderer'
 import type {DoubleNoteAffiliatedSymbol, MusicScore, SlurMirror, SlotData, VDom} from '@deciphony/renderer'
 import {scoreWriteGateFor, type UpdateVDomFn} from './scoreWriteGate'
@@ -14,6 +17,8 @@ export type SlurHandlePoints = {
   start: { x: number; y: number }
   control: { x: number; y: number }
   end: { x: number; y: number }
+  /** 分段连音线（起止不在同一单谱表）：只有两端把手，可上下左右拖，没有控制点 */
+  split?: boolean
 }
 
 export type SlurDragSession = {
@@ -22,6 +27,10 @@ export type SlurDragSession = {
   handle: SlurHandleKind
   baseStart: { x: number; y: number }
   baseEnd: { x: number; y: number }
+  /** 简谱中间点拖拽起点的 svg y，配合初始 relative y 算整体上下平移 */
+  originSvgY: number
+  initialRelStartY: number
+  initialRelEndY: number
 }
 
 export function isSlurVDom(vdom: VDom | null | undefined): boolean {
@@ -77,12 +86,20 @@ function sameSlur(a: SlurMirror, b: SlurMirror): boolean {
     && samePoint(a.relativeTextPoint, b.relativeTextPoint)
 }
 
-/** 与 slur.vue 一致：五线谱控制点在中点上方；简谱只有左右端 x */
+/** 与 slur.vue 一致：五线谱控制点 = 默认控制点（按 direction 在上方 / 下方）+ relativeControlPoint；简谱左右端控 x，control 为横线中点（上下平移） */
 export function computeSlurHandlePoints(
   vdom: VDom,
   notationType?: MusicScoreTypeEnum,
 ): SlurHandlePoints | null {
   if (!isSlurVDom(vdom)) return null
+  if (isSplitSlur(vdom)) {
+    return {
+      start: {...vdom.startPoint},
+      end: {...vdom.endPoint},
+      control: splitSlurBreaks(vdom).start,
+      split: true,
+    }
+  }
   if (notationType === MusicScoreTypeEnum.NumberNotation) {
     const g = numberNotationSlurGeom(vdom)
     const midX = (g.x0 + g.x1) / 2
@@ -95,12 +112,11 @@ export function computeSlurHandlePoints(
   const s = vdom.startPoint
   const e = vdom.endPoint
   const relCtrl = vdom.special?.slur?.relativeControlPoint ?? {x: 0, y: 0}
-  const defaultCx = (s.x + e.x) / 2
-  const defaultCy = Math.min(s.y, e.y) - Math.max(8, Math.abs(e.x - s.x) * 0.2)
+  const def = slurDefaultControlPoint(vdom)
   return {
     start: {x: s.x, y: s.y},
     end: {x: e.x, y: e.y},
-    control: {x: defaultCx + relCtrl.x, y: defaultCy + relCtrl.y},
+    control: {x: def.x + relCtrl.x, y: def.y + relCtrl.y},
   }
 }
 
@@ -121,14 +137,19 @@ export function createSlurDragSession(
   slurId: string,
   handle: SlurHandleKind,
   vdom: VDom,
+  svgY = 0,
 ): SlurDragSession {
   const {baseStart, baseEnd} = computeBaseAnchors(vdom)
+  const slur = vdom.special?.slur
   return {
     pointerId: event.pointerId,
     slurId,
     handle,
     baseStart,
     baseEnd,
+    originSvgY: svgY,
+    initialRelStartY: slur?.relativeStartPoint?.y ?? 0,
+    initialRelEndY: slur?.relativeEndPoint?.y ?? 0,
   }
 }
 
@@ -142,13 +163,17 @@ export function nextSlurGeomFromPointer(
 ): SlurMirror | null {
   const prev = vdom.special?.slur
   if (!prev) return null
-  const jianpu = notationType === MusicScoreTypeEnum.NumberNotation
+  const split = isSplitSlur(vdom)
+  // 简谱整段：两端只改 x；分段时两端各管自己那段的高度，可上下拖
+  const jianpu = notationType === MusicScoreTypeEnum.NumberNotation && !split
   const next = cloneSlur(prev)
+
+  if (split && session.handle === 'control') return null
 
   if (session.handle === 'start') {
     next.relativeStartPoint = {
       x: svgX - session.baseStart.x,
-      y: jianpu ? 0 : svgY - session.baseStart.y,
+      y: jianpu ? next.relativeStartPoint.y : svgY - session.baseStart.y,
     }
     return next
   }
@@ -156,20 +181,29 @@ export function nextSlurGeomFromPointer(
   if (session.handle === 'end') {
     next.relativeEndPoint = {
       x: svgX - session.baseEnd.x,
-      y: jianpu ? 0 : svgY - session.baseEnd.y,
+      y: jianpu ? next.relativeEndPoint.y : svgY - session.baseEnd.y,
     }
     return next
   }
 
-  if (jianpu) return null
+  if (jianpu) {
+    // 简谱高度 = 两端 relative y 的均值：同步平移两者
+    const dy = svgY - session.originSvgY
+    next.relativeStartPoint = {
+      x: next.relativeStartPoint.x,
+      y: session.initialRelStartY + dy,
+    }
+    next.relativeEndPoint = {
+      x: next.relativeEndPoint.x,
+      y: session.initialRelEndY + dy,
+    }
+    return next
+  }
 
-  const s = vdom.startPoint
-  const e = vdom.endPoint
-  const defaultCx = (s.x + e.x) / 2
-  const defaultCy = Math.min(s.y, e.y) - Math.max(8, Math.abs(e.x - s.x) * 0.2)
+  const def = slurDefaultControlPoint(vdom)
   next.relativeControlPoint = {
-    x: svgX - defaultCx,
-    y: svgY - defaultCy,
+    x: svgX - def.x,
+    y: svgY - def.y,
   }
   return next
 }
@@ -213,4 +247,34 @@ export function previewSlurDrag(
   })
   const previewed = mirrorSlurData([vdom], session.slurId, geom)[0]
   return previewed ? computeSlurHandlePoints(previewed, notationType) : null
+}
+
+/**
+ * 重置连音线 relative* 到 0：立刻 updateVDom（相对当前 live 节点算端点 delta），再落盘。
+ * getLiveVDom 应返回屏上已被预览改过的 affiliation 节点。
+ */
+export function resetSlurRelativeOffset(
+  musicScore: MusicScore,
+  slurId: string,
+  getUpdateVDom: () => UpdateVDomFn | undefined,
+  getLiveVDom: () => VDom | undefined,
+): void {
+  const sym = findSlurSymbol(musicScore, slurId)
+  if (!sym) return
+  const live = getLiveVDom()
+  const shown = live?.special?.slur ?? sym.data.slur
+  if (!shown) return
+  const geom: SlurMirror = {
+    ...cloneSlur(shown),
+    relativeStartPoint: {x: 0, y: 0},
+    relativeEndPoint: {x: 0, y: 0},
+    relativeControlPoint: {x: 0, y: 0},
+  }
+  const patch = live && live.special?.slur ? slurVDomPatch(live, geom) : null
+  scoreWriteGateFor(musicScore, getUpdateVDom).patch({
+    key: `slur:${slurId}:resetAlign`,
+    delay: 0,
+    mirror: patch ? {targetId: slurId, patch} : undefined,
+    commit: () => commitSlurGeom(musicScore, slurId, geom),
+  })
 }

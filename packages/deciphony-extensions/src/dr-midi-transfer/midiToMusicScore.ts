@@ -35,7 +35,7 @@ import {parseMidi} from './smf/reader'
 import type {MidiFileData} from './smf/types'
 import type {MidiToMusicScoreOptions, MidiToMusicScoreResult, StaffMidiData} from './types'
 
-type DurationGlyph = {total: number; base: Chronaxie; dots?: 1}
+export type DurationGlyph = {total: number; base: Chronaxie; dots?: 1}
 
 const DURATION_GLYPHS: DurationGlyph[] = [
   {total: 256, base: 256},
@@ -56,7 +56,8 @@ const DURATION_GLYPHS: DurationGlyph[] = [
   {total: 1, base: 1},
 ]
 
-function glyphFor(units: number): DurationGlyph {
+/** 不超过 units 的最长单个时值（含单附点） */
+export function glyphFor(units: number): DurationGlyph {
   return DURATION_GLYPHS.find((g) => g.total <= units) ?? {total: units, base: 1}
 }
 
@@ -255,7 +256,7 @@ function buildSegments(notes: QNote[], totalEnd: number): Segment[] {
   return segments
 }
 
-type SpellScope = Map<number, AlteredAccidental | null>
+export type SpellScope = Map<number, AlteredAccidental | null>
 
 const NEEDED_BY_OFFSET: Record<number, AlteredAccidental | null> = {
   [-2]: AccidentalTypeEnum.Double_flat,
@@ -268,7 +269,7 @@ const NEEDED_BY_OFFSET: Record<number, AlteredAccidental | null> = {
 /**
  * midi → region + 谱面记号，考虑小节内变音记忆（与 dr-play resolveAccidentalInMeasure 同义：按 region 记忆）
  */
-function spell(
+export function spell(
   midi: number,
   clef: ClefTypeEnum,
   key: KeySignatureTypeEnum,

@@ -10,7 +10,8 @@ export function vdomSelectionKey(node: VDom): string {
     node.tag === 'addLine' || node.tag === 'addLine_u' || node.tag === 'addLine_g'
   const ledger =
     isMultiLine && node.special?.ledgerLine != null ? `:${node.special.ledgerLine}` : ''
-  return `${node.tag}:${node.targetId ?? ''}:${node.slotName ?? ''}${ledger}`
+  const measureNumber = node.special?.measureNumber ? `:${node.special.measureNumber.number}` : ''
+  return `${node.tag}:${node.targetId ?? ''}:${node.slotName ?? ''}${ledger}${measureNumber}`
 }
 
 /**

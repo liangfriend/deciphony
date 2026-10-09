@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/work",
-  "version": "0.0.9",
+  "version": "0.0.15",
   "description": "sjw 课件展示与产出",
   "type": "module",
   "main": "./dist/index.cjs.js",
@@ -46,7 +46,7 @@
     "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4",
-    "vue": "^3.3.4",
+    "vue": "3.5.18",
     "vue-tsc": "^3.0.5"
   },
   "keywords": [],

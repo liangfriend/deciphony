@@ -100,6 +100,11 @@ function registerNotesInfo(
     registerSingleNoteAffiliatedSymbols(map, info.affiliatedSymbols, frame);
 }
 
+/** 主音符头（首个 NotesInfo / NotesNumberInfo）的水平偏移；倚音、音符前谱号随之平移，垂直不跟 */
+function primaryHeadX(info: Partial<Frame> | undefined): RelativeFrame {
+    return {...ZERO_FRAME, relativeX: info?.relativeX ?? 0};
+}
+
 function registerStandardGraceNotes(
     map: Map<string, RelativeFrame>,
     notes: NotesInfo[] | undefined,
@@ -117,18 +122,7 @@ function registerNoteClef(
     ...parents: Array<Partial<Frame> | RelativeFrame | undefined | null>
 ): void {
     if (!note.clef) return;
-    const primaryInfo = note.notesInfo[0];
-    const chain: Array<Partial<Frame> | RelativeFrame | undefined | null> = [...parents, note];
-    if (primaryInfo) {
-        chain.push({
-            relativeX: primaryInfo.relativeX ?? 0,
-            relativeY: 0,
-            relativeW: 0,
-            relativeH: 0,
-        });
-    }
-    chain.push(note.clef);
-    registerFrame(map, note.clef.id, ...chain);
+    registerFrame(map, note.clef.id, ...parents, note, primaryHeadX(note.notesInfo[0]), note.clef);
 }
 
 function registerNoteSymbol(
@@ -146,8 +140,9 @@ function registerNoteSymbol(
             registerFrame(map, bend.id, ...parents, note, info, bend);
         }
     }
-    registerStandardGraceNotes(map, note.graceNotes, ...parents, note);
-    registerStandardGraceNotes(map, note.graceNotesAfter, ...parents, note);
+    const headX = primaryHeadX(note.notesInfo[0]);
+    registerStandardGraceNotes(map, note.graceNotes, ...parents, note, headX);
+    registerStandardGraceNotes(map, note.graceNotesAfter, ...parents, note, headX);
 }
 
 function registerNoteRest(
@@ -185,11 +180,12 @@ function registerNoteNumber(
     for (const info of note.notesInfo) {
         registerNotesNumberInfo(map, info, ...parents, note);
     }
+    const headX = primaryHeadX(note.notesInfo[0]);
     for (const grace of note.graceNotes ?? []) {
-        registerNotesNumberInfo(map, grace, ...parents, note);
+        registerNotesNumberInfo(map, grace, ...parents, note, headX);
     }
     for (const grace of note.graceNotesAfter ?? []) {
-        registerNotesNumberInfo(map, grace, ...parents, note);
+        registerNotesNumberInfo(map, grace, ...parents, note, headX);
     }
 }
 
@@ -254,12 +250,13 @@ function registerMeasure(map: Map<string, RelativeFrame>, measure: Measure): voi
  *
  * 级联规则（子级在 map 中的值为祖先 Frame 之和 + 自身 Frame，见 registerFrame / mergeFrames）：
  * - MeasureNoteSlot：自身（不继承小节）；单 slot 附属（slot.affiliatedSymbols）与双 slot 附属（startId）挂靠本层；
- * - NoteSymbol（slot.symbol）：继承槽 → 各 NotesInfo → 变音号 / 附点 / 单音附属 / 倚音链；
+ * - NoteSymbol（slot.symbol）：继承槽 → 各 NotesInfo → 变音号 / 附点 / 单音附属；
+ *   前后倚音继承 NoteSymbol + 首个 NotesInfo 的 relativeX + 倚音自身 NotesInfo（随主音符头水平移动）；
  *   音符前谱号（symbol.clef，vDom tag=clef_f）继承 NoteSymbol + 首个 NotesInfo 的 relativeX + 自身 clef；
  *   上下加线（vDom addLine_u / addLine_g，targetId=extreme NotesInfo.id / 倚音 NotesInfo.id）走 NotesInfo 链累计 Frame，
  *   apply 时仅 relativeX（Y 随小节 region 布局，X 随音符头）
  * - NoteRest：继承槽 → 附点、单音附属、谱号
- * - NoteNumber（简谱）：继承槽 → 各 NotesNumberInfo → 变音号、倚音链
+ * - NoteNumber（简谱）：继承槽 → 各 NotesNumberInfo → 变音号；倚音同五线谱，另加首个 NotesNumberInfo 的 relativeX
  * - Measure：自身；小节线 / 谱号 / 调号 / 拍号 / 反复记号 / 单小节附属 仅合并各自对象（不继承 measure 的 relative）
  * - GrandStaff / SingleStaff / Bracket：仅各自 id
  *
@@ -279,6 +276,19 @@ export function collectRelativeFrameMap(musicScore: MusicScore): Map<string, Rel
     }
     for (const sym of musicScore.affiliatedSymbols ?? []) {
         const parent = parentFrameForMusicScoreAffiliated(map, sym);
+        registerFrame(map, sym.id, parent, sym);
+    }
+    return map;
+}
+
+/** 只收集 musicScore.affiliatedSymbols 的 Frame（与 collectRelativeFrameMap 结果一致；双 slot 附属继承起点 slot） */
+export function collectScoreAffiliatedFrameMap(
+    musicScore: MusicScore,
+    slotOf: (slotId: string) => MeasureNoteSlot | undefined,
+): Map<string, RelativeFrame> {
+    const map = new Map<string, RelativeFrame>();
+    for (const sym of musicScore.affiliatedSymbols ?? []) {
+        const parent = isDoubleSlotAffiliatedSymbol(sym) ? slotOf(sym.startId) : undefined;
         registerFrame(map, sym.id, parent, sym);
     }
     return map;

@@ -1,12 +1,21 @@
 import type {Component} from 'vue'
 import type {SlotConfig, SlotName, VDom} from './common'
+import type {VDomLookup} from '@/render/vdomIndex'
 
 /** 传给插槽组件的额外 props（在 node、musicScore 之外） */
 export type DrExtensionProps = Record<string, unknown> | (() => Record<string, unknown>)
 
+/** renderMusicScore 的第二个参数 */
+export type RenderMusicScoreInfo = {
+  /** targetId → vDom 索引；比对整表 find 快得多 */
+  lookup: VDomLookup
+  /** 本次重新排版的复谱表 id（其余行节点引用不变，只可能被整体平移） */
+  changedRowIds: string[]
+}
+
 /** 与 music-score emit 对齐；多个扩展可同时监听同一事件，按 extensions 数组顺序调用 */
 export type DrExtensionEvents = {
-  renderMusicScore?: (vDom: VDom[]) => void
+  renderMusicScore?: (vDom: VDom[], info: RenderMusicScoreInfo) => void
   'dr-click'?: (event: MouseEvent, vDom: VDom) => void
   'dr-contextmenu'?: (event: MouseEvent, vDom: VDom) => void
   'dr-down'?: (event: PointerEvent, vDom: VDom) => void

@@ -8,11 +8,13 @@ export function vdomScaleTransform(node: VDom): string {
     return `translate(${w / 2} ${h / 2}) scale(${s}) translate(${-w / 2} ${-h / 2})`;
 }
 
-export function vdomOuterTransform(node: VDom): string {
+export function vdomOuterTransform(node: VDom, snap?: (value: number) => number): string {
     const inner = vdomScaleTransform(node);
+    const x = snap ? snap(node.x) : node.x;
+    const y = snap ? snap(node.y) : node.y;
     return inner
-        ? `translate(${node.x} ${node.y}) ${inner}`
-        : `translate(${node.x} ${node.y})`;
+        ? `translate(${x} ${y}) ${inner}`
+        : `translate(${x} ${y})`;
 }
 
 /** 布局占位：视觉缩放后的宽/高跨度 */

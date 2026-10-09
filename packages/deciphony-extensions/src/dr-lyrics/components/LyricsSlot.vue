@@ -3,10 +3,10 @@ import type {MeasureNoteSlot, MusicScore, VDom} from '@deciphony/renderer'
 import {computed, unref, type MaybeRef, type Ref} from 'vue'
 import {
   LYRICS_EDIT_MIN_ROWS,
-  LYRICS_INPUT_H,
+  LYRICS_FONT_SIZE,
   LYRICS_PAD_TOP,
-  LYRICS_ROW_GAP,
   LYRICS_ROW_INDEX_X,
+  resolveLyricsMetrics,
 } from '../constants'
 import {
   addLyricRow,
@@ -28,12 +28,24 @@ const props = defineProps<{
   vDomList: Ref<VDom[]> | VDom[]
   /** 最前方是否显示行号（1. 2.） */
   showRowIndex?: MaybeRef<boolean>
+  /** 歌词字号（px） */
+  fontSize?: MaybeRef<number>
+  /** 字体族；未传则沿用宿主 / 浏览器默认 */
+  fontFamily?: MaybeRef<string | undefined>
 }>()
 
 defineOptions({inheritAttrs: false})
 
 const lyricsMode = computed(() => unref(props.mode))
 const showRowIndex = computed(() => unref(props.showRowIndex) ?? false)
+const metrics = computed(() => resolveLyricsMetrics(unref(props.fontSize) ?? LYRICS_FONT_SIZE))
+/** 编辑框比展示文字小 1px，留出边框 */
+const inputFontSize = computed(() => Math.max(8, metrics.value.fontSize - 1))
+const inputW = computed(() => Math.round(48 * metrics.value.fontSize / LYRICS_FONT_SIZE))
+const fontFamily = computed(() => unref(props.fontFamily)?.trim() || undefined)
+const fontFamilyStyle = computed(() =>
+  fontFamily.value ? {fontFamily: fontFamily.value} : undefined,
+)
 const vDomList = computed(() => unref(props.vDomList) ?? [])
 
 const grandStaff = computed(() => props.node.slotData?.grandStaff ?? null)
@@ -72,7 +84,7 @@ const cells = computed((): Cell[] => {
         slot,
         rowIndex,
         x: anchor.x + relativeX,
-        y: LYRICS_PAD_TOP + rowIndex * LYRICS_ROW_GAP + relativeY,
+        y: LYRICS_PAD_TOP + rowIndex * metrics.value.rowGap + relativeY,
         text: readSlotLyricLine(slot, rowIndex),
       })
     }
@@ -104,26 +116,28 @@ const rowIndexLabels = computed(() => {
     out.push({
       rowIndex,
       label: `${rowIndex + 1}.`,
-      y: LYRICS_PAD_TOP + rowIndex * LYRICS_ROW_GAP,
+      y: LYRICS_PAD_TOP + rowIndex * metrics.value.rowGap,
     })
   }
   return out
 })
 
 /** 操作行：歌词下方一行，右侧放删行 / 加行 */
-const controlsY = computed(() => LYRICS_PAD_TOP + rowCount.value * LYRICS_ROW_GAP)
+const controlsY = computed(() => LYRICS_PAD_TOP + rowCount.value * metrics.value.rowGap)
 const controlsX = computed(() => Math.max(0, props.node.w - 88))
 </script>
 
 <template>
-  <g class="dr-lyrics-slot">
+  <g class="dr-lyrics-slot" :style="fontFamilyStyle">
     <template v-if="showRowIndex">
       <text
         v-for="item in rowIndexLabels"
         :key="`idx-${item.rowIndex}`"
         class="dr-lyrics-slot__row-index"
         :x="LYRICS_ROW_INDEX_X"
-        :y="item.y + LYRICS_INPUT_H * 0.75"
+        :y="item.y + metrics.inputH * 0.75"
+        :font-size="inputFontSize"
+        :font-family="fontFamily"
       >{{ item.label }}</text>
     </template>
 
@@ -134,7 +148,9 @@ const controlsX = computed(() => Math.max(0, props.node.w - 88))
         :key="`show-${cell.slot.id}-${cell.rowIndex}-${i}`"
         class="dr-lyrics-slot__text"
         :x="cell.x"
-        :y="cell.y + LYRICS_INPUT_H * 0.75"
+        :y="cell.y + metrics.inputH * 0.75"
+        :font-size="metrics.fontSize"
+        :font-family="fontFamily"
       >{{ cell.text }}</text>
     </template>
 
@@ -142,8 +158,8 @@ const controlsX = computed(() => Math.max(0, props.node.w - 88))
       <foreignObject
         v-for="(cell, i) in cells"
         :key="`edit-${cell.slot.id}-${cell.rowIndex}-${i}`"
-        :height="LYRICS_INPUT_H"
-        :width="Math.max(28, 48)"
+        :height="metrics.inputH"
+        :width="inputW"
         :x="cell.x"
         :y="cell.y"
       >
@@ -151,6 +167,11 @@ const controlsX = computed(() => Math.max(0, props.node.w - 88))
           class="dr-lyrics-slot__input"
           type="text"
           xmlns="http://www.w3.org/1999/xhtml"
+          :style="{
+            fontSize: `${inputFontSize}px`,
+            lineHeight: `${metrics.inputH - 2}px`,
+            ...fontFamilyStyle,
+          }"
           :value="cell.text"
           @click.stop
           @input="onCellInput(cell.slot, cell.rowIndex, $event)"
@@ -193,13 +214,11 @@ const controlsX = computed(() => Math.max(0, props.node.w - 88))
 
 <style scoped>
 .dr-lyrics-slot__text {
-  font-size: 13px;
   fill: #303133;
   dominant-baseline: auto;
 }
 
 .dr-lyrics-slot__row-index {
-  font-size: 12px;
   fill: #909399;
   dominant-baseline: auto;
 }

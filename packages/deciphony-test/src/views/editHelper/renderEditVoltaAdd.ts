@@ -1,4 +1,4 @@
-import type {Measure, MusicScore, SingleStaff} from '@deciphony/renderer'
+import type {DoubleMeasureAffiliatedSymbol, Measure, MusicScore, SingleStaff} from '@deciphony/renderer'
 import {DoubleMeasureAffiliatedSymbolNameEnum} from '@deciphony/renderer'
 import {createVolta} from '@deciphony/extensions/dr-edit/score-builder'
 import {resolveVoltaMeasureIds} from './renderEditVoltaDrag'
@@ -15,9 +15,9 @@ export function findVoltaAtMeasure(
   measureId: string,
 ) {
   return musicScore.affiliatedSymbols.find(
-    (sym) =>
+    (sym): sym is DoubleMeasureAffiliatedSymbol =>
       sym.name === DoubleMeasureAffiliatedSymbolNameEnum.Volta
-      && sym.data?.volta
+      && !!sym.data?.volta
       && resolveVoltaMeasureIds(musicScore, sym).includes(measureId),
   )
 }

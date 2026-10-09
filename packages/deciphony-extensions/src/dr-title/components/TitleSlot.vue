@@ -24,6 +24,8 @@ const props = withDefaults(
     paddingLeft?: number
     /** 右侧内缩 px */
     paddingRight?: number
+    /** 字体族；未传则沿用宿主 / 浏览器默认 */
+    fontFamily?: MaybeRef<string | undefined>
   }>(),
   {
     paddingLeft: 0,
@@ -32,6 +34,10 @@ const props = withDefaults(
 )
 
 const titleMode = computed(() => unref(props.mode))
+const fontFamilyStyle = computed(() => {
+  const fontFamily = unref(props.fontFamily)?.trim()
+  return fontFamily ? {fontFamily} : undefined
+})
 
 /** 三块独立：调号 / 拍号 /（beatUnit+bpm） */
 const showKeyMeta = computed(() => props.musicScore.keySignature != null)
@@ -56,6 +62,11 @@ const TITLE_Y = 0
 const SUBTITLE_Y = 26
 const META_Y = 72
 const authorX = computed(() => slotW.value - padR.value)
+/** 作者多行：每行一个 tspan，行高 = 字号（12px）× 1.4 */
+const AUTHOR_LINE_H = 17
+const authorLines = computed(() =>
+  (props.musicScore.author ?? '').split('\n').map((line) => line.trim()).filter(Boolean),
+)
 const metaX = computed(() => padL.value)
 
 const KEY_OPTIONS = Object.values(KeySignatureTypeEnum)
@@ -71,7 +82,7 @@ const bpm = computed(() => props.musicScore.bpm ?? 120)
 const beatUnit = computed(() => normalizeBeatUnit(props.musicScore.beatUnit))
 
 function onFieldInput(key: TitleFieldKey, event: Event) {
-  writeTitleField(props.musicScore, key, (event.target as HTMLInputElement).value)
+  writeTitleField(props.musicScore, key, (event.target as HTMLInputElement | HTMLTextAreaElement).value)
 }
 
 function onKeyChange(event: Event) {
@@ -101,7 +112,7 @@ function onBpmInput(event: Event) {
 </script>
 
 <template>
-  <g class="dr-title-slot">
+  <g class="dr-title-slot" :style="fontFamilyStyle">
     <template v-if="titleMode === 'show'">
       <text
         v-if="musicScore.title"
@@ -127,7 +138,11 @@ function onBpmInput(event: Event) {
         width="360"
         height="40"
       >
-        <div class="dr-title-slot__meta" xmlns="http://www.w3.org/1999/xhtml">
+        <div
+          class="dr-title-slot__meta"
+          xmlns="http://www.w3.org/1999/xhtml"
+          :style="fontFamilyStyle"
+        >
           <span
             v-if="showKeyMeta"
             class="dr-title-slot__meta-text"
@@ -145,20 +160,27 @@ function onBpmInput(event: Event) {
       </foreignObject>
 
       <text
-        v-if="musicScore.author"
+        v-if="authorLines.length"
         class="dr-title-slot__author"
         :x="authorX"
         :y="META_Y"
         dominant-baseline="hanging"
         text-anchor="end"
-      >{{ musicScore.author }}</text>
+      >
+        <tspan
+          v-for="(line, i) in authorLines"
+          :key="i"
+          :x="authorX"
+          :y="META_Y + i * AUTHOR_LINE_H"
+        >{{ line }}</tspan>
+      </text>
     </template>
 
     <foreignObject v-else :height="slotH" :width="slotW" x="0" y="0">
       <div
         class="dr-title-slot__editor"
         xmlns="http://www.w3.org/1999/xhtml"
-        :style="{width: `${slotW}px`, height: `${slotH}px`}"
+        :style="{width: `${slotW}px`, height: `${slotH}px`, ...fontFamilyStyle}"
       >
         <div
           class="dr-title-slot__center"
@@ -243,14 +265,15 @@ function onBpmInput(event: Event) {
           </template>
         </div>
 
-        <input
+        <textarea
           class="dr-title-slot__input dr-title-slot__input--author"
-          placeholder="作者"
-          type="text"
+          placeholder="作者（回车换行）"
+          :rows="Math.max(1, (musicScore.author ?? '').split('\n').length)"
           :style="{right: `${padR}px`, top: `${META_Y}px`}"
           :value="readTitleField(musicScore, 'author')"
           @click.stop
           @input="onFieldInput('author', $event)"
+          @keydown.stop
           @pointerdown.stop
         />
       </div>
@@ -341,7 +364,10 @@ function onBpmInput(event: Event) {
   position: absolute;
   width: 140px;
   font-size: 12px;
+  line-height: 1.4;
   text-align: right;
+  resize: none;
+  font-family: inherit;
 }
 
 .dr-title-slot__input--bpm {

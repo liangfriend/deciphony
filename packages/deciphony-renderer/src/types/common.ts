@@ -3,7 +3,15 @@ import type {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotat
 import type {StandardStaffSkinKeyEnum} from "@/standardStaff/enums/standardStaffSkinKeyEnum";
 import type {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSkinKeyEnum";
-import type {ArpeggioTypeEnum, BendTypeEnum, PedalTypeEnum, PitchTypeEnum, SlurTypeEnum} from "@/enums/musicScoreEnum";
+import type {
+    ArpeggioTypeEnum,
+    BendTypeEnum,
+    HairpinTypeEnum,
+    PedalTypeEnum,
+    PitchTypeEnum,
+    SlurTypeEnum,
+    TrillTypeEnum,
+} from "@/enums/musicScoreEnum";
 import type {NoteName} from "@/enums/musicScoreEnum";
 import {
     MusicScore,
@@ -63,6 +71,7 @@ export type VDomTagType =
     | 'augmentationDot'    // 附点
     | 'longRest'       // 鼓谱长休止符（头 / 内容 / 尾 / 完整）
     | 'longRestNumber' // 鼓谱长休止符小节数
+    | 'measureNumber'  // 小节号（MusicScore.measureNumber）
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
 
@@ -73,6 +82,11 @@ export type VDom = {
     h: number;
     /** 视觉缩放比例（1 为默认）；由 group.vue 对 skin 内容做 transform，w/h 仍为布局占位 */
     scale?: number;
+    /**
+     * 简谱数字 / 休止符：附属物超出数字框的距离（≥0）。
+     * top = 上八度点；bottom = 减时线 + 下八度点；left = 变音符号；right 暂为 0。附属锚点 numberNotationAnchor 读此值
+     */
+    numberNotationExtent?: { top: number; bottom: number; left: number; right: number };
     startPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
     endPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
     targetId: string,
@@ -94,6 +108,18 @@ export type VDom = {
             thickness: number, // 厚度，两个贝塞尔曲线控制点的y值差
             type?: SlurTypeEnum, // 吉他谱连音线中心文字（H/S/P/HP）
             relativeTextPoint?: { x: number, y: number }, // 文字相对控制点偏移
+            /**
+             * 朝向（渲染时按符干取值，不写回 data）：起止符干都向上 → 'down'（画在符头下方），否则 'up'。
+             * 决定默认 controlPoint 在两端上方还是下方；分段时决定两段半月牙往哪边拱。简谱无符干，恒为 'up'
+             */
+            direction?: 'up' | 'down',
+            /**
+             * 起止音符不在同一单谱表（如换行）：月牙从中间切开成两段，左段挂起点、右段挂终点，
+             * 断开处 = 起点 / 终点 ± splitGap（随端点整体平移，每段是固定形状），拱高为同跨度整段的 2 倍；controlPoint 不起作用
+             */
+            split?: boolean,
+            /** 分段时断开处到起止默认锚点的横向距离（= measureHeight） */
+            splitGap?: number,
         };
         volta?: {
             openLeft?: boolean,
@@ -145,6 +171,21 @@ export type VDom = {
             relativeStartPoint?: { x: number, y: number };
             relativeEndPoint?: { x: number, y: number };
         };
+        /** 双 slot 附属颤音线（trill_line） */
+        trill?: {
+            type?: TrillTypeEnum;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
+        };
+        /** 双 slot 附属渐强 / 渐弱（hairpin） */
+        hairpin?: {
+            thickness?: number;
+            type?: HairpinTypeEnum;
+            /** 楔形开口高度 */
+            height?: number;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
+        };
         /** 吉他谱 slot 和弦图（不含 id） */
         tabChord?: {
             width: number;
@@ -185,6 +226,11 @@ export type VDom = {
         /** 鼓谱长休止符小节数（颜色来自皮肤，文字在 x/y/w/h 框内居中） */
         longRestNumber?: {
             count: number;
+        };
+        /** 小节号（文字在 x/y/w/h 框内左对齐、垂直居中；同一 targetId 的多个小节号靠 number 区分） */
+        measureNumber?: {
+            number: number;
+            bracket?: boolean;
         };
         /**
          * 同音符多条线须区分（写入 vdomSelectionKey / DOM id）：
@@ -246,6 +292,7 @@ export type NumberNotationSkinPack = Record<NumberNotationSkinKeyEnum, SkinItem<
 /** 吉他谱单套皮肤包 */
 export type Tab6SkinPack = Record<Tab6SkinKeyEnum, SkinItem<Tab6SkinKeyEnum>>;
 export type Tab4SkinPack = Tab6SkinPack;
+export type Tab5SkinPack = Tab6SkinPack;
 /** 鼓谱单套皮肤包 */
 export type DrumNotationSkinPack = Record<DrumNotationSkinKeyEnum, SkinItem<DrumNotationSkinKeyEnum>>;
 
@@ -255,6 +302,8 @@ export type SkinPack = {
     numberNotation?: NumberNotationSkinPack;
     tab6?: Tab6SkinPack;
     tab4?: Tab4SkinPack;
+    /** 五弦 TAB（五弦贝斯）；小节线默认与五线谱 measure 同几何 */
+    tab5?: Tab5SkinPack;
     /** 不设置时使用内置默认鼓谱皮肤 */
     drumNotation?: DrumNotationSkinPack;
 };

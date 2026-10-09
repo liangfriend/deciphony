@@ -109,9 +109,9 @@ export async function addImage(
     throw new Error(`缓存中不存在资源: ${assetId}`)
   }
 
-  const size =
+  const natural =
     options.width !== undefined && options.height !== undefined
-      ? {width: options.width, height: options.height}
+      ? undefined
       : await readImageSize(source)
 
   const id = options.id ?? newId()
@@ -121,8 +121,12 @@ export async function addImage(
     x: options.x,
     y: options.y,
     src: assetId,
-    width: size.width,
-    height: size.height,
+    width: natural ? natural.width : options.width!,
+    height: natural ? natural.height : options.height!,
+  }
+  if (natural) {
+    el.naturalWidth = natural.width
+    el.naturalHeight = natural.height
   }
   if (options.rotation !== undefined) el.rotation = options.rotation
   ensureElements(page).push(el)

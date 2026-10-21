@@ -6,6 +6,7 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     DoubleSlotAffiliatedSymbolNameEnum,
+    GuzhengLianTypeEnum,
     HairpinTypeEnum,
     KeySignatureTypeEnum,
     MeasureEndRepeatEnum,
@@ -15,6 +16,8 @@ import {
     NoteSymbolTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
+    SingleMeasureAffiliatedSymbolNameEnum,
+    SingleNoteAffiliatedSymbolNameEnum,
     SingleSlotAffiliatedSymbolNameEnum,
     TimeSignatureTypeEnum,
     TrillTypeEnum,
@@ -43,6 +46,8 @@ import type {
     NotesInfo,
     NotesNumberInfo,
     NoteSymbol,
+    SingleMeasureAffiliatedSymbol,
+    SingleNoteAffiliatedSymbol,
     SingleSlotAffiliatedSymbol,
     SingleStaff,
     TimeSignature,
@@ -50,9 +55,11 @@ import type {
 import {DEFAULT_MEASURE_HEIGHT, DEFAULT_SPACING, DEFAULT_WIDTH_RATIO, ZERO_FRAME, defaultSingleSlotEndPoint} from './constants';
 import {newId} from './id';
 import {resolveDefaultBeamType} from './autoBeam';
+import {addExtraSymbol} from './extraSymbol';
 import type {
     CreateArpeggioOptions,
     CreateGrandStaffOptions,
+    CreateGuzhengLianOptions,
     CreateHairpinOptions,
     CreateMeasureOptions,
     CreateMusicScoreOptions,
@@ -106,8 +113,14 @@ export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicSc
         height: options.height ?? 400,
         grandStaffs: [],
         affiliatedSymbols: [],
+        extraNoteSymbol: [],
+        extraSlotSymbol: [],
+        extraMeasureSymbol: [],
         data: options.data ?? {},
     };
+    for (const sym of options.extraNoteSymbol ?? []) addExtraSymbol(score, 'note', sym);
+    for (const sym of options.extraSlotSymbol ?? []) addExtraSymbol(score, 'slot', sym);
+    for (const sym of options.extraMeasureSymbol ?? []) addExtraSymbol(score, 'measure', sym);
     if (isNumberNotation) {
         score.keySignature = options.keySignature ?? KeySignatureTypeEnum.C;
         score.timeSignature = options.timeSignature ?? TimeSignatureTypeEnum['4_4'];
@@ -354,7 +367,7 @@ function mapGraceList(list: CreateNotesInfoOptions[] | undefined): NotesInfo[] |
     return list.map((g) => createNotesInfo(g));
 }
 
-/** 新建歌词默认一行空歌词（g-d 高度全局共享，各谱表起步行数对齐） */
+/** 新建歌词默认一行空歌词（s-d 高度全局共享，各谱表起步行数对齐） */
 function defaultEmptyLyrics(): Lyrics[] {
     return [{
         text: '',
@@ -783,5 +796,81 @@ export function createHairpin(options: CreateHairpinOptions): DoubleSlotAffiliat
                 ...partialData?.hairpin,
             },
         },
+    };
+}
+
+/**
+ * 双 slot 古筝连续指法（连托 / 连劈 / 连抹 / 连挑 / 连勾 / 连剔 / 连打 / 连摘）：startId / endId = MeasureNoteSlot.id。
+ * 画在谱表下方，起点符号后接虚线到结束列。
+ */
+export function createGuzhengLian(options: CreateGuzhengLianOptions): DoubleSlotAffiliatedSymbol {
+    const {startId, endId, type = GuzhengLianTypeEnum.Tuo, partial} = options;
+    const {data: partialData, id: partialId, name: _name, startId: _s, endId: _e, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name: DoubleSlotAffiliatedSymbolNameEnum.Guzheng_lian,
+        startId,
+        endId,
+        data: {
+            guzhengLian: {
+                relativeStartPoint: {x: 0, y: 0},
+                relativeEndPoint: {x: 0, y: 0},
+                type,
+                ...partialData?.guzhengLian,
+            },
+        },
+    };
+}
+
+/**
+ * 单音符附属（奏法 / 力度 / 古筝指法等）：放入 NotesInfo / NotesNumberInfo / TabNoteInfo 等的 affiliatedSymbols。
+ * 自定义音符符号传 extraNoteSymbol 里的 skinKey。
+ */
+export function createSingleNoteAffiliatedSymbol(
+    name: SingleNoteAffiliatedSymbolNameEnum | string,
+    partial?: Partial<Omit<SingleNoteAffiliatedSymbol, 'name'>>,
+): SingleNoteAffiliatedSymbol {
+    const {id: partialId, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name,
+        data: {},
+    };
+}
+
+/**
+ * 单 slot 附属（按皮肤绘制的内置符号，或 extraSlotSymbol 里的 skinKey）：放入 MeasureNoteSlot.affiliatedSymbols。
+ * 琶音 / 扫弦 / 前奏括号用各自的 create* 函数。
+ */
+export function createSingleSlotAffiliatedSymbol(
+    name: SingleSlotAffiliatedSymbolNameEnum | string,
+    partial?: Partial<Omit<SingleSlotAffiliatedSymbol, 'name'>>,
+): SingleSlotAffiliatedSymbol {
+    const {id: partialId, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name,
+        data: {},
+    };
+}
+
+/** 单小节附属（内置或 extraMeasureSymbol 里的 skinKey）：放入 Measure.affiliatedSymbols */
+export function createSingleMeasureAffiliatedSymbol(
+    name: SingleMeasureAffiliatedSymbolNameEnum | string,
+    partial?: Partial<Omit<SingleMeasureAffiliatedSymbol, 'name'>>,
+): SingleMeasureAffiliatedSymbol {
+    const {id: partialId, ...rest} = partial ?? {};
+    return {
+        ...ZERO_FRAME,
+        ...rest,
+        id: partialId ?? newId(),
+        name,
+        data: {},
     };
 }

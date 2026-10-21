@@ -247,13 +247,15 @@ function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceNumbe
         const slot = slots[i]!;
         const count = reduceLineCount(slot.ni);
         if (!count) continue;
-        pushReduceLine(slot, count, slot.visualLeft, Math.max(slot.visualRight, slot.visualLeft + slot.visualW));
+        const ownRight = Math.max(slot.visualRight, slot.visualLeft + slot.visualW);
+        pushReduceLine(slot, count, slot.visualLeft, ownRight);
 
         const next = slots[i + 1];
         const nextCount = next ? reduceLineCount(next.ni) : 0;
         if (!next || !nextCount) continue;
         if (!canJoinReduceLineFromLeft(slot.ni.beamType) || !canJoinReduceLineToRight(next.ni.beamType)) continue;
-        pushReduceLine(slot, Math.min(count, nextCount), slot.visualLeft, next.visualRight);
+        // 只补两音之间的空隙，不与各自的线重叠（重叠处抗锯齿会发深）
+        if (next.visualLeft > ownRight) pushReduceLine(slot, Math.min(count, nextCount), ownRight, next.visualLeft);
     }
 }
 

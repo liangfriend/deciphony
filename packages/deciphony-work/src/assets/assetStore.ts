@@ -49,11 +49,20 @@ function normalizeDisplayName(file: File, name?: string): string {
 
 /**
  * SJWPDF 内资源缓存：id → { id, name, file }，并维护 objectURL。
+ *
+ * 删除的资源先进回收站（removed）：不再出现在列表 / 导出里，但按 id 仍能读到，
+ * 宿主撤销把引用恢复回来时画面不缺图；导出前会把仍被引用的自动移回。
  */
 export function createAssetStore() {
   const files: AssetMap = new Map()
+  const removed: AssetMap = new Map()
   const objectUrls = new Map<string, string>()
   const version = ref(0)
+
+  function lookup(id: string): AssetRecord | undefined {
+    const key = basename(id)
+    return files.get(key) ?? removed.get(key)
+  }
 
   function bump() {
     version.value++
@@ -92,19 +101,19 @@ export function createAssetStore() {
   }
 
   function hasAsset(id: string): boolean {
-    return files.has(basename(id))
+    return lookup(id) != null
   }
 
   function getAssetRecord(id: string): AssetRecord | undefined {
-    return files.get(basename(id))
+    return lookup(id)
   }
 
   function getAsset(id: string): File | undefined {
-    return files.get(basename(id))?.file
+    return lookup(id)?.file
   }
 
   function getAssetName(id: string): string | undefined {
-    return files.get(basename(id))?.name
+    return lookup(id)?.name
   }
 
   /**
@@ -117,6 +126,7 @@ export function createAssetStore() {
   ) {
     clearObjectUrls()
     files.clear()
+    removed.clear()
     const entries = map instanceof Map ? map.entries() : Object.entries(map)
     for (const [key, value] of entries) {
       const id = basename(key)
@@ -145,7 +155,7 @@ export function createAssetStore() {
   function loadAsset(file: File, name?: string): AssetRecord {
     const displayName = normalizeDisplayName(file, name)
     let id = createAssetId(file, displayName)
-    while (files.has(id)) {
+    while (files.has(id) || removed.has(id)) {
       id = createAssetId(file, displayName)
     }
     const typed =
@@ -175,15 +185,46 @@ export function createAssetStore() {
     if (used && !options.removeUsages) return false
     if (options.removeUsages) clearAssetUsages(data, key)
     revoke(key)
+    removed.set(key, files.get(key)!)
     files.delete(key)
     if (data.assetNames) delete data.assetNames[key]
     bump()
     return true
   }
 
+  /** 回收站里又被 data 引用的资源移回正式缓存（撤销后 / 导出前）；返回移回的 id */
+  function restoreUsedRemoved(data: SJW): string[] {
+    const restored: string[] = []
+    for (const [id, rec] of removed) {
+      if (!isAssetUsed(data, id)) continue
+      removed.delete(id)
+      files.set(id, rec)
+      restored.push(id)
+    }
+    if (restored.length) bump()
+    return restored
+  }
+
+  function listRemovedAssetIds(): string[] {
+    return [...removed.keys()]
+  }
+
+  /** 彻底释放回收站；传 keep 时保留其返回 true 的 id（如仍被撤销历史引用） */
+  function purgeRemoved(keep?: (id: string) => boolean) {
+    let changed = false
+    for (const id of [...removed.keys()]) {
+      if (keep?.(id)) continue
+      revoke(id)
+      removed.delete(id)
+      changed = true
+    }
+    if (changed) bump()
+  }
+
   function clear() {
     clearObjectUrls()
     files.clear()
+    removed.clear()
     bump()
   }
 
@@ -199,7 +240,7 @@ export function createAssetStore() {
     const id = basename(s)
     const cached = objectUrls.get(id)
     if (cached) return cached
-    const rec = files.get(id)
+    const rec = lookup(id)
     if (!rec) return ''
     const url = URL.createObjectURL(rec.file)
     objectUrls.set(id, url)
@@ -225,6 +266,9 @@ export function createAssetStore() {
     loadAsset,
     addAsset,
     removeAsset,
+    restoreUsedRemoved,
+    listRemovedAssetIds,
+    purgeRemoved,
     clear,
     resolveSrc,
     syncAssetNamesToData,

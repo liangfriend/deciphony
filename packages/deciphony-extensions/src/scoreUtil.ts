@@ -266,6 +266,30 @@ export function getNoteRegionAndAccidental(
     return {region, accidental: priority}
 }
 
+/** 小节内变音记忆：region → 当前生效的变音（null = 已还原）；没有记录时按调号 */
+export type MeasureAccidentalScope = Map<number, AlteredAccidental | null>
+
+/**
+ * 写谱时按小节内变音记忆修正谱面记号（与 dr-play 读谱规则对称）。
+ * written 是 getNoteRegionAndAccidental 只按调号算出的最简记号；同小节前面同位置写过记号、
+ * 改变了当前生效的变音时，补写还原号或调号内的升降，否则会被前面的记号带偏。
+ * 写出记号时更新 scope；调用方须按演奏顺序（前倚音 → 主音 → 后倚音）逐个写，每小节新建 scope。
+ */
+export function applyMeasureAccidentalScope(
+    scope: MeasureAccidentalScope,
+    clef: ClefTypeEnum,
+    keySignature: KeySignatureTypeEnum,
+    region: number,
+    written: AccidentalTypeEnum | null,
+): AccidentalTypeEnum | null {
+    const keySigAcc = getKeySignatureAccidental(clef, keySignature, region)
+    const needed = effectiveFromWritten(written, keySigAcc)
+    const current = scope.has(region) ? scope.get(region) ?? null : keySigAcc
+    const out = written ?? (current === needed ? null : needed ?? AccidentalTypeEnum.Natural)
+    if (out != null) scope.set(region, needed)
+    return out
+}
+
 /** 给定 midi 下所有可达的 (region, 有效变音) 拼写 */
 function enumeratePitchCandidates(
     clef: ClefTypeEnum,
@@ -1034,14 +1058,31 @@ function remapAffiliatedSymbols(
     return result
 }
 
+/**
+ * 展开后每份小节只留这一遍的歌词：第 n 遍取 `lyrics[n]`；只有一段词时每遍都留；
+ * 该遍没有词则清空（谱子没反复但写了多段词时，多出的段落也就舍掉了）。规则与 dr-time-offset 一致。
+ */
+function keepPassLyrics(measure: Measure, passIndex: number): void {
+    for (const slot of getMeasureSlots(measure)) {
+        if (!Array.isArray(slot.lyrics) || slot.lyrics.length <= 1) continue
+        const item = slot.lyrics[passIndex]
+        slot.lyrics = item ? [item] : []
+    }
+}
+
 function expandMeasuresByPlayIndexes(
     sourceMeasures: Measure[],
     playMeasureIndexes: number[]
 ): { measures: Measure[]; idMaps: Map<string, string>[] } {
     const idMaps: Map<string, string>[] = []
+    /** 源小节已展开次数 → 这一份是第几遍 */
+    const passBySource = new Map<number, number>()
 
     const measures = playMeasureIndexes.map((sourceIndex, expandedIndex) => {
         const measure = cloneMeasure(sourceMeasures[sourceIndex]!)
+        const passIndex = passBySource.get(sourceIndex) ?? 0
+        passBySource.set(sourceIndex, passIndex + 1)
+        keepPassLyrics(measure, passIndex)
         stripMeasureRepeatSymbols(measure)
         if (
             expandedIndex < playMeasureIndexes.length - 1 &&

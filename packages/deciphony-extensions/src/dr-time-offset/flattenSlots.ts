@@ -13,8 +13,48 @@ import {
 } from '@deciphony/renderer'
 import {isNoteNumberSlot as isMeasureNoteNumberSlot} from '../dr-edit/score-builder/noteSlot'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../scoreUtil'
-import {MAX_SYNC_SECONDS} from './constants'
+import {
+  FLATTEN_LINE_GAP,
+  FLATTEN_LYRIC_H,
+  FLATTEN_STAFF_PAD_Y,
+  FLATTEN_STEM_LENGTH,
+  MAX_SYNC_SECONDS,
+} from './constants'
 import type {FlattenSlotItem, FlattenStaffRow, NotePassMap} from './types'
+
+/** 简谱展平行内高：数字 + 减时线 + 八度点留白 */
+export const FLATTEN_NUMBER_INNER_H = 56
+
+/** 展平谱一行的高度（不含歌词带） */
+export function flattenStaffRowHeight(isNumber: boolean): number {
+  if (isNumber) return FLATTEN_NUMBER_INNER_H + FLATTEN_STAFF_PAD_Y * 2
+  return 4 * FLATTEN_LINE_GAP + FLATTEN_STAFF_PAD_Y * 2 + FLATTEN_STEM_LENGTH * 0.35
+}
+
+/** 展平谱各行顶部 y 与总高（有歌词的行多一条歌词带） */
+export function flattenRowLayout(
+  rows: readonly FlattenStaffRow[],
+  isNumber: boolean,
+): {tops: number[]; heights: number[]; total: number} {
+  const base = flattenStaffRowHeight(isNumber)
+  const tops: number[] = []
+  const heights: number[] = []
+  let y = 0
+  for (const row of rows) {
+    const h = base + (row.hasLyrics ? FLATTEN_LYRIC_H : 0)
+    tops.push(y)
+    heights.push(h)
+    y += h
+  }
+  return {tops, heights, total: Math.max(base, y)}
+}
+
+/** 第 passIndex 遍的歌词：取 `lyrics[passIndex]`；只有一段词时每遍都用它 */
+function slotLyricText(slot: MeasureNoteSlot, passIndex: number): string {
+  const list = Array.isArray(slot.lyrics) ? slot.lyrics : []
+  const item = list.length === 1 ? list[0] : list[passIndex]
+  return (item?.text ?? '').trim()
+}
 
 function ensureData(slot: MeasureNoteSlot): Record<string, unknown> {
   if (!slot.data || typeof slot.data !== 'object') {
@@ -221,6 +261,7 @@ export function buildFlattenStaffRows(
           syllables: visual.syllables,
           octaveDots: visual.octaveDots,
           highlightIds: visual.highlightIds,
+          lyric: slotLyricText(slot, passIndex),
           slotRef: {data},
         })
       }
@@ -230,6 +271,7 @@ export function buildFlattenStaffRows(
       key: `s${si}`,
       staffIndex: si,
       slots,
+      hasLyrics: slots.some((s) => s.lyric !== ''),
     })
   }
 

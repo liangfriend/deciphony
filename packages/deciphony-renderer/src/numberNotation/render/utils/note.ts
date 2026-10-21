@@ -65,12 +65,12 @@ export function getSlotRestChronaxie(note: NoteNumber): number {
  */
 export function getChronaxieWidthCoefficient(chronaxie: number): number {
     if (chronaxie >= 64) return 1;
-    if (chronaxie === 32) return 0.5;
-    if (chronaxie === 16) return 0.25;
-    if (chronaxie === 8) return 0.25;
-    if (chronaxie === 4) return 0.25;
-    if (chronaxie === 2) return 0.25;
-    if (chronaxie === 1) return 0.25;
+    if (chronaxie === 32) return 0.8;
+    if (chronaxie === 16) return 0.7;
+    if (chronaxie === 8) return 0.6;
+    if (chronaxie === 4) return 0.55;
+    if (chronaxie === 2) return 0.5;
+    if (chronaxie === 1) return 0.45;
     return 1;
 }
 
@@ -312,7 +312,7 @@ function getLastAddLineColumnWidthRatioForMeasure(
     );
 }
 
-/** 音符对小节在单谱表内宽度占比的系数 */
+/** 音符对小节在单谱表内宽度占比的系数（列基础值由 countMergedOnsetColumns 另计） */
 export function getNoteWidthRatioForMeasure(
     measureSlot: MeasureNoteSlot,
     skin: NumberNotationSkinPack,

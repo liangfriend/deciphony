@@ -50,6 +50,7 @@ function toPlaySequence(): PlaySequence {
         realDuration: it.real_duration,
         playTime: it.playTime,
         start,
+        ...(it.lyric ? {lyric: it.lyric} : {}),
       },
       end: false,
     }

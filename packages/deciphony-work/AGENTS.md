@@ -199,7 +199,7 @@ Expose（宿主 `ref` 调用）大致包括：
 - 裁剪：`cropImage` / `cropScore` / `clearCrop`（当前页）；按复谱表：`cropScoreByGrandStaff(id, from, to, {keepY?})`（0=标题，1..n=第几个复谱表；`keepY: true` 钉死框 x/y）/ `getScoreVerticalBands(id)`；裁剪模式 `startCrop` / `endCrop` / `getCropTarget`，事件 `cropModeChange`
 - 绘制：`startDraw` / `endDraw` / `setTool(tool, options?)` / `clearDrawings` / `clearAnnotations` / `isDrawing` / `getTool`（edit→持久层；show→教学标注）
 - 选段：`startRangeSelect` / `endRangeSelect` / `clearRangeSelect` / `getRangeSelect`；事件 `rangeChange`
-- 播放：`play(scoreIndex?, { range? })` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`；曲谱 `play` 默认 `PLAY_SMOOTH_ENVELOPE`；音色按单谱表：`singleStaff.data.instrumentValue` 优先，缺省用 `setToneColorName` 的默认音色（需都已 `addToneColor`）
+- 播放：`play(scoreIndex?, { range? })` / `playAccompaniment` / `playVocal` / `pause` / `stop` / `addToneColor` / `setToneColorName` / `getToneColorName` / `setBpm` / `getBpm` / `getPlayer` / `getAPlayer` / `getPlaybackMode`；曲谱 `play` 默认 `PLAY_SMOOTH_ENVELOPE`；NPlayer 序列 `data` 带 dr-play 的 `lyric`（有歌词才有）；音色按单谱表：`singleStaff.data.instrumentValue` 优先，缺省用 `setToneColorName` 的默认音色（需都已 `addToneColor`）
 - 资源：`loadAsset` / `listAssets` / `removeAsset` / `resolveSrc` / …
 - IO：`loadSjw` / `exportSjw` / `exportImages({pages?, scale?, type?, filename?, onProgress?})`（单页图片 / 多页 zip）/ `exportPdf({pages?, scale?, imageType?, filename?, onProgress?})` / `exportPageImage(pageIndex?, options?)`
 

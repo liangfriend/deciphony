@@ -20,6 +20,7 @@ import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 import {getVoiceGroupForDirection} from "../utils/note";
 import {slotIsNoteSymbol, slotSymbol} from "../utils/staffSlot";
+import {markBeamLineRuns} from "@/render/beamLineRuns";
 
 /** 一组连杠成员：一个 NoteSymbol + 该组使用的符干方向 */
 type BeamGroupMember = { note: NoteSymbol; direction: 'up' | 'down' };
@@ -184,21 +185,18 @@ export function processBeam(params: {
     }
 
     // --- 5. 为每个音符位置生成一段符杠 VDom ---
-    const overlap = 1; // 相邻段、符杠与符干互相嵌入 1px
+    const beamStart = vDoms.length;
     for (let j = 0; j < nStems; j++) {
       // 段界 x：相邻两符干中心的中间点；首尾段界取该符干中心
       const leftX = j === 0 ? stemEnds[0]!.x : (stemEnds[j - 1]!.x + stemEnds[j]!.x) / 2;
       const rightX = j === nStems - 1 ? stemEnds[nStems - 1]!.x : (stemEnds[j]!.x + stemEnds[j + 1]!.x) / 2;
-      // 中间段向左右各延伸 overlap，形成嵌入效果
-      const leftXAdj = j > 0 ? leftX - overlap : leftX;
-      const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
-      const leftY = anchor.y + inclination * (leftXAdj - anchor.x);
-      const rightY = anchor.y + inclination * (rightXAdj - anchor.x);
+      const leftY = anchor.y + inclination * (leftX - anchor.x);
+      const rightY = anchor.y + inclination * (rightX - anchor.x);
       const dx = stemHalfW; // 从左缘偏移到符干中心
       const dy = 0;
       vDoms.push({
-        startPoint: {x: leftXAdj + dx, y: leftY + dy},
-        endPoint: {x: rightXAdj + dx, y: rightY + dy},
+        startPoint: {x: leftX + dx, y: leftY + dy},
+        endPoint: {x: rightX + dx, y: rightY + dy},
         special: {
           beam: {
             lines: linesPerSegment[j]!,
@@ -217,6 +215,7 @@ export function processBeam(params: {
         dataComment: '符杠',
       });
     }
+    markBeamLineRuns(vDoms, beamStart);
   };
 
   for (const g of beamGroupsUp) processBeamGroup(g, 'up');

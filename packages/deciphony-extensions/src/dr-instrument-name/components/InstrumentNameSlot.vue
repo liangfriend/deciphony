@@ -13,6 +13,8 @@ const props = withDefaults(
     /** 小节 id → 小节 vDom（五线区域），用于纵向对齐 */
     measureVDomMap: Ref<Map<string, VDom>> | Map<string, VDom>
     fontSize?: number
+    /** 字体族；未传则沿用宿主 / 浏览器默认 */
+    fontFamily?: MaybeRef<string | undefined>
     align?: InstrumentNameAlign
     /** 文本与曲谱（插槽右缘）的间距 */
     gap?: MaybeRef<number>
@@ -37,6 +39,11 @@ const lines = computed(() => {
 })
 
 const lineHeight = computed(() => props.fontSize * 1.2)
+
+const fontFamilyStyle = computed(() => {
+  const fontFamily = unref(props.fontFamily)?.trim()
+  return fontFamily ? {fontFamily} : undefined
+})
 
 /** 所在复谱表的节点：有就只在本行里找小节，别的行重排时本插槽不跟着重算 */
 const rowVDoms = inject<Ref<VDom[]> | null>(DR_ROW_VDOMS_KEY, null)
@@ -73,7 +80,7 @@ const textAnchor = computed(() => {
 </script>
 
 <template>
-  <g v-if="lines.length" class="dr-instrument-name-slot">
+  <g v-if="lines.length" class="dr-instrument-name-slot" :style="fontFamilyStyle">
     <text
       v-for="(line, i) in lines"
       :key="i"

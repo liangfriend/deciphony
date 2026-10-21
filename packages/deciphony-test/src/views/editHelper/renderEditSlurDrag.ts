@@ -1,5 +1,6 @@
 import {
   DoubleNoteAffiliatedSymbolNameEnum,
+  isNumberNotationSlur,
   isSplitSlur,
   mirrorSlurData,
   MusicScoreTypeEnum,
@@ -83,6 +84,7 @@ function sameSlur(a: SlurMirror, b: SlurMirror): boolean {
     && samePoint(a.relativeControlPoint, b.relativeControlPoint)
     && a.thickness === b.thickness
     && a.type === b.type
+    && a.style === b.style
     && samePoint(a.relativeTextPoint, b.relativeTextPoint)
 }
 
@@ -100,7 +102,7 @@ export function computeSlurHandlePoints(
       split: true,
     }
   }
-  if (notationType === MusicScoreTypeEnum.NumberNotation) {
+  if (isNumberNotationSlur(notationType, vdom.special?.slur?.style)) {
     const g = numberNotationSlurGeom(vdom)
     const midX = (g.x0 + g.x1) / 2
     return {
@@ -165,7 +167,7 @@ export function nextSlurGeomFromPointer(
   if (!prev) return null
   const split = isSplitSlur(vdom)
   // 简谱整段：两端只改 x；分段时两端各管自己那段的高度，可上下拖
-  const jianpu = notationType === MusicScoreTypeEnum.NumberNotation && !split
+  const jianpu = isNumberNotationSlur(notationType, prev.style) && !split
   const next = cloneSlur(prev)
 
   if (split && session.handle === 'control') return null
@@ -220,6 +222,7 @@ function commitSlurGeom(musicScore: MusicScore, slurId: string, geom: SlurMirror
     thickness: geom.thickness,
     ...(geom.type != null ? {type: geom.type} : {}),
     ...(geom.relativeTextPoint ? {relativeTextPoint: pt(geom.relativeTextPoint)} : {}),
+    ...(geom.style != null ? {style: geom.style} : {}),
   } as NonNullable<DoubleNoteAffiliatedSymbol['data']['slur']>
 }
 

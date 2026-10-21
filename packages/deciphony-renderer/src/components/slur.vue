@@ -34,7 +34,9 @@ const SLUR_LABEL: Record<SlurTypeEnum, string> = {
   [SlurTypeEnum.HP]: 'HP',
 };
 
-const isJianpu = computed(() => isNumberNotationSlur(props.notationType));
+const isJianpu = computed(() =>
+  isNumberNotationSlur(props.notationType, props.vDom.special?.slur?.style),
+);
 
 // 两条二次贝塞尔曲线围成月牙形；控制点 = 默认控制点（按 direction 在两端上方 / 下方）+ relativeControlPoint
 const geom = computed(() => {

@@ -12,11 +12,14 @@ import {
   type FretInstrumentPlayOptions,
   type TabPlaySequenceOptions,
 } from './tab/playSequence'
-import {applyStaffToneColor, DEFAULT_TONE_COLOR} from './toneColor'
+import {applyStaffToneColor, buildIdToStaffMap, DEFAULT_TONE_COLOR} from './toneColor'
+import {applyStaffVolume} from './staffVolume'
 import {cropDrPlaySequence, type DrPlayRange} from './range'
-import type {DR_playSequence, DR_playSequence_item, Unit256} from './types'
+import {applyPlayLyrics} from './lyrics'
+import type {DR_playLyric, DR_playSequence, DR_playSequence_item, Unit256} from './types'
 
-export type {DR_playSequence, DR_playSequence_item, Unit256}
+export type {DR_playLyric, DR_playSequence, DR_playSequence_item, Unit256}
+export {applyPlayLyrics, createPlayLyricResolver} from './lyrics'
 export {getDuration} from './types'
 export {getStandardStaffPlaySequence} from './standardStaff/playSequence'
 export {getNumberNotationPlaySequence} from './numberNotation/playSequence'
@@ -70,6 +73,12 @@ export {
   writeInstrumentValueVariant,
   writeStaffInstrumentValue,
 } from './toneColor'
+export {
+  applyStaffVolume,
+  DEFAULT_STAFF_VOLUME,
+  readStaffVolume,
+  writeStaffVolume,
+} from './staffVolume'
 
 export {cropDrPlaySequence, type DrPlayRange} from './range'
 
@@ -101,10 +110,10 @@ function getSequenceByType(musicScoreData: MusicScore, options: DrPlaySequenceOp
  * data.instrumentValue_${variant}（曲谱 data 优先），再降级 instrumentValue。
  */
 export function getDrPlaySequence(musicScoreData: MusicScore, options: DrPlaySequenceOptions = {}): DR_playSequence {
-  const seq = applyStaffToneColor(
-    getSequenceByType(musicScoreData, options),
-    musicScoreData,
-    options.defaultToneColor?.trim() || DEFAULT_TONE_COLOR,
-  )
+  const idToStaff = buildIdToStaffMap(musicScoreData)
+  const seq = getSequenceByType(musicScoreData, options)
+  applyStaffToneColor(seq, musicScoreData, options.defaultToneColor?.trim() || DEFAULT_TONE_COLOR, idToStaff)
+  applyStaffVolume(seq, musicScoreData, idToStaff)
+  applyPlayLyrics(seq, musicScoreData)
   return options.range ? cropDrPlaySequence(seq, options.range) : seq
 }

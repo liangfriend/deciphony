@@ -3,6 +3,8 @@ export {newId, assertIndex, clampInsertIndex} from './id';
 export * from './types';
 export * from './locate';
 export * from './factories';
+export * from './extraSymbol';
+export * from './singleAffiliated';
 export * from './autoBeam';
 export {insertGrandStaff, insertSingleStaff, insertMeasure} from './insert';
 export {removeGrandStaff, removeSingleStaff, removeMeasure} from './remove';

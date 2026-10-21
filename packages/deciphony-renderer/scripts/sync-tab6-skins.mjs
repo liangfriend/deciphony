@@ -17,7 +17,8 @@ function parseEnumSkinKeys() {
 }
 
 /**
- * tab_note / tab_harmonic 已改为 path 笔画（见 default.json）。
+ * tab_note / tab_harmonic 已改为 path 字形：数字与 X 为 Roboto Condensed Bold 实心轮廓
+ * （SIL Open Font License 1.1；单字格 100×200，scale(0.048)，基线 y=184、数字高 168，见 default.json）。
  * 同步时保留现有 content/w/h，不再用 text + translate(2,12) 等基线补偿覆盖。
  */
 function keepOrStubTabGlyph(skinKey, oldItem) {

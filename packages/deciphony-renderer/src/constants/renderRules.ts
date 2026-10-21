@@ -42,7 +42,8 @@ export type AffiliatedRenderKind =
     | 'pedal'
     | 'pitch'
     | 'trill'
-    | 'hairpin';
+    | 'hairpin'
+    | 'guzhengLian';
 
 export type SingleNoteAffiliatedRule = AffiliatedOffsetRule & {
   kind: AffiliatedRenderKind;
@@ -87,14 +88,28 @@ export type DoubleMeasureAffiliatedRule = {
   end: { horizontal: number };
 };
 
+/**
+ * 单小节附属：横向锚点 = 小节左边 / 中点 / 右边（placement），符号 align 那一侧贴锚点；
+ * 纵向 type=upper 时符号底边贴小节顶、lower 时符号顶边贴小节底，vertical 为离开小节的距离（正值远离小节）。
+ */
 export type SingleMeasureAffiliatedRule = {
   kind: AffiliatedRenderKind;
-  placement: 'start' | 'end';
-  align: 'center' | 'right';
+  placement: 'start' | 'center' | 'end';
+  align: 'left' | 'center' | 'right';
+  /** 缺省 upper */
+  type?: 'upper' | 'lower';
   vertical: number;
   horizontal: number;
   skinKey?: string;
 };
+
+/*
+ * 曲谱自定义符号（MusicScore.extraNoteSymbol / extraSlotSymbol / extraMeasureSymbol）的规则部分：
+ * 与对应内置规则同形，去掉 kind（固定 skin）和 skinKey（即符号自身 skinKey）。
+ */
+export type ExtraNoteSymbolRule = Omit<SingleNoteAffiliatedRule, 'kind' | 'skinKey'>;
+export type ExtraSlotSymbolRule = Omit<SingleSlotAffiliatedRule, 'kind' | 'skinKey'>;
+export type ExtraMeasureSymbolRule = Omit<SingleMeasureAffiliatedRule, 'kind' | 'skinKey'>;
 
 /** 单音符附属：符号中心对齐音符头中心，再按 vertical/horizontal 偏移（× measureHeight） */
 export const SingleNoteAffiliatedSymbolRenderRule: Partial<
@@ -272,7 +287,40 @@ export const SingleNoteAffiliatedSymbolRenderRule: Partial<
     kind: 'skin', skinKey: 'dyn_fz', vertical: 0.85, horizontal: 0,
     numberNotationAnchor: 'bottom',
   },
+  // —— 古筝指法（皮肤见 skins/guzhengGlyphs.ts）：音符上方；摇指在音符左下方 ——
+  ...guzhengAboveRules([
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_mo,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_tiao,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_pi,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_tuo,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_da,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_zhai,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_xiao_cuo,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_da_cuo,
+  ], -0.3),
+  ...guzhengAboveRules([
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_gou,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_ti1,
+  ], -0.25),
+  ...guzhengAboveRules([
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_ti2,
+    SingleNoteAffiliatedSymbolNameEnum.Guzheng_bo,
+  ], -0.32),
+  ...guzhengAboveRules([SingleNoteAffiliatedSymbolNameEnum.Guzheng_sao], -0.36),
+  [SingleNoteAffiliatedSymbolNameEnum.Guzheng_yao]: {
+    kind: 'skin', skinKey: 'guzheng_yao', vertical: 0.35, horizontal: -0.35,
+  },
 };
+
+/** 古筝上方指法：皮肤键与枚举值同名，简谱贴数字包围盒顶边 */
+function guzhengAboveRules(
+    names: SingleNoteAffiliatedSymbolNameEnum[],
+    vertical: number,
+): Partial<Record<SingleNoteAffiliatedSymbolNameEnum, SingleNoteAffiliatedRule>> {
+  return Object.fromEntries(names.map((name) => [name, {
+    kind: 'skin', skinKey: name, vertical, horizontal: 0, numberNotationAnchor: 'top',
+  }]));
+}
 
 /** 单小节附属（measure.affiliatedSymbols）；反复符号走 measure.startRepeat/endRepeat */
 export const SingleMeasureAffiliatedSymbolRenderRule: Partial<
@@ -364,6 +412,12 @@ export const DoubleSlotAffiliatedSymbolRenderRule: Partial<
     // y = 楔形 / 虚线中线，谱表下方（与力度记号同高）
     start: {vertical: 0.35, horizontal: 0},
     end: {vertical: 0.35, horizontal: 0.25},
+  },
+  [DoubleSlotAffiliatedSymbolNameEnum.Guzheng_lian]: {
+    kind: 'guzhengLian',
+    // y = 符号带中线，谱表下方；终点延到结束音符头右缘
+    start: {vertical: 0.45, horizontal: 0},
+    end: {vertical: 0.45, horizontal: 0.3},
   },
 };
 

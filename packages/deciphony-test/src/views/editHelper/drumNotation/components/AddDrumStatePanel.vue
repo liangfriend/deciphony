@@ -11,6 +11,8 @@ import {
   type AddDrumState,
   type DrumAddKind,
 } from '../renderEditDrumAddState'
+import ChronaxieIconButtons from '../../components/ChronaxieIconButtons.vue'
+import EditToolbarButton from '../../components/EditToolbarButton.vue'
 
 const model = defineModel<AddDrumState>({required: true})
 
@@ -40,68 +42,92 @@ function setDot(dot: 0 | 1 | 2) {
 </script>
 
 <template>
-  <div class="add-drum-state">
-    <div class="add-drum-state__row">
-      <span class="add-drum-state__label">声部</span>
-      <el-radio-group :model-value="model.voice" size="small" @change="setVoice">
-        <el-radio-button v-for="opt in DRUM_VOICE_OPTIONS" :key="opt.value" :label="opt.value">
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
-      <span class="add-drum-state__label">添加</span>
-      <el-radio-group :model-value="model.kind" size="small" @change="setKind">
-        <el-radio-button v-for="opt in DRUM_ADD_KIND_OPTIONS" :key="opt.value" :label="opt.value">
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
-    </div>
-    <div class="add-drum-state__row">
-      <span class="add-drum-state__label">音符头</span>
-      <el-radio-group
-        :model-value="model.kind === 'note' ? model.headType : undefined"
-        size="small"
-        @change="setHeadType"
+  <div class="add-toolbar">
+    <div class="add-toolbar__group">
+      <EditToolbarButton
+        v-for="opt in DRUM_VOICE_OPTIONS"
+        :key="opt.value"
+        :active="model.voice === opt.value"
+        :title="opt.label"
+        @click="setVoice(opt.value)"
       >
-        <el-radio-button v-for="opt in DRUM_HEAD_OPTIONS" :key="opt.value" :label="opt.value">
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
+        <span class="add-toolbar__text">{{ opt.label }}</span>
+      </EditToolbarButton>
     </div>
-    <div class="add-drum-state__row">
-      <span class="add-drum-state__label">时值</span>
-      <el-radio-group :model-value="model.chronaxie" size="small" @change="setChronaxie">
-        <el-radio-button v-for="opt in DRUM_CHRONAXIE_OPTIONS" :key="opt.value" :label="opt.value">
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
-      <span class="add-drum-state__label">附点</span>
-      <el-radio-group :model-value="model.dot" size="small" @change="setDot">
-        <el-radio-button v-for="opt in DRUM_DOT_OPTIONS" :key="opt.value" :label="opt.value">
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
+    <div class="add-toolbar__sep"/>
+    <div class="add-toolbar__group">
+      <EditToolbarButton
+        v-for="opt in DRUM_ADD_KIND_OPTIONS"
+        :key="opt.value"
+        :active="model.kind === opt.value"
+        :title="opt.label"
+        @click="setKind(opt.value)"
+      >
+        <span class="add-toolbar__text">{{ opt.label }}</span>
+      </EditToolbarButton>
+    </div>
+    <div class="add-toolbar__sep"/>
+    <div class="add-toolbar__group">
+      <EditToolbarButton
+        v-for="opt in DRUM_HEAD_OPTIONS"
+        :key="opt.value"
+        :active="model.kind === 'note' && model.headType === opt.value"
+        :title="opt.label"
+        @click="setHeadType(opt.value)"
+      >
+        <span class="add-toolbar__text">{{ opt.label }}</span>
+      </EditToolbarButton>
+    </div>
+    <div class="add-toolbar__sep"/>
+    <ChronaxieIconButtons
+      :model-value="model.chronaxie"
+      :mode="model.kind === 'rest' ? 'rest' : 'note'"
+      :options="DRUM_CHRONAXIE_OPTIONS"
+      @update:model-value="setChronaxie"
+    />
+    <div class="add-toolbar__sep"/>
+    <div class="add-toolbar__group">
+      <EditToolbarButton
+        v-for="opt in DRUM_DOT_OPTIONS"
+        :key="opt.value"
+        :active="model.dot === opt.value"
+        :title="opt.label"
+        @click="setDot(opt.value)"
+      >
+        <span class="add-toolbar__text">{{ opt.label }}</span>
+      </EditToolbarButton>
     </div>
   </div>
 </template>
 
 <style scoped>
-.add-drum-state {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px;
-}
-
-.add-drum-state__row {
+.add-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  padding: 8px 10px;
+  border-bottom: 1px solid #dcdfe6;
+  background: #f5f7fa;
 }
 
-.add-drum-state__label {
+.add-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-toolbar__sep {
+  width: 1px;
+  height: 28px;
+  background: #dcdfe6;
   flex: 0 0 auto;
-  font-size: 12px;
-  color: #606266;
+}
+
+.add-toolbar__text {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0 2px;
 }
 </style>

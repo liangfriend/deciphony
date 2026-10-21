@@ -7,11 +7,11 @@
 | 子路径 | 说明 |
 |--------|------|
 | `@deciphony/extensions/dr-title` | 标题槽 |
-| `@deciphony/extensions/dr-lyrics` | 歌词槽 |
+| `@deciphony/extensions/dr-lyrics` | 歌词（挂 `s-d`，每个单谱表下方显示自己的歌词） |
 | `@deciphony/extensions/dr-instrument-name` | 乐器名槽（s-l）：`singleStaff.data.instrumentName`，缺省显示 `defaultInstrument` |
 | `@deciphony/extensions/dr-edit` | 谱表/小节增删（edit-util） |
 | `@deciphony/extensions/dr-edit/score-builder` | 曲谱工厂 / 定位 / 插入 |
-| `@deciphony/extensions/dr-play` | 播放序列；鼓谱需映射表 `{drumMap}`（缺省 `DEFAULT_DRUM_PLAY_MAP`）；每项 `toneColor` 取所在单谱表 `data.instrumentValue`，缺省 `{defaultToneColor}`（默认 `'piano'`） |
+| `@deciphony/extensions/dr-play` | 播放序列；鼓谱需映射表 `{drumMap}`（缺省 `DEFAULT_DRUM_PLAY_MAP`）；每项 `toneColor` 取所在单谱表 `data.instrumentValue`，缺省 `{defaultToneColor}`（默认 `'piano'`）；单谱表 `data.volume`（可选，基准 100）按 `/100` 乘进每项 `volume` |
 | `@deciphony/extensions/dr-play-highlight` | 播放高亮（`drPlayHighlight` 放入 `:extensions`） |
 | `@deciphony/extensions/dr-time-offset` | 谱音同步（`TimeOffsetEditor`） |
 | `@deciphony/extensions/dr-musicxml-transfer` | MusicXML ↔ MusicScore（导入支持 .xml / .musicxml / .mxl，`musicXmlFileToMusicScore` 返回 `{musicScore, warnings}`） |
@@ -45,7 +45,7 @@ import {drInstrumentName} from '@deciphony/extensions/dr-instrument-name'
 
 // 单谱表：staff.data.instrumentName = '小提琴'（支持 '\n' 换行）；未设置时显示默认乐器
 // gap：文本与曲谱的间距（px，默认 6，可传 ref 动态调整）
-const extensions = [drInstrumentName({defaultInstrument: '钢琴', width: 64, gap: 10})]
+const extensions = [drInstrumentName({defaultInstrument: '钢琴', width: 64, gap: 10, fontFamily: 'KaiTi'})]
 ```
 
 ## 简谱快速打谱

@@ -30,6 +30,8 @@ const props = defineProps({
   stringStates: {type: Array as PropType<StringState[]>, default: () => []},
   /** 线条与文字颜色，曲谱渲染时来自皮肤 */
   color: {type: String, default: '#111'},
+  /** 只画和弦名（贴在框体底部、左对齐框体左缘即音符），不画指法框 / 空闷音 / 调弦 */
+  onlyChordName: {type: Boolean, default: false},
 })
 
 const cfg = computed(() => ({
@@ -115,6 +117,7 @@ const markerY = computed(() => {
 
 const nameY = computed(() => {
   const ns = cfg.value.nameSize
+  if (props.onlyChordName) return cfg.value.height - ns * 0.5
   const ts = cfg.value.textSize
   const markerTop = markerY.value - ts * 0.5
   return markerTop - ns * NAME_MARKER_GAP - ns * 0.5
@@ -292,9 +295,9 @@ const baseFretLabel = computed(() => {
   <g role="img" aria-label="和弦图">
       <text
           v-if="cfg.name"
-          :x="lyGridCenterX"
+          :x="onlyChordName ? 0 : lyGridCenterX"
           :y="nameY"
-          text-anchor="middle"
+          :text-anchor="onlyChordName ? 'start' : 'middle'"
           dominant-baseline="central"
           :font-size="cfg.nameSize"
           font-weight="600"
@@ -302,6 +305,7 @@ const baseFretLabel = computed(() => {
       >{{ cfg.name }}
       </text>
 
+    <template v-if="!onlyChordName">
       <text
           v-if="baseFretLabel"
           :x="baseFretLabel.x"
@@ -420,5 +424,6 @@ const baseFretLabel = computed(() => {
           opacity="0.75"
       >{{ t.text }}
       </text>
+    </template>
   </g>
 </template>

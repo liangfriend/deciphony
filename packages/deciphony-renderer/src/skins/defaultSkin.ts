@@ -2,6 +2,7 @@ import defaultJsonSkin from './default.json'
 import {
   DrumNotationSkinPack,
   NumberNotationSkinPack,
+  SkinItem,
   SkinPack,
   StandardStaffSkinPack,
   Tab4SkinPack,
@@ -20,6 +21,8 @@ import {
   bravuraStandardStaffPartial,
 } from './generated/bravuraStandardStaff';
 import {overlayBravuraGlyphs} from './generated/bravuraOverlay';
+import {guzhengSkinItems} from './guzhengGlyphs';
+import type {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 /*
 * w和h不会影响图形的宽高，图形的宽高是图形本身决定的，w和h是皮肤开发者要计算出图形的宽高显示写到属性中，让坐标系统识别
 * 因为svg嵌套的行为我没有掌握，所以舍弃了svg嵌套这一做法
@@ -364,6 +367,15 @@ const closeLine = {
   h: STAFF_HEIGHT,
   skinKey: StandardStaffSkinKeyEnum.Close_line,
 };
+
+/** 连谱号皮肤右缘竖线（等同原行首闭合线；贴 node 右边缘） */
+const BRACKET_RIGHT_CLOSE_LINE =
+  `<rect data-bracket-close="1" x="calc(node.w - 1)" y="0" width="1" height="node.h" fill="black"/>`;
+
+function withBracketRightCloseLine(content: string): string {
+  if (content.includes('data-bracket-close')) return content;
+  return `${content.trimEnd()}\n${BRACKET_RIGHT_CLOSE_LINE}`;
+}
 
 const linkedCloseLine = {
   content: `<rect x="0" y="0" width="node.w" height="node.h" fill="black"/>`,
@@ -1732,7 +1744,7 @@ const standardStaffSkinLegacy: StandardStaffSkinPack = {
    * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
    */
   [StandardStaffSkinKeyEnum.Bracket]: {
-    content: `
+    content: withBracketRightCloseLine(`
       <g transform="translate(0, 0)">
         <g transform="translate(4.6000, 0.1)">
             <path d="M3.1-3C2.5-2.4,1.9-1.9,1.3-1.6L-1-0.4v5.3h-3.6v-7l4-0.7c1.2-0.3,2.1-0.6,2.7-0.9c0.7-0.4,1.2-0.8,1.6-1.1l1-1.2l0.5,0.2C4.7-4.8,4-3.9,3.1-3" stroke="none"></path>
@@ -1744,28 +1756,28 @@ const standardStaffSkinLegacy: StandardStaffSkinPack = {
             <path d="M-0.9-0.7l2.3,1.2C2,0.8,2.6,1.3,3.2,1.9c0.9,0.9,1.6,1.8,2.1,2.8L4.8,4.9L3.7,3.7C3.3,3.3,2.8,3,2.1,2.6C1.5,2.3,0.6,2-0.6,1.7l-4-0.7v-7H-1v5.3" stroke="none"></path>
     </g>
 </g>
-`,
+`),
     w: 12,
     h: 0,
     skinKey: StandardStaffSkinKeyEnum.Bracket,
   },
   [StandardStaffSkinKeyEnum.Brace]: {
     // 这里没有调整缩放锚点，但是缩放锚点刚好在右上角。因为缩放是从path的坐标原点开始的，而这个path刚好是往左下画的
-    content: `
+    content: withBracketRightCloseLine(`
         <g transform="translate(7.2000, 0.0000)">
         <g transform="scale(calc(node.h/86.6))">
             <path  d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
     </g>
-</g>`,
+</g>`),
     w: 7.2,
     h: 0,
     skinKey: StandardStaffSkinKeyEnum.Brace,
   },
   [StandardStaffSkinKeyEnum.Square]: {
-    content: `
+    content: withBracketRightCloseLine(`
         
         <path d="M10 0 L 0 0 L 0 node.h L 10 node.h"  stroke="black" fill="transparent"></path>
-`,
+`),
     w: 12,
     h: 0,
     skinKey: StandardStaffSkinKeyEnum.Square,
@@ -2144,12 +2156,34 @@ const standardStaffSkinLegacy: StandardStaffSkinPack = {
   },
 } as StandardStaffSkinPack;
 
+/** 附点相对 Bravura 原尺寸（直径 4.5）的缩放 */
+const AUGMENTATION_DOT_SCALE = 0.7;
+const AUGMENTATION_DOT_KEY = /^augmentationDot_\d$/;
+
+/** 附点 content 按 AUGMENTATION_DOT_SCALE 缩放（content 不随 w/h 自动缩放，两者一起改） */
+function scaleAugmentationDots<T extends object>(pack: T): T {
+  const out = {...pack} as Record<string, SkinItem | undefined>;
+  const round = (v: number) => Math.round(v * AUGMENTATION_DOT_SCALE * 100) / 100;
+  for (const key of Object.keys(out)) {
+    const item = out[key];
+    if (!item || !AUGMENTATION_DOT_KEY.test(key)) continue;
+    out[key] = {
+      ...item,
+      content: `<g transform="scale(${AUGMENTATION_DOT_SCALE})">${item.content}</g>`,
+      w: round(item.w),
+      h: round(item.h),
+    };
+  }
+  return out as T;
+}
+
 /** Bravura/SMuFL 覆盖：谱号、变音、音符头、符尾、休止、力度、分数拍号等（几何组件不覆盖） */
-const standardStaffSkin: StandardStaffSkinPack = {
+const standardStaffSkin: StandardStaffSkinPack = scaleAugmentationDots({
   ...standardStaffSkinLegacy,
   ...bravuraStandardStaffPartial,
   ...bravuraStaffTimeSignatures,
-} as StandardStaffSkinPack;
+  ...guzhengSkinItems<StandardStaffSkinKeyEnum>(),
+} as StandardStaffSkinPack);
 
 // ======================================鼓谱================================================
 
@@ -2348,7 +2382,10 @@ const numberNotationSkinLegacy: NumberNotationSkinPack = {
   [NumberNotationSkinKeyEnum.Number_5]: makeNumberGlyph('5', NumberNotationSkinKeyEnum.Number_5),
   [NumberNotationSkinKeyEnum.Number_6]: makeNumberGlyph('6', NumberNotationSkinKeyEnum.Number_6),
   [NumberNotationSkinKeyEnum.Number_7]: makeNumberGlyph('7', NumberNotationSkinKeyEnum.Number_7),
-  [NumberNotationSkinKeyEnum.Number_X]: makeNumberGlyph('X', NumberNotationSkinKeyEnum.Number_X),
+  [NumberNotationSkinKeyEnum.Number_X]: {
+    ...makeNumberGlyph('X', NumberNotationSkinKeyEnum.Number_X),
+    widthRatioForMeasure: 6,
+  },
   // 减时线h多写一些，相当于增加下边距，防止八度点贴在减时线上
   [NumberNotationSkinKeyEnum.ReduceLine_1]: {
     content: `<line x1="0" y1="0.5" x2="node.w" y2="0.5" stroke="black" stroke-width="1"/>`,
@@ -2791,7 +2828,7 @@ const numberNotationSkinLegacy: NumberNotationSkinPack = {
    * 连谱号 TODO 这里content临时写了，拿到真正的path需要修改
    */
   [NumberNotationSkinKeyEnum.Bracket]: {
-    content: `
+    content: withBracketRightCloseLine(`
       <g transform="translate(0, 0)">
         <g transform="translate(4.6000, 0.1)">
             <path d="M3.1-3C2.5-2.4,1.9-1.9,1.3-1.6L-1-0.4v5.3h-3.6v-7l4-0.7c1.2-0.3,2.1-0.6,2.7-0.9c0.7-0.4,1.2-0.8,1.6-1.1l1-1.2l0.5,0.2C4.7-4.8,4-3.9,3.1-3" stroke="none"></path>
@@ -2803,27 +2840,27 @@ const numberNotationSkinLegacy: NumberNotationSkinPack = {
             <path d="M-0.9-0.7l2.3,1.2C2,0.8,2.6,1.3,3.2,1.9c0.9,0.9,1.6,1.8,2.1,2.8L4.8,4.9L3.7,3.7C3.3,3.3,2.8,3,2.1,2.6C1.5,2.3,0.6,2-0.6,1.7l-4-0.7v-7H-1v5.3" stroke="none"></path>
     </g>
 </g>
-`,
+`),
     w: 10,
     h: 0,
     skinKey: NumberNotationSkinKeyEnum.Bracket,
   },
   [NumberNotationSkinKeyEnum.Brace]: {
-    content: `
+    content: withBracketRightCloseLine(`
         <g transform="translate(7.2000, 0.0000)">
         <g transform="scale(calc(node.h/86.6))">
             <path  d="M0,0v0.4c-1.2,2-2.2,3.9-3,5.8l-0.1,0.3c-0.8,2-1.1,4.1-1,6.4C-4,14.9-3.6,17-3,19.3l0.1,0.2L-1,26c0.6,2.1,1,4,1,5.7c0,3-0.5,5.2-1.7,7c-0.3,0.4-0.8,1-1.3,1.5c-1,1.1-2.4,2.1-4,3.1c1.6,1.1,3,2.1,4,3.2c0.5,0.5,1,1.2,1.3,1.7c1.2,1.7,1.7,4.1,1.7,7c-0.1,1.6-0.4,3.5-1,5.6l-1.9,6.6C-3.6,69.6-4,71.8-4.1,74c-0.1,2.3,0.2,4.4,1,6.4c0.8,2,1.8,3.9,3.1,5.9v0.3c-2.4-3.1-4.1-6-5.1-8.8s-1.5-5.5-1.5-7.8c0.1-2.4,0.4-4.8,1-7.2l1.8-6.7c0.6-2.1,0.9-3.9,0.9-5.2c0-0.6-0.1-1.2-0.2-1.7c-0.2-0.9-0.5-1.6-1-2.4c-0.8-1.2-1.8-2.3-3.1-3.1v-0.4c1.3-0.8,2.3-1.8,3.1-3c0.6-0.9,1-1.9,1.1-3l0.1-1.1L-3,34.7c-0.1-1.2-0.4-2.5-0.8-4l-1.8-6.7c-0.6-2.3-0.9-4.8-1-7.2c0-2.3,0.5-5,1.5-7.9C-4.6,7.6-3.9,6-3,4.5C-2.2,3.1-1.2,1.5,0,0" stroke="none"></path>
     </g>
-</g>`,
+</g>`),
     w: 7.2,
     h: 100,
     skinKey: NumberNotationSkinKeyEnum.Brace,
   },
   [NumberNotationSkinKeyEnum.Square]: {
-    content: `<g transform="scale(calc(node.h/86.6))">
+    content: withBracketRightCloseLine(`<g transform="scale(calc(node.h/86.6))">
         <g transform="translate(2.8000, 0.4000)">
         <path d="M-1-0.4v86.6h-1.8V-0.4H-1" fill="#888" stroke="none"></path>
-</g></g>`,
+</g></g>`),
     w: 30,
     h: 0,
     skinKey: NumberNotationSkinKeyEnum.Square,
@@ -3199,19 +3236,27 @@ const numberNotationSkinLegacy: NumberNotationSkinPack = {
     h: 30,
     skinKey: NumberNotationSkinKeyEnum.Dyn_FZ,
   },
+  ...guzhengSkinItems<NumberNotationSkinKeyEnum>(),
 }
 
 /** Bravura 覆盖同名 key（变音/力度/反复等）；分数拍号用 Bravura 拍号数字，音符数字 0–7 / X 保持普通字体 text */
-const numberNotationSkin: NumberNotationSkinPack = {
+const numberNotationSkin: NumberNotationSkinPack = scaleAugmentationDots({
   ...overlayBravuraGlyphs(numberNotationSkinLegacy),
   ...bravuraNumberNotationGlyphs,
-} as NumberNotationSkinPack
+} as NumberNotationSkinPack)
 
-const tab6Skin: Tab6SkinPack = overlayBravuraGlyphs(defaultJsonSkin.tab6 as Tab6SkinPack)
-const tab4Skin: Tab4SkinPack = overlayBravuraGlyphs(defaultJsonSkin.tab4 as Tab4SkinPack)
-const tab5Skin: Tab5SkinPack = overlayBravuraGlyphs(
+const TAB_OVERLAY = {stemDownTails: true}
+const withTabGuzheng = <T extends Tab6SkinPack>(pack: T): T => ({...pack, ...guzhengSkinItems<Tab6SkinKeyEnum>()})
+const tab6Skin: Tab6SkinPack = withTabGuzheng(scaleAugmentationDots(
+  overlayBravuraGlyphs(defaultJsonSkin.tab6 as Tab6SkinPack, TAB_OVERLAY),
+))
+const tab4Skin: Tab4SkinPack = withTabGuzheng(scaleAugmentationDots(
+  overlayBravuraGlyphs(defaultJsonSkin.tab4 as Tab4SkinPack, TAB_OVERLAY),
+))
+const tab5Skin: Tab5SkinPack = withTabGuzheng(scaleAugmentationDots(overlayBravuraGlyphs(
   ((defaultJsonSkin as unknown as {tab5?: Tab5SkinPack}).tab5 ?? defaultJsonSkin.tab4) as Tab5SkinPack,
-)
+  TAB_OVERLAY,
+)))
 
 export const defaultSkin: SkinPack = {
   standardStaff: standardStaffSkin,

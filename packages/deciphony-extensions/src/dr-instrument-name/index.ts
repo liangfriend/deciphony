@@ -21,6 +21,7 @@ export function drInstrumentName(options: DrInstrumentNameOptions = {}): DrExten
       defaultInstrument: options.defaultInstrument ?? '',
       measureVDomMap,
       fontSize: options.fontSize ?? 14,
+      fontFamily: options.fontFamily,
       align: options.align ?? 'right',
       gap: options.gap ?? 6,
       padding: options.padding ?? 6,

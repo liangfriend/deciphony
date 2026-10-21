@@ -5,12 +5,14 @@ import {
   MusicScore,
   MusicScoreTypeEnum,
   NoteNumber,
+  NoteSymbol,
   NotesInfo,
   NotesNumberInfo,
 } from '@deciphony/renderer'
 import {isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
 import {createAccidental, createKeySignature} from './dr-edit/score-builder'
 import {
+  applyMeasureAccidentalScope,
   getKeySignatureAccidental,
   getNoteMidi,
   getNoteNumberMidi,
@@ -72,6 +74,11 @@ function resolveAccidentalInMeasure(
   return getKeySignatureAccidental(clef, keySignature, region)
 }
 
+/** 小节内变音记忆按此顺序累积（同 dr-play） */
+function staffInfosInPlayOrder(note: NoteSymbol): NotesInfo[] {
+  return [...(note.graceNotes ?? []), ...note.notesInfo, ...(note.graceNotesAfter ?? [])]
+}
+
 function writeAccidental<T extends {accidental?: {type: AccidentalTypeEnum}}>(
   info: T,
   accidental: AccidentalTypeEnum | null,
@@ -108,6 +115,7 @@ function transposeStaffInfo(
   fromKey: KeySignatureTypeEnum,
   toKey: KeySignatureTypeEnum,
   scope: MeasureAccidentalScope,
+  outScope: MeasureAccidentalScope,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
 ): void {
   const effectiveAcc = resolveAccidentalInMeasure(
@@ -120,7 +128,7 @@ function transposeStaffInfo(
   const midi = getNoteMidi(clef, info.region, effectiveAcc)
   const {region, accidental} = getNoteRegionAndAccidental(clef, midi, toKey, priority)
   info.region = region
-  writeAccidental(info, accidental)
+  writeAccidental(info, applyMeasureAccidentalScope(outScope, clef, toKey, region, accidental))
 }
 
 function rewriteKeyLabels(score: MusicScore, toKey: KeySignatureTypeEnum): void {
@@ -177,6 +185,7 @@ function transposeStandardStaff(
       let curClef = DEFAULT_CLEF
       for (const measure of staff.measures) {
         const scope: MeasureAccidentalScope = new Map()
+        const outScope: MeasureAccidentalScope = new Map()
         if (measure.clef_f) curClef = measure.clef_f.type
 
         for (const measureSlot of getMeasureSlots(measure)) {
@@ -185,14 +194,8 @@ function transposeStandardStaff(
             curClef = slot.clef.type
           }
           if (!isNoteSymbol(slot)) continue
-          for (const info of slot.notesInfo) {
-            transposeStaffInfo(info, curClef, fromKey, toKey, scope, priority)
-          }
-          for (const g of slot.graceNotes ?? []) {
-            transposeStaffInfo(g, curClef, fromKey, toKey, scope, priority)
-          }
-          for (const g of slot.graceNotesAfter ?? []) {
-            transposeStaffInfo(g, curClef, fromKey, toKey, scope, priority)
+          for (const info of staffInfosInPlayOrder(slot)) {
+            transposeStaffInfo(info, curClef, fromKey, toKey, scope, outScope, priority)
           }
         }
 
@@ -252,6 +255,7 @@ function shiftStaffInfoBySemitones(
   clef: ClefTypeEnum,
   key: KeySignatureTypeEnum,
   scope: MeasureAccidentalScope,
+  outScope: MeasureAccidentalScope,
   semitones: number,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
 ): void {
@@ -265,7 +269,7 @@ function shiftStaffInfoBySemitones(
   const midi = getNoteMidi(clef, info.region, effectiveAcc) + semitones
   const {region, accidental} = getNoteRegionAndAccidental(clef, midi, key, priority)
   info.region = region
-  writeAccidental(info, accidental)
+  writeAccidental(info, applyMeasureAccidentalScope(outScope, clef, key, region, accidental))
 }
 
 function shiftNumberNotationBySemitones(
@@ -308,6 +312,7 @@ function shiftStandardStaffBySemitones(
       let curKey = score.keySignature ?? DEFAULT_KEY
       for (const measure of staff.measures) {
         const scope: MeasureAccidentalScope = new Map()
+        const outScope: MeasureAccidentalScope = new Map()
         if (measure.clef_f) curClef = measure.clef_f.type
         if (measure.keySignature_f) curKey = measure.keySignature_f.type
 
@@ -317,14 +322,8 @@ function shiftStandardStaffBySemitones(
             curClef = slot.clef.type
           }
           if (!isNoteSymbol(slot)) continue
-          for (const info of slot.notesInfo) {
-            shiftStaffInfoBySemitones(info, curClef, curKey, scope, semitones, priority)
-          }
-          for (const g of slot.graceNotes ?? []) {
-            shiftStaffInfoBySemitones(g, curClef, curKey, scope, semitones, priority)
-          }
-          for (const g of slot.graceNotesAfter ?? []) {
-            shiftStaffInfoBySemitones(g, curClef, curKey, scope, semitones, priority)
+          for (const info of staffInfosInPlayOrder(slot)) {
+            shiftStaffInfoBySemitones(info, curClef, curKey, scope, outScope, semitones, priority)
           }
         }
 

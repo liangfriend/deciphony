@@ -20,11 +20,19 @@ export const BEAM_PARTIAL_SCALE = 0.5;
 export const TAB_6_STEM_START_OFFSET_RATIO = 0.2;
 /** 吉他谱符干终点（无符尾 / 四分及以上）：measureY + measureHeight + ratio × measureHeight */
 export const TAB_6_STEM_END_OFFSET_RATIO = 0.4;
-/** 吉他谱符干终点（八分及更短、有符尾）：同上公式，ratio 基础值；再按钩层加长 */
-export const TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL = 1;
-/** 有符尾时每多一层钩，终点再下探（× measureHeight） */
-export const TAB_6_STEM_EXTRA_PER_FLAG_RATIO = 0.35;
-/** 符尾高度相对符干超出时的额外下探间隙（× measureHeight） */
+/**
+ * 吉他谱符干终点（八分及更短、有符尾）下限：同上公式。
+ * 所有带符尾的符干终点相同（符尾底部平行），实际取该值与「最低弦音符放得下八分符尾」两者较低者
+ */
+export const TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL = 0.6;
+/**
+ * 吉他谱连杠符干终点（最下一条符杠）下限：同上公式。所有连杠组相同（与时值无关），
+ * 实际取该值与「最低弦数字下方放得下 TAB_6_BEAM_MAX_LINES 条符杠」两者较低者
+ */
+export const TAB_6_BEAM_END_OFFSET_RATIO = 0.5;
+/** 符杠最多条数（128 分音符） */
+export const TAB_6_BEAM_MAX_LINES = 5;
+/** 符尾 / 符杠顶端与符干起点之间至少留的间隙（× measureHeight） */
 export const TAB_6_STEM_FLAG_CLEARANCE_RATIO = 0.06;
 /** 吉他谱和弦图：y = measureY - chordH - measureHeight × 该比例（框体左上角，位于小节顶线上方） */
 export const TAB_6_CHORD_Y_OFFSET_RATIO = 0.4;

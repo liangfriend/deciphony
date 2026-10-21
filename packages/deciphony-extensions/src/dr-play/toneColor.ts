@@ -115,7 +115,7 @@ function collectIds(node: unknown, visit: (id: string) => void): void {
 }
 
 /** 小节子树内任意 id（音符 / 休止符 / 倚音 / tab 音 / 小节本身）→ 所属单谱表 */
-function buildIdToStaffMap(musicScore: MusicScore): Map<string, SingleStaff> {
+export function buildIdToStaffMap(musicScore: MusicScore): Map<string, SingleStaff> {
   const map = new Map<string, SingleStaff>()
   for (const grandStaff of musicScore.grandStaffs) {
     for (const staff of grandStaff.staves) {
@@ -136,8 +136,8 @@ export function applyStaffToneColor(
   seq: DR_playSequence,
   musicScore: MusicScore,
   defaultToneColor: string = DEFAULT_TONE_COLOR,
+  idToStaff: Map<string, SingleStaff> = buildIdToStaffMap(musicScore),
 ): DR_playSequence {
-  const idToStaff = buildIdToStaffMap(musicScore)
   const scoreData = musicScore.data
   for (const item of seq) {
     const staff = idToStaff.get(baseNoteIdForToneLookup(item.note_id))

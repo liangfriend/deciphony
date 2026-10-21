@@ -12,6 +12,7 @@ import type {
 import {deleteMeasure} from '@deciphony/extensions/dr-edit'
 import {isNoteNumberSlot, isSlotRestLike} from '@deciphony/extensions/dr-edit/score-builder/noteSlot'
 import {locateSlotAffiliatedSymbolById} from '@deciphony/extensions/dr-edit/score-builder/locate'
+import {removeSingleAffiliatedSymbolById} from '@deciphony/extensions/dr-edit/score-builder/singleAffiliated'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {removeVolta} from './renderEditMeasureProperties'
 import {isMeasureAddMode} from './standardStaff/renderEditSymbolAddAction'
@@ -22,6 +23,7 @@ import {isStrummingSelected} from './renderEditStrummingDrag'
 import {isPedalSelected} from './renderEditPedalDrag'
 import {isPitchSelected} from './renderEditPitchDrag'
 import {isLineSelected} from './renderEditLineDrag'
+import {isNoteAffiliatedSelected} from './renderEditNoteAffiliatedDrag'
 import {isVoltaSelected} from './renderEditVoltaDrag'
 import {isBendSelected} from './tab/renderEditTabSelection'
 import {
@@ -211,69 +213,6 @@ function deleteMeasureOptionalSymbol(slot: SlotData): boolean {
     return false
 }
 
-function deleteSingleNoteAffiliatedById(musicScore: MusicScore, symbolId: string): boolean {
-    for (const grandStaff of musicScore.grandStaffs) {
-        for (const singleStaff of grandStaff.staves) {
-            for (const measure of singleStaff.measures) {
-                for (const measureSlot of getMeasureSlots(measure)) {
-                    const slot = slotSymbol(measureSlot)
-                    if (isNoteSymbol(slot)) {
-                        for (const info of slot.notesInfo) {
-                            const idx = info.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
-                            if (idx >= 0) {
-                                info.affiliatedSymbols.splice(idx, 1)
-                                return true
-                            }
-                        }
-                        continue
-                    }
-                    if (isNoteNumberSymbol(slot)) {
-                        const idx = slot.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
-                        if (idx >= 0) {
-                            slot.affiliatedSymbols.splice(idx, 1)
-                            return true
-                        }
-                        continue
-                    }
-                    if (isNoteRest(slot) && slot.affiliatedSymbols?.length) {
-                        const idx = slot.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
-                        if (idx >= 0) {
-                            slot.affiliatedSymbols.splice(idx, 1)
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false
-}
-
-function deleteMeasureAffiliatedById(slot: SlotData, symbolId: string): boolean {
-    const measure = slot.measure
-    if (!measure?.affiliatedSymbols?.length) return false
-    const idx = measure.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
-    if (idx < 0) return false
-    measure.affiliatedSymbols.splice(idx, 1)
-    return true
-}
-
-function deleteMeasureAffiliatedByIdGlobal(musicScore: MusicScore, symbolId: string): boolean {
-    for (const grandStaff of musicScore.grandStaffs) {
-        for (const singleStaff of grandStaff.staves) {
-            for (const measure of singleStaff.measures) {
-                if (!measure.affiliatedSymbols?.length) continue
-                const idx = measure.affiliatedSymbols.findIndex((sym) => sym.id === symbolId)
-                if (idx >= 0) {
-                    measure.affiliatedSymbols.splice(idx, 1)
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-
 function deleteNotesInfoSubSymbol(slot: SlotData, symbolId: string): boolean {
     const info = slot.info
     if (!info) return false
@@ -320,6 +259,11 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
 
     if (isPitchSelected(selected) || isLineSelected(selected)) {
         return removeScoreAffiliatedById(musicScore, selected.self.id)
+    }
+
+    // 附属符号没有 type 字段，会被后面的简谱判断（isNoteNumberSymbol）误认成简谱音符，须先处理
+    if (isNoteAffiliatedSelected(selected)) {
+        return removeSingleAffiliatedSymbolById(musicScore, selected.self.id)
     }
 
     if (selected.measure && isDrumNotesInfo(selected.info) && selected.self === selected.info) {
@@ -371,15 +315,7 @@ export function deleteSelectedItem(musicScore: MusicScore, selected: SlotData | 
         return true
     }
 
-    if (selected.measure && deleteMeasureAffiliatedById(selected, selfId)) {
-        return true
-    }
-
-    if (deleteMeasureAffiliatedByIdGlobal(musicScore, selfId)) {
-        return true
-    }
-
-    if (deleteSingleNoteAffiliatedById(musicScore, selfId)) {
+    if (removeSingleAffiliatedSymbolById(musicScore, selfId)) {
         return true
     }
 

@@ -19,6 +19,7 @@ import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_R
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 import {isDrumNote, slotSymbol} from "../utils/staffSlot";
+import {markBeamLineRuns} from "@/render/beamLineRuns";
 
 /** 连杠用的时值 / beamType 取首个 notesInfo（与五线谱声部组一致） */
 function leadInfo(note: DrumNote) {
@@ -152,17 +153,15 @@ export function processBeam(params: {
     }
 
     // --- 5. 为每个音符位置生成一段符杠 VDom ---
-    const overlap = 1;
+    const beamStart = vDoms.length;
     for (let j = 0; j < nStems; j++) {
       const leftX = j === 0 ? stemEnds[0]!.x : (stemEnds[j - 1]!.x + stemEnds[j]!.x) / 2;
       const rightX = j === nStems - 1 ? stemEnds[nStems - 1]!.x : (stemEnds[j]!.x + stemEnds[j + 1]!.x) / 2;
-      const leftXAdj = j > 0 ? leftX - overlap : leftX;
-      const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
-      const leftY = anchor.y + inclination * (leftXAdj - anchor.x);
-      const rightY = anchor.y + inclination * (rightXAdj - anchor.x);
+      const leftY = anchor.y + inclination * (leftX - anchor.x);
+      const rightY = anchor.y + inclination * (rightX - anchor.x);
       vDoms.push({
-        startPoint: {x: leftXAdj + stemHalfW, y: leftY},
-        endPoint: {x: rightXAdj + stemHalfW, y: rightY},
+        startPoint: {x: leftX + stemHalfW, y: leftY},
+        endPoint: {x: rightX + stemHalfW, y: rightY},
         special: {
           beam: {
             lines: linesPerSegment[j]!,
@@ -181,6 +180,7 @@ export function processBeam(params: {
         dataComment: '符杠',
       });
     }
+    markBeamLineRuns(vDoms, beamStart);
   };
 
   for (const g of beamGroups) processBeamGroup(g);

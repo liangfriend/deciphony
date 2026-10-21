@@ -5,7 +5,7 @@
  * - 数据源是 NoteSymbol 上的 graceNotes / graceNotesAfter，而非小节内主音符；
  * - 前置倚音数组 index0 靠主音，需先 reverse 成视觉左→右再组杠；
  * - 符干/符杠尺寸按 GRACE_NOTE_SCALE（50%）缩放；
- * - 符杠接点 x 用 graceStemBeamAttachX（组内缘），绘制段界仍用符干中心 + overlap 嵌入。
+ * - 符杠接点 x 用 graceStemBeamAttachX（组内缘），绘制段界仍用符干中心，相邻段首尾相接不重叠。
  */
 
 import type {Tab6SkinPack} from "@/types/common";
@@ -19,6 +19,7 @@ import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_R
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeTab6BeamFromStemEnds} from "./tab6BeamLine";
 import {GRACE_NOTE_SCALE} from "@/render/graceNote";
+import {markBeamLineRuns} from "@/render/beamLineRuns";
 
 /**
  * 倚音连杠分组，规则同 processBeam.buildBeamGroups（视觉左→右扫描）。
@@ -213,23 +214,20 @@ export function processGraceBeam(params: {
             stem.h = Math.max(beamY - stemTop, minStemLength);
         }
 
-        // --- 4. 生成符杠 VDom（段界用符干中心 + overlap，与普通符杠嵌入效果一致）---
-        const overlap = 1;
+        // --- 4. 生成符杠 VDom（段界用符干中心，相邻段首尾相接不重叠）---
         const stemCenterXs = visualOrder.map((ni) => {
             const stem = getGraceStem(nodeIdMap, vDoms, ni.id)!;
             return stem.x + stemHalfW;
         });
+        const beamStart = vDoms.length;
         for (let j = 0; j < nStems; j++) {
             const leftX = j === 0 ? stemCenterXs[0]! : (stemCenterXs[j - 1]! + stemCenterXs[j]!) / 2;
-            // 这里+1 -1 是让符杠之间，符杠和符干之间相互嵌入，优化视觉效果
             const rightX = j === nStems - 1 ? stemCenterXs[nStems - 1]! : (stemCenterXs[j]! + stemCenterXs[j + 1]!) / 2;
-            const leftXAdj = j > 0 ? leftX - overlap : leftX;
-            const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
-            const leftY = anchor.y + inclination * (leftXAdj - anchor.x);
-            const rightY = anchor.y + inclination * (rightXAdj - anchor.x);
+            const leftY = anchor.y + inclination * (leftX - anchor.x);
+            const rightY = anchor.y + inclination * (rightX - anchor.x);
             vDoms.push({
-                startPoint: {x: leftXAdj, y: leftY},
-                endPoint: {x: rightXAdj, y: rightY},
+                startPoint: {x: leftX, y: leftY},
+                endPoint: {x: rightX, y: rightY},
                 special: {
                     beam: {
                         lines: linesPerSegment[j]!,
@@ -251,6 +249,7 @@ export function processGraceBeam(params: {
                 dataComment: '倚音符杠',
             });
         }
+        markBeamLineRuns(vDoms, beamStart);
     }
 
     // --- 5. 移除被连杠倚音的符尾 ---

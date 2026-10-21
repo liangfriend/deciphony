@@ -58,8 +58,9 @@ const slotH = computed(() => props.node.h)
 const contentW = computed(() => Math.max(0, slotW.value - padL.value - padR.value))
 const centerX = computed(() => padL.value + contentW.value / 2)
 /** 相对槽顶：标题贴顶；副标题 / 作者与左侧元信息同高 */
+/** 标题按字体上沿（text-before-edge）贴顶；用 hanging 时中文字形高出槽顶，曲谱 svg 顶部会把它裁掉 */
 const TITLE_Y = 0
-const SUBTITLE_Y = 26
+const SUBTITLE_Y = 28
 const META_Y = 72
 const authorX = computed(() => slotW.value - padR.value)
 /** 作者多行：每行一个 tspan，行高 = 字号（12px）× 1.4 */
@@ -119,7 +120,7 @@ function onBpmInput(event: Event) {
         class="dr-title-slot__title"
         :x="centerX"
         :y="TITLE_Y"
-        dominant-baseline="hanging"
+        dominant-baseline="text-before-edge"
         text-anchor="middle"
       >{{ musicScore.title }}</text>
       <text

@@ -43,9 +43,11 @@ import {
   resolveAugmentationDotAnchorXFromLayout,
 } from "../utils/note";
 import {
+  graceNoteNumberBeforeWidth,
   renderGraceNotesNumberAfter,
   renderGraceNotesNumberBefore,
 } from "../grace/renderGraceNumber";
+import {graceNoteSpacing} from "@/render/graceNote";
 import {floorCenterY, stackCenterYs} from "../utils/noteLayout";
 import {renderSingleNoteAffiliatedSymbols} from "@/render/affiliated";
 import {
@@ -322,9 +324,14 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         if (referenceW <= 0) referenceW = skin[NumberNotationSkinKeyEnum.Number_1]?.w ?? 20;
       }
 
-      // 数字头 x：同 onset 列内居左（主音符不受倚音影响）
+      // 数字头 x：同 onset 列内居左，且在前倚音区之后（见「小节内音符横坐标布局」）
       const slotOnset = computeSlotOnset(measure, i, columnAdapter);
-      const slotX = slotStartX;
+      const hostInfo = note.notesInfo[0];
+      const graceBeforeW = (!isRestSlot && hostInfo && note.graceNotes?.length)
+        ? graceNoteNumberBeforeWidth(note.graceNotes, hostInfo, skin, measureHeight)
+          + graceNoteSpacing(measureHeight)
+        : 0;
+      const slotX = slotStartX + graceBeforeW;
       if (note.notesInfo.length === 0) continue;
       slots.push({note, i, slotStartX, slotW, slotX, refW: referenceW, isRest: isRestSlot});
 
@@ -584,7 +591,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
 
     // 第二遍：渲染减时线（只有最底层；休止符 0 同样需要减时线）
     // 每个音符画自己的条数；相邻两音按 beam 相连时，只补两者都有的那几层（取较少条数），
-    // 如 16-8-16：第一条贯穿三音，第二条只在两个十六分音符下各一段
+    // 如 16-8-16：第一条贯穿三音，第二条只在两个十六分音符下各一段。
+    // 连接段只补两音之间的空隙、不与音符自己的线重叠：重叠处抗锯齿边缘会合成两次而发深
     {
       const reduceLineCount = (slot: SlotInfo): number => {
         const info = getReduceLineInfo(slot);
@@ -629,7 +637,8 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         const nextCount = next ? reduceLineCount(next) : 0;
         if (!next || !nextInfo || !nextCount) continue;
         if (!canJoinReduceLineFromLeft(info.beamType) || !canJoinReduceLineToRight(nextInfo.beamType)) continue;
-        pushReduceLine(info, Math.min(count, nextCount), slot.slotX, next.slotX + next.refW - slot.slotX);
+        const gapX = slot.slotX + slot.refW;
+        if (next.slotX > gapX) pushReduceLine(info, Math.min(count, nextCount), gapX, next.slotX - gapX);
       }
     }
   }

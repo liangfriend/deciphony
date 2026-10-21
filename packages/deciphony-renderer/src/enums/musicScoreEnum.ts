@@ -239,6 +239,23 @@ export enum DoubleSlotAffiliatedSymbolNameEnum {
   Trill_line = 'trill_line',
   /** 渐强 / 渐弱；造型见 data.hairpin.type（HairpinTypeEnum） */
   Hairpin = 'hairpin',
+  /** 古筝连续指法（连托 / 连劈 / 连抹 …）；指法见 data.guzhengLian.type（GuzhengLianTypeEnum） */
+  Guzheng_lian = 'guzheng_lian',
+}
+
+/**
+ * 古筝连续指法：画在谱表下方。
+ * 连托 = 矩形无上边（底边虚线）；连劈 = 矩形无下边（顶边虚线）；其余 = 起点画该指法符号，后接虚线到结束列。
+ */
+export enum GuzhengLianTypeEnum {
+  Tuo = 'tuo', // 连托
+  Pi = 'pi', // 连劈
+  Mo = 'mo', // 连抹
+  Tiao = 'tiao', // 连挑
+  Gou = 'gou', // 连勾
+  Ti = 'ti', // 连剔
+  Da = 'da', // 连打
+  Zhai = 'zhai', // 连摘
 }
 
 /** 颤音线起始符号；后面都接 SMuFL 波浪线 */
@@ -334,6 +351,36 @@ export enum SingleNoteAffiliatedSymbolNameEnum {
   RFZ = 'rfz',
   RF = 'rf',
   FZ = 'fz',
+
+  // 古筝指法（无通行英文名的用拼音；剔 / 提同音，用声调数字区分）
+  /** 抹：反斜线 \ */
+  Guzheng_mo = 'guzheng_mo',
+  /** 挑：斜线 / */
+  Guzheng_tiao = 'guzheng_tiao',
+  /** 勾：上圆弧 ⌒ */
+  Guzheng_gou = 'guzheng_gou',
+  /** 剔（tī）：下圆弧 ◡ */
+  Guzheng_ti1 = 'guzheng_ti1',
+  /** 劈：矩形留上边和右边 ┐ */
+  Guzheng_pi = 'guzheng_pi',
+  /** 托：矩形留下边和左边 └ */
+  Guzheng_tuo = 'guzheng_tuo',
+  /** 打：三角形去掉底边 ∧ */
+  Guzheng_da = 'guzheng_da',
+  /** 摘：打上下翻转 ∨ */
+  Guzheng_zhai = 'guzheng_zhai',
+  /** 提（tí）：闪电形折线 */
+  Guzheng_ti2 = 'guzheng_ti2',
+  /** 拨：提左右翻转 */
+  Guzheng_bo = 'guzheng_bo',
+  /** 小撮：托 + 反斜线 */
+  Guzheng_xiao_cuo = 'guzheng_xiao_cuo',
+  /** 大撮：托 + 勾 */
+  Guzheng_da_cuo = 'guzheng_da_cuo',
+  /** 扫弦：倾斜的「王」，在音符右下方 */
+  Guzheng_sao = 'guzheng_sao',
+  /** 摇指：倾斜的「三」（彡） */
+  Guzheng_yao = 'guzheng_yao',
 
 }
 
@@ -454,6 +501,14 @@ export enum SlurTypeEnum {
   S = 's',//滑弦S
   P = 'p',//勾弦P
   HP = 'hp'//击勾弦HP
+}
+
+/** 连音线造型：圆润描边 / 尖锐填充月牙；未指定时按谱种 */
+export enum SlurStyleEnum {
+  /** 圆润：两端圆弧 + 中间横线，圆角描边 */
+  Rounded = 'rounded',
+  /** 尖锐：填充月牙 */
+  Sharp = 'sharp',
 }
 
 // 推弦类型，这个有可能是通用的

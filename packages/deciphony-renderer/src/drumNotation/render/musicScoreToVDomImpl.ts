@@ -6,14 +6,18 @@ import {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 import {MusicScore} from "@/types/MusicScoreType";
 import {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSkinKeyEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
+import {withEmptySkinFallback} from "@/skins/emptySkin";
 import {getMeasureVoices} from "@/utils/measureNotes";
 import type {DrumMeasureColumnLayout, LongRestRole, NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
 import {getBracketSkinKey, getLinkedBarlineSkinKey} from "./utils/skinKey";
-import {getMeasureWidthRatio} from "./utils/note";
 import {computeLongRestRoles, longRestShowsPrefix, longRestShowsSuffix} from "./utils/longRest";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
-import {buildDrumColumnLayouts, computeDrumMeasureFixedWidths} from "./layout/measureColumnLayoutAdapter";
+import {
+  buildDrumColumnLayouts,
+  computeDrumMeasureFixedWidths,
+  drumMeasureWidthRatio,
+} from "./layout/measureColumnLayoutAdapter";
 import {processBeam} from "./beam/processBeam";
 import {processGraceBeam} from "./beam/processGraceBeam";
 import {
@@ -52,7 +56,7 @@ export function musicScoreToVDom(
   const sn = options?.skinName;
   const effectiveSkinName = sn && s && sn in s ? sn : 'default';
   const skinPack: SkinPack = s?.[effectiveSkinName] ?? defaultSkin;
-  const skin = skinPack.drumNotation ?? defaultSkin.drumNotation!;
+  const skin = withEmptySkinFallback(skinPack.drumNotation ?? defaultSkin.drumNotation!);
   const measureHeight = skin[DrumNotationSkinKeyEnum.Measure]?.h ?? 45;
   const measureLineWidth = skin[DrumNotationSkinKeyEnum.Measure]?.w ?? 1;
   const vDoms: VDom[] = [];
@@ -155,12 +159,14 @@ export function musicScoreToVDom(
     const longRestRolesByStaff = grandStaff.staves.map((s) => computeLongRestRoles(s.measures));
     const measureWidths: number[] = [];
     if (linkedStaff && maxMeasures > 0) {
-      const totalRatioPerCol: number[] = new Array(maxMeasures).fill(0);
-      grandStaff.staves.forEach((staff, si) => {
-        for (let mi = 0; mi < staff.measures.length && mi < maxMeasures; mi++) {
-          totalRatioPerCol[mi] += getMeasureWidthRatio(staff.measures[mi], skin, longRestRolesByStaff[si]![mi]);
-        }
-      });
+      const totalRatioPerCol: number[] = [];
+      for (let mi = 0; mi < maxMeasures; mi++) {
+        totalRatioPerCol.push(drumMeasureWidthRatio(
+          grandStaff.staves.map((s) => s.measures[mi]),
+          longRestRolesByStaff.map((roles) => roles[mi]),
+          skin,
+        ));
+      }
       const totalSum = totalRatioPerCol.reduce((a, b) => a + b, 0) || 1;
       for (let mi = 0; mi < maxMeasures; mi++) {
         measureWidths.push(totalRatioPerCol[mi] / totalSum * grandStaffW);
@@ -270,7 +276,7 @@ export function musicScoreToVDom(
       let totalWidthRatioForMeasure = 0;
       if (!linkedStaff) {
         staff.measures.forEach((m, mi) => {
-          totalWidthRatioForMeasure += getMeasureWidthRatio(m, skin, longRestRoles[mi]);
+          totalWidthRatioForMeasure += drumMeasureWidthRatio([m], [longRestRoles[mi]], skin);
         });
         if (!Number.isFinite(totalWidthRatioForMeasure) || totalWidthRatioForMeasure <= 0) {
           totalWidthRatioForMeasure = 1;
@@ -360,7 +366,7 @@ export function musicScoreToVDom(
       const getMeasureW = (m: typeof staff.measures[0], mi: number) =>
         linkedStaff
           ? measureWidths[mi]
-          : getMeasureWidthRatio(m, skin, longRestRoles[mi]) / totalWidthRatioForMeasure * grandStaffW;
+          : drumMeasureWidthRatio([m], [longRestRoles[mi]], skin) / totalWidthRatioForMeasure * grandStaffW;
       for (let mi = 0; mi < staff.measures.length; mi++) {
         const measure = staff.measures[mi];
         const measureWidth = getMeasureW(measure, mi);
@@ -388,23 +394,6 @@ export function musicScoreToVDom(
       if (linkedStaff && i >= 1 && prevMeasureStartY !== undefined) {
         const linkedBarlineY = prevMeasureStartY + measureHeight;
         const linkedBarlineH = currentMeasureStartY - linkedBarlineY;
-        const linkedCloseLineKey = DrumNotationSkinKeyEnum.linked_close_line;
-        const linkedCloseLineItem = skin[linkedCloseLineKey];
-        vDoms.push({
-          startPoint: {x: 0, y: 0},
-          endPoint: {x: 0, y: 0},
-          special: {},
-          x: grandStaffX,
-          y: linkedBarlineY,
-          w: linkedCloseLineItem?.w ?? 1,
-          h: linkedBarlineH,
-          zIndex: 1200,
-          tag: 'linked_close_line',
-          skinKey: linkedCloseLineKey,
-          skinName: effectiveSkinName,
-          targetId: `linked-close-${staff.id}`,
-          dataComment: '连谱闭合线',
-        });
         let barlineMeasureX = grandStaffX;
         for (let mi = 0; mi < staff.measures.length; mi++) {
           const measure = staff.measures[mi];
@@ -465,24 +454,6 @@ export function musicScoreToVDom(
       const measureTopY = grandStaffCurrentY;
       measureCurrentX = grandStaffX;
 
-      // 单谱表开始要加一个闭合线，闭合第一小节左侧
-      const closeLineSkinKey = DrumNotationSkinKeyEnum.Close_line;
-      const closeLineItem = skin[closeLineSkinKey];
-      vDoms.push({
-        startPoint: {x: 0, y: 0},
-        endPoint: {x: 0, y: 0},
-        special: {},
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: closeLineItem?.w ?? 1,
-        h: measureHeight,
-        zIndex: 1200,
-        tag: 'close_line',
-        skinKey: closeLineSkinKey,
-        skinName: effectiveSkinName,
-        targetId: `close-${staff.id}`,
-        dataComment: '闭合线',
-      });
       for (let mi = 0; mi < staff.measures.length; mi++) {
         const measure = staff.measures[mi];
         const measureWidth = getMeasureW(measure, mi);

@@ -1,9 +1,14 @@
 import type {Measure, MeasureNoteSlot} from '@/types/MusicScoreType';
 import type {DrumNotationSkinPack} from '@/types/common';
-import {buildLinkedMeasureColumnLayouts, type ColumnLayoutSlotAdapter} from '@/render/layout/measureColumnLayout';
+import {
+  buildLinkedMeasureColumnLayouts,
+  countMergedOnsetColumns,
+  mergedMeasureWidthRatio,
+  type ColumnLayoutSlotAdapter,
+} from '@/render/layout/measureColumnLayout';
 import {getMeasureVoices} from '@/utils/measureNotes';
 import type {DrumMeasureColumnLayout, DrumVoice, LongRestRole} from '../types';
-import {getNoteWidthRatio, getSlotLayoutChronaxie} from '../utils/note';
+import {getMeasureWidthRatio, getNoteWidthRatio, getSlotLayoutChronaxie} from '../utils/note';
 import {isDrumSlot, slotSymbol} from '../utils/staffSlot';
 import {getPrefixParts, getSuffixParts, sumPartsWidth} from '../utils/measureParts';
 
@@ -32,6 +37,23 @@ export function createDrumColumnLayoutAdapter(skin: DrumNotationSkinPack): Colum
 function voiceMeasure(measure: Measure, voice: DrumVoice): Measure {
   const slots = getMeasureVoices(measure)[voice];
   return {...measure, notes: slots.map((slot) => ({slot, voice}) as unknown as MeasureNoteSlot)};
+}
+
+/** 同一小节位置（连谱各谱表 / 非连谱单个）的宽度占比：上下声部合并 onset 列；长休止符小节不计列 */
+export function drumMeasureWidthRatio(
+  measures: (Measure | null | undefined)[],
+  roles: (LongRestRole | null | undefined)[],
+  skin: DrumNotationSkinPack,
+): number {
+  const adapter = createDrumColumnLayoutAdapter(skin);
+  const voiceMeasures = measures.flatMap((m, i) =>
+    m && !roles[i] ? [voiceMeasure(m, 'up'), voiceMeasure(m, 'down')] : []);
+  return mergedMeasureWidthRatio(
+    measures,
+    adapter,
+    (m, i) => getMeasureWidthRatio(m, skin, roles[i]),
+    countMergedOnsetColumns(voiceMeasures, adapter),
+  );
 }
 
 /**

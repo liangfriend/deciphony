@@ -33,6 +33,7 @@ export default defineConfig({
       '@deciphony/work': path.resolve(__dirname, '../deciphony-work/src/index.ts'),
       '@deciphony/extensions': path.resolve(__dirname, '../deciphony-extensions/src'),
       '@deciphony/puff': path.resolve(__dirname, '../deciphony-puff/src/index.ts'),
+      '@deciphony/cl-sheet': path.resolve(__dirname, '../deciphony-cl-sheet/src/index.ts'),
       '@deciphony/tune-judge': path.resolve(__dirname, '../deciphony-tune-judge/src/index.ts'),
       '@deciphony/finger': path.resolve(__dirname, '../deciphony-finger/src/index.ts'),
       '@assets': path.resolve(__dirname, '../deciphony-ui/src/assets'),

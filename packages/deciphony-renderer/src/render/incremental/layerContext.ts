@@ -1,7 +1,7 @@
 import type {Component, ComputedRef, InjectionKey, Slots} from 'vue'
 import type {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import type {MusicScore} from '@/types/MusicScoreType'
-import type {Skin, SlotName, VDom} from '@/types/common'
+import type {MusicScoreRenderOptions, Skin, SlotName, VDom} from '@/types/common'
 import type {DrExtension} from '@/types/extension'
 
 export type SlotExtensionItem = {
@@ -17,6 +17,8 @@ export type ScoreLayerContext = {
   data: ComputedRef<MusicScore>
   skin: ComputedRef<Skin>
   notationType: ComputedRef<MusicScoreTypeEnum>
+  /** 渲染配置（已补默认值） */
+  options: ComputedRef<Required<MusicScoreRenderOptions>>
   slots: Slots
   extensionsForSlot: (slotName?: SlotName) => SlotExtensionItem[]
   resolveExtensionProps: (ext: DrExtension) => Record<string, unknown>

@@ -1,8 +1,10 @@
 import type {
     ArpeggioTypeEnum,
+    GuzhengLianTypeEnum,
     HairpinTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
+    SlurStyleEnum,
     SlurTypeEnum,
     TrillTypeEnum,
 } from '@/enums/musicScoreEnum'
@@ -18,6 +20,7 @@ export type SlurMirror = {
     thickness: number
     type?: SlurTypeEnum
     relativeTextPoint?: Point
+    style?: SlurStyleEnum
 }
 
 export type FrameMirror = Pick<Frame, 'relativeX' | 'relativeY' | 'relativeW' | 'relativeH'>
@@ -88,6 +91,13 @@ export type HairpinMirror = {
     thickness?: number
 }
 
+/** 与 VDom.special.guzhengLian 同结构，供古筝连续指法拖拽预览 */
+export type GuzhengLianMirror = {
+    relativeStartPoint: Point
+    relativeEndPoint: Point
+    type?: GuzhengLianTypeEnum
+}
+
 /** Frame 的 relativeX/Y 会同时推动连音线、符杠、推弦、琶音/扫弦/踏板/八度记号/颤音线/渐强渐弱的端点（与 applyRelativeFrameToVDom 一致） */
 function shiftsEndpoints(node: VDom): boolean {
     return node.tag === 'noteBeam'
@@ -98,6 +108,7 @@ function shiftsEndpoints(node: VDom): boolean {
         || node.special?.pitch != null
         || node.special?.trill != null
         || node.special?.hairpin != null
+        || node.special?.guzhengLian != null
         || node.tag === 'bend'
         || node.tag === 'arpeggio'
         || node.tag === 'strumming'
@@ -415,6 +426,33 @@ export function mirrorHairpinData(list: VDom[], targetId: string, hairpin: Hairp
     return list.map((node) => {
         if (node.targetId !== targetId || !node.special?.hairpin) return node
         const patch = hairpinVDomPatch(node, hairpin)
+        return patch ? {...node, ...patch, special: {...node.special, ...patch.special}} : node
+    })
+}
+
+/**
+ * data.guzhengLian → 可原地 assign 到 affiliation 节点的 patch。
+ */
+export function guzhengLianVDomPatch(node: VDom, guzhengLian: GuzhengLianMirror): Partial<VDom> | null {
+    const prev = node.special?.guzhengLian
+    if (!prev) return null
+    const {startPoint, endPoint, newStart, newEnd} = shiftEndpointsByRel(node, prev, guzhengLian)
+    return {
+        startPoint,
+        endPoint,
+        special: {
+            guzhengLian: {...prev, ...guzhengLian, relativeStartPoint: newStart, relativeEndPoint: newEnd},
+        },
+    }
+}
+
+/**
+ * @deprecated 会换节点引用；高频跟手请用 guzhengLianVDomPatch + updateVDom(targetId, patch)
+ */
+export function mirrorGuzhengLianData(list: VDom[], targetId: string, guzhengLian: GuzhengLianMirror): VDom[] {
+    return list.map((node) => {
+        if (node.targetId !== targetId || !node.special?.guzhengLian) return node
+        const patch = guzhengLianVDomPatch(node, guzhengLian)
         return patch ? {...node, ...patch, special: {...node.special, ...patch.special}} : node
     })
 }

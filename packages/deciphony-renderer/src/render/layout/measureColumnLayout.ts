@@ -205,6 +205,46 @@ function onsetStartsFromGeometry(
   return map;
 }
 
+/**
+ * 多份小节（连谱各谱表 / 鼓谱各声部）合并后的 onset 列数（含简谱加时线虚拟列）。
+ * 小节宽度占比按列数 × DEFAULT_CELL_BASE_WIDTH_RATIO 计入，与小节内列宽同口径；
+ * 否则小节底数（默认 100）远大于音符的 widthRatioForMeasure，音符多少几乎不影响小节宽度。
+ */
+export function countMergedOnsetColumns(
+  measures: (Measure | null | undefined)[],
+  adapter: ColumnLayoutSlotAdapter,
+): number {
+  const onsets = new Set<number>();
+  for (const measure of measures) {
+    if (!measure) continue;
+    for (const ref of collectOnsetSlots(measure, adapter)) {
+      onsets.add(ref.onset);
+      for (const extra of adapter.getExtraOnsetRatios?.(ref.note, ref.onset) ?? []) {
+        onsets.add(extra.onset);
+      }
+    }
+  }
+  return onsets.size;
+}
+
+/**
+ * 同一小节位置（连谱为各谱表同下标小节，非连谱传单个）的宽度占比：
+ * 各份自身占比（小节底数 + 小节线 / 调号 / 音符 widthRatioForMeasure 等）取最大，再加合并列数 × DEFAULT_CELL_BASE_WIDTH_RATIO。
+ * 取最大而非相加：相加会让稀疏谱表冲淡密集谱表。
+ */
+export function mergedMeasureWidthRatio(
+  measures: (Measure | null | undefined)[],
+  adapter: ColumnLayoutSlotAdapter,
+  ownRatio: (measure: Measure, index: number) => number,
+  columnCount: number = countMergedOnsetColumns(measures, adapter),
+): number {
+  let own = 0;
+  measures.forEach((measure, index) => {
+    if (measure) own = Math.max(own, ownRatio(measure, index));
+  });
+  return own + DEFAULT_CELL_BASE_WIDTH_RATIO * columnCount;
+}
+
 /** 简谱增时线对齐用的 chronaxie 小格（四分音符） */
 export const CHRONAXIE_GRID_UNIT = 64;
 

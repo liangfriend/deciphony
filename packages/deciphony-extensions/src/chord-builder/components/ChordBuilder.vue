@@ -155,7 +155,7 @@ function isBarreRangeValid(barre: Barre): boolean {
   <div class="chord-builder">
     <div class="chord-builder__scale-bar">
       <label class="chord-builder__scale-control">
-        <span>预览缩放</span>
+        <span>预览缩放 / Preview scale</span>
         <input
           v-model.number="scale"
           type="range"
@@ -174,7 +174,7 @@ function isBarreRangeValid(barre: Barre): boolean {
 
     <div class="chord-builder__body">
       <div class="chord-builder__preview">
-        <h2 class="chord-builder__title">和弦图预览</h2>
+        <h2 class="chord-builder__title">和弦图预览 / Chord Preview</h2>
         <div class="chord-builder__preview-box">
           <svg
             :width="previewDisplayW"
@@ -189,14 +189,14 @@ function isBarreRangeValid(barre: Barre): boolean {
       </div>
 
       <div class="chord-builder__editor">
-        <h2 class="chord-builder__title">编辑</h2>
+        <h2 class="chord-builder__title">编辑 / Edit</h2>
         <div class="chord-builder__toolbar">
           <label class="chord-builder__field">
-            <span>name</span>
+            <span>名称 / Name</span>
             <input v-model="chord.name" type="text" :disabled="isDisabled('name')"/>
           </label>
           <label class="chord-builder__field">
-            <span>width</span>
+            <span>宽度 / Width</span>
             <input
               v-model.number="chord.width"
               type="number"
@@ -205,7 +205,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>height</span>
+            <span>高度 / Height</span>
             <input
               v-model.number="chord.height"
               type="number"
@@ -214,7 +214,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>stringCount</span>
+            <span>弦数 / Strings</span>
             <input
               v-model.number="chord.stringCount"
               type="number"
@@ -224,7 +224,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>fretCount</span>
+            <span>品数 / Frets</span>
             <input
               v-model.number="chord.fretCount"
               type="number"
@@ -234,7 +234,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>baseFret</span>
+            <span>起始品 / Base fret</span>
             <input
               v-model.number="chord.baseFret"
               type="number"
@@ -243,7 +243,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>textSize</span>
+            <span>文字字号 / Text size</span>
             <input
               v-model.number="chord.textSize"
               type="number"
@@ -252,7 +252,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field">
-            <span>nameSize</span>
+            <span>名称字号 / Name size</span>
             <input
               v-model.number="chord.nameSize"
               type="number"
@@ -261,7 +261,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             />
           </label>
           <label class="chord-builder__field chord-builder__field--wide">
-            <span>tuning（逗号分隔）</span>
+            <span>调弦（逗号分隔）/ Tuning (comma-separated)</span>
             <input v-model="tuningText" type="text" :disabled="isDisabled('tuning')"/>
           </label>
         </div>
@@ -275,7 +275,7 @@ function isBarreRangeValid(barre: Barre): boolean {
 
         <div class="chord-builder__barre">
           <div class="chord-builder__barre-header">
-            <h3 class="chord-builder__subtitle">横按 barres</h3>
+            <h3 class="chord-builder__subtitle">横按 / Barres</h3>
             <div class="chord-builder__barre-actions">
               <button type="button" :disabled="isDisabled('barres')" @click="addBarre">
                 添加横按
@@ -304,7 +304,7 @@ function isBarreRangeValid(barre: Barre): boolean {
             </div>
             <div class="chord-builder__barre-fields">
               <label class="chord-builder__field">
-                <span>fret（相对品）</span>
+                <span>相对品 / Fret</span>
                 <input
                   v-model.number="barre.fret"
                   type="number"
@@ -313,7 +313,7 @@ function isBarreRangeValid(barre: Barre): boolean {
                 />
               </label>
               <label class="chord-builder__field">
-                <span>start（细弦索引）</span>
+                <span>起始弦（细）/ Start string</span>
                 <input
                   v-model.number="barre.startStringNumber"
                   type="number"
@@ -322,7 +322,7 @@ function isBarreRangeValid(barre: Barre): boolean {
                 />
               </label>
               <label class="chord-builder__field">
-                <span>end（粗弦索引）</span>
+                <span>结束弦（粗）/ End string</span>
                 <input
                   v-model.number="barre.endStringNumber"
                   type="number"
@@ -331,7 +331,7 @@ function isBarreRangeValid(barre: Barre): boolean {
                 />
               </label>
               <label class="chord-builder__field chord-builder__field--wide">
-                <span>text（逗号分隔，下标=弦索引）</span>
+                <span>文字（逗号分隔，下标=弦索引）/ Text (comma-separated, by string index)</span>
                 <input
                   :value="getBarreTextRaw(barre)"
                   type="text"

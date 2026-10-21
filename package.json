@@ -14,6 +14,7 @@
     "build:tune-judge": "pnpm build:pitch-detection && pnpm --filter @deciphony/tune-judge build",
     "build:work": "pnpm --filter @deciphony/work build",
     "build:puff": "pnpm --filter @deciphony/puff build",
+    "build:cl-sheet": "pnpm --filter @deciphony/cl-sheet build",
     "publish:renderer": "pnpm build:renderer && pnpm --filter @deciphony/renderer publish --no-git-checks --registry http://localhost:4873/",
     "publish:player": "pnpm build:player && pnpm --filter @deciphony/player publish --no-git-checks --registry http://localhost:4873/",
     "publish:extensions": "pnpm build:extensions && pnpm --filter @deciphony/extensions publish --no-git-checks --registry http://localhost:4873/",
@@ -22,7 +23,8 @@
     "publish:tune-judge": "pnpm build:tune-judge && pnpm --filter @deciphony/tune-judge publish --no-git-checks --registry http://localhost:4873/",
     "publish:work": "pnpm build:work && pnpm --filter @deciphony/work publish --no-git-checks --registry http://localhost:4873/",
     "publish:puff": "pnpm build:puff && pnpm --filter @deciphony/puff publish --no-git-checks --registry http://localhost:4873/",
-    "publish:libs": "pnpm publish:renderer && pnpm publish:player && pnpm publish:extensions && pnpm publish:finger && pnpm publish:pitch-detection && pnpm publish:tune-judge && pnpm publish:work && pnpm publish:puff"
+    "publish:cl-sheet": "pnpm build:cl-sheet && pnpm --filter @deciphony/cl-sheet publish --no-git-checks --registry http://localhost:4873/",
+    "publish:libs": "pnpm publish:renderer && pnpm publish:player && pnpm publish:extensions && pnpm publish:finger && pnpm publish:pitch-detection && pnpm publish:tune-judge && pnpm publish:work && pnpm publish:puff && pnpm publish:cl-sheet"
   },
   "keywords": [],
   "devDependencies": {

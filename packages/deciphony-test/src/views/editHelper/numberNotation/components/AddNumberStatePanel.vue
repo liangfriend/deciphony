@@ -6,6 +6,8 @@ import {
   type AddNumberSlotKind,
   type AddNumberState,
 } from '../renderEditNumberAddState'
+import ChronaxieIconButtons from '../../components/ChronaxieIconButtons.vue'
+import EditToolbarButton from '../../components/EditToolbarButton.vue'
 
 const model = defineModel<AddNumberState>({required: true})
 
@@ -19,55 +21,55 @@ function setChronaxie(chronaxie: Chronaxie) {
 </script>
 
 <template>
-  <div class="add-note-state">
-    <div class="add-note-state__row">
-      <span class="add-note-state__label">添加</span>
-      <el-radio-group :model-value="model.kind" size="small" @change="setKind">
-        <el-radio-button
-          v-for="opt in ADD_NUMBER_KIND_OPTIONS"
-          :key="opt.value"
-          :label="opt.value"
-        >
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
+  <div class="add-toolbar">
+    <div class="add-toolbar__group">
+      <EditToolbarButton
+        v-for="opt in ADD_NUMBER_KIND_OPTIONS"
+        :key="opt.value"
+        :active="model.kind === opt.value"
+        :title="opt.label"
+        @click="setKind(opt.value)"
+      >
+        <span class="add-toolbar__text">{{ opt.label }}</span>
+      </EditToolbarButton>
     </div>
-    <div class="add-note-state__row">
-      <span class="add-note-state__label">时值</span>
-      <el-radio-group :model-value="model.chronaxie" size="small" @change="setChronaxie">
-        <el-radio-button
-          v-for="opt in CHRONAXIE_OPTIONS"
-          :key="opt.value"
-          :label="opt.value"
-        >
-          {{ opt.label }}
-        </el-radio-button>
-      </el-radio-group>
-    </div>
+    <div class="add-toolbar__sep"/>
+    <ChronaxieIconButtons
+      :model-value="model.chronaxie"
+      :mode="model.kind === 'rest' ? 'rest' : 'note'"
+      :options="CHRONAXIE_OPTIONS"
+      @update:model-value="setChronaxie"
+    />
   </div>
 </template>
 
 <style scoped>
-.add-note-state {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid #ebeef5;
-  background: #fff;
-}
-
-.add-note-state__row {
+.add-toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  padding: 8px 10px;
+  border-bottom: 1px solid #dcdfe6;
+  background: #f5f7fa;
 }
 
-.add-note-state__label {
+.add-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-toolbar__sep {
+  width: 1px;
+  height: 28px;
+  background: #dcdfe6;
   flex: 0 0 auto;
+}
+
+.add-toolbar__text {
   font-size: 12px;
   font-weight: 600;
-  color: #606266;
+  line-height: 1;
 }
 </style>

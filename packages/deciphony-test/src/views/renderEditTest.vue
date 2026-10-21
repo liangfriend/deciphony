@@ -1,34 +1,34 @@
 <script lang="ts" setup>
-import type {MusicScore} from '@deciphony/renderer'
+import type {MusicScore, MusicScoreRenderOptions, VDom} from '@deciphony/renderer'
 import musicScoreVue, {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/其多列简谱'
-import {buildDrumSample} from './data/drumSample'
 import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {
   AddDrumStatePanel,
   AddNoteStatePanel,
   AddNumberStatePanel,
   AddTabStatePanel,
+  clearSelectedGraceNotes,
+  cycleSelectedChronaxie,
   EditContextMenu,
   type EditContextMenuItem,
+  EditMenuBar,
   HorizontalDragHandles,
   isSlurVDom,
   MoveDragHandle,
-  PropertyPanel,
   SlurDragHandles,
   useDrEdit,
   useMidiPianoInput,
   VerticalDragHandles,
   VoltaDragHandles,
 } from './editHelper'
-import type {VDom} from '@deciphony/renderer'
 
 /** `?score=drum` 载入鼓谱示例，否则用默认简谱 */
 const useDrumSample = new URLSearchParams(window.location.search).get('score') === 'drum'
 const musicScoreData = reactive(
-    useDrumSample ? buildDrumSample() : JSON.parse(JSON.stringify(initialData)) as MusicScore,
+    useDrumSample ? data : JSON.parse(JSON.stringify(initialData)) as MusicScore,
 )
 const isDrum = computed(() => musicScoreData.type === MusicScoreTypeEnum.DrumNotation)
 const isNumberNotation = computed(
@@ -39,6 +39,7 @@ const isTab = computed(
 )
 const tabStrings = computed(() => tabStringCount(musicScoreData.type))
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
+const renderOptions = reactive<MusicScoreRenderOptions>({onlyChordName: false})
 
 const contextMenuItems = ref<EditContextMenuItem[]>([])
 
@@ -76,6 +77,7 @@ const {
   handleVoltaHandleDown,
   deleteSelected,
   navigateSelectedMeasure,
+  clearSelection,
   addMidiNote,
   contextMenuState,
   closeContextMenu,
@@ -126,12 +128,35 @@ function isTypingTarget(target: EventTarget | null): boolean {
   )
 }
 
+function activeAddChronaxieState() {
+  if (isTab.value) return addTabState.value
+  if (isDrum.value) return addDrumState.value
+  return addNoteState.value
+}
+
 function onKeyDown(event: KeyboardEvent) {
   if (isTypingTarget(event.target)) return
+  if (event.ctrlKey || event.metaKey || event.altKey) return
 
   const navDir = ARROW_TO_MEASURE_NAV[event.key as keyof typeof ARROW_TO_MEASURE_NAV]
   if (navDir) {
     if (navigateSelectedMeasure(navDir)) {
+      event.preventDefault()
+    }
+    return
+  }
+
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key
+  if (key === 'o') {
+    if (cycleSelectedChronaxie(selectedItem.value, activeAddChronaxieState())) {
+      event.preventDefault()
+    }
+    return
+  }
+  if (key === 'l') {
+    const result = clearSelectedGraceNotes(selectedItem.value)
+    if (result) {
+      if (result === 'cleared-grace-selection') clearSelection()
       event.preventDefault()
     }
     return
@@ -154,82 +179,86 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="play-test">
-    <div class="play-test__main">
-      <div class="play-test__midi-hint">{{ midiHint }}</div>
-      <AddTabStatePanel v-if="isTab" v-model="addTabState" :string-count="tabStrings"/>
-      <AddDrumStatePanel v-else-if="isDrum" v-model="addDrumState"/>
-      <AddNumberStatePanel v-else-if="isNumberNotation" v-model="addNoteState as any"/>
-      <AddNoteStatePanel v-else v-model="addNoteState as any"/>
-      <div ref="scoreRootRef" class="play-test__score">
-        <div class="play-test__score-stack">
-          <musicScoreVue
-              ref="musicScoreRef"
-              :data="musicScoreData"
-              :extensions="scoreExtensions"
-              class="play-test__score-svg"
-              skin-name="default"
-              @renderMusicScore="()=>{
-              }"
-          />
-          <svg
-              v-if="slurHandlePoints || arpeggioHandlePoints || strummingHandlePoints || pedalHandlePoints || pitchHandlePoints || lineHandlePoints || noteAffiliatedBox || voltaHandlePoints"
-              :height="musicScoreData.height"
-              :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
-              :width="musicScoreData.width"
-              class="play-test__affiliated-drag-layer"
-              xmlns="http://www.w3.org/2000/svg"
-          >
-            <SlurDragHandles
-                v-if="slurHandlePoints"
-                :handles="slurHandlePoints"
-                :vertical-control="isNumberNotation"
-                @handle-down="handleSlurHandleDown"
-            />
-            <VerticalDragHandles
-                v-if="arpeggioHandlePoints"
-                :handles="arpeggioHandlePoints"
-                @handle-down="handleArpeggioHandleDown"
-            />
-            <VerticalDragHandles
-                v-if="strummingHandlePoints"
-                :handles="strummingHandlePoints"
-                @handle-down="handleStrummingHandleDown"
-            />
-            <HorizontalDragHandles
-                v-if="pedalHandlePoints"
-                :handles="pedalHandlePoints"
-                @handle-down="handlePedalHandleDown"
-            />
-            <HorizontalDragHandles
-                v-if="pitchHandlePoints"
-                :handles="pitchHandlePoints"
-                @handle-down="handlePitchHandleDown"
-            />
-            <HorizontalDragHandles
-                v-if="lineHandlePoints"
-                :handles="lineHandlePoints"
-                @handle-down="handleLineHandleDown"
-            />
-            <MoveDragHandle
-                v-if="noteAffiliatedBox"
-                :box="noteAffiliatedBox"
-                @handle-down="handleNoteAffiliatedBoxDown"
-            />
-            <VoltaDragHandles
-                v-if="voltaHandlePoints"
-                :handles="voltaHandlePoints"
-                @handle-down="handleVoltaHandleDown"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-    <PropertyPanel
+    <EditMenuBar
         :get-live-v-dom="getLiveVDom"
         :get-update-v-dom="getUpdateVDom"
         :kind="propertyPanelKind"
         :selected="selectedItem"
     />
+    <AddTabStatePanel v-if="isTab" v-model="addTabState" :string-count="tabStrings"/>
+    <AddDrumStatePanel v-else-if="isDrum" v-model="addDrumState"/>
+    <AddNumberStatePanel v-else-if="isNumberNotation" v-model="addNoteState as any"/>
+    <AddNoteStatePanel v-else v-model="addNoteState as any"/>
+    <div class="play-test__midi-hint">
+      {{ midiHint }}
+      <label v-if="isTab" style="margin-left: 16px">
+        <input v-model="renderOptions.onlyChordName" type="checkbox"/> 只显示和弦名
+      </label>
+    </div>
+    <div ref="scoreRootRef" class="play-test__score">
+      <div class="play-test__score-stack">
+        <musicScoreVue
+            ref="musicScoreRef"
+            :data="musicScoreData"
+            :extensions="scoreExtensions"
+            :options="renderOptions"
+            class="play-test__score-svg"
+            skin-name="default"
+            @renderMusicScore="()=>{
+            }"
+        />
+        <svg
+            v-if="slurHandlePoints || arpeggioHandlePoints || strummingHandlePoints || pedalHandlePoints || pitchHandlePoints || lineHandlePoints || noteAffiliatedBox || voltaHandlePoints"
+            :height="musicScoreData.height"
+            :viewBox="`0 0 ${musicScoreData.width} ${musicScoreData.height}`"
+            :width="musicScoreData.width"
+            class="play-test__affiliated-drag-layer"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+          <SlurDragHandles
+              v-if="slurHandlePoints"
+              :handles="slurHandlePoints"
+              :vertical-control="isNumberNotation"
+              @handle-down="handleSlurHandleDown"
+          />
+          <VerticalDragHandles
+              v-if="arpeggioHandlePoints"
+              :handles="arpeggioHandlePoints"
+              @handle-down="handleArpeggioHandleDown"
+          />
+          <VerticalDragHandles
+              v-if="strummingHandlePoints"
+              :handles="strummingHandlePoints"
+              @handle-down="handleStrummingHandleDown"
+          />
+          <HorizontalDragHandles
+              v-if="pedalHandlePoints"
+              :handles="pedalHandlePoints"
+              @handle-down="handlePedalHandleDown"
+          />
+          <HorizontalDragHandles
+              v-if="pitchHandlePoints"
+              :handles="pitchHandlePoints"
+              @handle-down="handlePitchHandleDown"
+          />
+          <HorizontalDragHandles
+              v-if="lineHandlePoints"
+              :handles="lineHandlePoints"
+              @handle-down="handleLineHandleDown"
+          />
+          <MoveDragHandle
+              v-if="noteAffiliatedBox"
+              :box="noteAffiliatedBox"
+              @handle-down="handleNoteAffiliatedBoxDown"
+          />
+          <VoltaDragHandles
+              v-if="voltaHandlePoints"
+              :handles="voltaHandlePoints"
+              @handle-down="handleVoltaHandleDown"
+          />
+        </svg>
+      </div>
+    </div>
     <EditContextMenu
         v-if="contextMenuState.open && contextMenuState.items.length"
         :items="contextMenuState.items"
@@ -243,22 +272,14 @@ onBeforeUnmount(() => {
 <style scoped>
 .play-test {
   display: flex;
-  align-items: flex-start;
-  height: 100%;
-  gap: 16px;
-}
-
-.play-test__main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
   flex-direction: column;
-  overflow: hidden;
+  height: 100%;
+  min-height: 0;
 }
 
 .play-test__midi-hint {
   flex-shrink: 0;
-  padding: 4px 8px;
+  padding: 2px 10px;
   font-size: 12px;
   color: #909399;
 }

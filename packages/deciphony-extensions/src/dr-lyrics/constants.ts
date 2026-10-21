@@ -1,7 +1,7 @@
 /** 歌词默认字号（px）；行距、输入框高度按与它的比例缩放 */
 export const LYRICS_FONT_SIZE = 13
 
-/** 歌词行与行之间的垂直间距（像素，相对 g-d 插槽；默认字号下） */
+/** 歌词行与行之间的垂直间距（像素，相对 s-d 插槽；默认字号下） */
 export const LYRICS_ROW_GAP = 22
 
 /** 歌词区顶部内边距 */
@@ -26,7 +26,14 @@ export function resolveLyricsMetrics(fontSize = LYRICS_FONT_SIZE) {
   }
 }
 
-/** 行号（1. 2.）相对 g-d 左缘的 x */
+/**
+ * 编辑框默认字体（未传 fontFamily 时）：中文字体放最前。
+ * 浏览器按光标所在字的字体定光标高度，空框用首个字体、打了中文用回退字体，首个字体不是中文字体时两者高度不一样。
+ */
+export const LYRICS_INPUT_FONT_FAMILY =
+  '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif'
+
+/** 行号（1. 2.）相对 s-d 左缘的 x */
 export const LYRICS_ROW_INDEX_X = 8
 
 /** 用于对齐的音符类 vDom tag（含吉他 / 尤克里里品格、琶音、扫弦） */

@@ -10,6 +10,7 @@ import {parseSkinFile} from '../assets/skinAsset'
 import {syncScoreFrame} from '../api/crop'
 import {
   INSTRUMENT_NAME_GAP,
+  scoreInstrumentNameFontFamily,
   scoreLyricsFontFamily,
   scoreLyricsFontSize,
   scoreShowsInstrumentName,
@@ -63,7 +64,8 @@ const playHighlight = drPlayHighlight({
   getBpm,
 })
 
-const instrumentName = drInstrumentName({gap: INSTRUMENT_NAME_GAP})
+const instrumentNameFontFamily = computed(() => scoreInstrumentNameFontFamily(props.score.musicScore))
+const instrumentName = drInstrumentName({gap: INSTRUMENT_NAME_GAP, fontFamily: instrumentNameFontFamily})
 const lyricsFontSize = computed(() => scoreLyricsFontSize(props.score.musicScore))
 const lyricsFontFamily = computed(() => scoreLyricsFontFamily(props.score.musicScore))
 const titleFontFamily = computed(() => scoreTitleFontFamily(props.score.musicScore))
@@ -128,7 +130,7 @@ watch(
 )
 
 const baseExtensions = [
-  // t / g-d 高度由 scoreSlotConfig（读 musicScore.data）覆盖扩展默认
+  // t / s-d 高度由 scoreSlotConfig（读 musicScore.data）覆盖扩展默认
   drTitle({mode: 'show', fontFamily: titleFontFamily}),
   drLyrics({mode: 'show', fontSize: lyricsFontSize, fontFamily: lyricsFontFamily}),
   playHighlight,

@@ -25,14 +25,19 @@ import {
     DoubleMeasureAffiliatedSymbolNameEnum,
     DoubleNoteAffiliatedSymbolNameEnum,
     DoubleSlotAffiliatedSymbolNameEnum,
+    GuzhengLianTypeEnum,
     HairpinTypeEnum,
     isFretboardScoreType,
     MusicScoreTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
+    SingleMeasureAffiliatedSymbolNameEnum,
+    SingleNoteAffiliatedSymbolNameEnum,
     SingleSlotAffiliatedSymbolNameEnum,
     TrillTypeEnum,
 } from '@/enums/musicScoreEnum';
+import {extraRuleOf, unknownSymbolRuleOf} from '@/render/extraSymbols';
+import {EMPTY_SKIN_SIZE} from '@/skins/emptySkin';
 import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSkinKeyEnum';
 import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
 import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
@@ -205,9 +210,10 @@ function resolveSkinSize(
     skin: Record<string, { w: number; h: number }> | undefined,
     notationFallbackH: number,
 ): { w: number; h: number } | null {
-    if (!skinKey || !skin) return null;
-    const item = skin[skinKey];
-    if (!item) return null;
+    if (!skinKey) return null;
+    const item = skin?.[skinKey];
+    // 皮肤包里没有：按 empty 占位尺寸出 vDom，Group 画占位框
+    if (!item) return {...EMPTY_SKIN_SIZE};
     return {w: item.w, h: item.h || notationFallbackH};
 }
 
@@ -536,7 +542,7 @@ function renderSlotArpeggio(
     sym: SingleSlotAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
     located: LocatedSlot,
-    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name],
+    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name as SingleSlotAffiliatedSymbolNameEnum],
 ): void {
     if (rule?.kind !== 'arpeggio') return;
     const heads = resolveSlotHeadVDoms(ctx, located.slot);
@@ -588,7 +594,7 @@ function renderSlotStrumming(
     sym: SingleSlotAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
     located: LocatedSlot,
-    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name],
+    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name as SingleSlotAffiliatedSymbolNameEnum],
 ): void {
     if (rule?.kind !== 'strumming') return;
     const heads = resolveSlotHeadVDoms(ctx, located.slot);
@@ -789,6 +795,56 @@ function renderSlotHairpin(
     setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
 }
 
+const GUZHENG_LIAN_NAMES: Record<GuzhengLianTypeEnum, string> = {
+    [GuzhengLianTypeEnum.Tuo]: '连托',
+    [GuzhengLianTypeEnum.Pi]: '连劈',
+    [GuzhengLianTypeEnum.Mo]: '连抹',
+    [GuzhengLianTypeEnum.Tiao]: '连挑',
+    [GuzhengLianTypeEnum.Gou]: '连勾',
+    [GuzhengLianTypeEnum.Ti]: '连剔',
+    [GuzhengLianTypeEnum.Da]: '连打',
+    [GuzhengLianTypeEnum.Zhai]: '连摘',
+};
+
+function renderSlotGuzhengLian(
+    sym: DoubleSlotAffiliatedSymbol,
+    ctx: RenderAffiliatedContext,
+    musicScore: MusicScore,
+    rule = DoubleSlotAffiliatedSymbolRenderRule[sym.name],
+): void {
+    if (rule?.kind !== 'guzhengLian') return;
+    const lianData = sym.data?.guzhengLian;
+    const relStart = lianData?.relativeStartPoint ?? {x: 0, y: 0};
+    const relEnd = lianData?.relativeEndPoint ?? {x: 0, y: 0};
+    const startPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.startId, rule.start, relStart);
+    const endPt = resolveDoubleSlotAnchor(ctx, musicScore, sym.endId, rule.end, relEnd);
+    if (!startPt || !endPt) return;
+    const type = lianData?.type ?? GuzhengLianTypeEnum.Tuo;
+    const vdom: VDom = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        startPoint: startPt,
+        endPoint: endPt,
+        targetId: sym.id,
+        zIndex: AFFILIATED_Z,
+        tag: 'affiliation',
+        skinName: ctx.skinName ?? 'default',
+        skinKey: pedalSkinKey(ctx.notationType),
+        dataComment: GUZHENG_LIAN_NAMES[type] ?? '古筝连续指法',
+        special: {
+            guzhengLian: {
+                type,
+                relativeStartPoint: {...relStart},
+                relativeEndPoint: {...relEnd},
+            },
+        },
+    };
+    ctx.VDoms.push(vdom);
+    setNodeIdMap(ctx.idMap, sym.id, 'affiliation', vdom);
+}
+
 function renderVolta(
     sym: DoubleMeasureAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
@@ -898,7 +954,7 @@ function renderSlotSkin(
     sym: SingleSlotAffiliatedSymbol,
     ctx: RenderAffiliatedContext,
     located: LocatedSlot,
-    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name],
+    rule = SingleSlotAffiliatedSymbolRenderRule[sym.name as SingleSlotAffiliatedSymbolNameEnum],
 ): void {
     if (rule?.kind !== 'skin') return;
     const heads = resolveSlotHeadVDoms(ctx, located.slot);
@@ -925,7 +981,9 @@ function renderSingleSlotAffiliated(
     ctx: RenderAffiliatedContext,
     located: LocatedSlot,
 ): void {
-    const rule = SingleSlotAffiliatedSymbolRenderRule[sym.name];
+    const rule = SingleSlotAffiliatedSymbolRenderRule[sym.name as SingleSlotAffiliatedSymbolNameEnum]
+        ?? extraRuleOf(ctx.skin, 'slot', sym.name)
+        ?? unknownSymbolRuleOf('slot', sym.name);
     if (!rule) return;
     if (rule.kind === 'arpeggio') {
         renderSlotArpeggio(sym, ctx, located, rule);
@@ -961,6 +1019,10 @@ function renderDoubleSlotAffiliated(
     }
     if (rule.kind === 'hairpin') {
         renderSlotHairpin(sym, ctx, musicScore, rule);
+        return;
+    }
+    if (rule.kind === 'guzhengLian') {
+        renderSlotGuzhengLian(sym, ctx, musicScore, rule);
     }
 }
 
@@ -1024,7 +1086,9 @@ export function renderSingleNoteAffiliatedSymbols(
     if (!symbols?.length) return;
     const measureHeight = resolveMeasureHeight(ctx, noteHead);
     for (const sym of symbols) {
-        const rule = SingleNoteAffiliatedSymbolRenderRule[sym.name];
+        const rule = SingleNoteAffiliatedSymbolRenderRule[sym.name as SingleNoteAffiliatedSymbolNameEnum]
+            ?? extraRuleOf(ctx.skin, 'note', sym.name)
+            ?? unknownSymbolRuleOf('note', sym.name);
         if (!rule) continue;
         if (rule.kind !== 'skin') continue;
         const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
@@ -1049,7 +1113,7 @@ export function renderSingleNoteAffiliatedSymbols(
     }
 }
 
-/** 单小节附属 measure.affiliatedSymbols */
+/** 单小节附属 measure.affiliatedSymbols（规则语义见 SingleMeasureAffiliatedRule） */
 export function renderSingleMeasureAffiliatedSymbols(
     measure: Measure,
     measureX: number,
@@ -1059,18 +1123,22 @@ export function renderSingleMeasureAffiliatedSymbols(
     ctx: RenderAffiliatedContext,
 ): void {
     for (const sym of measure.affiliatedSymbols ?? []) {
-        const rule = SingleMeasureAffiliatedSymbolRenderRule[sym.name];
-        if (!rule) continue;
-        const size = resolveSkinSize(rule.skinKey ?? String(sym.name), ctx.skin, measureHeight);
+        const rule = SingleMeasureAffiliatedSymbolRenderRule[sym.name as SingleMeasureAffiliatedSymbolNameEnum]
+            ?? extraRuleOf(ctx.skin, 'measure', String(sym.name))
+            ?? unknownSymbolRuleOf('measure', String(sym.name));
+        if (!rule || rule.kind !== 'skin') continue;
+        const skinKey = rule.skinKey ?? String(sym.name);
+        const size = resolveSkinSize(skinKey, ctx.skin, measureHeight);
         if (!size) continue;
-        let x: number;
-        if (rule.placement === 'start') {
-            x = rule.align === 'center' ? measureX - size.w / 2 : measureX;
-        } else {
-            x = rule.align === 'right' ? measureX + measureWidth - size.w : measureX + measureWidth - size.w;
-        }
-        x += rule.horizontal * measureHeight;
-        const y = measureY - size.h - rule.vertical * measureHeight;
-        pushSkinAffiliated(ctx, sym.id, rule.skinKey ?? String(sym.name), x, y, size.w, size.h, String(sym.name));
+        const anchorX = rule.placement === 'start'
+            ? measureX
+            : rule.placement === 'center' ? measureX + measureWidth / 2 : measureX + measureWidth;
+        const alignShift = rule.align === 'left' ? 0 : rule.align === 'center' ? size.w / 2 : size.w;
+        const x = anchorX - alignShift + rule.horizontal * measureHeight;
+        const gap = rule.vertical * measureHeight;
+        const y = rule.type === 'lower'
+            ? measureY + measureHeight + gap
+            : measureY - size.h - gap;
+        pushSkinAffiliated(ctx, sym.id, skinKey, x, y, size.w, size.h, String(sym.name));
     }
 }

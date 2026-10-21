@@ -100,14 +100,14 @@ function onTextChange(index: number, text: string) {
 <template>
   <div class="string-state-form">
     <div class="form-header">
-      <h3 class="subsection-title">按弦 stringStates</h3>
+      <h3 class="subsection-title">按弦 / String States</h3>
       <span class="form-hint">索引 0=1弦(右/细) → {{ stringCount - 1 }}={{ stringCount }}弦(左/粗)</span>
     </div>
     <div class="string-rows">
       <div v-for="row in rows" :key="row.index" class="string-row">
         <span class="string-label">{{ row.index + 1 }}弦</span>
         <label class="field">
-          <span>状态</span>
+          <span>状态 / State</span>
           <select
             :value="row.mode"
             :disabled="disabled"
@@ -120,7 +120,7 @@ function onTextChange(index: number, text: string) {
           </select>
         </label>
         <label class="field">
-          <span>相对品</span>
+          <span>相对品 / Fret</span>
           <input
             :value="row.fretValue"
             type="number"
@@ -130,7 +130,7 @@ function onTextChange(index: number, text: string) {
           />
         </label>
         <label class="field">
-          <span>text</span>
+          <span>文字 / Text</span>
           <input
             :value="row.text"
             type="text"

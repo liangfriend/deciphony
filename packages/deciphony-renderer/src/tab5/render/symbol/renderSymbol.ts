@@ -6,7 +6,7 @@ import {VDom} from "@/types/common";
 import type {tabChord, TabNote, TabNoteInfo, TabRest, TabSlot} from "@/types/MusicScoreType";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap, RenderSymbolParams} from "../types";
-import {AUGMENTATION_DOT_GAP} from "../constants";
+import {AUGMENTATION_DOT_GAP, TAB_6_STEM_END_OFFSET_RATIO} from "../constants";
 import {
     getAugmentationDotSkinKey,
     getBarlineSkinKey,
@@ -19,7 +19,6 @@ import {
 import {
     getAddLineCount,
     getRenderableAugmentationDot,
-    getSlotAddLineOnsetOffsets,
     getSlotRestChronaxie,
     isSlotRest,
     resolveAddLineXFromLayout,
@@ -287,6 +286,46 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
         }
     }
 
+    /**
+     * 音符附点：一个 slot 只画一个（取首个带附点的 notesInfo），和符尾一样在符干根部右侧；
+     * 无符干（全音符）按四分音符符干终点放。连杠时由 processBeam 挪到符杠上方（idMap 挂在符干 targetId 下）
+     */
+    function pushSlotAugmentationDot(
+        allNotesInfo: TabNoteInfo[],
+        stem: VDom | undefined,
+        slotHeadCenterX: number,
+    ): void {
+        const dotInfo = allNotesInfo.find((n) => !isTabNoteGeometryInfo(n)
+            && getRenderableAugmentationDot(n.chronaxie, n.augmentationDot));
+        if (!dotInfo) return;
+        const renderableDot = getRenderableAugmentationDot(dotInfo.chronaxie, dotInfo.augmentationDot)!;
+        const augSkinKey = getAugmentationDotSkinKey(renderableDot);
+        const augSkin = skin[augSkinKey];
+        if (!augSkin) return;
+        const rootY = stem
+            ? stem.y + stem.h
+            : measureY + measureHeight + TAB_6_STEM_END_OFFSET_RATIO * measureHeight;
+        const rootX = stem ? stem.x + stem.w : slotHeadCenterX;
+        const dot: VDom = {
+            startPoint: {x: 0, y: 0},
+            endPoint: {x: 0, y: 0},
+            special: {},
+            x: rootX + AUGMENTATION_DOT_GAP * measureHeight,
+            y: rootY - augSkin.h,
+            w: augSkin.w,
+            h: augSkin.h,
+            zIndex: z,
+            tag: 'augmentationDot',
+            skinName: skinNameForNodes,
+            targetId: renderableDot.id,
+            skinKey: augSkinKey,
+            dataComment: '附点',
+        };
+        out.push(dot);
+        const stemTargetId = allNotesInfo[0]?.id;
+        if (stemTargetId) setNodeIdMap(idMap, stemTargetId, dot);
+    }
+
     if (notes.length > 0) {
         for (let i = 0; i < notes.length; i++) {
             const sym = slotSymbol(notes[i]);
@@ -300,7 +339,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             const isRest = isSlotRest(tabBody);
             if (isRest && !skin[getRestSkinKey(getSlotRestChronaxie(tabBody))]) continue;
             const slotOnset = computeSlotOnset(measure, i, columnAdapter);
-            const hasAddLines = getSlotAddLineOnsetOffsets(tabBody).length > 0;
             /** 零宽槽位锚点 x（未叠加 Frame）；符头 / 休止 / 符干均相对此点居中 */
             const slotX = slotStartX;
             const slotHeadCenterX = slotX;
@@ -506,52 +544,6 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
             // 5) 后倚音
             renderGraceNotesAfter(note.graceNotesAfter, primaryHeadX, primaryHeadW, graceCtx);
 
-            // 6) 附点：仅普通音符
-            allNotesInfo.forEach((n, niIdx) => {
-                if (isTabNoteGeometryInfo(n as TabNoteInfo)) return;
-                if (!n.augmentationDot) return;
-                const renderableDot = getRenderableAugmentationDot(n.chronaxie, n.augmentationDot);
-                if (!renderableDot) return;
-                const headVDom = idMap.get(n.id)?.tabNoteNumber;
-                const noteHeadX = headVDom?.x ?? slotX;
-                const noteHeadW = headVDom?.w ?? (skin[getTabNoteHeadSkinKey(n)]?.w ?? 0);
-                const augSkinKey = getAugmentationDotSkinKey(renderableDot);
-                const augSkin = skin[augSkinKey];
-                if (!augSkin) return;
-                const addLineSkin = skin[Tab6SkinKeyEnum.Addline];
-                const anchorX = niIdx === 0 && hasAddLines
-                    ? resolveAugmentationDotAnchorXFromLayout(
-                        layout,
-                        domainStartX,
-                        slotOnset,
-                        n.chronaxie,
-                        noteHeadX,
-                        noteHeadW,
-                        addLineSkin?.w ?? 0,
-                        n.augmentationDot,
-                    )
-                    : noteHeadX + noteHeadW;
-                const augX = anchorX + AUGMENTATION_DOT_GAP * measureHeight;
-                const region = getTabNoteInfoRegion(n as TabNoteInfo);
-                let augY = noteCenterY(region) - augSkin.h / 2;
-                if (region % 2 === 0) augY -= measureHeight / 8;
-                out.push({
-                    startPoint: {x: 0, y: 0},
-                    endPoint: {x: 0, y: 0},
-                    special: {},
-                    x: augX,
-                    y: augY,
-                    w: augSkin.w,
-                    h: augSkin.h,
-                    zIndex: z,
-                    tag: 'augmentationDot',
-                    skinName: skinNameForNodes,
-                    targetId: renderableDot.id,
-                    skinKey: augSkinKey,
-                    dataComment: '附点',
-                });
-            });
-
             // 加时线：时值取 notes[0]
             const primaryInfo = allNotesInfo[0];
             if (primaryInfo) {
@@ -575,6 +567,11 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 out.push(v);
                 if (v.targetId) setNodeIdMap(idMap, v.targetId, v);
             }
+            pushSlotAugmentationDot(
+                allNotesInfo as TabNoteInfo[],
+                stemTailVDoms.find((v) => v.tag === 'noteStem'),
+                slotHeadCenterX,
+            );
             pushTabSlapForNote(note);
             pushTabChordForSlot(note, slotHeadCenterX);
         }

@@ -10,6 +10,7 @@ import {
   DoubleNoteAffiliatedSymbolNameEnum,
   DoubleSlotAffiliatedSymbolNameEnum,
   DrumHeadTypeEnum,
+  GuzhengLianTypeEnum,
   HairpinTypeEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
@@ -22,6 +23,7 @@ import {
   SingleMeasureAffiliatedSymbolNameEnum,
   SingleNoteAffiliatedSymbolNameEnum,
   SingleSlotAffiliatedSymbolNameEnum,
+  SlurStyleEnum,
   SlurTypeEnum,
   TabNoteInfoTypeEnum,
   TimeSignatureTypeEnum,
@@ -29,6 +31,7 @@ import {
 } from "@/enums/musicScoreEnum";
 
 import {Chronaxie, Frame} from "@/types/common";
+import type {ExtraMeasureSymbolRule, ExtraNoteSymbolRule, ExtraSlotSymbolRule} from "@/constants/renderRules";
 
 // ==========================================通用================================================
 
@@ -76,9 +79,63 @@ export type MusicScore = {
   /** 小节号；不设则不显示 */
   measureNumber?: MeasureNumber
 
+  /*
+   * 自定义符号（可选只为兼容旧曲谱）：附属符号 name 填 skinKey 引用
+   * - extraNoteSymbol → SingleNoteAffiliatedSymbol（音符 / 休止符 affiliatedSymbols）
+   * - extraSlotSymbol → SingleSlotAffiliatedSymbol（MeasureNoteSlot.affiliatedSymbols）
+   * - extraMeasureSymbol → SingleMeasureAffiliatedSymbol（Measure.affiliatedSymbols）
+   */
+  extraNoteSymbol?: ExtraNoteSymbol[]
+
+  extraSlotSymbol?: ExtraSlotSymbol[]
+
+  extraMeasureSymbol?: ExtraMeasureSymbol[]
+
   data: Object // 自定义数据
 
 }
+
+/**
+ * 自定义符号的皮肤部分，字段同皮肤包 SkinItem；渲染时注入当前谱种的皮肤包。
+ * skinKey 在三个 extra*Symbol 数组里必须唯一，且不能与内置符号名 / 皮肤键重名（重名时内置优先，自定义不生效）。
+ */
+export type ExtraSymbolSkin = {
+  /** 显示名 */
+  name: string
+  /** svg 字符串，同皮肤包 content */
+  content: string
+  w: number
+  h: number
+  widthRatio?: number
+  widthRatioForMeasure?: number
+  skinKey: string
+}
+
+/** 自定义音符符号 = 皮肤 + 单音符附属规则（vertical / horizontal × measureHeight，相对符头中心，可选简谱 numberNotationAnchor） */
+export type ExtraNoteSymbol = ExtraSymbolSkin & ExtraNoteSymbolRule
+
+/** 自定义 slot 符号 = 皮肤 + 单 slot 附属规则（offset：相对 slot 列起点 / 小节底，符号中心对齐） */
+export type ExtraSlotSymbol = ExtraSymbolSkin & ExtraSlotSymbolRule
+
+/** 自定义小节符号 = 皮肤 + 单小节附属规则（placement / align / type / vertical / horizontal） */
+export type ExtraMeasureSymbol = ExtraSymbolSkin & ExtraMeasureSymbolRule
+
+/** 自定义符号种类 → 符号类型 */
+export type ExtraSymbolMap = {
+  note: ExtraNoteSymbol
+  slot: ExtraSlotSymbol
+  measure: ExtraMeasureSymbol
+}
+
+export type ExtraSymbolKind = keyof ExtraSymbolMap
+
+export type ExtraSymbol = ExtraSymbolMap[ExtraSymbolKind]
+
+type ExtraSymbolSkinRequired = 'name' | 'content' | 'w' | 'h' | 'skinKey'
+
+/** 创建自定义符号的入参：皮肤部分必填，规则字段可缺省（缺省值见 renderer normalizeExtraSymbol） */
+export type ExtraSymbolInput<K extends ExtraSymbolKind> =
+  Pick<ExtraSymbolMap[K], ExtraSymbolSkinRequired> & Partial<Omit<ExtraSymbolMap[K], ExtraSymbolSkinRequired>>
 
 /**
  * 小节号：从第 2 个复谱表起，在每个复谱表首小节左上方显示该行第一小节的序号
@@ -277,6 +334,11 @@ export type DoubleNoteAffiliatedSymbol = {
 
       type?: SlurTypeEnum,
       relativeTextPoint?: { x: number, y: number },
+      /**
+       * 造型：`rounded` 圆润 / `sharp` 尖锐。
+       * 未指定时按谱种；指定时优先于谱种。
+       */
+      style?: SlurStyleEnum,
     },
 
   }
@@ -288,7 +350,8 @@ export type SingleSlotAffiliatedSymbol = {
 
   id: string
 
-  name: SingleSlotAffiliatedSymbolNameEnum,
+  /** 内置符号名，或 MusicScore.extraSlotSymbol 里的 skinKey */
+  name: SingleSlotAffiliatedSymbolNameEnum | string,
 
   data: {
 
@@ -363,6 +426,15 @@ export type DoubleSlotAffiliatedSymbol = {
       height?: number,
     },
 
+    /** 古筝连续指法（guzheng_lian） */
+    guzhengLian?: {
+      relativeStartPoint: { x: number, y: number },
+
+      relativeEndPoint: { x: number, y: number },
+
+      type?: GuzhengLianTypeEnum,
+    },
+
   }
 
 } & Frame
@@ -407,7 +479,8 @@ export type SingleNoteAffiliatedSymbol = {
 
   id: string
 
-  name: SingleNoteAffiliatedSymbolNameEnum,
+  /** 内置符号名，或 MusicScore.extraNoteSymbol 里的 skinKey */
+  name: SingleNoteAffiliatedSymbolNameEnum | string,
 
   data: Record<string, never>
 
@@ -418,7 +491,8 @@ export type SingleMeasureAffiliatedSymbol = {
 
   id: string
 
-  name: SingleMeasureAffiliatedSymbolNameEnum,
+  /** 内置符号名，或 MusicScore.extraMeasureSymbol 里的 skinKey */
+  name: SingleMeasureAffiliatedSymbolNameEnum | string,
 
   data: Record<string, never>
 

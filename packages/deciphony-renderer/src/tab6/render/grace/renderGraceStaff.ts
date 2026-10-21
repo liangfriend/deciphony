@@ -110,69 +110,44 @@ function processGracePedestals(
 
 function processGraceReduceLines(slots: GraceReduceSlot[], ctx: RenderGraceTabCtx): void {
     const {skin, skinName, zIndex, out, measureHeight} = ctx;
-    for (let i = 0; i < slots.length; i++) {
-        const slot = slots[i]!;
-        const ni = slot.ni;
-        const ch = ni.chronaxie;
-        if (ch > 32) continue;
-        const reduceLineKey = getReduceLineSkinKey(ch);
+    const lineCount = (slot: GraceReduceSlot): number =>
+        slot.ni.chronaxie > 32 ? 0 : chronaxieToBeamLineCount(slot.ni.chronaxie);
+    const pushReduceLine = (slot: GraceReduceSlot, count: number, left: number, right: number) => {
+        const reduceLineKey = getReduceLineSkinKey(64 >> Math.min(Math.max(count, 1), 6));
         const reduceLineSkin = skin[reduceLineKey];
-        if (!reduceLineSkin) continue;
-
-        const beamType = ni.beamType ?? BeamTypeEnum.None;
-        const myCount = chronaxieToBeamLineCount(ch);
-        let leftIdx = i;
-        let rightIdx = i;
-        if (beamType === BeamTypeEnum.Combined || beamType === BeamTypeEnum.OnlyRight) {
-            if (beamType === BeamTypeEnum.Combined) {
-                for (let j = i - 1; j >= 0; j--) {
-                    const s = slots[j]!;
-                    if (s.ni.chronaxie > 32) break;
-                    if (s.ni.beamType !== BeamTypeEnum.Combined) break;
-                    leftIdx = j;
-                }
-            }
-            for (let j = i + 1; j < slots.length; j++) {
-                const s = slots[j]!;
-                if (s.ni.chronaxie > 32) break;
-                if (s.ni.beamType !== BeamTypeEnum.Combined) break;
-                rightIdx = j;
-            }
-        }
-        const leftSlot = leftIdx < i ? slots[leftIdx]! : null;
-        const rightSlot = rightIdx > i ? slots[rightIdx]! : null;
-        const leftCount = leftSlot && leftSlot.ni.chronaxie <= 32
-            ? chronaxieToBeamLineCount(leftSlot.ni.chronaxie) : Infinity;
-        const rightCount = rightSlot && rightSlot.ni.chronaxie <= 32
-            ? chronaxieToBeamLineCount(rightSlot.ni.chronaxie) : Infinity;
-
-        let lineLeft = slot.visualLeft;
-        let lineRight = slot.visualRight;
-        if (myCount < leftCount && leftSlot) {
-            lineLeft = leftSlot.visualRight;
-        }
-        if (myCount <= rightCount && rightSlot) {
-            lineRight = rightSlot.visualRight;
-        }
-        console.log('chicken', lineRight - lineLeft)
-        lineRight = Math.max(lineRight, lineLeft + slot.visualW);
-
-        const y = slot.noteBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
+        if (!reduceLineSkin) return;
         out.push({
             startPoint: {x: 0, y: 0},
             endPoint: {x: 0, y: 0},
             special: {},
-            x: lineLeft,
-            y,
-            w: lineRight - lineLeft,
+            x: left,
+            y: slot.noteBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight,
+            w: right - left,
             h: reduceLineSkin.h,
             zIndex,
             tag: 'accidental',
             skinName,
-            targetId: ni.id,
+            targetId: slot.ni.id,
             skinKey: reduceLineKey,
             dataComment: '倚音减时线',
         });
+    };
+    // 每个倚音画自己的条数；相连（左 Combined / OnlyRight、右 Combined）时只补两音之间的空隙，取较少条数。
+    // 各段首尾相接不重叠：重叠处抗锯齿边缘会合成两次而发深
+    for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]!;
+        const count = lineCount(slot);
+        if (!count) continue;
+        const ownRight = Math.max(slot.visualRight, slot.visualLeft + slot.visualW);
+        pushReduceLine(slot, count, slot.visualLeft, ownRight);
+
+        const next = slots[i + 1];
+        const nextCount = next ? lineCount(next) : 0;
+        if (!next || !nextCount) continue;
+        const beamType = slot.ni.beamType ?? BeamTypeEnum.None;
+        if (beamType !== BeamTypeEnum.Combined && beamType !== BeamTypeEnum.OnlyRight) continue;
+        if (next.ni.beamType !== BeamTypeEnum.Combined) continue;
+        if (next.visualLeft > ownRight) pushReduceLine(slot, Math.min(count, nextCount), ownRight, next.visualLeft);
     }
 }
 

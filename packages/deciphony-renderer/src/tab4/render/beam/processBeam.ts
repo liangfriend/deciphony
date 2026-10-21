@@ -9,11 +9,20 @@ import type {MeasureNoteSlot, NoteSymbol} from "@/types/MusicScoreType";
 import {BeamTypeEnum} from "@/enums/musicScoreEnum";
 import {Tab6SkinKeyEnum} from "@/tab6/enums/tab6SkinKeyEnum";
 import type {NodeIdMap} from "../types";
-import {BEAM_LINE_SPACING, BEAM_PARTIAL_SCALE, BEAM_THICKNESS, MIN_STEM_HEIGHT_RATIO} from "../constants";
+import {
+    BEAM_LINE_SPACING,
+    BEAM_PARTIAL_SCALE,
+    BEAM_THICKNESS,
+    TAB_6_BEAM_END_OFFSET_RATIO,
+    TAB_6_BEAM_MAX_LINES,
+    TAB_6_STEM_FLAG_CLEARANCE_RATIO,
+} from "../constants";
+import {getTab6TailStemEndOffset} from "../note/renderStemAndTail";
 import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {getSlotBeamChronaxie, getSlotBeamType, getSlotStemTargetId} from "../utils/note";
 import {isNoteSymbol, slotIsNoteSymbol, slotSymbol} from "../utils/staffSlot";
 import {computeTab6BeamFromStemEnds, type StemEndPoint} from "./tab6BeamLine";
+import {markBeamLineRuns} from "@/render/beamLineRuns";
 
 const BEAM_DIRECTION = 'down' as const;
 
@@ -117,50 +126,73 @@ export function processBeam(params: {
         vDoms,
         symbolVDomsStartIdx,
         symbolVDomsLength,
+        skin,
         measureHeight,
-        measureLineWidth,
         skinName,
     } = params;
     const skinNameForNodes = skinName ?? 'default';
-    const minStemLength = MIN_STEM_HEIGHT_RATIO * (measureHeight - 3 * measureLineWidth);
+    // 符干终点按符尾线生成（已含 Frame 偏移）；整体上移到符杠线。
+    // 符杠线与时值无关（各组最下一条符杠平行），按最多杠数算：最低弦数字下方也放得下
+    const maxStackH = (TAB_6_BEAM_MAX_LINES * BEAM_THICKNESS + (TAB_6_BEAM_MAX_LINES - 1) * BEAM_LINE_SPACING)
+        * measureHeight;
+    const headHalfH = (skin[Tab6SkinKeyEnum.Tab_note_0]?.h ?? 0) / 2;
+    const beamEndOffset = Math.max(
+        TAB_6_BEAM_END_OFFSET_RATIO * measureHeight,
+        headHalfH + TAB_6_STEM_FLAG_CLEARANCE_RATIO * measureHeight + maxStackH,
+    );
+    const lift = getTab6TailStemEndOffset(skin, measureHeight) - beamEndOffset;
     const beamGroups = buildBeamGroups(measure);
     const beamedStemTargetIds = new Set<string>();
 
     for (const group of beamGroups) {
+        const beamCounts = group.map((note) => chronaxieToBeamLineCount(getSlotBeamChronaxie(note)));
+        const lineCount = Math.max(...beamCounts);
         const stemEnds: StemEndPoint[] = [];
         for (const note of group) {
             const pt = getStemEndPoint(nodeIdMap, note);
-            if (pt) stemEnds.push(pt);
+            if (pt) stemEnds.push({x: pt.x, y: pt.y - lift});
         }
         if (stemEnds.length < 2) continue;
 
         const {inclination, anchor} = computeTab6BeamFromStemEnds(stemEnds);
-        const beamCounts = group.map((note) => chronaxieToBeamLineCount(getSlotBeamChronaxie(note)));
-        const lineCount = Math.max(...beamCounts);
         const nStems = stemEnds.length;
         const linesPerSegment = buildLinesPerSegment(beamCounts, nStems, lineCount);
 
-        for (const note of group) {
+        group.forEach((note, j) => {
             const stemId = getSlotStemTargetId(note);
-            const stem = stemId ? (nodeIdMap.get(stemId)?.noteStem as VDom | undefined) : undefined;
-            if (!stem || !stemId) continue;
+            const nodes = stemId ? nodeIdMap.get(stemId) : undefined;
+            const stem = nodes?.noteStem as VDom | undefined;
+            if (!stem || !stemId) return;
             beamedStemTargetIds.add(stemId);
             const stemCenterX = stem.x + stem.w / 2;
             const beamY = anchor.y + inclination * (stemCenterX - anchor.x);
-            stem.h = Math.max(beamY - stem.y, minStemLength);
-        }
+            const oldEndY = stem.y + stem.h;
+            stem.h = Math.max(beamY - stem.y, 0);
 
-        const overlap = 1;
+            // 附点（renderSymbol 放在符干根部）挪到本符干处最上一条符杠上方，保留其相对符干根部的 Frame 偏移
+            const dot = nodes?.augmentationDot as VDom | undefined;
+            if (!dot) return;
+            const segLines = linesPerSegment[j] ?? [];
+            let linesHere = 0;
+            segLines.forEach((spec, L) => {
+                if (spec.type !== 'none') linesHere = L + 1;
+            });
+            const stackH = linesHere > 0
+                ? (linesHere * BEAM_THICKNESS + (linesHere - 1) * BEAM_LINE_SPACING) * measureHeight
+                : 0;
+            const frameDy = dot.y - (oldEndY - dot.h);
+            dot.y = beamY - stackH - BEAM_LINE_SPACING * measureHeight - dot.h + frameDy;
+        });
+
+        const beamStart = vDoms.length;
         for (let j = 0; j < nStems; j++) {
             const leftX = j === 0 ? stemEnds[0]!.x : (stemEnds[j - 1]!.x + stemEnds[j]!.x) / 2;
             const rightX = j === nStems - 1 ? stemEnds[nStems - 1]!.x : (stemEnds[j]!.x + stemEnds[j + 1]!.x) / 2;
-            const leftXAdj = j > 0 ? leftX - overlap : leftX;
-            const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
-            const leftY = anchor.y + inclination * (leftXAdj - anchor.x);
-            const rightY = anchor.y + inclination * (rightXAdj - anchor.x);
+            const leftY = anchor.y + inclination * (leftX - anchor.x);
+            const rightY = anchor.y + inclination * (rightX - anchor.x);
             vDoms.push({
-                startPoint: {x: leftXAdj, y: leftY},
-                endPoint: {x: rightXAdj, y: rightY},
+                startPoint: {x: leftX, y: leftY},
+                endPoint: {x: rightX, y: rightY},
                 special: {
                     beam: {
                         lines: linesPerSegment[j]!,
@@ -179,6 +211,7 @@ export function processBeam(params: {
                 dataComment: '符杠',
             });
         }
+        markBeamLineRuns(vDoms, beamStart);
     }
 
     const startIdx = symbolVDomsStartIdx;

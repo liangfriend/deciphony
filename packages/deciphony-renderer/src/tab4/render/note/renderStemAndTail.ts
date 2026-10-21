@@ -7,12 +7,12 @@ import type {NodeIdMap} from '../types';
 import {
   TAB_6_STEM_END_OFFSET_RATIO,
   TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL,
-  TAB_6_STEM_EXTRA_PER_FLAG_RATIO,
   TAB_6_STEM_FLAG_CLEARANCE_RATIO,
   TAB_6_STEM_START_OFFSET_RATIO,
 } from '../constants';
-import {chronaxieToBeamLineCount, getNoteTailSkinKey} from '../utils/skinKey';
+import {getNoteTailSkinKey} from '../utils/skinKey';
 import {GRACE_NOTE_SCALE} from '@/render/graceNote';
+import {boxYForVisualBottom} from '@/render/vdomScale';
 
 export type RenderTab6StemAndTailParams = {
   note: TabNote;
@@ -28,6 +28,22 @@ export type RenderTab6StemAndTailParams = {
   noteCenterY: (region: number) => number;
   isGrace?: boolean;
 };
+
+/**
+ * 带符尾的符干终点相对小节底边的偏移：与时值、符头所在弦无关（符尾底部平行），
+ * 最低弦（region 0）符头也要放得下八分符尾
+ */
+export function getTab6TailStemEndOffset(
+  skin: Tab6SkinPack,
+  measureHeight: number,
+  graceScale = 1,
+): number {
+  const eighthTailH = (skin[Tab6SkinKeyEnum.NoteTail_1]?.h ?? 0) * graceScale;
+  return Math.max(
+    TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL * measureHeight,
+    (TAB_6_STEM_START_OFFSET_RATIO + TAB_6_STEM_FLAG_CLEARANCE_RATIO) * measureHeight + eighthTailH,
+  );
+}
 
 function renderStemFromHeadAnchor(params: {
   headCenterX: number;
@@ -59,26 +75,16 @@ function renderStemFromHeadAnchor(params: {
   const stemSkin = skin[Tab6SkinKeyEnum.NoteStem];
   if (!stemSkin) return out;
 
+  const graceScale = isGrace ? GRACE_NOTE_SCALE : 1;
   const stemStartY = headCenterY + TAB_6_STEM_START_OFFSET_RATIO * measureHeight;
+  const clearance = TAB_6_STEM_FLAG_CLEARANCE_RATIO * measureHeight;
   const hasTail = chronaxie <= 32;
   const tailKey = hasTail ? getNoteTailSkinKey(chronaxie, 'down') : undefined;
   const tailSkin = tailKey ? skin[tailKey] : undefined;
-  let stemEndOffsetRatio = hasTail
-    ? TAB_6_STEM_END_OFFSET_RATIO_WITH_TAIL
-    : TAB_6_STEM_END_OFFSET_RATIO;
-  if (hasTail) {
-    const flagCount = chronaxieToBeamLineCount(chronaxie);
-    if (flagCount > 1) {
-      stemEndOffsetRatio += (flagCount - 1) * TAB_6_STEM_EXTRA_PER_FLAG_RATIO;
-    }
-  }
-  let stemEndY = measureY + measureHeight + stemEndOffsetRatio * measureHeight;
-  if (tailSkin) {
-    const scale = isGrace ? GRACE_NOTE_SCALE : 1;
-    const minEnd = stemStartY + tailSkin.h * scale + TAB_6_STEM_FLAG_CLEARANCE_RATIO * measureHeight;
-    if (minEnd > stemEndY) stemEndY = minEnd;
-  }
-  const stemW = stemSkin.w * (isGrace ? GRACE_NOTE_SCALE : 1);
+  const stemEndY = measureY + measureHeight + (hasTail
+    ? getTab6TailStemEndOffset(skin, measureHeight, graceScale)
+    : TAB_6_STEM_END_OFFSET_RATIO * measureHeight);
+  const stemW = stemSkin.w * graceScale;
   const stemX = headCenterX - stemW / 2;
   const stemH = Math.max(0, stemEndY - stemStartY);
 
@@ -99,22 +105,26 @@ function renderStemFromHeadAnchor(params: {
   });
 
   if (tailKey && tailSkin) {
-      out.push({
-        startPoint: {x: 0, y: 0},
-        endPoint: {x: 0, y: 0},
-        special: {},
-        x: stemX,
-        y: stemEndY - tailSkin.h,
-        w: tailSkin.w,
-        h: tailSkin.h,
-        zIndex,
-        tag: 'noteTail',
-        skinName,
-        targetId,
-        skinKey: tailKey,
-        dataComment: isGrace ? '倚音符尾' : '符尾',
-        ...(isGrace ? {scale: GRACE_NOTE_SCALE} : {}),
-      });
+    // 钩数多的符尾比符干长时整体缩小，底部仍对齐符干终点
+    const fitScale = Math.min(1, Math.max(0, stemH - clearance) / (tailSkin.h * graceScale));
+    const scale = graceScale * fitScale;
+    // VDom.scale 以框中心缩放：补偿后视觉左下角落在 (stemX, stemEndY)
+    out.push({
+      startPoint: {x: 0, y: 0},
+      endPoint: {x: 0, y: 0},
+      special: {},
+      x: stemX - (1 - scale) * tailSkin.w / 2,
+      y: boxYForVisualBottom(stemEndY, tailSkin.h, scale),
+      w: tailSkin.w,
+      h: tailSkin.h,
+      zIndex,
+      tag: 'noteTail',
+      skinName,
+      targetId,
+      skinKey: tailKey,
+      dataComment: isGrace ? '倚音符尾' : '符尾',
+      ...(scale !== 1 ? {scale} : {}),
+    });
   }
   return out;
 }

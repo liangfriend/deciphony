@@ -93,6 +93,41 @@ export function deleteMeasure(singleStaff: SingleStaff, target: Measure): void {
   removeMeasure(singleStaff, idx);
 }
 
+// =================================自定义符号（MusicScore.extraNoteSymbol / extraSlotSymbol / extraMeasureSymbol）========================================
+
+export {
+    addExtraSymbol,
+    createExtraSymbol,
+    ensureExtraSymbols,
+    findExtraSymbol,
+    findExtraSymbolUsages,
+    isBuiltinSymbolKey,
+    removeExtraSymbol,
+    updateExtraSymbol,
+    validateExtraSkinKey,
+} from './score-builder/extraSymbol'
+export type {ExtraSymbolUsage, ExtraSymbolUsageMap, LocatedExtraSymbol} from './score-builder/extraSymbol'
+export {
+    createSingleMeasureAffiliatedSymbol,
+    createSingleNoteAffiliatedSymbol,
+    createSingleSlotAffiliatedSymbol,
+} from './score-builder/factories'
+
+// =================================单宿主附属（音符 / slot / 小节，含自定义符号）========================================
+
+export {
+    forEachSingleAffiliatedList,
+    locateSingleAffiliatedSymbolById,
+    removeSingleAffiliatedSymbolById,
+    setSingleAffiliatedSymbolFrame,
+} from './score-builder/singleAffiliated'
+export type {SingleAffiliatedListContext} from './score-builder/singleAffiliated'
+export type {
+    LocatedSingleAffiliatedSymbol,
+    SingleAffiliatedSymbolKind,
+    SingleAffiliatedSymbolMap,
+} from './score-builder/types'
+
 // =================================音符操作========================================
 // 五线 / 简谱音符见 score-builder。吉他谱与尤克里里谱共用下列 API（弦数 6 / 4）。
 

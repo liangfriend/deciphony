@@ -22,7 +22,11 @@ import {
   createNoteSymbol,
   createSingleStaff,
 } from '../dr-edit/score-builder'
-import {getNoteRegionAndAccidental} from '../scoreUtil'
+import {
+  applyMeasureAccidentalScope,
+  getNoteRegionAndAccidental,
+  type MeasureAccidentalScope,
+} from '../scoreUtil'
 import type {
   AudioPitchNote,
   AudioToScoreOptions,
@@ -133,6 +137,7 @@ type ScoreWriter = {
   onset: number
   capacity: number
   minimum: number
+  accidentalScope: MeasureAccidentalScope
 }
 
 function nextMeasure(writer: ScoreWriter): void {
@@ -140,6 +145,7 @@ function nextMeasure(writer: ScoreWriter): void {
   writer.staff.measures.push(writer.measure)
   writer.measureIndex++
   writer.onset = 0
+  writer.accidentalScope = new Map()
 }
 
 function writeDuration(
@@ -198,6 +204,7 @@ export function buildStandardStaffScore(
     onset: 0,
     capacity: measureCapacity(timeSignature),
     minimum,
+    accidentalScope: new Map(),
   }
   let timeline = 0
   let splitNotes = 0
@@ -220,12 +227,19 @@ export function buildStandardStaffScore(
     let fragments = 0
     writeDuration(writer, note.durationChronaxie, (glyph, onset) => {
       fragments++
+      const accidental = applyMeasureAccidentalScope(
+        writer.accidentalScope,
+        clef,
+        keySignature,
+        note.region,
+        note.accidental,
+      )
       return createNoteSymbol({
         notesInfo: [{
           region: note.region,
           chronaxie: glyph.base,
           beamOnset: onset,
-          ...(note.accidental != null ? {accidental: note.accidental} : {}),
+          ...(accidental != null ? {accidental} : {}),
           ...(glyph.dots
             ? {augmentationDot: createAugmentationDot(glyph.dots)}
             : {}),

@@ -13,12 +13,12 @@ export function emptyLyrics(text = ''): Lyrics {
   }
 }
 
-/** 复谱表歌词取第一个单谱表 */
+/** 复谱表的第一个单谱表（歌词挂 g-d 时的取法；现在每个单谱表在自己的 s-d 画歌词） */
 export function getLyricsStaff(grandStaff: GrandStaff | null | undefined): SingleStaff | null {
   return grandStaff?.staves[0] ?? null
 }
 
-/** 首谱表所有槽位 */
+/** 单谱表所有槽位 */
 export function collectStaffSlots(staff: SingleStaff | null | undefined): MeasureNoteSlot[] {
   if (!staff) return []
   const out: MeasureNoteSlot[] = []
@@ -51,7 +51,12 @@ export function getSlotAnchorId(slot: MeasureNoteSlot): string {
   return slot.id
 }
 
-/** 在 vDom 中找音符锚点；返回相对 g-d 的 x（音符左缘）及宽度 */
+/** 播放中要高亮的一个字：槽位 id + 第几段词（对应 dr-play 序列的 lyric.slotId / lyric.verse） */
+export function lyricKey(slotId: string, verse: number): string {
+  return `${slotId}:${verse}`
+}
+
+/** 在 vDom 中找音符锚点；返回相对歌词插槽的 x（音符左缘）及宽度 */
 export function findNoteAnchorInSlot(
   vDomList: readonly VDom[],
   slot: MeasureNoteSlot,
@@ -103,7 +108,7 @@ export function readSlotLyricOffset(
 }
 
 /**
- * 在首谱表所有槽位末尾追加一行空歌词（各槽补齐到 max+1）。
+ * 在单谱表所有槽位末尾追加一行空歌词（各槽补齐到 max+1）。
  * @returns 新的行数
  */
 export function addLyricRow(staff: SingleStaff | null | undefined): number {
@@ -121,8 +126,23 @@ export function addLyricRow(staff: SingleStaff | null | undefined): number {
   return target
 }
 
+/** 单谱表是否有非空歌词 */
+export function hasLyricText(staff: SingleStaff | null | undefined): boolean {
+  return collectStaffSlots(staff).some(
+    (slot) => Array.isArray(slot.lyrics) && slot.lyrics.some((item) => item.text !== ''),
+  )
+}
+
+/** 清空单谱表所有歌词文字（置为 ''），行数与偏移保留 */
+export function clearLyricTexts(staff: SingleStaff | null | undefined): void {
+  for (const slot of collectStaffSlots(staff)) {
+    if (!Array.isArray(slot.lyrics) || !slot.lyrics.some((item) => item.text !== '')) continue
+    slot.lyrics = slot.lyrics.map((item) => ({...item, text: ''}))
+  }
+}
+
 /**
- * 删除首谱表所有槽位的第 rowIndex 行（下标从 0）。
+ * 删除单谱表所有槽位的第 rowIndex 行（下标从 0）。
  * 长度不足的槽位跳过。
  * @returns 删除后的行数
  */

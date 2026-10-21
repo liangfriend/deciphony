@@ -18,6 +18,8 @@ import type {
   NotesInfo,
   NotesNumberInfo,
   NoteSymbol,
+  SingleMeasureAffiliatedSymbol,
+  SingleNoteAffiliatedSymbol,
   SingleSlotAffiliatedSymbol,
   SingleStaff,
   StaffSlot,
@@ -30,6 +32,7 @@ import type {
   BeamTypeEnum,
   BracketTypeEnum,
   ClefTypeEnum,
+  GuzhengLianTypeEnum,
   HairpinTypeEnum,
   KeySignatureTypeEnum,
   MeasureEndRepeatEnum,
@@ -78,6 +81,29 @@ export type LocatedSlotAffiliatedSymbol = LocatedNoteSlot & {
   symbol: SingleSlotAffiliatedSymbol;
 };
 
+/** 单宿主附属的三种宿主：音符（NotesInfo / 简谱音符 / 休止符，含倚音）、slot、小节 */
+export type SingleAffiliatedSymbolKind = 'note' | 'slot' | 'measure';
+
+export type SingleAffiliatedSymbolMap = {
+  note: SingleNoteAffiliatedSymbol;
+  slot: SingleSlotAffiliatedSymbol;
+  measure: SingleMeasureAffiliatedSymbol;
+};
+
+/** 按 id 定位到的单宿主附属（内置或自定义符号），list[index] === symbol */
+export type LocatedSingleAffiliatedSymbol<K extends SingleAffiliatedSymbolKind = SingleAffiliatedSymbolKind> = {
+  [P in K]: LocatedMeasure & {
+    kind: P;
+    /** 所在 slot；小节附属为 null */
+    slot: MeasureNoteSlot | null;
+    /** 直接挂载它的对象（NotesInfo / NoteNumber / NoteRest / MeasureNoteSlot / Measure） */
+    host: object;
+    list: SingleAffiliatedSymbolMap[P][];
+    index: number;
+    symbol: SingleAffiliatedSymbolMap[P];
+  }
+}[K];
+
 export type LocatedNotesInfo = NotesInfoPath & {
   grandStaff: GrandStaff;
   singleStaff: SingleStaff;
@@ -117,6 +143,10 @@ export type CreateMusicScoreOptions = Partial<
 > & {
   /** 小节号，默认创建（不带括号、Frame 全 0）；传 false 不加 */
   measureNumber?: Partial<import('@deciphony/renderer').MeasureNumber> | false;
+  /** 自定义符号，缺省都是空数组；规则字段可缺省，skinKey 校验见 extraSymbol.ts */
+  extraNoteSymbol?: import('@deciphony/renderer').ExtraSymbolInput<'note'>[];
+  extraSlotSymbol?: import('@deciphony/renderer').ExtraSymbolInput<'slot'>[];
+  extraMeasureSymbol?: import('@deciphony/renderer').ExtraSymbolInput<'measure'>[];
 };
 
 export type CreateGrandStaffOptions = Partial<
@@ -273,6 +303,16 @@ export type CreateHairpinOptions = {
   type?: HairpinTypeEnum;
   /** 楔形开口高度（px） */
   height?: number;
+  partial?: Partial<DoubleSlotAffiliatedSymbol>;
+};
+
+export type CreateGuzhengLianOptions = {
+  /** 开始列 MeasureNoteSlot.id */
+  startId: string;
+  /** 结束列 MeasureNoteSlot.id */
+  endId: string;
+  /** 连托 / 连劈 / 连抹 …，缺省连托 */
+  type?: GuzhengLianTypeEnum;
   partial?: Partial<DoubleSlotAffiliatedSymbol>;
 };
 

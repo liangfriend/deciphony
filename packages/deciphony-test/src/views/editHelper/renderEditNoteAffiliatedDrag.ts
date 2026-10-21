@@ -1,69 +1,72 @@
 import {
-  getMeasureSlots,
-  SingleNoteAffiliatedSymbolNameEnum,
+  SingleSlotAffiliatedSymbolNameEnum,
   type GrandStaff,
   type Measure,
   type MusicScore,
+  type SingleMeasureAffiliatedSymbol,
   type SingleNoteAffiliatedSymbol,
+  type SingleSlotAffiliatedSymbol,
   type SingleStaff,
   type SlotData,
   type VDom,
 } from '@deciphony/renderer'
+import {
+  locateSingleAffiliatedSymbolById,
+  setSingleAffiliatedSymbolFrame,
+  type SingleAffiliatedSymbolKind,
+} from '@deciphony/extensions/dr-edit/score-builder'
 import {scoreWriteGateFor, type UpdateVDomFn} from './scoreWriteGate'
 
-/** 单音符附属（挂在 NotesInfo / NoteNumber / 休止符）：拖拽框整体平移，改自身 relativeX / relativeY */
+/**
+ * 单宿主附属（音符 / slot / 小节，内置或曲谱自定义符号）：拖拽框整体平移，改自身 relativeX / relativeY。
+ * 琶音 / 扫弦有自己的竖向拖拽（renderEditArpeggioDrag / renderEditStrummingDrag），不走这里。
+ */
 
 export type FrameBox = { x: number; y: number; w: number; h: number }
 
-const NOTE_AFFILIATED_NAMES = new Set<string>(Object.values(SingleNoteAffiliatedSymbolNameEnum))
+type SingleAffiliatedSymbol = SingleNoteAffiliatedSymbol | SingleSlotAffiliatedSymbol | SingleMeasureAffiliatedSymbol
 
-type Host = { id: string; affiliatedSymbols?: SingleNoteAffiliatedSymbol[] }
+const OWN_DRAG_SLOT_NAMES = new Set<string>([
+  SingleSlotAffiliatedSymbolNameEnum.Arpeggio,
+  SingleSlotAffiliatedSymbolNameEnum.arpeggio_straight,
+  SingleSlotAffiliatedSymbolNameEnum.Strumming,
+])
 
 export type LocatedNoteAffiliated = {
+  kind: SingleAffiliatedSymbolKind
   grandStaff: GrandStaff
   singleStaff: SingleStaff
   measure: Measure
-  /** 承载 slot 的主体（NoteSymbol / NoteNumber / 休止符等） */
+  /** 所在 slot 的主体（NoteSymbol / NoteNumber / 休止符等）；小节附属为 null */
   note: unknown
-  /** 挂在 NotesInfo 上时为该 NotesInfo，否则 null */
+  /** 挂在 NotesInfo（含倚音）上时为该 NotesInfo，否则 null */
   info: unknown
-  symbol: SingleNoteAffiliatedSymbol
-}
-
-function findIn(host: Host | null | undefined, id: string): SingleNoteAffiliatedSymbol | null {
-  return host?.affiliatedSymbols?.find((sym) => sym.id === id) ?? null
+  symbol: SingleAffiliatedSymbol
 }
 
 export function locateNoteAffiliatedById(musicScore: MusicScore, id: string): LocatedNoteAffiliated | null {
-  for (const grandStaff of musicScore.grandStaffs) {
-    for (const singleStaff of grandStaff.staves) {
-      for (const measure of singleStaff.measures) {
-        for (const slot of getMeasureSlots(measure)) {
-          const body = slot.symbol as unknown as Host & { notesInfo?: Host[] }
-          if (!body) continue
-          for (const info of body.notesInfo ?? []) {
-            const symbol = findIn(info, id)
-            if (symbol) return {grandStaff, singleStaff, measure, note: body, info, symbol}
-          }
-          const symbol = findIn(body, id)
-          if (symbol) return {grandStaff, singleStaff, measure, note: body, info: null, symbol}
-        }
-      }
-    }
+  const located = locateSingleAffiliatedSymbolById(musicScore, id)
+  if (!located) return null
+  const note = located.slot?.symbol ?? null
+  return {
+    kind: located.kind,
+    grandStaff: located.grandStaff,
+    singleStaff: located.singleStaff,
+    measure: located.measure,
+    note,
+    info: located.kind === 'note' && located.host !== note ? located.host : null,
+    symbol: located.symbol,
   }
-  return null
 }
 
 export function isNoteAffiliatedSelected(
   selected: SlotData | null,
-): selected is SlotData & { self: SingleNoteAffiliatedSymbol } {
-  const self = selected?.self
-  return (
-    self != null
-    && 'name' in self
-    && NOTE_AFFILIATED_NAMES.has(String(self.name))
-    && !('startId' in self)
-  )
+): selected is SlotData & { self: SingleAffiliatedSymbol } {
+  const self = selected?.self as { id?: unknown; name?: unknown } | null | undefined
+  if (!selected?.musicScore || !self || typeof self.id !== 'string' || !('name' in self) || 'startId' in self) return false
+  const located = locateSingleAffiliatedSymbolById(selected.musicScore, self.id)
+  if (!located) return false
+  return !(located.kind === 'slot' && OWN_DRAG_SLOT_NAMES.has(String(self.name)))
 }
 
 export function isNoteAffiliatedVDom(vdom: VDom | null | undefined, symbolId: string): boolean {
@@ -93,7 +96,7 @@ export function createNoteAffiliatedDragSession(
 ): NoteAffiliatedDragSession | null {
   const symbolId = vdom.targetId
   if (!symbolId) return null
-  const located = locateNoteAffiliatedById(musicScore, symbolId)
+  const located = locateSingleAffiliatedSymbolById(musicScore, symbolId)
   if (!located) return null
   return {
     pointerId: event.pointerId,
@@ -107,7 +110,7 @@ export function createNoteAffiliatedDragSession(
 }
 
 /**
- * 拖单音符附属：立刻 updateVDom 平移节点；relativeX / relativeY 防抖落盘。
+ * 拖单宿主附属：立刻 updateVDom 平移节点；relativeX / relativeY 防抖落盘。
  * 返回拖拽框新位置。
  */
 export function previewNoteAffiliatedDrag(
@@ -124,10 +127,10 @@ export function previewNoteAffiliatedDrag(
     key: `noteAffiliated:${session.symbolId}:frame`,
     mirror: {targetId: session.symbolId, patch: {x: box.x, y: box.y}},
     commit: () => {
-      const sym = locateNoteAffiliatedById(musicScore, session.symbolId)?.symbol
-      if (!sym) return
-      sym.relativeX = session.baseRelativeX + dx
-      sym.relativeY = session.baseRelativeY + dy
+      setSingleAffiliatedSymbolFrame(musicScore, session.symbolId, {
+        relativeX: session.baseRelativeX + dx,
+        relativeY: session.baseRelativeY + dy,
+      })
     },
   })
   return box

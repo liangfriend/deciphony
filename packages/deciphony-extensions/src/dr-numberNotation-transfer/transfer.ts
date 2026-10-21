@@ -33,6 +33,7 @@ import {
   createTimeSignature,
 } from '../dr-edit/score-builder'
 import {
+  applyMeasureAccidentalScope,
   getKeySignatureAccidental,
   getNoteMidi,
   getNoteNumberMidi,
@@ -317,6 +318,7 @@ function numberInfoToStaffInfo(
   targetKey: KeySignatureTypeEnum,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
   clef: ClefTypeEnum,
+  scope: MeasureAccidentalScope,
   graceChronaxie?: NotesInfo['chronaxie'],
 ): NotesInfo {
   if (info.syllable === 0 || info.syllable === 'X') {
@@ -324,7 +326,9 @@ function numberInfoToStaffInfo(
   }
 
   const midi = getNoteNumberMidi(info, sourceKey)
-  const {region, accidental} = getNoteRegionAndAccidental(clef, midi, targetKey, priority)
+  const target = getNoteRegionAndAccidental(clef, midi, targetKey, priority)
+  const region = target.region
+  const accidental = applyMeasureAccidentalScope(scope, clef, targetKey, region, target.accidental)
   const staffInfo: NotesInfo = {
     id: info.id,
     ...pickFrame(info),
@@ -345,8 +349,12 @@ function convertNoteNumberToNoteSymbol(
   targetKey: KeySignatureTypeEnum,
   priority: AccidentalTypeEnum.Sharp | AccidentalTypeEnum.Flat,
   clef: ClefTypeEnum,
+  scope: MeasureAccidentalScope,
 ): NoteSymbol {
   const affiliated = note.affiliatedSymbols ?? []
+  const convertGrace = (g: NotesNumberInfo) =>
+    numberInfoToStaffInfo(g, [], sourceKey, targetKey, priority, clef, scope, GRACE_CHRONAXIE)
+  const graceNotes = note.graceNotes?.map(convertGrace)
   const notesInfo = note.notesInfo.map((ni, index) =>
     numberInfoToStaffInfo(
       ni,
@@ -355,20 +363,18 @@ function convertNoteNumberToNoteSymbol(
       targetKey,
       priority,
       clef,
+      scope,
     ),
   )
+  const graceNotesAfter = note.graceNotesAfter?.map(convertGrace)
 
   const symbol: NoteSymbol = {
     id: note.id,
     ...pickFrame(note),
     type: NoteSymbolTypeEnum.Note,
     notesInfo,
-    graceNotes: note.graceNotes?.map((g) =>
-      numberInfoToStaffInfo(g, [], sourceKey, targetKey, priority, clef, GRACE_CHRONAXIE),
-    ),
-    graceNotesAfter: note.graceNotesAfter?.map((g) =>
-      numberInfoToStaffInfo(g, [], sourceKey, targetKey, priority, clef, GRACE_CHRONAXIE),
-    ),
+    graceNotes,
+    graceNotesAfter,
   }
 
   return symbol
@@ -500,6 +506,7 @@ export function numberNotationToStandardStaff(
       for (let measureIndex = 0; measureIndex < staff.measures.length; measureIndex++) {
         const measure = staff.measures[measureIndex]!
         applyMeasureKeySignatureFront(state, measure)
+        const scope: MeasureAccidentalScope = new Map()
 
         measure.notes = getMeasureSlots(measure).map((measureSlot) => {
           const note = slotSymbol(measureSlot)
@@ -515,6 +522,7 @@ export function numberNotationToStandardStaff(
               targetKey,
               priority,
               clef,
+              scope,
             ),
           )
         })

@@ -42,6 +42,7 @@ import {resolveLayoutNotationPack, resolveNotationToVDom} from '@/render/resolve
 import {mergeSlotConfig} from '@/render/mergeSlotConfig'
 import {fanoutExtensionEvent} from '@/render/fanoutExtensionEvent'
 import {defaultSkin} from '@/skins/defaultSkin'
+import {withExtraSymbols} from '@/render/extraSymbols'
 import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import ScoreLayer from './scoreLayer.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
@@ -51,7 +52,7 @@ import {ScoreAssembler, type ScoreAssembleOutput} from '@/render/incremental/sco
 import {SCORE_LAYER_CONTEXT, type SlotExtensionItem} from '@/render/incremental/layerContext'
 import type {VDomLookup} from '@/render/vdomIndex'
 import type {GrandStaff, MusicScore} from '@/types/MusicScoreType'
-import type {Skin, SkinPack, SlotConfig, SlotName, VDom} from '@/types/common'
+import type {MusicScoreRenderOptions, Skin, SkinPack, SlotConfig, SlotName, VDom} from '@/types/common'
 import type {DrExtension, DrExtensionEvents, RenderMusicScoreInfo} from '@/types/extension'
 
 const props = defineProps<{
@@ -63,14 +64,18 @@ const props = defineProps<{
   /** 多套皮肤包：{ default: SkinPack, active?: SkinPack }；default 覆盖内置；用于符号级 skinName 切换 */
   skin?: Skin
   skinName?: string
+  /** 渲染配置：只影响绘制，不触发重新排版 */
+  options?: MusicScoreRenderOptions
 }>()
 const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
+const options = computed<Required<MusicScoreRenderOptions>>(() => ({
+  onlyChordName: props.options?.onlyChordName ?? false,
+}))
 
 const data = computed(() => props.data)
+/** 曲谱自定义符号（extraNoteSymbol / extraMeasureSymbol）注入各套皮肤包，排版与绘制共用 */
 const skin = computed<Skin>(() =>
-    props.skin ?? {
-      default: defaultSkin,
-    }
+    withExtraSymbols(props.skin ?? {default: defaultSkin}, props.data)
 )
 
 /** skinName 在 skin 中查得到则用 skinName，否则用 default */
@@ -202,6 +207,7 @@ provide(SCORE_LAYER_CONTEXT, {
   data,
   skin,
   notationType,
+  options,
   slots: useSlots(),
   extensionsForSlot,
   resolveExtensionProps,

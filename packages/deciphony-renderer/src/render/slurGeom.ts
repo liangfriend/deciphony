@@ -1,4 +1,4 @@
-import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
+import {MusicScoreTypeEnum, SlurStyleEnum} from '@/enums/musicScoreEnum'
 import type {VDom} from '@/types/common'
 
 /** 简谱连音线：两端圆弧 + 中间横线；横向跟 start/end 的 x，高度跟两端 relative y 均值 */
@@ -14,7 +14,16 @@ export type NumberNotationSlurGeom = {
 /** 三次贝塞尔逼近 1/4 圆的控制点系数 */
 const QUARTER_CIRCLE_KAPPA = 0.5522847498
 
-export function isNumberNotationSlur(notationType?: MusicScoreTypeEnum): boolean {
+/**
+ * 是否用圆润（rounded）连音线。
+ * `style`（data.slur / special.slur）优先；未指定时按 `notationType === NumberNotation`。
+ */
+export function isNumberNotationSlur(
+  notationType?: MusicScoreTypeEnum,
+  style?: SlurStyleEnum,
+): boolean {
+  if (style === SlurStyleEnum.Rounded) return true
+  if (style === SlurStyleEnum.Sharp) return false
   return notationType === MusicScoreTypeEnum.NumberNotation
 }
 

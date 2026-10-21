@@ -13,6 +13,7 @@ import {musicScoreToVDom as musicScoreToVDomDrum} from '@/drumNotation/render/mu
 import {defaultSkin} from '@/skins/defaultSkin'
 import {appendMeasureNumbers} from '@/render/measureNumber'
 import {mergeAdjacentBarlines} from '@/render/mergeAdjacentBarlines'
+import {hasExtraSymbols, withExtraSymbols} from '@/render/extraSymbols'
 import type {
   DrumNotationSkinPack,
   NumberNotationSkinPack,
@@ -48,11 +49,18 @@ export function resolveNotationToVDom(type: MusicScoreTypeEnum): MusicScoreToVDo
     mergeAdjacentBarlines(toVDom(musicScore, slotConfig, options), musicScore)
 }
 
-/** 每次按 type 取当前 import 绑定，避免 HMR 后仍钉死旧 musicScoreToVDom 引用；谱种无关的符号（小节号）在此统一追加 */
+/**
+ * 每次按 type 取当前 import 绑定，避免 HMR 后仍钉死旧 musicScoreToVDom 引用；谱种无关的符号（小节号）在此统一追加。
+ * 不经 musicScore 组件直接排版时，曲谱自定义符号在这里注入皮肤。
+ */
 export function resolveMusicScoreToVDom(type: MusicScoreTypeEnum): MusicScoreToVDomFn {
   const toVDom = resolveNotationToVDom(type)
-  return (musicScore, slotConfig, options) =>
-    appendMeasureNumbers(toVDom(musicScore, slotConfig, options), musicScore)
+  return (musicScore, slotConfig, options) => {
+    const opts = hasExtraSymbols(musicScore)
+      ? {...options, skin: withExtraSymbols(options?.skin ?? {default: defaultSkin}, musicScore)}
+      : options
+    return appendMeasureNumbers(toVDom(musicScore, slotConfig, opts), musicScore)
+  }
 }
 
 /** 按曲谱类型取 SkinPack 中对应谱种符号表（吉他/贝斯6→tab6，尤克/贝斯4→tab4，贝斯5→tab5） */

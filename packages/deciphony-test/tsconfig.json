@@ -44,6 +44,9 @@
       "@deciphony/puff": [
         "../deciphony-puff/src/index.ts"
       ],
+      "@deciphony/cl-sheet": [
+        "../deciphony-cl-sheet/src/index.ts"
+      ],
       "j-player": [
         "../j-player/src/index.ts"
       ],

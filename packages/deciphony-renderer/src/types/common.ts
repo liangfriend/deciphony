@@ -6,9 +6,11 @@ import type {DrumNotationSkinKeyEnum} from "@/drumNotation/enums/drumNotationSki
 import type {
     ArpeggioTypeEnum,
     BendTypeEnum,
+    GuzhengLianTypeEnum,
     HairpinTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
+    SlurStyleEnum,
     SlurTypeEnum,
     TrillTypeEnum,
 } from "@/enums/musicScoreEnum";
@@ -75,6 +77,8 @@ export type VDomTagType =
 /** 时值：256=全音符，128=二分，64=四分，32=八分，16=十六分，8=三十二分，4=六十四分，2=128分，1=256分 */
 export type Chronaxie = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
 
+export type VDomKnockout = { x: number; y: number; w: number; h: number };
+
 export type VDom = {
     x: number;
     y: number;
@@ -87,6 +91,8 @@ export type VDom = {
      * top = 上八度点；bottom = 减时线 + 下八度点；left = 变音符号；right 暂为 0。附属锚点 numberNotationAnchor 读此值
      */
     numberNotationExtent?: { top: number; bottom: number; left: number; right: number };
+    /** 皮肤内容中要挖空的矩形（节点局部坐标，相对 x/y）；group.vue 用蒙版实现。tab 谱小节：弦线在品格数字处断开 */
+    knockouts?: VDomKnockout[];
     startPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
     endPoint: { x: number, y: number } // 部分特殊情况使用，如连音线
     targetId: string,
@@ -109,6 +115,11 @@ export type VDom = {
             type?: SlurTypeEnum, // 吉他谱连音线中心文字（H/S/P/HP）
             relativeTextPoint?: { x: number, y: number }, // 文字相对控制点偏移
             /**
+             * 造型：`rounded` 圆润 / `sharp` 尖锐。
+             * 来自 data.slur.style；未指定时按谱种，指定时优先于谱种。
+             */
+            style?: SlurStyleEnum,
+            /**
              * 朝向（渲染时按符干取值，不写回 data）：起止符干都向上 → 'down'（画在符头下方），否则 'up'。
              * 决定默认 controlPoint 在两端上方还是下方；分段时决定两段半月牙往哪边拱。简谱无符干，恒为 'up'
              */
@@ -128,7 +139,14 @@ export type VDom = {
         };
         beam?: {
             /** 本段内每条符杠，type 表示伸展方向，scaleX 表示从 centerX 向外的缩放，默认 1 */
-            lines: { type: 'left' | 'right' | 'both' | 'none'; scaleX?: number }[];
+            lines: {
+                type: 'left' | 'right' | 'both' | 'none';
+                scaleX?: number;
+                /** 跨段连续线：由本段一次画到 startPoint.x + run（见 markBeamLineRuns） */
+                run?: number;
+                /** 已由前面某段的 run 画过，本段跳过 */
+                covered?: boolean;
+            }[];
             /** 本段对应音符符干中心 x 坐标，配合 type 计算实际绘制范围 */
             centerX: number;
             spacing: number;
@@ -183,6 +201,12 @@ export type VDom = {
             type?: HairpinTypeEnum;
             /** 楔形开口高度 */
             height?: number;
+            relativeStartPoint?: { x: number, y: number };
+            relativeEndPoint?: { x: number, y: number };
+        };
+        /** 双 slot 附属古筝连续指法（guzheng_lian）；start/end 的 y 为符号带中线 */
+        guzhengLian?: {
+            type?: GuzhengLianTypeEnum;
             relativeStartPoint?: { x: number, y: number };
             relativeEndPoint?: { x: number, y: number };
         };
@@ -310,6 +334,12 @@ export type SkinPack = {
 
 /** 多套皮肤包：skinName -> 皮肤包。default 覆盖内置 defaultSkin；其他 skinName 用于符号级切换（如高亮） */
 export type Skin = Record<string, SkinPack>;
+
+/** 曲谱组件渲染配置（musicScore 的 options prop），只影响绘制、不改排版 */
+export type MusicScoreRenderOptions = {
+  /** 和弦图只画和弦名、不画指法框，默认 false */
+  onlyChordName?: boolean
+}
 // 相对位置偏移。是否起效取决于元素类型，具体请查看对照表
 export type Frame = {
     relativeX: number,

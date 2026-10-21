@@ -543,6 +543,7 @@ async function loadSjw(file: Blob): Promise<SJW> {
 }
 
 async function exportSjw(filename?: string): Promise<Blob> {
+  store.restoreUsedRemoved(props.data)
   store.syncAssetNamesToData(props.data)
   const blob = await buildSjwBlob(props.data, store.getMap())
   if (filename) downloadSjw(blob, filename)
@@ -820,8 +821,18 @@ defineExpose({
   getAssetMap: () => store.getMap(),
   getAssetNames: () => store.getAssetNames(),
   loadAssetMap: store.loadAssetMap,
+  /** 删除资源：先进回收站（列表 / 导出不再包含），按 id 仍可读，便于宿主撤销 */
   removeAsset: (id: string, options?: RemoveAssetOptions) =>
       store.removeAsset(id, props.data, options),
+  /** 宿主撤销 / 恢复改写 data 后调用：回收站里又被引用的资源移回正式缓存 */
+  restoreRemovedAssets: () => {
+    const restored = store.restoreUsedRemoved(props.data)
+    if (restored.length) store.syncAssetNamesToData(props.data)
+    return restored
+  },
+  listRemovedAssetIds: () => store.listRemovedAssetIds(),
+  /** 彻底释放回收站；keep 返回 true 的 id 保留（如仍被撤销历史引用） */
+  purgeRemovedAssets: (keep?: (id: string) => boolean) => store.purgeRemoved(keep),
   isAssetUsed: (id: string) => store.isUsed(props.data, id),
   findAssetUsages: (id: string) => store.findUsages(props.data, id),
   resolveSrc: (src: string) => store.resolveSrc(src),

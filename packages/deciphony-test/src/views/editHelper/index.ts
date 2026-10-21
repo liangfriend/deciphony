@@ -46,6 +46,10 @@ export {
 } from './renderEditSlotLayout'
 export {deleteSelectedItem, isRestSelected} from './renderEditDelete'
 export {
+  clearSelectedGraceNotes,
+  cycleSelectedChronaxie,
+} from './renderEditShortcuts'
+export {
   resolveNeighborMeasureSlot,
   type MeasureNavDirection,
 } from './renderEditMeasureNavigate'
@@ -250,7 +254,10 @@ export {default as DrumRestPropertyPanel} from './drumNotation/components/DrumRe
 
 // —— 共用 UI ——
 export {default as AddNoteStatePanel} from './components/AddNoteStatePanel.vue'
+export {default as EditMenuBar} from './components/EditMenuBar.vue'
 export {default as PropertyPanel} from './components/PropertyPanel.vue'
+export {default as EditToolbarButton} from './components/EditToolbarButton.vue'
+export {default as ChronaxieIconButtons} from './components/ChronaxieIconButtons.vue'
 export {default as SlurPropertyPanel} from './components/SlurPropertyPanel.vue'
 export {default as MeasurePropertyPanel} from './components/MeasurePropertyPanel.vue'
 export {default as VoltaPropertyPanel} from './components/VoltaPropertyPanel.vue'

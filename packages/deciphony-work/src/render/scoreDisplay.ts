@@ -8,8 +8,8 @@ import {visibleSourceRect} from '../api/crop'
 /** 音色名与谱表的间距：须大于连谱号宽度（bracket 约 12px，画在 s-l 最右侧），与宿主编辑器一致 */
 export const INSTRUMENT_NAME_GAP = 18
 
-/** 与 dr-lyrics 扩展默认 g-d 高度一致（约 4 行） */
-const DEFAULT_GD_SLOT_H = LYRICS_PAD_TOP + 4 * LYRICS_ROW_GAP + LYRICS_PAD_BOTTOM
+/** 与 dr-lyrics 扩展默认 s-d 高度一致（约 4 行） */
+const DEFAULT_LYRICS_SLOT_H = LYRICS_PAD_TOP + 4 * LYRICS_ROW_GAP + LYRICS_PAD_BOTTOM
 
 /** 宿主编辑器写在 musicScore.data 上的展示参数 */
 type ScoreLayoutData = {
@@ -19,7 +19,7 @@ type ScoreLayoutData = {
   sRSlotW?: unknown
   /** t 插槽高度（标题区） */
   tSlotH?: unknown
-  /** g-d 插槽高度（歌词区） */
+  /** 歌词区高度（字段名沿用旧的 g-d；歌词已挂到 s-d，每个单谱表下方各占这么高） */
   gdSlotH?: unknown
   /** 歌词字号（px） */
   lyricsFontSize?: unknown
@@ -29,6 +29,8 @@ type ScoreLayoutData = {
   titleFontFamily?: unknown
   /** 是否在 s-l 显示单谱表音色名（singleStaff.data.instrumentName） */
   showInstrumentName?: unknown
+  /** 音色名字体（CSS font-family） */
+  instrumentNameFontFamily?: unknown
 }
 
 function layoutData(musicScore: MusicScore): ScoreLayoutData {
@@ -40,18 +42,22 @@ export function scoreLyricsFontSize(musicScore: MusicScore): number {
   return Number.isFinite(size) && size > 0 ? size : LYRICS_FONT_SIZE
 }
 
-export function scoreLyricsFontFamily(musicScore: MusicScore): string | undefined {
-  const raw = layoutData(musicScore).lyricsFontFamily
+function fontFamily(raw: unknown): string | undefined {
   if (typeof raw !== 'string') return undefined
   const trimmed = raw.trim()
   return trimmed || undefined
 }
 
+export function scoreLyricsFontFamily(musicScore: MusicScore): string | undefined {
+  return fontFamily(layoutData(musicScore).lyricsFontFamily)
+}
+
 export function scoreTitleFontFamily(musicScore: MusicScore): string | undefined {
-  const raw = layoutData(musicScore).titleFontFamily
-  if (typeof raw !== 'string') return undefined
-  const trimmed = raw.trim()
-  return trimmed || undefined
+  return fontFamily(layoutData(musicScore).titleFontFamily)
+}
+
+export function scoreInstrumentNameFontFamily(musicScore: MusicScore): string | undefined {
+  return fontFamily(layoutData(musicScore).instrumentNameFontFamily)
 }
 
 export function scoreShowsInstrumentName(musicScore: MusicScore): boolean {
@@ -73,7 +79,7 @@ export function scoreTitleSlotHeight(musicScore: MusicScore): number {
 }
 
 export function scoreLyricsSlotHeight(musicScore: MusicScore): number {
-  return slotHeight(layoutData(musicScore).gdSlotH, DEFAULT_GD_SLOT_H)
+  return slotHeight(layoutData(musicScore).gdSlotH, DEFAULT_LYRICS_SLOT_H)
 }
 
 export function scoreSlotConfig(musicScore: MusicScore): SlotConfig {
@@ -85,7 +91,7 @@ export function scoreSlotConfig(musicScore: MusicScore): SlotConfig {
     ...(right ? {'s-r': right} : {}),
     // 覆盖扩展默认，与编辑器 data.tSlotH / gdSlotH 一致（裁剪按复谱表也用这份）
     t: {h: scoreTitleSlotHeight(musicScore)},
-    'g-d': {h: scoreLyricsSlotHeight(musicScore)},
+    's-d': {h: scoreLyricsSlotHeight(musicScore)},
   } as SlotConfig
 }
 
@@ -103,7 +109,9 @@ export function scoreDisplayExtensions(musicScore: MusicScore): DrExtension[] {
       fontFamily: scoreLyricsFontFamily(musicScore),
     }),
   ]
-  if (scoreShowsInstrumentName(musicScore)) list.push(drInstrumentName({gap: INSTRUMENT_NAME_GAP}))
+  if (scoreShowsInstrumentName(musicScore)) {
+    list.push(drInstrumentName({gap: INSTRUMENT_NAME_GAP, fontFamily: scoreInstrumentNameFontFamily(musicScore)}))
+  }
   return list
 }
 

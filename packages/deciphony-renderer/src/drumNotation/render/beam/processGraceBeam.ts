@@ -17,6 +17,7 @@ import {chronaxieToBeamLineCount} from "../utils/skinKey";
 import {computeBeamSlope} from "./beamSlope";
 import {isDrumNote, slotSymbol} from "../utils/staffSlot";
 import {GRACE_NOTE_SCALE} from "@/render/graceNote";
+import {markBeamLineRuns} from "@/render/beamLineRuns";
 
 /** 视觉左→右扫描分组，规则同 processBeam.buildBeamGroups */
 function buildBeamGroupsLeftToRight(list: DrumNotesInfo[]): DrumNotesInfo[][] {
@@ -139,17 +140,15 @@ export function processGraceBeam(params: {
       }
     });
 
-    // --- 4. 符杠 VDom（段界用符干中心 + overlap 嵌入）---
-    const overlap = 1;
+    // --- 4. 符杠 VDom（段界用符干中心，相邻段首尾相接不重叠）---
     const centerXs = groupStems.map((stem) => stem.x + stemHalfW);
+    const beamStart = vDoms.length;
     for (let j = 0; j < nStems; j++) {
       const leftX = j === 0 ? centerXs[0]! : (centerXs[j - 1]! + centerXs[j]!) / 2;
       const rightX = j === nStems - 1 ? centerXs[nStems - 1]! : (centerXs[j]! + centerXs[j + 1]!) / 2;
-      const leftXAdj = j > 0 ? leftX - overlap : leftX;
-      const rightXAdj = j < nStems - 1 ? rightX + overlap : rightX;
       vDoms.push({
-        startPoint: {x: leftXAdj, y: anchor.y + inclination * (leftXAdj - anchor.x)},
-        endPoint: {x: rightXAdj, y: anchor.y + inclination * (rightXAdj - anchor.x)},
+        startPoint: {x: leftX, y: anchor.y + inclination * (leftX - anchor.x)},
+        endPoint: {x: rightX, y: anchor.y + inclination * (rightX - anchor.x)},
         special: {
           beam: {
             lines: linesPerSegment[j]!,
@@ -168,6 +167,7 @@ export function processGraceBeam(params: {
         dataComment: '倚音符杠',
       });
     }
+    markBeamLineRuns(vDoms, beamStart);
   }
 
   // --- 5. 移除被连杠倚音的符尾 ---

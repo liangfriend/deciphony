@@ -10,7 +10,7 @@ export type DR_playSequence_item = {
   playTime: Unit256
   /** 延音线（同音高 slur）时：首音=整段时值之和，其余=0；未设置则与 duration 同义 */
   real_duration?: Unit256
-  /** 音量倍数（鼓谱映射表 / ghost / 重音），未设置视为 1；对应 NPlayer 的 velocity */
+  /** 音量倍数（鼓谱映射表 / ghost / 重音，再乘单谱表 data.volume / 100），未设置视为 1；对应 NPlayer 的 velocity */
   volume?: number
   /**
    * 音色名（由 applyStaffToneColor 写入）。
@@ -23,6 +23,16 @@ export type DR_playSequence_item = {
    * 未设置则只走基础 `instrumentValue`。
    */
   toneVariant?: string
+  /** 本音的歌词（由 applyPlayLyrics 写入；休止、倚音、无歌词不写；和弦内每个音都带同一份） */
+  lyric?: DR_playLyric
+}
+
+export type DR_playLyric = {
+  text: string
+  /** 用的是 `slot.lyrics` 第几段（反复第 n 遍取第 n 段；只有一段词时恒为 0） */
+  verse: number
+  /** 歌词所在槽位 id */
+  slotId: string
 }
 
 export type DR_playSequence = DR_playSequence_item[]

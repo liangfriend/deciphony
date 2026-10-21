@@ -7,6 +7,7 @@ import {
   createLyrics,
   createMusicScore,
   createNoteSymbol,
+  createSingleStaff,
 } from '@deciphony/extensions/dr-edit/score-builder'
 import {drLyrics, type LyricsMode} from '@deciphony/extensions/dr-lyrics'
 import {getMeasureNoteList, getMeasureSlots} from '@deciphony/renderer'
@@ -25,17 +26,26 @@ const musicScoreData = reactive<MusicScore>(
     const n2 = createNoteSymbol({region: 7, chronaxie: 64, lyrics: [createLyrics('好')]})
     const n3 = createNoteSymbol({region: 5, chronaxie: 128, lyrics: []})
     getMeasureNoteList(measure).push(n1, n2, n3)
+
+    const lower = createSingleStaff()
+    grandStaff.staves.push(lower)
+    getMeasureNoteList(lower.measures[0]!).push(
+      createNoteSymbol({region: 3, chronaxie: 128, lyrics: [createLyrics('低')]}),
+      createNoteSymbol({region: 1, chronaxie: 128, lyrics: [createLyrics('声')]}),
+    )
     return score
   })(),
 )
 
-const lyricsPreview = computed(() => {
-  const measure = musicScoreData.grandStaffs[0]?.staves[0]?.measures[0]
-  return measure && getMeasureSlots(measure).map((n) => ({
-    id: n.id,
-    lyrics: n.lyrics.map((l) => l.text),
-  }))
-})
+const lyricsPreview = computed(() =>
+  musicScoreData.grandStaffs[0]?.staves.map((staff) => {
+    const measure = staff.measures[0]
+    return measure && getMeasureSlots(measure).map((n) => ({
+      id: n.id,
+      lyrics: n.lyrics.map((l) => l.text),
+    }))
+  }),
+)
 </script>
 
 <template>
@@ -59,7 +69,7 @@ const lyricsPreview = computed(() => {
         </button>
       </div>
       <p class="lyrics-test__hint">
-        g-d 挂载；行数 = 首谱表 max(lyrics.length)。编辑第三行会把空槽补成
+        s-d 挂载，每个单谱表下方画自己的歌词；行数 = 该谱表 max(lyrics.length)。编辑第三行会把空槽补成
         ['','','啊']。每项带 Frame 偏移。
       </p>
       <pre class="lyrics-test__json">{{ JSON.stringify(lyricsPreview, null, 2) }}</pre>

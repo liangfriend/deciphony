@@ -3,8 +3,8 @@
  * 符杠 SVG 绘制组件。
  *
  * processBeam / processGraceBeam 输出 noteBeam 类型的 VDom：
- * - startPoint / endPoint：该段符杠在斜率直线上的左右端点（已含 overlap 嵌入）；
- * - special.beam.lines：每条符杠线画 left / right / both / none；
+ * - startPoint / endPoint：该段符杠在斜率直线上的左右端点（相邻段首尾相接）；
+ * - special.beam.lines：每条符杠线画 left / right / both / none；跨段连续的线由起始段按 run 一次画完，后续段 covered 跳过；
  * - special.beam.centerX：以符干中心为对称轴，半幅符杠从此向左右缩放；
  * - special.beam.direction：符干方向，决定多条线向上还是向下堆叠。
  *
@@ -28,6 +28,14 @@ const fillColor = useGeometrySkinColor(
 );
 
 const beam = computed(() => props.vDom.special?.beam);
+
+/** 水平符杠关掉抗锯齿，上下边对齐像素更清晰；倾斜符杠保留抗锯齿，否则斜边出锯齿 */
+const horizontal = computed(() => {
+  const {startPoint, endPoint} = props.vDom;
+  return !!startPoint && !!endPoint && Math.abs(endPoint.y - startPoint.y) < 1e-6;
+});
+
+const shapeRendering = computed(() => horizontal.value ? 'crispEdges' : undefined);
 
 /**
  * 将每条符杠线 spec 转为 SVG path（四边形）。
@@ -53,7 +61,7 @@ const quads = computed(() => {
   const scaleX = (s: number | undefined) => s ?? 1;
 
   return lines.map((spec, i) => {
-    if (spec.type === 'none') return null;
+    if (spec.type === 'none' || spec.covered) return null;
     const s = scaleX(spec.scaleX);
     let x0: number, x1: number;
     if (spec.type === 'left') {
@@ -68,6 +76,7 @@ const quads = computed(() => {
       x0 = centerX - s * (centerX - left.x);
       x1 = centerX + s * (right.x - centerX);
     }
+    if (spec.run != null) x1 = left.x + spec.run;
     // 在 startPoint→endPoint 的斜线段上，按 x 位置线性插值 y
     const t0 = fullW === 0 ? 0 : (x0 - left.x) / fullW;
     const t1 = fullW === 0 ? 1 : (x1 - left.x) / fullW;
@@ -89,6 +98,7 @@ const quads = computed(() => {
       :key="i"
       :d="d"
       :fill="fillColor"
+      :shape-rendering="shapeRendering"
   />
 </template>
 

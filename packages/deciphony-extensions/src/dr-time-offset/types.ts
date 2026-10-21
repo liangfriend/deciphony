@@ -31,6 +31,8 @@ export type FlattenStaffRow = {
   /** 单谱表在复谱表内的索引（0=第一行 …） */
   staffIndex: number
   slots: FlattenSlotItem[]
+  /** 本行有歌词：音符下方多留一条歌词带 */
+  hasLyrics: boolean
 }
 
 export type FlattenSlotItem = {
@@ -56,6 +58,8 @@ export type FlattenSlotItem = {
   octaveDots: number[]
   /** 用于原谱高亮的 note / rest id */
   highlightIds: string[]
+  /** 本遍歌词：`slot.lyrics[passIndex]`；只有一段词时每遍都用它；没有为 '' */
+  lyric: string
   /** 直接引用原 slot.data，拖拽时写回数组 */
   slotRef: {data: Record<string, unknown>}
 }

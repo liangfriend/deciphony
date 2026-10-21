@@ -46,6 +46,8 @@
                :v-dom="node"/>
         <Hairpin v-else-if="node.special?.hairpin" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
                  :v-dom="node"/>
+        <GuzhengLian v-else-if="node.special?.guzhengLian" :notation-type="ctx.notationType.value"
+                     :skin="ctx.skin.value" :v-dom="node"/>
         <LongRestNumber v-else-if="node.special?.longRestNumber" :notation-type="ctx.notationType.value"
                         :skin="ctx.skin.value" :v-dom="node"/>
         <MeasureNumber v-else-if="node.special?.measureNumber" :v-dom="node"/>
@@ -74,6 +76,7 @@ import Pedal from './pedal.vue'
 import Pitch from './pitch.vue'
 import Trill from './trill.vue'
 import Hairpin from './hairpin.vue'
+import GuzhengLian from './guzhengLian.vue'
 import LongRestNumber from './longRestNumber.vue'
 import MeasureNumber from './measureNumber.vue'
 import TabChord from './tabChord.vue'

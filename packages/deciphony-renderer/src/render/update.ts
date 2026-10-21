@@ -30,6 +30,15 @@ function isExtentEqual(
   return a.top === b.top && a.bottom === b.bottom && a.left === b.left && a.right === b.right
 }
 
+function isKnockoutsEqual(a: VDom['knockouts'], b: VDom['knockouts']): boolean {
+  if (a === b) return true
+  if (!a || !b || a.length !== b.length) return !a?.length && !b?.length
+  return a.every((k, i) => {
+    const o = b[i]!
+    return k.x === o.x && k.y === o.y && k.w === o.w && k.h === o.h
+  })
+}
+
 /** 比较影响 Group / 附属组件绘制的字段 */
 export function isVDomRenderEqual(a: VDom, b: VDom): boolean {
   return (
@@ -48,6 +57,7 @@ export function isVDomRenderEqual(a: VDom, b: VDom): boolean {
     isPointEqual(a.endPoint, b.endPoint) &&
     // 简谱八度点/减时线包围盒：连音线等附属锚点读此字段，不可复用旧节点
     isExtentEqual(a.numberNotationExtent, b.numberNotationExtent) &&
+    isKnockoutsEqual(a.knockouts, b.knockouts) &&
     JSON.stringify(a.special ?? {}) === JSON.stringify(b.special ?? {})
   )
 }

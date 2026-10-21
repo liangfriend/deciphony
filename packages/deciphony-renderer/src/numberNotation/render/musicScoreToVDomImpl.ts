@@ -6,12 +6,13 @@ import {Skin, SkinPack, SlotConfig, VDom} from "@/types/common";
 import {GrandStaff, Measure, MusicScore, NoteNumber, SingleStaff} from "@/types/MusicScoreType";
 import {NumberNotationSkinKeyEnum} from "@/numberNotation/enums/numberNotationSkinKeyEnum";
 import {defaultSkin} from "@/skins/defaultSkin";
+import {withEmptySkinFallback} from "@/skins/emptySkin";
 import type {NodeIdMap} from "./types";
 import {getSlotH, getSlotW, getSlotZIndex} from "./utils/slot";
 import {getBracketSkinKey, getLinkedBarlineSkinKey} from "./utils/skinKey";
 import {getMeasureWidthRatio} from "./utils/note";
 import {getBarlineFXInMeasure, getBarlineXInMeasure, renderSymbol} from "./symbol/renderSymbol";
-import {buildLinkedMeasureColumnLayouts} from "@/render/layout/measureColumnLayout";
+import {buildLinkedMeasureColumnLayouts, mergedMeasureWidthRatio} from "@/render/layout/measureColumnLayout";
 import type {MeasureColumnLayout} from "@/render/layout/measureColumnLayout";
 import {
   computeNumberNotationMeasureFixedWidths,
@@ -49,7 +50,7 @@ export function musicScoreToVDom(
   const sn = options?.skinName;
   const effectiveSkinName = sn && s && sn in s ? sn : 'default';
   const skinPack: SkinPack = s?.[effectiveSkinName] ?? defaultSkin;
-  const skin = skinPack.numberNotation ?? (defaultSkin.numberNotation as import("@/types/common").NumberNotationSkinPack);
+  const skin = withEmptySkinFallback(skinPack.numberNotation ?? (defaultSkin.numberNotation as import("@/types/common").NumberNotationSkinPack));
   const measureHeight = skin[NumberNotationSkinKeyEnum.Measure]?.h ?? 45;
   const measureLineWidth = skin[NumberNotationSkinKeyEnum.Measure]?.w ?? 1;
   const vDoms: VDom[] = [];
@@ -138,13 +139,14 @@ export function musicScoreToVDom(
 
     const linkedStaff = grandStaff.linkedStaff ?? false;
     const maxMeasures = Math.max(...grandStaff.staves.map((s) => s.measures.length), 0);
+    const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
+    const measureRatioOf = (measures: (Measure | null | undefined)[]) =>
+      mergedMeasureWidthRatio(measures, columnAdapter, (m) => getMeasureWidthRatio(m, skin));
     const measureWidths: number[] = [];
     if (linkedStaff && maxMeasures > 0) {
-      const totalRatioPerCol: number[] = new Array(maxMeasures).fill(0);
-      for (const staff of grandStaff.staves) {
-        for (let mi = 0; mi < staff.measures.length && mi < maxMeasures; mi++) {
-          totalRatioPerCol[mi] += getMeasureWidthRatio(staff.measures[mi], skin);
-        }
+      const totalRatioPerCol: number[] = [];
+      for (let mi = 0; mi < maxMeasures; mi++) {
+        totalRatioPerCol.push(measureRatioOf(grandStaff.staves.map((s) => s.measures[mi])));
       }
       const totalSum = totalRatioPerCol.reduce((a, b) => a + b, 0) || 1;
       for (let mi = 0; mi < maxMeasures; mi++) {
@@ -154,7 +156,6 @@ export function musicScoreToVDom(
 
     let linkedColumnLayoutsByMi: (MeasureColumnLayout | null)[][] = [];
     if (linkedStaff && maxMeasures > 0) {
-      const columnAdapter = createNumberNotationColumnLayoutAdapter(skin, measureHeight);
       linkedColumnLayoutsByMi = new Array(maxMeasures);
       for (let mi = 0; mi < maxMeasures; mi++) {
         const measuresAtMi = grandStaff.staves.map((s) => s.measures[mi] ?? null);
@@ -253,7 +254,7 @@ export function musicScoreToVDom(
       let totalWidthRatioForMeasure = 0;
       if (!linkedStaff) {
         for (const m of staff.measures) {
-          totalWidthRatioForMeasure += getMeasureWidthRatio(m, skin);
+          totalWidthRatioForMeasure += measureRatioOf([m]);
         }
         if (!Number.isFinite(totalWidthRatioForMeasure) || totalWidthRatioForMeasure <= 0) {
           totalWidthRatioForMeasure = 1;
@@ -340,7 +341,7 @@ export function musicScoreToVDom(
 
       let measureCurrentX = grandStaffX;
       const getMeasureW = (m: typeof staff.measures[0], mi: number) =>
-        linkedStaff ? measureWidths[mi] : getMeasureWidthRatio(m, skin) / totalWidthRatioForMeasure * grandStaffW;
+        linkedStaff ? measureWidths[mi] : measureRatioOf([m]) / totalWidthRatioForMeasure * grandStaffW;
       for (let mi = 0; mi < staff.measures.length; mi++) {
         const measure = staff.measures[mi];
         const measureWidth = getMeasureW(measure, mi);
@@ -368,23 +369,6 @@ export function musicScoreToVDom(
       if (linkedStaff && i >= 1 && prevMeasureStartY !== undefined) {
         const linkedBarlineY = prevMeasureStartY + measureHeight;
         const linkedBarlineH = currentMeasureStartY - linkedBarlineY;
-        const linkedCloseLineKey = NumberNotationSkinKeyEnum.linked_close_line;
-        const linkedCloseLineItem = skin[linkedCloseLineKey];
-        vDoms.push({
-          startPoint: {x: 0, y: 0},
-          endPoint: {x: 0, y: 0},
-          special: {},
-          x: grandStaffX,
-          y: linkedBarlineY,
-          w: linkedCloseLineItem?.w ?? 1,
-          h: linkedBarlineH,
-          zIndex: 1200,
-          tag: 'linked_close_line',
-          skinKey: linkedCloseLineKey,
-          skinName: effectiveSkinName,
-          targetId: `linked-close-${staff.id}`,
-          dataComment: '连谱闭合线',
-        });
         let barlineMeasureX = grandStaffX;
         for (let mi = 0; mi < staff.measures.length; mi++) {
           const measure = staff.measures[mi];
@@ -442,23 +426,6 @@ export function musicScoreToVDom(
 
       const measureTopY = grandStaffCurrentY;
       measureCurrentX = grandStaffX;
-      const closeLineSkinKey = NumberNotationSkinKeyEnum.Close_line;
-      const closeLineItem = skin[closeLineSkinKey];
-      vDoms.push({
-        startPoint: {x: 0, y: 0},
-        endPoint: {x: 0, y: 0},
-        special: {},
-        x: grandStaffX,
-        y: grandStaffCurrentY,
-        w: closeLineItem?.w ?? 1,
-        h: measureHeight,
-        zIndex: 1200,
-        tag: 'close_line',
-        skinKey: closeLineSkinKey,
-        skinName: effectiveSkinName,
-        targetId: `close-${staff.id}`,
-        dataComment: '闭合线',
-      });
       for (let mi = 0; mi < staff.measures.length; mi++) {
         const measure = staff.measures[mi];
         const measureWidth = getMeasureW(measure, mi);

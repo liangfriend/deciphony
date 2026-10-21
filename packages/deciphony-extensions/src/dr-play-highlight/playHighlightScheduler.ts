@@ -1,3 +1,4 @@
+import type {DR_playLyric} from '../dr-play/types'
 import type {PlayHighlightTarget} from './playHighlight'
 
 export type PlayHighlightProgressData = {
@@ -7,6 +8,8 @@ export type PlayHighlightProgressData = {
     playTime: number
     /** 是否为该 playTime 下第一个触发的音符 */
     start?: boolean
+    /** 本音歌词（dr-play 序列的 lyric 原样带过来；没有歌词为空） */
+    lyric?: DR_playLyric
 }
 
 type HighlightNote = {

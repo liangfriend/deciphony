@@ -1,19 +1,21 @@
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {MusicScoreTypeEnum, type MusicScore} from '@deciphony/renderer'
 import {APlayer, startJPlayer} from '@deciphony/player'
 import {autoAlignTimeOffsets} from '../autoAlign'
 import {
   DEFAULT_PX_PER_SECOND,
   DEFAULT_TIME_PROP,
-  FLATTEN_LINE_GAP,
-  FLATTEN_STAFF_PAD_Y,
-  FLATTEN_STEM_LENGTH,
+  MAX_PX_PER_SECOND,
   MAX_SYNC_SECONDS,
+  MAX_WAVE_GAIN,
+  MIN_PX_PER_SECOND,
+  MIN_WAVE_GAIN,
+  WAVE_PEAKS_PER_SECOND,
   WAVEFORM_HEIGHT,
 } from '../constants'
 import {decodeAudioForWaveform} from '../decodeAudio'
-import {buildFlattenStaffRows, validateFlattenStaffLayout} from '../flattenSlots'
+import {buildFlattenStaffRows, flattenRowLayout, validateFlattenStaffLayout} from '../flattenSlots'
 import type {TimeOffsetAction} from '../types'
 import FlattenScore from './FlattenScore.vue'
 import WaveformCanvas from './WaveformCanvas.vue'
@@ -42,7 +44,17 @@ const emit = defineEmits<{
   change: []
 }>()
 
-const px = computed(() => props.pxPerSecond || DEFAULT_PX_PER_SECOND)
+function clampPx(v: number | undefined): number {
+  const n = v && Number.isFinite(v) ? v : DEFAULT_PX_PER_SECOND
+  return Math.min(MAX_PX_PER_SECOND, Math.max(MIN_PX_PER_SECOND, n))
+}
+
+/** 横向缩放（每秒像素）：初值取 prop，滑动条再改；prop 变化时同步 */
+const zoomPx = ref(clampPx(props.pxPerSecond))
+watch(() => props.pxPerSecond, (v) => (zoomPx.value = clampPx(v)))
+const px = computed(() => zoomPx.value)
+/** 波形振幅倍数 */
+const waveGain = ref(1)
 const timeProp = computed(() => props.timePropName || DEFAULT_TIME_PROP)
 const axisWidth = computed(() => MAX_SYNC_SECONDS * px.value)
 
@@ -68,23 +80,47 @@ const waveWidth = computed(() => {
   const dur = audioDuration.value > 0 ? Math.min(audioDuration.value, MAX_SYNC_SECONDS) : 0
   return Math.max(1, Math.ceil(dur * px.value))
 })
-const flattenRowH = computed(() => {
-  if (props.musicScore.type === MusicScoreTypeEnum.NumberNotation) {
-    return 56 + FLATTEN_STAFF_PAD_Y * 2
-  }
-  return 4 * FLATTEN_LINE_GAP + FLATTEN_STAFF_PAD_Y * 2 + FLATTEN_STEM_LENGTH * 0.35
+const playheadH = computed(() => {
+  if (scoreLayoutError.value) return WAVEFORM_HEIGHT
+  const isNumber = props.musicScore.type === MusicScoreTypeEnum.NumberNotation
+  return WAVEFORM_HEIGHT + flattenRowLayout(rows.value, isNumber).total
 })
-const playheadH = computed(
-  () =>
-    WAVEFORM_HEIGHT +
-    Math.max(scoreLayoutError.value ? 0 : 1, rows.value.length) * flattenRowH.value,
-)
 
 /** 前奏时间（秒），重置对齐时加到理论时间上 */
 const introOffsetSec = ref(0)
 
 const scrubbing = ref(false)
 const scrollRef = ref<HTMLElement | null>(null)
+const flattenRef = ref<{clearAnchors: () => void; getAnchors: () => string[]} | null>(null)
+const anchorCount = ref(0)
+
+/** 滚动窗口（波形只画可见部分） */
+const viewLeft = ref(0)
+const viewWidth = ref(0)
+function syncView() {
+  const el = scrollRef.value
+  if (!el) return
+  viewLeft.value = el.scrollLeft
+  viewWidth.value = el.clientWidth
+}
+let resizeObserver: ResizeObserver | null = null
+onMounted(() => {
+  syncView()
+  if (scrollRef.value && typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(syncView)
+    resizeObserver.observe(scrollRef.value)
+  }
+})
+
+/** 缩放时保持视口中心对应的时间不动（播放中由跟随滚动接管） */
+watch(px, async (next, prev) => {
+  const el = scrollRef.value
+  if (!el || !prev || playing.value) return
+  const centerSec = (el.scrollLeft + el.clientWidth / 2) / prev
+  await nextTick()
+  el.scrollLeft = Math.max(0, centerSec * next - el.clientWidth / 2)
+  syncView()
+})
 
 let player: APlayer | null = null
 
@@ -118,7 +154,7 @@ async function loadAudio(url: string) {
   audioDuration.value = 0
   if (!url) return
   try {
-    const {buffer, peaks: p, duration} = await decodeAudioForWaveform(url, props.sampleRate)
+    const {buffer, peaks: p, duration} = await decodeAudioForWaveform(url, props.sampleRate, WAVE_PEAKS_PER_SECOND)
     peaks.value = p
     audioDuration.value = duration
     const pl = ensurePlayer()
@@ -142,6 +178,22 @@ watch(
 function bump() {
   revision.value++
   emit('change')
+}
+
+function clearAnchors() {
+  flattenRef.value?.clearAnchors()
+}
+
+/** 点波形：指针移到该处；播放中直接跳过去继续播 */
+async function seekTo(sec: number) {
+  const t = Math.min(MAX_SYNC_SECONDS, Math.max(0, sec))
+  playheadSec.value = t
+  if (!player) return
+  if (playing.value) {
+    await player.seek(t)
+  } else {
+    player.current = t
+  }
 }
 
 function handleAutoAlign() {
@@ -228,6 +280,7 @@ function onPlayheadPointerUp(ev: PointerEvent) {
 }
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
   player?.dispose()
   player = null
 })
@@ -237,17 +290,29 @@ defineExpose({
   play: handlePlay,
   stop: handleStop,
   resetPlayhead: handleResetPlayhead,
+  seek: seekTo,
+  clearAnchors,
   getPlayheadSec: () => playheadSec.value,
 })
 </script>
 
 <template>
   <div class="dr-time-offset">
-    <div ref="scrollRef" class="dr-time-offset__scroll">
+    <div ref="scrollRef" class="dr-time-offset__scroll" @scroll.passive="syncView">
       <div class="dr-time-offset__axis" :style="{width: `${axisWidth}px`}">
-        <WaveformCanvas :peaks="peaks" :width="waveWidth || axisWidth"/>
+        <WaveformCanvas
+          :gain="waveGain"
+          :peaks="peaks"
+          :peaks-per-second="WAVE_PEAKS_PER_SECOND"
+          :px-per-second="px"
+          :view-left="viewLeft"
+          :view-width="viewWidth"
+          :width="waveWidth || axisWidth"
+          @seek="seekTo"
+        />
         <FlattenScore
           v-if="!scoreLayoutError"
+          ref="flattenRef"
           :axis-width="axisWidth"
           :playhead-x="playheadX"
           :px-per-second="px"
@@ -255,6 +320,7 @@ defineExpose({
           :rows="rows"
           :score-type="musicScore.type"
           :time-prop-name="timeProp"
+          @anchors-change="anchorCount = $event"
           @time-change="bump"
         />
         <!-- 跨波形+展平谱的播放指针 -->
@@ -297,6 +363,19 @@ defineExpose({
       <button class="dr-time-offset__btn" type="button" @click="handlePlay">播放</button>
       <button class="dr-time-offset__btn" type="button" @click="handleStop">停止</button>
       <button class="dr-time-offset__btn" type="button" @click="handleResetPlayhead">重置</button>
+      <button v-if="anchorCount" class="dr-time-offset__btn" type="button" @click="clearAnchors">
+        清除锚定（{{ anchorCount }}）
+      </button>
+      <label class="dr-time-offset__slider">
+        波形高度
+        <input v-model.number="waveGain" :max="MAX_WAVE_GAIN" :min="MIN_WAVE_GAIN" step="0.1" type="range"/>
+        <span class="dr-time-offset__slider-val">{{ waveGain.toFixed(1) }}×</span>
+      </label>
+      <label class="dr-time-offset__slider">
+        横向缩放
+        <input v-model.number="zoomPx" :max="MAX_PX_PER_SECOND" :min="MIN_PX_PER_SECOND" step="5" type="range"/>
+        <span class="dr-time-offset__slider-val">{{ zoomPx }} px/s</span>
+      </label>
       <span class="dr-time-offset__meta">
         t={{ playheadSec.toFixed(2) }}s · {{ timeProp }}
       </span>
@@ -379,6 +458,24 @@ defineExpose({
 .dr-time-offset__btn:hover {
   background: #ecf5ff;
   border-color: #b3d8ff;
+}
+
+.dr-time-offset__slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #606266;
+}
+
+.dr-time-offset__slider input {
+  width: 120px;
+}
+
+.dr-time-offset__slider-val {
+  min-width: 56px;
+  color: #909399;
+  font-variant-numeric: tabular-nums;
 }
 
 .dr-time-offset__meta {

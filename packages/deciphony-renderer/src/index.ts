@@ -16,6 +16,28 @@ export {mergeSlotConfig} from './render/mergeSlotConfig'
 export {fanoutExtensionEvent} from './render/fanoutExtensionEvent'
 export {resolveMusicScoreToVDom, resolveNotationToVDom} from './render/resolveNotation'
 export type {MusicScoreToVDomFn} from './render/resolveNotation'
+/** 曲谱自定义符号（extraNoteSymbol / extraSlotSymbol / extraMeasureSymbol）：缺省值与皮肤包注入 */
+export {
+  EXTRA_SYMBOL_FIELDS,
+  EXTRA_SYMBOL_KINDS,
+  buildExtraSkinItems,
+  getExtraSymbols,
+  hasExtraSymbols,
+  normalizeExtraSymbol,
+  notationPackKey,
+  withExtraSymbols,
+} from './render/extraSymbols'
+export type {ExtraRuleMap} from './render/extraSymbols'
+export type {
+  AffiliatedOffsetRule,
+  ExtraMeasureSymbolRule,
+  ExtraNoteSymbolRule,
+  ExtraSlotSymbolRule,
+  NumberNotationAnchor,
+  SingleMeasureAffiliatedRule,
+  SingleNoteAffiliatedRule,
+  SingleSlotAffiliatedRule,
+} from './constants/renderRules'
 
 /** 曲谱相关枚举 */
 export * from './enums/musicScoreEnum'
@@ -30,6 +52,17 @@ export {getMeasureNoteList, getMeasureSlots, getMeasureVoices, isMeasureNoteVoic
 
 /** 默认皮肤与 content 模板 */
 export {defaultSkin} from './skins/defaultSkin'
+/** 皮肤缺失占位（不在皮肤包里，找不到 skinKey 时统一画它） */
+export {EMPTY_SKIN_ITEM, EMPTY_SKIN_KEY, EMPTY_SKIN_SIZE} from './skins/emptySkin'
+/** 古筝指法符号几何（自定义皮肤 / 工具栏图标可复用） */
+export {
+    GUZHENG_GLYPHS,
+    GUZHENG_STROKE_WIDTH,
+    guzhengGlyphPath,
+    guzhengSkinContent,
+    guzhengSkinItems,
+} from './skins/guzhengGlyphs'
+export type {GuzhengGlyph, GuzhengSkinKeyOf} from './skins/guzhengGlyphs'
 export {
   bravuraStandardStaffPartial,
   bravuraGlyphsByKey,
@@ -62,7 +95,7 @@ export type {MeasureNoteSymbol} from './types/MusicScoreType'
 /** 顶层 svg 事件：由 DOM 命中解析 VDom */
 export {getHitElement, resolveVDomFromEvent} from './render/resolveVDomFromEvent'
 
-/** 连音线几何（默认控制点 / 朝向 / 分段 / 简谱两端圆弧 + 中间横线） */
+/** 连音线几何（默认控制点 / 朝向 / 分段 / style 或谱种决定圆头 vs 月牙） */
 export {
     isNumberNotationSlur,
     isSplitSlur,
@@ -78,9 +111,11 @@ export {
 export {
     arpeggioVDomPatch,
     mirrorArpeggioData,
+    guzhengLianVDomPatch,
     hairpinVDomPatch,
     mirrorBendData,
     mirrorFrame,
+    mirrorGuzhengLianData,
     mirrorHairpinData,
     mirrorPedalData,
     mirrorPitchData,
@@ -97,6 +132,7 @@ export {
 export type {
     ArpeggioMirror,
     FrameMirror,
+    GuzhengLianMirror,
     HairpinMirror,
     PedalMirror,
     PitchMirror,

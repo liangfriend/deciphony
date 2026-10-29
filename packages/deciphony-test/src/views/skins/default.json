@@ -1220,57 +1220,57 @@
       "widthRatioForMeasure": 100
     },
     "number_0": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">0</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">0</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_0"
     },
     "number_1": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">1</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">1</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_1"
     },
     "number_2": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">2</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">2</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_2"
     },
     "number_3": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">3</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">3</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_3"
     },
     "number_4": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">4</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">4</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_4"
     },
     "number_5": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">5</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">5</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_5"
     },
     "number_6": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">6</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">6</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_6"
     },
     "number_7": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">7</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">7</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "skinKey": "number_7"
     },
     "number_X": {
-      "content": "<text x=\"7.08\" y=\"26.09\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">X</text>",
+      "content": "<text dominant-baseline=\"central\" x=\"7.08\" y=\"7.50\" text-anchor=\"middle\" font-family=\"Arial, Helvetica, sans-serif\" font-size=\"24\" font-weight=\"600\" style=\"font-variant-numeric:lining-nums\" fill=\"black\">X</text>",
       "w": 14.16,
-      "h": 35,
+      "h": 15,
       "widthRatioForMeasure": 6,
       "skinKey": "number_X"
     },

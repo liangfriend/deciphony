@@ -334,6 +334,7 @@ export const DoubleNoteAffiliatedSymbolRenderRule: Partial<
   /** 起止不在同一单谱表时 split；朝向按符干；简谱 top 两端对齐到更高一侧 */
   [DoubleNoteAffiliatedSymbolNameEnum.Slur]: {
     kind: 'slur',
+    // vertical：相对锚点的间距（× measureHeight）；负值向上。简谱在 renderSlur 里单独覆盖
     start: {vertical: -0.1, horizontal: 0},
     end: {vertical: -0.1, horizontal: 0},
     numberNotationAnchor: 'top',

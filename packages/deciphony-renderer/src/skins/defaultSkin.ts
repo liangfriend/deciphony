@@ -2350,16 +2350,17 @@ function buildNumberNotationTimeSignatures() {
 
 
 const NUMBER_GLYPH_W = 14.16;
-const NUMBER_GLYPH_H = 35;
 const NUMBER_GLYPH_FONT_SIZE = 24;
+/** Arial 齐线数字视觉高度 ≈ 0.716em；布局盒略小于字面，避免无八度点时附属符号（连音线等）锚到虚高空白 */
+const NUMBER_GLYPH_INK_H = NUMBER_GLYPH_FONT_SIZE * 0.716;
+const NUMBER_GLYPH_H = Math.round(NUMBER_GLYPH_INK_H) - 2; // ~15，略小于字面高度
 /** 必须显式指定齐线数字字体：继承宿主字体时 Georgia 等旧式数字会高低不齐、看起来发扁 */
 const NUMBER_GLYPH_FONT_FAMILY = 'Arial, Helvetica, sans-serif';
-/** Arial 数字高 ≈ 0.716em，基线下移半个数字高使字形在盒内垂直居中（与加时线对齐） */
-const NUMBER_GLYPH_BASELINE = NUMBER_GLYPH_H / 2 + NUMBER_GLYPH_FONT_SIZE * 0.716 / 2;
 
 function makeNumberGlyph(digit: string, key: NumberNotationSkinKeyEnum) {
+  // y 取盒心 + dominant-baseline=central：字面可略溢出盒外，布局仍按收紧后的 h
   return {
-    content: `<text x="${NUMBER_GLYPH_W / 2}" y="${NUMBER_GLYPH_BASELINE.toFixed(2)}" text-anchor="middle" font-family="${NUMBER_GLYPH_FONT_FAMILY}" font-size="${NUMBER_GLYPH_FONT_SIZE}" font-weight="600" style="font-variant-numeric:lining-nums" fill="black">${digit}</text>`,
+    content: `<text x="${NUMBER_GLYPH_W / 2}" y="${(NUMBER_GLYPH_H / 2).toFixed(2)}" dominant-baseline="central" text-anchor="middle" font-family="${NUMBER_GLYPH_FONT_FAMILY}" font-size="${NUMBER_GLYPH_FONT_SIZE}" font-weight="600" style="font-variant-numeric:lining-nums" fill="black">${digit}</text>`,
     w: NUMBER_GLYPH_W,
     h: NUMBER_GLYPH_H,
     skinKey: key,

@@ -16,6 +16,7 @@ import {
   scoreShowsInstrumentName,
   scoreSlotConfig,
   scoreTitleFontFamily,
+  scoreTitlePadding,
   scoreViewRect,
 } from '../render/scoreDisplay'
 import type {ScoreRangeSelect, SScore} from '../types/types'
@@ -129,18 +130,25 @@ watch(
   () => applyRangeMarks(),
 )
 
-const baseExtensions = [
-  // t / s-d 高度由 scoreSlotConfig（读 musicScore.data）覆盖扩展默认
-  drTitle({mode: 'show', fontFamily: titleFontFamily}),
-  drLyrics({mode: 'show', fontSize: lyricsFontSize, fontFamily: lyricsFontFamily}),
-  playHighlight,
-  rangeSelectExtension,
-]
-
 /** 进入 SJWPDF 的曲谱固定展示；高亮经 extensions.on.renderMusicScore */
-const extensions = computed(() =>
-  scoreShowsInstrumentName(props.score.musicScore) ? [...baseExtensions, instrumentName] : baseExtensions,
-)
+const extensions = computed(() => {
+  const titlePad = scoreTitlePadding(props.score.musicScore)
+  // t / s-d 高度由 scoreSlotConfig（读 musicScore.data）覆盖扩展默认；
+  // padding 与 s-l / s-r 对齐，标题相对谱表区居中（与编辑器 / PDF 快照一致）
+  const list: DrExtension[] = [
+    drTitle({
+      mode: 'show',
+      fontFamily: titleFontFamily,
+      paddingLeft: titlePad.paddingLeft,
+      paddingRight: titlePad.paddingRight,
+    }),
+    drLyrics({mode: 'show', fontSize: lyricsFontSize, fontFamily: lyricsFontFamily}),
+    playHighlight,
+    rangeSelectExtension,
+  ]
+  if (scoreShowsInstrumentName(props.score.musicScore)) list.push(instrumentName)
+  return list
+})
 
 const slotConfig = computed(() => scoreSlotConfig(props.score.musicScore))
 

@@ -78,6 +78,20 @@ export function scoreTitleSlotHeight(musicScore: MusicScore): number {
   return slotHeight(layoutData(musicScore).tSlotH, TITLE_SLOT_HEIGHT)
 }
 
+/**
+ * 标题左右内缩：与 s-l / s-r 宽度一致，使标题相对谱表区居中（对齐宿主编辑器 TitleSlot padding）。
+ * 未配置或非法时为 0。
+ */
+export function scoreTitlePadding(musicScore: MusicScore): {paddingLeft: number; paddingRight: number} {
+  const data = layoutData(musicScore)
+  const left = Number(data.sLSlotW)
+  const right = Number(data.sRSlotW)
+  return {
+    paddingLeft: Number.isFinite(left) && left >= 0 ? left : 0,
+    paddingRight: Number.isFinite(right) && right >= 0 ? right : 0,
+  }
+}
+
 export function scoreLyricsSlotHeight(musicScore: MusicScore): number {
   return slotHeight(layoutData(musicScore).gdSlotH, DEFAULT_LYRICS_SLOT_H)
 }
@@ -97,11 +111,14 @@ export function scoreSlotConfig(musicScore: MusicScore): SlotConfig {
 
 /** 只读展示用的扩展（标题 / 歌词 / 乐器名）；播放高亮、选段等交互扩展由调用方追加 */
 export function scoreDisplayExtensions(musicScore: MusicScore): DrExtension[] {
+  const titlePad = scoreTitlePadding(musicScore)
   const list = [
     drTitle({
       mode: 'show',
       height: scoreTitleSlotHeight(musicScore),
       fontFamily: scoreTitleFontFamily(musicScore),
+      paddingLeft: titlePad.paddingLeft,
+      paddingRight: titlePad.paddingRight,
     }),
     drLyrics({
       mode: 'show',

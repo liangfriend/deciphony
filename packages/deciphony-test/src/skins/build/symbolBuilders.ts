@@ -81,5 +81,6 @@ export function buildNumberMeasure(theme: SkinTheme): string {
 }
 
 export function buildNumberGlyph(theme: SkinTheme, digit: string): string {
-    return creative(theme, 'number', `number_${digit.toLowerCase()}`, {content: '', w: 14, h: 35, skinKey: StandardStaffSkinKeyEnum.Measure})
+    // h 与 defaultSkin 简谱数字一致：略小于字面高度
+    return creative(theme, 'number', `number_${digit.toLowerCase()}`, {content: '', w: 14.16, h: 15, skinKey: StandardStaffSkinKeyEnum.Measure})
 }

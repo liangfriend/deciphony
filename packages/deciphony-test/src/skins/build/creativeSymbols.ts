@@ -510,14 +510,21 @@ function glacierAddLine(theme: SkinTheme): string {
   <circle cx="14" cy="5.5" r="1" fill="${theme.glow}" opacity="0.5"/>`
 }
 
+const NUMBER_GLYPH_W = 14.16
+const NUMBER_GLYPH_H = 15
+
 function bambooNumberGlyph(theme: SkinTheme, digit: string): string {
-    return `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
+    const cx = NUMBER_GLYPH_W / 2
+    const cy = NUMBER_GLYPH_H / 2
+    return `<text x="${cx}" y="${cy}" dominant-baseline="central" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
     fill="${theme.timeSigColor}" font-family="Arial, Helvetica, sans-serif" style="font-variant-numeric:lining-nums">${digit}</text>
-  <ellipse cx="10" cy="30" rx="8" ry="2" fill="${theme.staffLineMuted}" opacity="0.2"/>`
+  <ellipse cx="${cx}" cy="${NUMBER_GLYPH_H - 1}" rx="8" ry="1.2" fill="${theme.staffLineMuted}" opacity="0.2"/>`
 }
 
 function glacierNumberGlyph(theme: SkinTheme, digit: string): string {
-    return `<text x="10" y="28" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
+    const cx = NUMBER_GLYPH_W / 2
+    const cy = NUMBER_GLYPH_H / 2
+    return `<text x="${cx}" y="${cy}" dominant-baseline="central" text-anchor="middle" font-size="24" font-weight="${theme.timeSigFontWeight}"
     font-family="Arial, Helvetica, sans-serif" style="font-variant-numeric:lining-nums"
     fill="${theme.timeSigColor}" stroke="${theme.glow}" stroke-width="0.3">${digit}</text>`
 }

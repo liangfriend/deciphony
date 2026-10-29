@@ -14,6 +14,9 @@ export type NumberNotationSlurGeom = {
 /** 三次贝塞尔逼近 1/4 圆的控制点系数 */
 const QUARTER_CIRCLE_KAPPA = 0.5522847498
 
+/** 简谱连音线两端圆弧半径上限（两端 1/4 圆的半径） */
+const NUMBER_NOTATION_SLUR_ARC_MAX = 6
+
 /**
  * 是否用圆润（rounded）连音线。
  * `style`（data.slur / special.slur）优先；未指定时按 `notationType === NumberNotation`。
@@ -41,7 +44,7 @@ export function numberNotationSlurGeom(vdom: VDom): NumberNotationSlurGeom {
   const x1 = Math.max(s.x, e.x)
   const span = Math.max(0, x1 - x0)
   // 两侧圆弧半径：尽量接近正圆，避免扁椭圆看起来尖
-  const arc = Math.min(12, span / 2)
+  const arc = Math.min(NUMBER_NOTATION_SLUR_ARC_MAX, span / 2)
   const rise = arc
   const yFoot = s.y - relStartY + (relStartY + relEndY) / 2
   const yTop = yFoot - rise
@@ -126,7 +129,7 @@ export function splitSlurGeom(vdom: VDom): {d: string; apex: Point} {
 
 function numberNotationHalfPathD(foot: Point, brk: Point): string {
   const dir = brk.x >= foot.x ? 1 : -1
-  const arc = Math.min(12, Math.abs(brk.x - foot.x))
+  const arc = Math.min(NUMBER_NOTATION_SLUR_ARC_MAX, Math.abs(brk.x - foot.x))
   const yTop = foot.y - arc
   if (arc < 0.5) return `M ${foot.x} ${foot.y} L ${brk.x} ${foot.y}`
   const k = QUARTER_CIRCLE_KAPPA
@@ -144,7 +147,7 @@ export function numberNotationSplitSlurGeom(vdom: VDom): {d: string; apex: Point
   const {start, end} = splitSlurBreaks(vdom)
   const s = vdom.startPoint
   const e = vdom.endPoint
-  const arc = Math.min(12, Math.abs(start.x - s.x))
+  const arc = Math.min(NUMBER_NOTATION_SLUR_ARC_MAX, Math.abs(start.x - s.x))
   return {
     d: `${numberNotationHalfPathD(s, start)} ${numberNotationHalfPathD(e, end)}`,
     apex: {x: (s.x + start.x) / 2, y: s.y - arc},

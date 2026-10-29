@@ -390,16 +390,19 @@ export function renderGraceNotesNumberInfoAt(
             }
         } else {
             let baseBottom: number;
+            let afterReduce = false;
             const ch = getInfoChronaxie(ni);
             if (ch <= 32) {
                 const reduceLineSkin = skin[getReduceLineSkinKey(ch)];
                 const reduceVisualTop = noteVisualBottom + GRACE_REDUCE_LINE_Y_OFFSET * measureHeight;
                 baseBottom = reduceVisualTop + scaledSpan(reduceLineSkin?.h ?? 0, S);
+                afterReduce = true;
             } else {
                 baseBottom = noteVisualBottom;
             }
             const dotVisualH = scaledSpan(octaveDotSkin.h, S);
-            let targetDotTop = baseBottom + fOff;
+            // 有减时线时皮肤 h 已含下边距，不再叠加八度点首距
+            let targetDotTop = baseBottom + (afterReduce ? 0 : fOff);
             for (let k = 0; k < dotCount; k++) {
                 pushGraceVisual(out, dotVisualLeft, targetDotTop, octaveDotSkin.w, octaveDotSkin.h, {
                     zIndex,

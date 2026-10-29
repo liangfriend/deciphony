@@ -242,11 +242,15 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
     return REDUCE_LINE_Y_OFFSET * measureHeight + (reduceLineSkin?.h ?? 0);
   }
 
-  /** count 个八度点（含与数字/减时线的首距）占用的高度 */
-  function octaveDotsExtent(count: number): number {
+  /**
+   * count 个八度点占用的高度。
+   * skipFirstOffset：已有减时线时皮肤 h 已含下边距，不再叠加首距，避免减时线与下八度点过远。
+   */
+  function octaveDotsExtent(count: number, skipFirstOffset = false): number {
     const dotSkin = skin[NumberNotationSkinKeyEnum.OctaveDot];
     if (count <= 0 || !dotSkin) return 0;
-    return OCTAVE_DOT_FIRST_OFFSET * measureHeight + count * dotSkin.h
+    const first = skipFirstOffset ? 0 : OCTAVE_DOT_FIRST_OFFSET * measureHeight;
+    return first + count * dotSkin.h
       + (count - 1) * OCTAVE_DOT_SPACING * measureHeight;
   }
 
@@ -254,9 +258,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
   function numberNotationExtent(info: NotesNumberInfo, stackIdx: number): NonNullable<VDom['numberNotationExtent']> {
     const octave = info.syllable !== 0 && info.syllable !== 'X' ? (info.octaveDot ?? 0) : 0;
     const accSkin = info.accidental ? skin[getAccidentalSkinKey(info.accidental.type)] : undefined;
+    const rl = reduceLineExtent(info, stackIdx);
     return {
       top: octave > 0 ? octaveDotsExtent(octave) : 0,
-      bottom: reduceLineExtent(info, stackIdx) + (octave < 0 ? octaveDotsExtent(-octave) : 0),
+      bottom: rl + (octave < 0 ? octaveDotsExtent(-octave, rl > 0) : 0),
       left: accSkin ? ACCIDENTAL_NOTE_X_GAP * measureHeight + accSkin.w : 0,
       right: 0,
     };
@@ -549,8 +554,10 @@ export function renderSymbol(params: RenderSymbolParams): VDom[] {
                 dotY -= octaveDotSkin.h + spacing;
               }
             } else {
-              const baseBottom = hcy + numItem.h / 2 + reduceLineExtent(n, stackIdx);
-              let dotY = baseBottom + fOff;
+              const rl = reduceLineExtent(n, stackIdx);
+              // 有减时线：ReduceLine 皮肤 h 已含下边距，不再叠加八度点首距
+              const baseBottom = hcy + numItem.h / 2 + rl;
+              let dotY = baseBottom + (rl > 0 ? 0 : fOff);
               for (let k = 0; k < dotCount; k++) {
                 out.push({
                   startPoint: {x: 0, y: 0}, endPoint: {x: 0, y: 0}, special: {},

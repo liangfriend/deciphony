@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/pitch-detection",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "DyWA 时域音高检测（缓冲级 / 麦克风实时）",
   "author": "liam",
   "license": "MIT",

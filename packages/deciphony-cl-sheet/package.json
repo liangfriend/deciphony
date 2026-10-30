@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/cl-sheet",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "和弦弹唱谱（吉他）：歌词 + 和弦的展示与编辑",
   "type": "module",
   "main": "./dist/index.cjs.js",

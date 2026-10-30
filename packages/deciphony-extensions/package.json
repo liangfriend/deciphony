@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/extensions",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "@deciphony/renderer 官方扩展集（标题、歌词、编辑构建、播放、MusicXML/简谱转换等）",
   "type": "module",
   "main": "./dist/index.cjs.js",

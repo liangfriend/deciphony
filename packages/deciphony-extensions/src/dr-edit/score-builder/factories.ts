@@ -654,7 +654,7 @@ export function createStrumming(options: CreateStrummingOptions = {}): SingleSlo
 
 /**
  * 前奏括号左 `(`：放入宿主 MeasureNoteSlot.affiliatedSymbols。
- * 默认在 slot 列左侧、小节垂直居中（见 SingleSlotAffiliatedSymbolRenderRule）。
+ * 默认在 slot 列左侧（略贴列起点）、小节垂直居中（见 SingleSlotAffiliatedSymbolRenderRule）。
  */
 export function createPreludeBracketLeft(options: CreatePreludeBracketOptions = {}): SingleSlotAffiliatedSymbol {
     const {partial} = options;

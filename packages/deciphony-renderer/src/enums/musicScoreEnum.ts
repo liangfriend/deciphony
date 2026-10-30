@@ -224,7 +224,7 @@ export enum SingleSlotAffiliatedSymbolNameEnum {
   Arpeggio = 'arpeggio',
   arpeggio_straight = 'arpeggio_straight',
   Strumming = 'strumming',
-  /** 前奏括号左 `(`：默认在 slot 列左侧 */
+  /** 前奏括号左 `(`：默认在 slot 列左侧（略贴列起点，与右侧跨符头后的间隙接近） */
   Prelude_bracket_left = 'prelude_bracket_left',
   /** 前奏括号右 `)`：默认在 slot 列右侧（间距更大，跨过音符） */
   Prelude_bracket_right = 'prelude_bracket_right',

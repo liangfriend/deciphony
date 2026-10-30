@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/finger",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "虚拟 2D 手指关节展示",
   "type": "module",
   "main": "./dist/index.cjs.js",

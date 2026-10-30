@@ -352,7 +352,7 @@ export const DoubleNoteAffiliatedSymbolRenderRule: Partial<
  * 单 slot 附属：默认 x=slot 列起点，y=小节底；
  * arpeggio/strumming 起止同锚点，默认 relativeEnd.y=-measureHeight 垂直穿过整节。
  * 前奏括号 kind=skin：锚点为符号中心；vertical=-1/2 垂直居中于小节；
- * 右侧 horizontal 更大，跨过音符列。
+ * 左 horizontal=-1/16，右 +3/8（从列起点跨过符头），两侧到音符的视觉间隙接近。
  */
 export const SingleSlotAffiliatedSymbolRenderRule: Partial<
     Record<SingleSlotAffiliatedSymbolNameEnum, SingleSlotAffiliatedRule>
@@ -372,7 +372,8 @@ export const SingleSlotAffiliatedSymbolRenderRule: Partial<
   [SingleSlotAffiliatedSymbolNameEnum.Prelude_bracket_left]: {
     kind: 'skin',
     skinKey: 'prelude_bracket_left',
-    offset: {vertical: -1 / 2, horizontal: -1 / 8},
+    // 与右侧「跨过符头后 +1/8」视觉间隙对齐（简谱数字≈符头宽时，-1/8 会偏远）
+    offset: {vertical: -1 / 2, horizontal: -1 / 16},
   },
   [SingleSlotAffiliatedSymbolNameEnum.Prelude_bracket_right]: {
     kind: 'skin',

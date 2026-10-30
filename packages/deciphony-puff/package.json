@@ -1,6 +1,6 @@
 {
   "name": "@deciphony/puff",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "麦克风吹气检测（气压、吐音、颤音等），用于模拟笛子 / 箫 / 陶笛等吹奏乐器",
   "author": "liam",
   "license": "MIT",

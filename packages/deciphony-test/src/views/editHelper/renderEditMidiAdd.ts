@@ -3,6 +3,7 @@ import {
   ClefTypeEnum,
   KeySignatureTypeEnum,
   MusicScoreTypeEnum,
+  primaryStaffType,
   type Chronaxie,
   type Measure,
   type MusicScore,
@@ -67,7 +68,7 @@ export function applyMidiNoteToSelectedMeasure(
 
   const beamOnset = computeMeasureOnsetBefore(measure, getMeasureNoteList(measure).length)
 
-  if (musicScore.type === MusicScoreTypeEnum.NumberNotation) {
+  if (primaryStaffType(musicScore) === MusicScoreTypeEnum.NumberNotation) {
     const {octave, syllable, accidental} = getOctaveAndSyllable(
       midi,
       AccidentalTypeEnum.Sharp,

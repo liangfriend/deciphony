@@ -90,13 +90,13 @@ export const END_REPEAT_OPTIONS: {value: MeasureEndRepeatEnum; label: string}[] 
 
 export function insertMeasureBefore(slot: MeasureEditSlot): Measure {
   return insertMeasure(slot.singleStaff, slot.measure, 'before', {
-    notationType: slot.musicScore.type,
+    notationType: slot.singleStaff.type,
   })
 }
 
 export function insertMeasureAfter(slot: MeasureEditSlot): Measure {
   return insertMeasure(slot.singleStaff, slot.measure, 'after', {
-    notationType: slot.musicScore.type,
+    notationType: slot.singleStaff.type,
   })
 }
 

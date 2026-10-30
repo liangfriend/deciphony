@@ -8,6 +8,7 @@ import {
   NoteSymbol,
   NotesInfo,
   NotesNumberInfo,
+  resolveStaffType,
 } from '@deciphony/renderer'
 import {isNoteNumberSymbol, isNoteRest, isNoteSymbol, slotSymbol, getMeasureSlots} from '@deciphony/renderer'
 import {createAccidental, createKeySignature} from './dr-edit/score-builder'
@@ -43,12 +44,24 @@ function firstMeasureKey(score: MusicScore): KeySignatureTypeEnum | undefined {
   return measure?.keySignature_f?.type ?? measure?.keySignature_b?.type
 }
 
+function staffNotation(score: MusicScore): MusicScoreTypeEnum | null {
+  let found: MusicScoreTypeEnum | undefined
+  for (const grandStaff of score.grandStaffs) {
+    for (const staff of grandStaff.staves) {
+      const type = resolveStaffType(staff, score)
+      if (found === undefined) found = type
+      else if (found !== type) return null
+    }
+  }
+  return found ?? MusicScoreTypeEnum.StandardStaff
+}
+
 /** 简谱：顶层 keySignature；线谱：第一小节调号。都没有则 C */
 export function resolveScoreKeySignature(
   score: MusicScore,
   fallback: KeySignatureTypeEnum = DEFAULT_KEY,
 ): KeySignatureTypeEnum {
-  if (score.type === MusicScoreTypeEnum.NumberNotation) {
+  if (staffNotation(score) === MusicScoreTypeEnum.NumberNotation) {
     return score.keySignature ?? firstMeasureKey(score) ?? fallback
   }
   return firstMeasureKey(score) ?? score.keySignature ?? fallback
@@ -132,9 +145,10 @@ function transposeStaffInfo(
 }
 
 function rewriteKeyLabels(score: MusicScore, toKey: KeySignatureTypeEnum): void {
-  if (score.type === MusicScoreTypeEnum.NumberNotation) {
+  const type = staffNotation(score)
+  if (type === MusicScoreTypeEnum.NumberNotation) {
     score.keySignature = toKey
-  } else {
+  } else if (type === MusicScoreTypeEnum.StandardStaff) {
     delete score.keySignature
   }
 
@@ -148,7 +162,7 @@ function rewriteKeyLabels(score: MusicScore, toKey: KeySignatureTypeEnum): void 
   }
 
   const first = score.grandStaffs[0]?.staves[0]?.measures[0]
-  if (score.type === MusicScoreTypeEnum.StandardStaff && first && !first.keySignature_f) {
+  if (staffNotation(score) === MusicScoreTypeEnum.StandardStaff && first && !first.keySignature_f) {
     first.keySignature_f = createKeySignature(toKey)
   }
 }
@@ -219,9 +233,10 @@ export function transposeMusicScore(
   const out = cloneScore(score)
 
   if (fromKey !== toKey) {
-    if (out.type === MusicScoreTypeEnum.NumberNotation) {
+    const type = staffNotation(out)
+    if (type === MusicScoreTypeEnum.NumberNotation) {
       transposeNumberNotation(out, fromKey, toKey, priority)
-    } else if (out.type === MusicScoreTypeEnum.StandardStaff) {
+    } else if (type === MusicScoreTypeEnum.StandardStaff) {
       transposeStandardStaff(out, fromKey, toKey, priority)
     } else {
       throw new Error('仅支持五线谱或简谱转调')
@@ -349,9 +364,10 @@ export function shiftMusicScoreBySemitones(
   if (steps === 0) return out
 
   const priority = options.priority ?? AccidentalTypeEnum.Sharp
-  if (out.type === MusicScoreTypeEnum.NumberNotation) {
+  const type = staffNotation(out)
+  if (type === MusicScoreTypeEnum.NumberNotation) {
     shiftNumberNotationBySemitones(out, steps, priority)
-  } else if (out.type === MusicScoreTypeEnum.StandardStaff) {
+  } else if (type === MusicScoreTypeEnum.StandardStaff) {
     shiftStandardStaffBySemitones(out, steps, priority)
   } else {
     throw new Error('仅支持五线谱或简谱升降调')

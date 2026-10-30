@@ -104,7 +104,6 @@ export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicSc
     const isNumberNotation = type === MusicScoreTypeEnum.NumberNotation;
     const score: MusicScore = {
         id: options.id ?? newId(),
-        type,
         title: options.title ?? '',
         description: options.description ?? '',
         bpm: options.bpm ?? 120,
@@ -158,6 +157,7 @@ export function createSingleStaff(options: CreateSingleStaffOptions = {}): Singl
     return {
         ...ZERO_FRAME,
         id: newId(),
+        type: options.notationType ?? MusicScoreTypeEnum.StandardStaff,
         measures: withDefaultMeasure
             ? [createMeasure(
                 isNumberNotation

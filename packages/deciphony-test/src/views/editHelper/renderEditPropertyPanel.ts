@@ -1,5 +1,6 @@
 import type {MeasureNoteSymbol, SlotData} from '@deciphony/renderer'
 import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import {selectionStaffType} from './staffNotation'
 import {isDrumNotesInfo, isDrumRestBody} from '@deciphony/extensions/dr-edit'
 import {isNumberHeadSelected} from './numberNotation/renderEditNumberHeadDrag'
 import {isNoteHeadSelected} from './standardStaff/renderEditNoteHeadDrag'
@@ -39,7 +40,7 @@ export function resolvePropertyPanelKind(selected: SlotData | null): PropertyPan
     if (isTabInfoSelected(selected)) return 'tabNote'
     if (isMeasureAddMode(selected)) return 'tabMeasure'
   }
-  if (selected?.musicScore.type === MusicScoreTypeEnum.DrumNotation) {
+  if (selected && selectionStaffType(selected) === MusicScoreTypeEnum.DrumNotation) {
     if (isMeasureAddMode(selected)) return 'measure'
     if (selected.measure && isDrumNotesInfo(selected.info) && selected.self === selected.info) return 'drumNote'
     if (selected.measure && isDrumRestBody(selected.self as unknown as MeasureNoteSymbol)) return 'drumRest'

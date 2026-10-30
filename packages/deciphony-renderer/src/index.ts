@@ -16,6 +16,7 @@ export {mergeSlotConfig} from './render/mergeSlotConfig'
 export {fanoutExtensionEvent} from './render/fanoutExtensionEvent'
 export {resolveMusicScoreToVDom, resolveNotationToVDom} from './render/resolveNotation'
 export type {MusicScoreToVDomFn} from './render/resolveNotation'
+export {primaryStaffType, resolveStaffType} from './render/staffType'
 /** 曲谱自定义符号（extraNoteSymbol / extraSlotSymbol / extraMeasureSymbol）：缺省值与皮肤包注入 */
 export {
   EXTRA_SYMBOL_FIELDS,

@@ -1,4 +1,4 @@
-import {getMeasureNoteList, KeySignatureTypeEnum, TimeSignatureTypeEnum, timeSignatureTypeToBeats} from '@deciphony/renderer'
+import {getMeasureNoteList, KeySignatureTypeEnum, MusicScoreTypeEnum, TimeSignatureTypeEnum, resolveStaffType, timeSignatureTypeToBeats} from '@deciphony/renderer'
 import type {Measure, MusicScore} from '@deciphony/renderer'
 import {getDrPlaySequence} from '../dr-play'
 import {computeMeasureOnsetBefore} from '../dr-edit/score-builder'
@@ -68,7 +68,15 @@ function resolveProgram(
     const data = gs.staves[staffIndex]?.data as {midi?: StaffMidiData} | undefined
     if (data?.midi?.program != null) return data.midi.program
   }
-  return DEFAULT_PROGRAM[score.type] ?? 0
+  let type = MusicScoreTypeEnum.StandardStaff
+  for (const gs of score.grandStaffs) {
+    const staff = gs.staves[staffIndex]
+    if (staff) {
+      type = resolveStaffType(staff, score)
+      break
+    }
+  }
+  return DEFAULT_PROGRAM[type] ?? 0
 }
 
 function measureDuration(measures: (Measure | undefined)[]): number {

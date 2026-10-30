@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
-import {MusicScoreTypeEnum, type MusicScore} from '@deciphony/renderer'
+import {MusicScoreTypeEnum, primaryStaffType, type MusicScore} from '@deciphony/renderer'
 import {APlayer, startJPlayer} from '@deciphony/player'
 import {autoAlignTimeOffsets} from '../autoAlign'
 import {
@@ -82,7 +82,7 @@ const waveWidth = computed(() => {
 })
 const playheadH = computed(() => {
   if (scoreLayoutError.value) return WAVEFORM_HEIGHT
-  const isNumber = props.musicScore.type === MusicScoreTypeEnum.NumberNotation
+  const isNumber = primaryStaffType(props.musicScore) === MusicScoreTypeEnum.NumberNotation
   return WAVEFORM_HEIGHT + flattenRowLayout(rows.value, isNumber).total
 })
 
@@ -318,7 +318,7 @@ defineExpose({
           :px-per-second="px"
           :revision="revision"
           :rows="rows"
-          :score-type="musicScore.type"
+          :score-type="primaryStaffType(musicScore)"
           :time-prop-name="timeProp"
           @anchors-change="anchorCount = $event"
           @time-change="bump"

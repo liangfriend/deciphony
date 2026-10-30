@@ -1,4 +1,4 @@
-// 曲谱展示模式
+// 单谱表谱种。曲谱本身不设类型，见 SingleStaff.type
 
 export enum MusicScoreTypeEnum {
   StandardStaff = 1,        // 五线谱

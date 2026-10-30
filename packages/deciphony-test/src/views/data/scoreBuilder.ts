@@ -91,8 +91,11 @@ export type NotePath = MeasurePath & {
 // —— 选项 ——
 
 export type CreateMusicScoreOptions = Partial<
-  Pick<MusicScore, 'id' | 'type' | 'title' | 'description' | 'bpm' | 'width' | 'height' | 'topSpaceHeight' | 'data'>
->;
+  Pick<MusicScore, 'id' | 'title' | 'description' | 'bpm' | 'width' | 'height' | 'topSpaceHeight' | 'data'>
+> & {
+  /** 不写入曲谱。单谱表谱种用 createSingleStaff / createGrandStaff 的 notationType */
+  type?: MusicScoreTypeEnum;
+};
 
 export type InsertGrandStaffOptions = Partial<
   Pick<GrandStaff, 'uSpace' | 'dSpace' | 'linkedStaff' | 'bracket' | 'data'>
@@ -531,6 +534,7 @@ export function createSingleStaff(partial?: InsertSingleStaffOptions): SingleSta
   return {
     ...ZERO_FRAME,
     id: newId(),
+    type: notationType ?? MusicScoreTypeEnum.StandardStaff,
     measures: withDefaultMeasure
       ? [
           createEmptyMeasure(
@@ -571,7 +575,6 @@ export function createGrandStaff(partial?: InsertGrandStaffOptions): GrandStaff 
 export function createMusicScore(options: CreateMusicScoreOptions = {}): MusicScore {
   return {
     id: options.id ?? newId(),
-    type: options.type ?? MusicScoreTypeEnum.StandardStaff,
     title: options.title ?? '',
     description: options.description ?? '',
     bpm: options.bpm ?? 120,
@@ -943,11 +946,11 @@ export function convertStandardStaffToNumberNotation(
   keySignatureFallback: KeySignatureTypeEnum = KeySignatureTypeEnum.C,
 ): MusicScore {
   const out = JSON.parse(JSON.stringify(score)) as MusicScore;
-  out.type = MusicScoreTypeEnum.NumberNotation;
   let resolvedTime = out.timeSignature;
 
   for (const grandStaff of out.grandStaffs) {
     for (const staff of grandStaff.staves) {
+      staff.type = MusicScoreTypeEnum.NumberNotation;
       let clef = staff.measures[0]?.clef_f?.type ?? ClefTypeEnum.Treble;
       let keySignature = resolveMeasureKeySignature(staff.measures[0] ?? {}, keySignatureFallback);
 

@@ -1,5 +1,5 @@
 import {isNoteSymbol, slotSymbol} from '@deciphony/renderer'
-import type {MusicScore, NotesInfo, NoteSymbol, SingleStaff} from '@deciphony/renderer'
+import type {Measure, MusicScore, NotesInfo, NoteSymbol, SingleStaff} from '@deciphony/renderer'
 import {createSlur} from '@deciphony/extensions/dr-edit/score-builder'
 import {locateNotesInfoById} from '@deciphony/extensions/dr-edit/score-builder/locate'
 import type {NoteHeadEditSlot} from './renderEditNoteHeadProperties'

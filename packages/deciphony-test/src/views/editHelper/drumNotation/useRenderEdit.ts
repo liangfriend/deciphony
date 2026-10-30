@@ -8,6 +8,7 @@ import {
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
+    primaryStaffType,
     vdomDomId,
     vdomSelectionKey,
 } from '@deciphony/renderer'
@@ -504,7 +505,7 @@ export function useDrumRenderEdit(
             vdom,
             x,
             y,
-            musicScore.type,
+            primaryStaffType(musicScore),
         )
         if (points) slurHandleOverride.value = points
     }

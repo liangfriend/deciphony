@@ -8,6 +8,7 @@ import type {
     BendTypeEnum,
     GuzhengLianTypeEnum,
     HairpinTypeEnum,
+    MusicScoreTypeEnum,
     PedalTypeEnum,
     PitchTypeEnum,
     SlurStyleEnum,
@@ -102,6 +103,8 @@ export type VDom = {
     /** 指定 skin 中唯一对应的 SVG 图形；五线谱为 StandardStaffSkinKeyEnum，简谱为 NumberNotationSkinKeyEnum */
     skinKey?: SkinKey;
     skinName: string; // 皮肤名
+    /** 画这个节点用哪套谱种皮肤。总谱里各单谱表不同；缺省时画层回落到首个单谱表 */
+    notationType?: MusicScoreTypeEnum;
     slotName?: SlotName;  // 插槽名称，tag='slot'时使用
     /** 插槽上下文：musicScore 必有；g/s/m 前缀插槽逐级填充 grandStaff / singleStaff / measure；self 为当前插槽锚点 */
     slotData?: SlotData;

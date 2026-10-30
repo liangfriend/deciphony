@@ -56,7 +56,6 @@ async function handleFileChange(event: Event) {
     musicScoreData.title = score.title
     musicScoreData.subTitle = score.subTitle
     musicScoreData.author = score.author
-    musicScoreData.type = score.type
     musicScoreData.width = score.width
     musicScoreData.height = score.height
     musicScoreData.topSpaceHeight = score.topSpaceHeight

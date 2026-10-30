@@ -36,7 +36,7 @@ export function scoreVerticalBands(
   options: {skin?: Skin} = {},
 ): ScoreVerticalBand[] {
   const slotConfig = scoreSlotConfig(musicScore)
-  const toVDom = resolveMusicScoreToVDom(musicScore.type)
+  const toVDom = resolveMusicScoreToVDom()
   const vdoms = toVDom(musicScore, slotConfig, options.skin ? {skin: options.skin} : undefined)
   const grandStaffs = musicScore.grandStaffs ?? []
   const bands: ScoreVerticalBand[] = []

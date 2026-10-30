@@ -5,4 +5,4 @@
  */
 
 export type {NodeIdMap} from "./types";
-export {musicScoreToVDom} from "./musicScoreToVDomImpl";
+export {musicScoreToVDom} from "@/render/layout/scoreToVDom";

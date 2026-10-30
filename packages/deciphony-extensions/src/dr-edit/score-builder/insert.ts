@@ -1,4 +1,4 @@
-import {ClefTypeEnum, isFretboardScoreType, MusicScoreTypeEnum, TimeSignatureTypeEnum} from '@deciphony/renderer';
+import {ClefTypeEnum, isFretboardScoreType, MusicScoreTypeEnum, TimeSignatureTypeEnum, primaryStaffType} from '@deciphony/renderer';
 import type {GrandStaff, Measure, MusicScore, SingleStaff} from '@deciphony/renderer';
 import {assertIndex} from './id';
 import {
@@ -11,7 +11,7 @@ import {
 /** 在曲谱指定下标插入复谱表 */
 export function insertGrandStaff(score: MusicScore, at: number): GrandStaff {
     assertIndex('grandStaffIndex', at, score.grandStaffs.length + 1);
-    const staff = createGrandStaff({notationType: score.type});
+    const staff = createGrandStaff({notationType: primaryStaffType(score)});
     score.grandStaffs.splice(at, 0, staff);
     return staff;
 }
@@ -23,7 +23,8 @@ export function insertSingleStaff(
     options?: {notationType?: MusicScoreTypeEnum},
 ): SingleStaff {
     assertIndex('singleStaffIndex', at, grandStaff.staves.length + 1);
-    const singleStaff = createSingleStaff({notationType: options?.notationType});
+    const notationType = options?.notationType ?? grandStaff.staves[0]?.type ?? MusicScoreTypeEnum.StandardStaff;
+    const singleStaff = createSingleStaff({notationType});
     grandStaff.staves.splice(at, 0, singleStaff);
     return singleStaff;
 }
@@ -63,7 +64,7 @@ export function insertMeasure(
     options?: {notationType?: MusicScoreTypeEnum},
 ): Measure {
     assertIndex('measureIndex', at, singleStaff.measures.length + 1);
-    const measure = newMeasureForInsert(singleStaff, at, options?.notationType);
+    const measure = newMeasureForInsert(singleStaff, at, options?.notationType ?? singleStaff.type);
     singleStaff.measures.splice(at, 0, measure);
     return measure;
 }

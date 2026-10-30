@@ -7,6 +7,7 @@ import {
   MusicScore,
   MusicScoreTypeEnum,
   NoteNumber,
+  resolveStaffType,
   NoteRest,
   NoteSymbol,
   NoteSymbolTypeEnum,
@@ -414,17 +415,28 @@ function applyStaffHeader(
  * - 再按目标调（默认 C）做首调唱名
  * - 目标调与拍号写入顶层；小节去掉调号/拍号/谱号
  */
+function isUniformStaffType(score: MusicScore, type: MusicScoreTypeEnum): boolean {
+  const staves = score.grandStaffs.flatMap((grandStaff) => grandStaff.staves)
+  return staves.length > 0 && staves.every((staff) => resolveStaffType(staff, score) === type)
+}
+
+function setStaffType(score: MusicScore, type: MusicScoreTypeEnum): void {
+  for (const grandStaff of score.grandStaffs) {
+    for (const staff of grandStaff.staves) staff.type = type
+  }
+}
+
 export function standardStaffToNumberNotation(
   score: MusicScore,
   options: NotationTransferOptions = {},
 ): MusicScore {
-  if (score.type !== MusicScoreTypeEnum.StandardStaff) {
+  if (!isUniformStaffType(score, MusicScoreTypeEnum.StandardStaff)) {
     throw new Error('仅支持五线谱曲谱转换为简谱')
   }
 
   assertNoPolyphonicChronaxie(score)
   const out = cloneScore(score)
-  out.type = MusicScoreTypeEnum.NumberNotation
+  setStaffType(out, MusicScoreTypeEnum.NumberNotation)
   const priority = options.priority ?? AccidentalTypeEnum.Sharp
   const targetKey = options.keySignature ?? DEFAULT_KEY
   const resolvedTime = findFirstTimeSignature(score)
@@ -482,12 +494,12 @@ export function numberNotationToStandardStaff(
   score: MusicScore,
   options: NotationTransferOptions = {},
 ): MusicScore {
-  if (score.type !== MusicScoreTypeEnum.NumberNotation) {
+  if (!isUniformStaffType(score, MusicScoreTypeEnum.NumberNotation)) {
     throw new Error('仅支持简谱曲谱转换为五线谱')
   }
 
   const out = cloneScore(score)
-  out.type = MusicScoreTypeEnum.StandardStaff
+  setStaffType(out, MusicScoreTypeEnum.StandardStaff)
   const priority = options.priority ?? AccidentalTypeEnum.Sharp
   const targetKey = options.keySignature ?? DEFAULT_KEY
   const sourceKeyFallback = resolveNumberNotationSourceKey(score)

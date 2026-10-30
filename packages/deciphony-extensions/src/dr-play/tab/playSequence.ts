@@ -1,4 +1,4 @@
-import {isFretboardScoreType, isNoteRest, isNoteSymbol, slotSymbol, getMeasureSlots, TabNoteInfoTypeEnum} from '@deciphony/renderer'
+import {isFretboardScoreType, isNoteRest, isNoteSymbol, MusicScoreTypeEnum, resolveStaffType, slotSymbol, getMeasureSlots, TabNoteInfoTypeEnum} from '@deciphony/renderer'
 import type {Measure, MeasureNoteSlot, MusicScore, TabNote, TabNoteInfo, tabChord} from '@deciphony/renderer'
 import {getMeasurePositions, getPlayMeasureIndexes} from '../../scoreUtil'
 import {applyPitchOctaveOffset, applySlurTieRealDuration, GRACE_PLAY_DURATION, pushPitchItem} from '../playCommon'
@@ -21,7 +21,7 @@ export type FretInstrumentPlayOptions = {
    */
   openMidi?: readonly number[]
   /**
-   * 整份谱强制乐器；一般不需要——直接设 MusicScore.type 为 Guitar / Ukulele / Bass4|5|6。
+   * 整份谱强制乐器；一般不需要——单谱表 type 为 Guitar / Ukulele / Bass4|5|6 时按该谱表选。
    * 与 openMidi 同时传时以 openMidi 为准。
    */
   instrument?: FretInstrument
@@ -77,7 +77,7 @@ function rememberChord(state: FretPlayState, chord: tabChord | null | undefined)
   if (isChordSymbol(chord)) state.chord = chord
 }
 
-function resolveOpenMidi(scoreType: MusicScore['type'], options: TabPlaySequenceOptions): readonly number[] {
+function resolveOpenMidi(scoreType: MusicScoreTypeEnum | undefined, options: TabPlaySequenceOptions): readonly number[] {
   if (options.openMidi) return options.openMidi
   if (options.instrument) return openMidiForFretInstrument(options.instrument)
   if (options.tabInstrument === 'guitar') return openMidiForFretInstrument('guitar')
@@ -217,13 +217,12 @@ function appendMeasureSequence(
 
 /**
  * 指板类谱（吉他 / 尤克里里 / 贝斯）→ 可播放序列。
- * 空弦音高由 MusicScore.type 决定；options.openMidi / instrument 可覆盖。
+ * 空弦音高由单谱表 type 决定；options.openMidi / instrument 可覆盖整份调用。
  */
 export function getFretInstrumentPlaySequence(
   musicScoreData: MusicScore,
   options: TabPlaySequenceOptions = {},
 ): DR_playSequence {
-  const openMidi = resolveOpenMidi(musicScoreData.type, options)
   const measurePositions = getMeasurePositions(musicScoreData)
   const playMeasureIndexes = getPlayMeasureIndexes(musicScoreData)
 
@@ -239,8 +238,10 @@ export function getFretInstrumentPlaySequence(
     if (!grandStaff) continue
     let measureDuration: Unit256 = 0
     for (let staveIndex = 0; staveIndex < grandStaff.staves.length; staveIndex++) {
-      const measure = grandStaff.staves[staveIndex]?.measures[measureInGrandStaffIndex]
-      if (!measure) continue
+      const staff = grandStaff.staves[staveIndex]
+      const measure = staff?.measures[measureInGrandStaffIndex]
+      if (!staff || !measure) continue
+      const openMidi = resolveOpenMidi(resolveStaffType(staff, musicScoreData), options)
       const staveDuration = appendMeasureSequence(
         seq,
         measure,
@@ -268,7 +269,7 @@ export function getUkulelePlaySequence(score: MusicScore, options: FretInstrumen
   return getFretInstrumentPlaySequence(score, {...options, instrument: options.instrument ?? 'ukulele'})
 }
 
-/** 贝斯：不传 instrument 时按 score.type（Bass4/5/6）选空弦表 */
+/** 贝斯：不传 instrument 时按单谱表 type（Bass4/5/6）选空弦表 */
 export function getBassPlaySequence(score: MusicScore, options: FretInstrumentPlayOptions = {}): DR_playSequence {
   return getFretInstrumentPlaySequence(score, options)
 }
@@ -282,5 +283,7 @@ export function getTabPlaySequence(
 }
 
 export function isFretboardMusicScore(score: MusicScore): boolean {
-  return isFretboardScoreType(score.type)
+  return score.grandStaffs.some((grandStaff) =>
+    grandStaff.staves.some((staff) => isFretboardScoreType(resolveStaffType(staff, score))),
+  )
 }

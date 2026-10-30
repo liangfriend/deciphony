@@ -1,8 +1,8 @@
-import {isFretboardScoreType} from '@deciphony/renderer'
+import {isFretboardScoreType, primaryStaffType} from '@deciphony/renderer'
 import type {MusicScore, SlotData} from '@deciphony/renderer'
 
 export function isTabScore(score: MusicScore | null | undefined): boolean {
-  return isFretboardScoreType(score?.type)
+  return !!score && isFretboardScoreType(primaryStaffType(score))
 }
 
 const TAB_INFO_TYPES = new Set(['normal', 'harmonic', 'arpeggio', 'strumming'])

@@ -8,7 +8,6 @@
  * 空弦表优先看 type；options.openMidi 仍可整谱覆盖。
  */
 import {MusicScoreTypeEnum} from '@deciphony/renderer'
-import type {MusicScore} from '@deciphony/renderer'
 
 /** 标准吉他：1 弦 E4 … 6 弦 E2 */
 export const GUITAR_OPEN_MIDI = [64, 59, 55, 50, 45, 40] as const
@@ -104,7 +103,7 @@ export function resolveStringMidi(
 /** @deprecated 使用 resolveStringMidi */
 export const resolveTabStringMidi = resolveStringMidi
 
-export function fretInstrumentFromScoreType(scoreType: MusicScore['type']): FretInstrument {
+export function fretInstrumentFromScoreType(scoreType: MusicScoreTypeEnum | undefined): FretInstrument {
   switch (scoreType) {
     case MusicScoreTypeEnum.Ukulele:
       return 'ukulele'
@@ -137,12 +136,12 @@ export function openMidiForFretInstrument(instrument: FretInstrument): readonly 
 }
 
 /** 按曲谱 type 取空弦表（可被 options.openMidi 覆盖） */
-export function resolveOpenMidiForScoreType(scoreType: MusicScore['type']): readonly number[] {
+export function resolveOpenMidiForScoreType(scoreType: MusicScoreTypeEnum | undefined): readonly number[] {
   return openMidiForFretInstrument(fretInstrumentFromScoreType(scoreType))
 }
 
 /** @deprecated 使用 resolveOpenMidiForScoreType；hint 已不再参与（type 已含乐器） */
-export function resolveTabOpenMidi(scoreType: MusicScore['type'], _hint?: string | null): readonly number[] {
+export function resolveTabOpenMidi(scoreType: MusicScoreTypeEnum | undefined, _hint?: string | null): readonly number[] {
   return resolveOpenMidiForScoreType(scoreType)
 }
 
@@ -150,7 +149,7 @@ export function resolveTabOpenMidi(scoreType: MusicScore['type'], _hint?: string
 export type TabInstrumentKind = 'guitar' | 'ukulele' | 'bass'
 
 /** @deprecated 使用 fretInstrumentFromScoreType */
-export function resolveTabInstrumentKind(scoreType: MusicScore['type'], _hint?: string | null): TabInstrumentKind {
+export function resolveTabInstrumentKind(scoreType: MusicScoreTypeEnum | undefined, _hint?: string | null): TabInstrumentKind {
   const i = fretInstrumentFromScoreType(scoreType)
   if (i === 'ukulele') return 'ukulele'
   if (i.startsWith('bass')) return 'bass'
@@ -159,7 +158,7 @@ export function resolveTabInstrumentKind(scoreType: MusicScore['type'], _hint?: 
 
 /** @deprecated 使用 openMidiForFretInstrument */
 export function openMidiForTabInstrument(
-  scoreType: MusicScore['type'],
+  scoreType: MusicScoreTypeEnum | undefined,
   kind: TabInstrumentKind,
   _hint?: string | null,
 ): readonly number[] {

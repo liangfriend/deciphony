@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <div class="left">
-      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:50},'g-l':{w:50}}"
+      <p class="caption">总谱.sj：同一连谱里是五线、简谱、吉他、鼓，音符按时值对齐</p>
+      <music-score :data="musicScoreData" :slot-config="{'g-r':{w:40},'g-l':{w:70}}"
                    skin-name="default"
                    @renderMusicScore="renderMusicScore"/>
     </div>
@@ -24,9 +25,10 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import MusicScore from '@deciphony/renderer'
-import data from './data/起风了.json'
+import type {MusicScore as MusicScoreData} from '@deciphony/renderer'
+import raw from './data/总谱.sj?raw'
 
-const initialData = JSON.parse(JSON.stringify(data))
+const initialData = JSON.parse(raw) as MusicScoreData
 const musicScoreData = ref(initialData)
 const jsonText = ref(JSON.stringify(initialData, null, 2))
 const parseError = ref('')
@@ -72,11 +74,18 @@ function whole() {
 }
 
 .left {
-  flex: 1;
+  flex: 1.4;
+  overflow: auto;
+  background: #fff;
+}
+
+.caption {
+  margin: 8px 12px;
+  color: #333;
 }
 
 .right {
-  flex: 1;
+  flex: 0.8;
   display: flex;
   flex-direction: column;
   min-height: 0;

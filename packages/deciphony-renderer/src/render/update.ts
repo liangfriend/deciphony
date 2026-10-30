@@ -51,6 +51,7 @@ export function isVDomRenderEqual(a: VDom, b: VDom): boolean {
     a.targetId === b.targetId &&
     a.skinKey === b.skinKey &&
     a.skinName === b.skinName &&
+    a.notationType === b.notationType &&
     a.slotName === b.slotName &&
     a.dataComment === b.dataComment &&
     isPointEqual(a.startPoint, b.startPoint) &&

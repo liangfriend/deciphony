@@ -38,12 +38,12 @@ import {
   useSlots,
   watch,
 } from 'vue'
-import {resolveLayoutNotationPack, resolveNotationToVDom} from '@/render/resolveNotation'
+import {resolveNotationToVDom} from '@/render/resolveNotation'
+import {primaryStaffType} from '@/render/staffType'
 import {mergeSlotConfig} from '@/render/mergeSlotConfig'
 import {fanoutExtensionEvent} from '@/render/fanoutExtensionEvent'
 import {defaultSkin} from '@/skins/defaultSkin'
 import {withExtraSymbols} from '@/render/extraSymbols'
-import {MusicScoreTypeEnum} from '@/enums/musicScoreEnum'
 import ScoreLayer from './scoreLayer.vue'
 import {resolveVDomFromEvent} from '@/render/resolveVDomFromEvent'
 import {findElementByVdomDomId, vdomDomId, vdomSelectionKey} from '@/render/vdomDomId'
@@ -67,7 +67,7 @@ const props = defineProps<{
   /** 渲染配置：只影响绘制，不触发重新排版 */
   options?: MusicScoreRenderOptions
 }>()
-const notationType = computed(() => props.data?.type ?? MusicScoreTypeEnum.StandardStaff)
+const notationType = computed(() => primaryStaffType(props.data))
 const options = computed<Required<MusicScoreRenderOptions>>(() => ({
   onlyChordName: props.options?.onlyChordName ?? false,
 }))
@@ -289,7 +289,6 @@ function onTopSvgLeave(event: PointerEvent) {
  * 增量排版：每个复谱表一个 computed（排版时读到的数据自动成为依赖），
  * 改哪行只重排哪行；行高变了后面的行只平移。跨行附属 / 小节号每次在组装时重算。
  */
-const layoutFn = computed(() => resolveNotationToVDom(notationType.value))
 const layoutOptions = computed(() => ({skin: skin.value, skinName: effectiveSkinName.value}))
 
 type RowEntry = { scope: EffectScope; result: ComputedRef<RowLayoutResult> }
@@ -307,7 +306,7 @@ function rowEntry(grandStaff: GrandStaff): RowEntry {
   let last: RowLayoutResult | null = null
   const result = scope.run(() => computed(() => {
     try {
-      last = layoutGrandStaffRow(layoutFn.value, data.value, grandStaff, mergedSlotConfig.value, layoutOptions.value)
+      last = layoutGrandStaffRow(resolveNotationToVDom(), data.value, grandStaff, mergedSlotConfig.value, layoutOptions.value)
     } catch (err) {
       // 数据异常时这一行保留上一次结果，避免整个组件抛错白屏
       console.error('[musicScore] 复谱表渲染失败，保留上一次结果', err)
@@ -321,7 +320,7 @@ function rowEntry(grandStaff: GrandStaff): RowEntry {
 }
 
 const frameResult = computed(() =>
-    layoutScoreFrame(layoutFn.value, data.value, mergedSlotConfig.value, layoutOptions.value))
+    layoutScoreFrame(resolveNotationToVDom(), data.value, mergedSlotConfig.value, layoutOptions.value))
 
 /** 曲谱级附属 / 小节号的数据：只读不算，挂上依赖 */
 function track(value: unknown, seen = new Set<unknown>()): void {
@@ -357,7 +356,6 @@ watch(
         rows,
         frame: frameResult.value,
         pack: skinPackForLayout.value,
-        type: notationType.value,
         skinName: effectiveSkinName.value,
       }
     },
@@ -371,14 +369,12 @@ watch(
       }
       let out: ScoreAssembleOutput
       try {
-        const pack = resolveLayoutNotationPack(snapshot.pack, snapshot.type) as unknown as Record<string, { w: number; h: number }>
         out = assembler.assemble({
           musicScore: snapshot.musicScore,
           frame: snapshot.frame,
           rows: snapshot.rows,
           skinName: snapshot.skinName,
-          pack,
-          measureHeight: pack.measure?.h ?? 45,
+          skinPack: snapshot.pack,
         })
       } catch (err) {
         console.error('[musicScore] 渲染失败，保留上一次结果', err)

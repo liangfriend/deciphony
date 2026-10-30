@@ -1,4 +1,4 @@
-import {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
+import {isFretboardScoreType, MusicScoreTypeEnum, primaryStaffType, resolveStaffType} from '@deciphony/renderer'
 import type {MusicScore} from '@deciphony/renderer'
 import {getDrumPlaySequence, type DrumPlaySequenceOptions} from './drumNotation/playSequence'
 import {getNumberNotationPlaySequence} from './numberNotation/playSequence'
@@ -16,6 +16,7 @@ import {applyStaffToneColor, buildIdToStaffMap, DEFAULT_TONE_COLOR} from './tone
 import {applyStaffVolume} from './staffVolume'
 import {cropDrPlaySequence, type DrPlayRange} from './range'
 import {applyPlayLyrics} from './lyrics'
+import {fretInstrumentFromScoreType} from './tab/pitch'
 import type {DR_playLyric, DR_playSequence, DR_playSequence_item, Unit256} from './types'
 
 export type {DR_playLyric, DR_playSequence, DR_playSequence_item, Unit256}
@@ -89,29 +90,68 @@ export type DrPlaySequenceOptions = DrumPlaySequenceOptions & TabPlaySequenceOpt
   range?: DrPlayRange
 }
 
-function getSequenceByType(musicScoreData: MusicScore, options: DrPlaySequenceOptions): DR_playSequence {
-  if (musicScoreData.type === MusicScoreTypeEnum.NumberNotation) {
+function getSequenceByType(
+  musicScoreData: MusicScore,
+  type: MusicScoreTypeEnum,
+  options: DrPlaySequenceOptions,
+): DR_playSequence {
+  if (type === MusicScoreTypeEnum.NumberNotation) {
     return getNumberNotationPlaySequence(musicScoreData)
   }
-  if (isFretboardScoreType(musicScoreData.type)) {
-    return getFretInstrumentPlaySequence(musicScoreData, options)
+  if (isFretboardScoreType(type)) {
+    return getFretInstrumentPlaySequence(musicScoreData, {
+      ...options,
+      instrument: options.instrument ?? fretInstrumentFromScoreType(type),
+    })
   }
-  if (musicScoreData.type === MusicScoreTypeEnum.DrumNotation) {
+  if (type === MusicScoreTypeEnum.DrumNotation) {
     return getDrumPlaySequence(musicScoreData, options)
   }
   return getStandardStaffPlaySequence(musicScoreData)
 }
 
+function typesInScore(score: MusicScore): MusicScoreTypeEnum[] {
+  const types = new Set<MusicScoreTypeEnum>()
+  for (const grandStaff of score.grandStaffs ?? []) {
+    for (const staff of grandStaff.staves ?? []) types.add(resolveStaffType(staff, score))
+  }
+  if (types.size === 0) types.add(primaryStaffType(score))
+  return [...types]
+}
+
+/** 其它谱种的小节清空音符，时间轴仍按同一套小节走，方便不同谱种的播放时间对齐 */
+function isolateStaffType(score: MusicScore, type: MusicScoreTypeEnum): MusicScore {
+  return {
+    ...score,
+    grandStaffs: score.grandStaffs.map((grandStaff) => ({
+      ...grandStaff,
+      staves: grandStaff.staves.map((staff) => {
+        if (resolveStaffType(staff, score) === type) return staff
+        return {
+          ...staff,
+          measures: staff.measures.map((measure) => ({
+            ...measure,
+            notes: Array.isArray(measure.notes) ? [] : {up: [], down: []},
+          })),
+        }
+      }),
+    })),
+  }
+}
+
 /**
- * 按曲谱类型分发：五线 / 简谱 / 吉他·尤克里里·贝斯 / 鼓谱。
- * 指板类空弦表由 MusicScore.type（Guitar / Ukulele / Bass4|5|6）决定；
+ * 按单谱表谱种分发：五线 / 简谱 / 吉他·尤克里里·贝斯 / 鼓谱。
+ * 总谱里谱种不同就各走各的序列，再按 playTime 合在一起。
+ * 指板类空弦表由单谱表 type（Guitar / Ukulele / Bass4|5|6）决定；
  * openMidi / instrument 可覆盖。drumMap 只对鼓谱生效。
- * toneColor：普通用 staff/score.data.instrumentValue；泛音等有 toneVariant 时优先
- * data.instrumentValue_${variant}（曲谱 data 优先），再降级 instrumentValue。
  */
 export function getDrPlaySequence(musicScoreData: MusicScore, options: DrPlaySequenceOptions = {}): DR_playSequence {
   const idToStaff = buildIdToStaffMap(musicScoreData)
-  const seq = getSequenceByType(musicScoreData, options)
+  const types = typesInScore(musicScoreData)
+  const seq = types.flatMap((type) =>
+    getSequenceByType(types.length === 1 ? musicScoreData : isolateStaffType(musicScoreData, type), type, options),
+  )
+  seq.sort((a, b) => a.playTime - b.playTime)
   applyStaffToneColor(seq, musicScoreData, options.defaultToneColor?.trim() || DEFAULT_TONE_COLOR, idToStaff)
   applyStaffVolume(seq, musicScoreData, idToStaff)
   applyPlayLyrics(seq, musicScoreData)

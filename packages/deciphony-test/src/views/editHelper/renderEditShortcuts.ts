@@ -8,6 +8,7 @@ import type {
   TabNoteInfo,
 } from '@deciphony/renderer'
 import {MusicScoreTypeEnum} from '@deciphony/renderer'
+import {selectionStaffType} from './staffNotation'
 import {
   isDrumNotesInfo,
   isDrumRestBody,
@@ -25,7 +26,7 @@ import {isTabInfoSelected} from './tab/renderEditTabSelection'
 type ChronaxieHolder = {chronaxie: Chronaxie}
 
 function chronaxieOptionsFor(selected: SlotData | null): {value: Chronaxie; label: string}[] {
-  return selected?.musicScore.type === MusicScoreTypeEnum.DrumNotation
+  return selectionStaffType(selected) === MusicScoreTypeEnum.DrumNotation
     ? DRUM_CHRONAXIE_OPTIONS
     : CHRONAXIE_OPTIONS
 }
@@ -51,7 +52,7 @@ export function cycleSelectedChronaxie(
     return true
   }
 
-  if (selected?.musicScore.type === MusicScoreTypeEnum.DrumNotation) {
+  if (selected && selectionStaffType(selected) === MusicScoreTypeEnum.DrumNotation) {
     if (
       selected.measure
       && isDrumNotesInfo(selected.info)

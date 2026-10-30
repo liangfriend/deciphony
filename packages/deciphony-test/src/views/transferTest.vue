@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import musicScoreVue from '@deciphony/renderer'
-import {KeySignatureTypeEnum, MusicScoreTypeEnum} from '@deciphony/renderer'
+import {KeySignatureTypeEnum, MusicScoreTypeEnum, primaryStaffType} from '@deciphony/renderer'
 import type {MusicScore} from '@deciphony/renderer'
 import {computed, reactive, ref} from 'vue'
 import staffSample from './data/其多列'
@@ -25,11 +25,11 @@ const targetKey = ref(KeySignatureTypeEnum.C)
 const semitoneSteps = ref(1)
 
 const scoreTypeLabel = computed(() =>
-  musicScoreData.type === MusicScoreTypeEnum.NumberNotation ? '简谱' : '五线谱',
+  primaryStaffType(musicScoreData) === MusicScoreTypeEnum.NumberNotation ? '简谱' : '五线谱',
 )
 
-const canToNumber = computed(() => musicScoreData.type === MusicScoreTypeEnum.StandardStaff)
-const canToStaff = computed(() => musicScoreData.type === MusicScoreTypeEnum.NumberNotation)
+const canToNumber = computed(() => primaryStaffType(musicScoreData) === MusicScoreTypeEnum.StandardStaff)
+const canToStaff = computed(() => primaryStaffType(musicScoreData) === MusicScoreTypeEnum.NumberNotation)
 
 function setStatus(message: string, type: 'info' | 'success' | 'error' = 'info') {
   statusMessage.value = message

@@ -2,6 +2,7 @@ import type {MusicScore, RenderMusicScoreInfo, SlotData, VDom, VDomLookup} from 
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
+    primaryStaffType,
     vdomDomId,
     vdomSelectionKey,
 } from '@deciphony/renderer'
@@ -526,7 +527,7 @@ export function useStandardStaffRenderEdit(
             vdom,
             x,
             y,
-            musicScore.type,
+            primaryStaffType(musicScore),
         )
         if (points) slurHandleOverride.value = points
     }

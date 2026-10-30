@@ -4,6 +4,7 @@ import {
   MusicScoreTypeEnum,
   getMeasureSlots,
   isNoteNumberSymbol,
+  resolveStaffType,
   slotSymbol,
 } from '@deciphony/renderer'
 import type {Barline, Measure, MusicScore, NoteNumber, NotesNumberInfo, SingleStaff} from '@deciphony/renderer'
@@ -101,7 +102,7 @@ function staffLine(staff: SingleStaff, ctx: Context): string {
  * 文本规则表达不了的内容（变音记号、前置小节线等）不转换，汇总在 warnings。
  */
 export function musicScoreToQuickNumberNotation(score: MusicScore): MusicScoreToQuickTextResult {
-  if (score.type !== MusicScoreTypeEnum.NumberNotation) {
+  if (score.grandStaffs.some((grandStaff) => grandStaff.staves.some((staff) => resolveStaffType(staff, score) !== MusicScoreTypeEnum.NumberNotation))) {
     throw new Error('非简谱曲谱，无法转换为快速打谱文本')
   }
 

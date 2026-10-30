@@ -42,6 +42,7 @@ import {NumberNotationSkinKeyEnum} from '@/numberNotation/enums/numberNotationSk
 import {StandardStaffSkinKeyEnum} from '@/standardStaff/enums/standardStaffSkinKeyEnum';
 import {Tab6SkinKeyEnum} from '@/tab6/enums/tab6SkinKeyEnum';
 import type {NodeIdMap} from '@/standardStaff/render/types';
+import type {StaffAnchor} from '@/render/notation/types';
 import {getMeasureSlots, isMeasureNoteVoices} from '@/utils/measureNotes';
 
 const AFFILIATED_Z = 1200;
@@ -56,6 +57,8 @@ export type RenderAffiliatedContext = {
     /** 当前谱种皮肤包（取 w/h） */
     skin?: Record<string, { w: number; h: number }>;
     measureHeight?: number;
+    /** 音符 / 小节 / 槽位 id → 所在单谱表的谱种和皮肤。总谱里附属符号按锚点取，不再用整份曲谱的一个类型 */
+    staffAnchors?: ReadonlyMap<string, StaffAnchor>;
     /** 解析 slot 附属时需要曲谱树 */
     musicScore?: MusicScore;
     /** 本次渲染内懒建：音符 id → 所在单谱表 / 符干方向（连音线分段与朝向） */
@@ -69,6 +72,23 @@ export type NoteIndex = {
     /** 符干向上的音符 id；不在表里 = 向下或无符干（吉他谱符干固定向下，简谱无符干） */
     stemUp: Set<string>;
 };
+
+function applyAnchor(ctx: RenderAffiliatedContext, id: string | undefined): RenderAffiliatedContext {
+    if (!id || !ctx.staffAnchors) return ctx;
+    const anchor = ctx.staffAnchors.get(id);
+    if (!anchor) return ctx;
+    return {
+        ...ctx,
+        notationType: anchor.type,
+        skin: anchor.skin,
+        measureHeight: anchor.measureHeight,
+    };
+}
+
+function stampNotation(nodes: VDom[], from: number, notationType: MusicScoreTypeEnum | undefined): void {
+    if (!notationType) return;
+    for (let i = from; i < nodes.length; i++) nodes[i]!.notationType ??= notationType;
+}
 
 function slurSkinKey(notationType?: MusicScoreTypeEnum): SkinKey {
     if (notationType === MusicScoreTypeEnum.NumberNotation) {
@@ -1044,20 +1064,24 @@ export function renderMusicScoreAffiliatedSymbols(musicScore: MusicScore, ctx: R
 export function renderScoreLevelAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAffiliatedContext): void {
     const fullCtx = {...ctx, musicScore};
     for (const sym of musicScore.affiliatedSymbols ?? []) {
+        const startId = 'startId' in sym ? sym.startId : undefined;
+        const local = applyAnchor(fullCtx, startId);
+        const before = fullCtx.VDoms.length;
         const measureRule = DoubleMeasureAffiliatedSymbolRenderRule[sym.name as DoubleMeasureAffiliatedSymbolNameEnum];
-        if (measureRule && 'startId' in sym && ctx.idMap.get(sym.startId)?.measure) {
-            renderDoubleMeasureAffiliated(sym as DoubleMeasureAffiliatedSymbol, fullCtx);
-            continue;
+        if (measureRule && startId && ctx.idMap.get(startId)?.measure) {
+            renderDoubleMeasureAffiliated(sym as DoubleMeasureAffiliatedSymbol, local);
+        } else {
+            const noteRule = DoubleNoteAffiliatedSymbolRenderRule[sym.name as DoubleNoteAffiliatedSymbolNameEnum];
+            if (noteRule && startId && resolveNoteHeadByNotesInfoId(ctx.idMap, startId)) {
+                renderDoubleNoteAffiliated(sym as DoubleNoteAffiliatedSymbol, local);
+            } else {
+                const doubleSlotRule = DoubleSlotAffiliatedSymbolRenderRule[sym.name as DoubleSlotAffiliatedSymbolNameEnum];
+                if (doubleSlotRule && startId && locateSlot(fullCtx, musicScore, startId)) {
+                    renderDoubleSlotAffiliated(sym as DoubleSlotAffiliatedSymbol, local, musicScore);
+                }
+            }
         }
-        const noteRule = DoubleNoteAffiliatedSymbolRenderRule[sym.name as DoubleNoteAffiliatedSymbolNameEnum];
-        if (noteRule && 'startId' in sym && resolveNoteHeadByNotesInfoId(ctx.idMap, sym.startId)) {
-            renderDoubleNoteAffiliated(sym as DoubleNoteAffiliatedSymbol, fullCtx);
-            continue;
-        }
-        const doubleSlotRule = DoubleSlotAffiliatedSymbolRenderRule[sym.name as DoubleSlotAffiliatedSymbolNameEnum];
-        if (doubleSlotRule && 'startId' in sym && locateSlot(fullCtx, musicScore, sym.startId)) {
-            renderDoubleSlotAffiliated(sym as DoubleSlotAffiliatedSymbol, fullCtx, musicScore);
-        }
+        stampNotation(fullCtx.VDoms, before, local.notationType);
     }
 }
 
@@ -1066,10 +1090,13 @@ function renderSlotLevelAffiliatedSymbols(musicScore: MusicScore, ctx: RenderAff
     const fullCtx = {...ctx, musicScore};
     for (const gs of musicScore.grandStaffs) {
         for (const staff of gs.staves) {
+            const local = applyAnchor(fullCtx, staff.id);
             for (const measure of staff.measures) {
                 for (const slot of getMeasureSlots(measure)) {
                     for (const sym of slot.affiliatedSymbols ?? []) {
-                        renderSingleSlotAffiliated(sym, fullCtx, {measure, slot});
+                        const before = fullCtx.VDoms.length;
+                        renderSingleSlotAffiliated(sym, local, {measure, slot});
+                        stampNotation(fullCtx.VDoms, before, local.notationType);
                     }
                 }
             }

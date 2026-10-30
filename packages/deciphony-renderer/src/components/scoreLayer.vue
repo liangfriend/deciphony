@@ -12,7 +12,7 @@
           @pointermove="ctx.onMove($event, node)"
           @pointerup="ctx.onUp($event, node)"
       >
-        <Group :node="node" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"/>
+        <Group :node="node" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"/>
       </g>
       <g
           v-else
@@ -29,36 +29,36 @@
           @pointermove="ctx.onMove($event, node)"
           @pointerup="ctx.onUp($event, node)"
       >
-        <Slur v-if="node.special?.slur" :notation-type="ctx.notationType.value" :skin="ctx.skin.value" :v-dom="node"/>
-        <Volta v-else-if="node.special?.volta !== undefined" :notation-type="ctx.notationType.value"
+        <Slur v-if="node.special?.slur" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value" :v-dom="node"/>
+        <Volta v-else-if="node.special?.volta !== undefined" :notation-type="node.notationType ?? ctx.notationType.value"
                :skin="ctx.skin.value" :v-dom="node"/>
-        <Beam v-else-if="node.special?.beam" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <Beam v-else-if="node.special?.beam" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
               :v-dom="node"/>
-        <Arpeggio v-else-if="node.special?.arpeggio || node.tag === 'arpeggio'" :notation-type="ctx.notationType.value"
+        <Arpeggio v-else-if="node.special?.arpeggio || node.tag === 'arpeggio'" :notation-type="node.notationType ?? ctx.notationType.value"
                   :skin="ctx.skin.value" :v-dom="node"/>
         <Strumming v-else-if="node.special?.strumming || node.tag === 'strumming'"
-                   :notation-type="ctx.notationType.value" :skin="ctx.skin.value" :v-dom="node"/>
-        <Pedal v-else-if="node.special?.pedal" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+                   :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value" :v-dom="node"/>
+        <Pedal v-else-if="node.special?.pedal" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                :v-dom="node"/>
-        <Pitch v-else-if="node.special?.pitch" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <Pitch v-else-if="node.special?.pitch" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                :v-dom="node"/>
-        <Trill v-else-if="node.special?.trill" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <Trill v-else-if="node.special?.trill" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                :v-dom="node"/>
-        <Hairpin v-else-if="node.special?.hairpin" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <Hairpin v-else-if="node.special?.hairpin" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                  :v-dom="node"/>
-        <GuzhengLian v-else-if="node.special?.guzhengLian" :notation-type="ctx.notationType.value"
+        <GuzhengLian v-else-if="node.special?.guzhengLian" :notation-type="node.notationType ?? ctx.notationType.value"
                      :skin="ctx.skin.value" :v-dom="node"/>
-        <LongRestNumber v-else-if="node.special?.longRestNumber" :notation-type="ctx.notationType.value"
+        <LongRestNumber v-else-if="node.special?.longRestNumber" :notation-type="node.notationType ?? ctx.notationType.value"
                         :skin="ctx.skin.value" :v-dom="node"/>
         <MeasureNumber v-else-if="node.special?.measureNumber" :v-dom="node"/>
-        <TabChord v-else-if="node.tag === 'tabChord'" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <TabChord v-else-if="node.tag === 'tabChord'" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                   :v-dom="node"/>
-        <TabSlap v-else-if="node.tag === 'tabSlap'" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <TabSlap v-else-if="node.tag === 'tabSlap'" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
                  :v-dom="node"/>
-        <Bend v-else-if="node.tag === 'bend'" :notation-type="ctx.notationType.value" :skin="ctx.skin.value"
+        <Bend v-else-if="node.tag === 'bend'" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value"
               :v-dom="node"/>
         <SlotOutlet v-else-if="node.tag === 'slot'" :node="node"/>
-        <Group v-else :node="node" :notation-type="ctx.notationType.value" :skin="ctx.skin.value" local/>
+        <Group v-else :node="node" :notation-type="node.notationType ?? ctx.notationType.value" :skin="ctx.skin.value" local/>
       </g>
     </template>
   </g>

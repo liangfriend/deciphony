@@ -4,6 +4,7 @@ import {locateTabNoteInfoById} from '@deciphony/extensions/dr-edit/score-builder
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
+    primaryStaffType,
     vdomDomId,
     vdomSelectionKey,
 } from '@deciphony/renderer'
@@ -145,7 +146,7 @@ export function useTabRenderEdit(
     musicScore: MusicScore,
     options?: {musicScoreRef?: Ref<MusicScoreComponentExpose | null>},
 ) {
-    const stringCount = tabStringCount(musicScore.type)
+    const stringCount = tabStringCount(primaryStaffType(musicScore))
     const scoreRootRef = ref<HTMLElement | null>(null)
     const highlightedEl = ref<SVGElement | null>(null)
     const selectedEl = ref<SVGElement | null>(null)
@@ -519,7 +520,7 @@ export function useTabRenderEdit(
             vdom,
             x,
             y,
-            musicScore.type,
+            primaryStaffType(musicScore),
         )
         if (points) slurHandleOverride.value = points
     }

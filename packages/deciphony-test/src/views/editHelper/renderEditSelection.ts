@@ -17,7 +17,7 @@ import {
 } from '@deciphony/extensions/dr-edit/score-builder/locate'
 import {locateTabBendById, locateTabNoteInfoById} from '@deciphony/extensions/dr-edit/score-builder/tabNote'
 import {locateDrumNotesInfoById, locateDrumRestById} from '@deciphony/extensions/dr-edit/score-builder/drumNote'
-import {getMeasureSlots, MusicScoreTypeEnum} from '@deciphony/renderer'
+import {getMeasureSlots, MusicScoreTypeEnum, primaryStaffType} from '@deciphony/renderer'
 import {locateNoteAffiliatedById} from './renderEditNoteAffiliatedDrag'
 
 const MEASURE_SYMBOL_KEYS = [
@@ -209,7 +209,7 @@ export function slotDataFromVDom(musicScore: MusicScore, vdom: VDom): SlotData |
         }
     }
 
-    if (musicScore.type === MusicScoreTypeEnum.DrumNotation) {
+    if (primaryStaffType(musicScore) === MusicScoreTypeEnum.DrumNotation) {
         const drumSlot = drumSlotDataFromVDom(musicScore, vdom.tag, id)
         if (drumSlot) return drumSlot
     }

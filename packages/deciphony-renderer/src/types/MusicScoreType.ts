@@ -44,8 +44,6 @@ export type MusicScore = {
 
   id: string
 
-  type: MusicScoreTypeEnum,
-
   grandStaffs: GrandStaff[],
 
   affiliatedSymbols: (
@@ -161,7 +159,10 @@ export type GrandStaff = {
 
   dSpace: number,  // 复谱表下间距
 
-  /** 连谱模式：单谱表小节宽度一致，widthRatioForMeasure 按相同索引累加；小节数少的谱表与多者按列对齐 */
+  /**
+   * 连谱：同一列小节宽度一致，音符按 chronaxie onset 对齐。
+   * 各单谱表谱种可以不同；鼓谱的上下声部各算一条时间线（相当于两条单谱表参与对齐）。
+   */
 
   linkedStaff?: boolean
 
@@ -191,6 +192,13 @@ export type Bracket = {
 export type SingleStaff = {
 
   id: string
+
+  /**
+   * 谱种。曲谱本身没有类型，一份总谱里可以同时有五线、简谱、指板、鼓。
+   * 播放也按单谱表取谱种（不落到小节：反复、声部状态都跟着谱表走）。
+   * 鼓谱仍是一个单谱表，上下两个声部只在排版对齐时当成两条时间线。
+   */
+  type: MusicScoreTypeEnum
 
   measures: Measure[], // 小节
 

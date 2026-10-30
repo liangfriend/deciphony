@@ -5,7 +5,7 @@ import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {computed} from 'vue'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
 import type {UpdateVDomFn} from '../scoreWriteGate'
-import {isVoltaSelected} from '../renderEditVoltaDrag'
+import {selectionStaffType} from '../staffNotation'
 import NumberHeadPropertyPanel from '../numberNotation/components/NumberHeadPropertyPanel.vue'
 import NoteHeadPropertyPanel from '../standardStaff/components/NoteHeadPropertyPanel.vue'
 import BendPropertyPanel from '../tab/components/BendPropertyPanel.vue'
@@ -25,9 +25,9 @@ const props = defineProps<{
   getLiveVDom?: (targetId: string) => VDom | undefined
 }>()
 
-const stringCount = computed(() => tabStringCount(props.selected?.musicScore.type))
+const stringCount = computed(() => tabStringCount(selectionStaffType(props.selected)))
 const isTabSlur = computed(() =>
-    !!props.selected && isFretboardScoreType(props.selected.musicScore.type),
+    !!props.selected && isFretboardScoreType(selectionStaffType(props.selected)),
 )
 
 const panelTitle: Record<Exclude<PropertyPanelKind, null>, string> = {

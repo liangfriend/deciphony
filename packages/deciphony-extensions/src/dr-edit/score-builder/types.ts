@@ -13,6 +13,7 @@ import type {
   Measure,
   MeasureNoteSlot,
   MusicScore,
+  MusicScoreTypeEnum,
   NoteNumber,
   NoteRest,
   NotesInfo,
@@ -128,7 +129,6 @@ export type CreateMusicScoreOptions = Partial<
   Pick<
     MusicScore,
     | 'id'
-    | 'type'
     | 'title'
     | 'description'
     | 'bpm'
@@ -141,6 +141,10 @@ export type CreateMusicScoreOptions = Partial<
     | 'timeSignature'
   >
 > & {
+  /**
+   * 只影响新建曲谱时调号 / 拍号的缺省。谱种写在单谱表上，用 createGrandStaff / createSingleStaff 的 notationType。
+   */
+  type?: MusicScoreTypeEnum;
   /** 小节号，默认创建（不带括号、Frame 全 0）；传 false 不加 */
   measureNumber?: Partial<import('@deciphony/renderer').MeasureNumber> | false;
   /** 自定义符号，缺省都是空数组；规则字段可缺省，skinKey 校验见 extraSymbol.ts */

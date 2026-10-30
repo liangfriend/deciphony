@@ -84,7 +84,7 @@ const skinPack = computed<SkinPack>(() => {
 
 /** 与排版一致：皮肤包缺整套谱种符号时回落内置默认 */
 const notationPack = computed(() => (
-  resolveLayoutNotationPack(skinPack.value, props.notationType ?? MusicScoreTypeEnum.StandardStaff) as unknown as Record<string, SkinItem>
+  resolveLayoutNotationPack(skinPack.value, props.node.notationType ?? props.notationType ?? MusicScoreTypeEnum.StandardStaff) as unknown as Record<string, SkinItem>
 ))
 
 /** 有 skinKey 但皮肤包里没有：画内置 empty 占位 */

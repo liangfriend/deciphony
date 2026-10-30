@@ -364,6 +364,73 @@ export function buildLinkedMeasureColumnLayouts(
   });
 }
 
+/** 一条参与列合并的时间线。鼓谱一个小节拆成 up / down 两条；其它谱种一条 */
+export type ColumnLayoutSource = {
+  measure: Measure;
+  adapter: ColumnLayoutSlotAdapter;
+};
+
+function mergeHeterogeneousOnsetRatios(sources: ColumnLayoutSource[]): Map<number, number[]> {
+  const ratioByOnset = new Map<number, number[]>();
+  for (const source of sources) {
+    for (const ref of collectOnsetSlots(source.measure, source.adapter)) {
+      const ratio = DEFAULT_CELL_BASE_WIDTH_RATIO + source.adapter.getNoteWidthRatio(ref.note);
+      pushOnsetRatio(ratioByOnset, ref.onset, ratio);
+      if (source.adapter.getExtraOnsetRatios) {
+        for (const extra of source.adapter.getExtraOnsetRatios(ref.note, ref.onset)) {
+          pushOnsetRatio(ratioByOnset, extra.onset, DEFAULT_CELL_BASE_WIDTH_RATIO + extra.ratio);
+        }
+      }
+    }
+  }
+  return ratioByOnset;
+}
+
+/** 不同谱种（含鼓谱双声部）合并后的 onset 列数 */
+export function countHeterogeneousOnsetColumns(sources: ColumnLayoutSource[]): number {
+  const onsets = new Set<number>();
+  for (const source of sources) {
+    for (const ref of collectOnsetSlots(source.measure, source.adapter)) {
+      onsets.add(ref.onset);
+      for (const extra of source.adapter.getExtraOnsetRatios?.(ref.note, ref.onset) ?? []) {
+        onsets.add(extra.onset);
+      }
+    }
+  }
+  return onsets.size;
+}
+
+/**
+ * 连谱且谱种可以不同：每条时间线用自己的 adapter，onset 列几何共用。
+ * 鼓谱调用方把上下声部拆成两条 source。`measureHeight` 只用于左右内边距，同列各谱表必须传同一个值。
+ */
+export function buildHeterogeneousLinkedLayouts(
+  sources: (ColumnLayoutSource | null | undefined)[],
+  noteDomainW: number,
+  noteDomainStartOffset: number,
+  measureHeight: number,
+): (MeasureColumnLayout | null)[] {
+  const present = sources.filter((source): source is ColumnLayoutSource => !!source);
+  const padded = withNoteDomainInnerPadding(noteDomainW, noteDomainStartOffset, measureHeight);
+  const ratioByOnset = mergeHeterogeneousOnsetRatios(present);
+  const geometryByOnset = buildColumnGeometryFromRatios(ratioByOnset, padded.noteDomainW);
+  let totalChronaxie = 0;
+  for (const source of present) {
+    totalChronaxie = Math.max(totalChronaxie, measureTotalChronaxie(source.measure, source.adapter));
+  }
+  return sources.map((source) => {
+    if (!source) return null;
+    return {
+      noteDomainStartOffset: padded.noteDomainStartOffset,
+      noteDomainW: padded.noteDomainW,
+      totalChronaxie,
+      onsetStartInDomain: onsetStartsFromGeometry(geometryByOnset),
+      onsetColumnGeometry: geometryByOnset,
+      slotGeometries: assignSlotGeometries(source.measure, source.adapter, geometryByOnset),
+    };
+  });
+}
+
 /** 连谱下同列各谱表时值累加的最大值（规格 §3.1，布局侧可用于校验/扩展） */
 export function maxMeasureTotalChronaxie(
   measures: (Measure | null | undefined)[],

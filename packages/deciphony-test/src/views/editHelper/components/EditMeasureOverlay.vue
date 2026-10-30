@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
+import {isFretboardScoreType, MusicScoreTypeEnum, primaryStaffType} from '@deciphony/renderer'
 import type {MusicScore, VDom} from '@deciphony/renderer'
 import {computed, inject} from 'vue'
 import {DR_EDIT_INJECTION_KEY} from '../editInject'
@@ -21,12 +21,12 @@ const edit = inject(DR_EDIT_INJECTION_KEY)
 if (!edit) throw new Error('EditMeasureOverlay 需要 useDrEdit()')
 
 const isNumberNotation = computed(
-  () => props.musicScore.type === MusicScoreTypeEnum.NumberNotation,
+  () => primaryStaffType(props.musicScore) === MusicScoreTypeEnum.NumberNotation,
 )
 const isTab = computed(
-  () => isFretboardScoreType(props.musicScore.type),
+  () => isFretboardScoreType(primaryStaffType(props.musicScore)),
 )
-const isDrum = computed(() => props.musicScore.type === MusicScoreTypeEnum.DrumNotation)
+const isDrum = computed(() => primaryStaffType(props.musicScore) === MusicScoreTypeEnum.DrumNotation)
 const selectedMeasureId = computed(() => edit.selectedItem.value?.measure?.id)
 const staffPreview = computed(() =>
   isNumberNotation.value || isTab.value || isDrum.value

@@ -10,6 +10,7 @@ import {tabStringCount} from '@deciphony/extensions/dr-edit'
 import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import type {PropertyPanelKind} from '../renderEditPropertyPanel'
 import type {UpdateVDomFn} from '../scoreWriteGate'
+import {selectionStaffType} from '../staffNotation'
 import {isVoltaSelected} from '../renderEditVoltaDrag'
 import {
   CHRONAXIE_ICON_VIEWBOX,
@@ -112,9 +113,9 @@ const props = defineProps<{
 const openId = ref<string | null>(null)
 const barEl = ref<HTMLElement | null>(null)
 
-const stringCount = computed(() => tabStringCount(props.selected?.musicScore.type))
+const stringCount = computed(() => tabStringCount(selectionStaffType(props.selected)))
 const isTabSlur = computed(() =>
-  !!props.selected && isFretboardScoreType(props.selected.musicScore.type),
+  !!props.selected && isFretboardScoreType(selectionStaffType(props.selected)),
 )
 
 const chronaxieIcons = CHRONAXIE_OPTIONS.map((opt) => ({

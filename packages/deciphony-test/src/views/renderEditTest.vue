@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type {MusicScore, MusicScoreRenderOptions, VDom} from '@deciphony/renderer'
-import musicScoreVue, {isFretboardScoreType, MusicScoreTypeEnum} from '@deciphony/renderer'
+import musicScoreVue, {isFretboardScoreType, MusicScoreTypeEnum, primaryStaffType} from '@deciphony/renderer'
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import type {MusicScoreComponentExpose} from './editHelper/useRenderEdit'
 import initialData from './data/其多列简谱'
@@ -30,14 +30,14 @@ const useDrumSample = new URLSearchParams(window.location.search).get('score') =
 const musicScoreData = reactive(
     useDrumSample ? data : JSON.parse(JSON.stringify(initialData)) as MusicScore,
 )
-const isDrum = computed(() => musicScoreData.type === MusicScoreTypeEnum.DrumNotation)
+const isDrum = computed(() => primaryStaffType(musicScoreData) === MusicScoreTypeEnum.DrumNotation)
 const isNumberNotation = computed(
-    () => musicScoreData.type === MusicScoreTypeEnum.NumberNotation,
+    () => primaryStaffType(musicScoreData) === MusicScoreTypeEnum.NumberNotation,
 )
 const isTab = computed(
-    () => isFretboardScoreType(musicScoreData.type),
+    () => isFretboardScoreType(primaryStaffType(musicScoreData)),
 )
-const tabStrings = computed(() => tabStringCount(musicScoreData.type))
+const tabStrings = computed(() => tabStringCount(primaryStaffType(musicScoreData)))
 const musicScoreRef = ref<MusicScoreComponentExpose | null>(null)
 const renderOptions = reactive<MusicScoreRenderOptions>({onlyChordName: false})
 

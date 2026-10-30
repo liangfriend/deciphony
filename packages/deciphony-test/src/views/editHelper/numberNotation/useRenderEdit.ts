@@ -2,6 +2,7 @@ import type {MusicScore, RenderMusicScoreInfo, SlotData, VDom, VDomLookup} from 
 import {
     findElementByVdomDomId,
     findVDomBySelectionKey,
+    primaryStaffType,
     vdomDomId,
     vdomSelectionKey,
 } from '@deciphony/renderer'
@@ -188,7 +189,7 @@ export function useNumberNotationRenderEdit(
     const slurHandlePoints = computed(() => {
         if (slurHandleOverride.value) return slurHandleOverride.value
         const vdom = selectedSlurVdom.value
-        return vdom ? computeSlurHandlePoints(vdom, musicScore.type) : null
+        return vdom ? computeSlurHandlePoints(vdom, primaryStaffType(musicScore)) : null
     })
 
     const selectedArpeggioVdom = computed(() => {
@@ -530,7 +531,7 @@ export function useNumberNotationRenderEdit(
             vdom,
             x,
             y,
-            musicScore.type,
+            primaryStaffType(musicScore),
         )
         if (points) slurHandleOverride.value = points
     }

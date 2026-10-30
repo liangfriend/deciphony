@@ -357,7 +357,7 @@ export function applyRelativeFrameToVDom<T extends VDom>(
  * 连音线（special.slur）、符杠（tag noteBeam + special.beam）会同步平移 startPoint/endPoint 与 centerX。
  * applied：已处理过的节点引用，用于多阶段 apply 时避免对同一 vDom 重复叠加偏移。
  *
- * musicScoreToVDom 不在全曲渲染结束后只调用一次本函数，原因见 standardStaff/musicScoreToVDomImpl：
+ * musicScoreToVDom 不在全曲渲染结束后只调用一次本函数，原因见 render/layout/scoreToVDom：
  * processBeam/processGraceBeam 依赖已偏移的 noteStem 接点生成 noteBeam，且 noteBeam 通常无 targetId；
  * 连音线在符号偏移后才取 noteHead 锚点；连谱号等布局 vDom 晚于小节符号才创建。
  */

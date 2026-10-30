@@ -156,10 +156,27 @@ function withExtraItems(pack: SkinPack, type: MusicScoreTypeEnum, items: Record<
 export function withExtraSymbols(skin: Skin, musicScore: MusicScore | null | undefined): Skin {
     if (!musicScore || !hasExtraSymbols(musicScore)) return skin;
     const items = buildExtraSkinItems(musicScore);
-    const type = musicScore.type ?? MusicScoreTypeEnum.StandardStaff;
     const out: Skin = {};
-    for (const [name, pack] of Object.entries(skin)) out[name] = withExtraItems(pack, type, items);
-    if (!out.default) out.default = withExtraItems(defaultSkin, type, items);
+    for (const [name, pack] of Object.entries(skin)) out[name] = withExtraItemsAll(pack, items);
+    if (!out.default) out.default = withExtraItemsAll(defaultSkin, items);
+    return out;
+}
+
+const NOTATION_PACK_TYPES: MusicScoreTypeEnum[] = [
+    MusicScoreTypeEnum.StandardStaff,
+    MusicScoreTypeEnum.NumberNotation,
+    MusicScoreTypeEnum.Guitar,
+    MusicScoreTypeEnum.DrumNotation,
+    MusicScoreTypeEnum.Ukulele,
+    MusicScoreTypeEnum.Bass5,
+    MusicScoreTypeEnum.Bass4,
+    MusicScoreTypeEnum.Bass6,
+];
+
+/** 总谱里各单谱表谱种不同，自定义符号注入每一套谱种皮肤 */
+function withExtraItemsAll(pack: SkinPack, items: Record<string, ExtraSkinItem>): SkinPack {
+    let out = pack;
+    for (const type of NOTATION_PACK_TYPES) out = withExtraItems(out, type, items);
     return out;
 }
 

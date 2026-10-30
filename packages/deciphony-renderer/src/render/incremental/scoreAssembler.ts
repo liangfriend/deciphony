@@ -1,4 +1,4 @@
-import type {SlotData, VDom, VDomTagType} from '@/types/common'
+import type {SlotData, VDom, VDomTagType, SkinPack} from '@/types/common'
 import type {GrandStaff, MusicScore} from '@/types/MusicScoreType'
 import type {NodeIdMap} from '@/standardStaff/render/types'
 import {
@@ -9,6 +9,8 @@ import {
 } from '@/render/affiliated'
 import {applyRelativeFramesToVDomRange, collectScoreAffiliatedFrameMap} from '@/render/vdomFrame'
 import {buildMeasureNumberVDoms} from '@/render/measureNumber'
+import {buildStaffAnchors} from '@/render/notation/createNotationDriver'
+import {primaryStaffType} from '@/render/staffType'
 import {assignVDomPatch, isVDomRenderEqual, vdomNodeKey} from '@/render/update'
 import {VDomIndex, type VDomLookup} from '@/render/vdomIndex'
 import type {RowLayoutResult, ScoreFrameResult} from './rowLayout'
@@ -46,9 +48,8 @@ export type ScoreAssembleInput = {
   frame: ScoreFrameResult
   rows: { grandStaff: GrandStaff; result: RowLayoutResult }[]
   skinName: string
-  /** 当前谱种符号表（取附属 / 小节皮肤宽高） */
-  pack: Record<string, { w: number; h: number }>
-  measureHeight: number
+  /** 整份皮肤包。附属符号按锚点单谱表的谱种取其中一套 */
+  skinPack: SkinPack
 }
 
 export type ScoreAssembleOutput = {
@@ -387,13 +388,17 @@ export class ScoreAssembler {
 
   private renderGlobal(input: ScoreAssembleInput): VDom[] {
     const {musicScore} = input
+    const anchors = buildStaffAnchors(musicScore, input.skinPack)
+    const firstStaffId = musicScore.grandStaffs[0]?.staves[0]?.id
+    const fallback = firstStaffId ? anchors.get(firstStaffId) : undefined
     const ctx: RenderAffiliatedContext = {
       VDoms: [],
       idMap: new LookupIdMap(this.index) as unknown as NodeIdMap,
       skinName: input.skinName,
-      notationType: musicScore.type,
-      skin: input.pack,
-      measureHeight: input.measureHeight,
+      notationType: fallback?.type ?? primaryStaffType(musicScore),
+      skin: fallback?.skin,
+      measureHeight: fallback?.measureHeight,
+      staffAnchors: anchors,
       slotIndex: this.slotIndex,
       noteIndex: this.noteIndex,
     }
